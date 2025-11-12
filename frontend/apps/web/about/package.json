@@ -1,0 +1,43 @@
+{
+  "name": "about",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "PORT=3101 next dev",
+    "build": "next build",
+    "start": "PORT=3101 next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@mantine/core": "^8.3.7",
+    "@mantine/dates": "^8.3.7",
+    "@mantine/form": "^8.3.7",
+    "@mantine/hooks": "^8.3.7",
+    "@mantine/nprogress": "^8.3.7",
+    "autoprefixer": "^10.4.22",
+    "i18next": "^25.6.2",
+    "i18next-http-backend": "^3.0.2",
+    "next": "16.0.1",
+    "next-i18next": "^15.4.2",
+    "postcss": "^8.5.6",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-i18next": "^16.3.0",
+    "styled-components": "^6.1.19",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/styled-components": "^5.1.35",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.1",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5"
+  }
+}
