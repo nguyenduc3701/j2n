@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "dotenv -e .env -- turbo run dev",
+    "dev:about": "dotenv -e .env -- turbo run dev --filter about",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
@@ -18,7 +19,7 @@
   },
   "packageManager": "yarn@1.22.19",
   "workspaces": [
-    "apps/*",
+    "apps/web/*",
     "packages/*"
   ]
 }

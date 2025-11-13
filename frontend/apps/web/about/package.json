@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "PORT=3101 next dev",
+    "dev": "PORT=3100 next dev",
     "build": "next build",
-    "start": "PORT=3101 next start",
+    "start": "PORT=3100 next start",
     "lint": "eslint"
   },
   "dependencies": {
@@ -15,6 +15,7 @@
     "@mantine/hooks": "^8.3.7",
     "@mantine/nprogress": "^8.3.7",
     "autoprefixer": "^10.4.22",
+    "axios": "^1.13.2",
     "i18next": "^25.6.2",
     "i18next-http-backend": "^3.0.2",
     "next": "16.0.1",

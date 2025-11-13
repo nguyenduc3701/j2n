@@ -11,8 +11,8 @@
 	<groupId>com.example</groupId>
 	<artifactId>j2n</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>auth-srv</name>
-	<description>Authentication service of J2N project</description>
+	<name>bff-srv</name>
+	<description>Backend for Frontend service of J2N project</description>
 	<url/>
 	<licenses>
 		<license/>

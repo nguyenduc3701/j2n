@@ -1,13 +1,25 @@
 "use client";
 
+import {useEffect, useState} from 'react'
 import Image from "next/image";
 import { Button } from '@mantine/core';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useTranslation } from "@/lib/i18n/hooks";
+import {authApi} from '@/services/authServices'
 
 export default function Home() {
   const { theme, setTheme } = useAppStore();
   const { t, changeLanguage } = useTranslation("common");
+  const [text, setText] = useState<string>("");
+
+  useEffect(() => {
+    const fetch = async () => {
+      const res = await authApi.hello();
+      if (!res) return;
+      setText(String(res.data));
+    }
+    fetch()
+  },[]);
 
   const onHandleChangeLng = (lng: string) => {
     changeLanguage(lng);
@@ -91,7 +103,7 @@ export default function Home() {
         >
           Current: {theme}
         </button>
-        <h1 className="text-gray-300">{t("hello")}</h1>
+        <h1 className="text-gray-300">{t(text)}</h1>
       </main>
     </div>
   );
