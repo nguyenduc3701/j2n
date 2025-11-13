@@ -1,0 +1,48 @@
+# Java, Maven
+*.class
+*.jar
+*.war
+*.ear
+target/
+build/
+
+# IntelliJ IDEA
+*.iml
+*.iws
+.idea/
+backend/.idea/
+out/
+m1/
+
+# VS Code
+.vscode/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next/
+out/
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Mac system files
+.DS_Store
+
+# Optional: bỏ qua các lock file nếu muốn (nhưng nên giữ lại với dự án có dùng yarn/npm)
+# package-lock.json
+# yarn.lock
