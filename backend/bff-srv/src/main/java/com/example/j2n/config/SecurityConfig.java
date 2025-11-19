@@ -33,13 +33,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:3100",
-                "http://localhost:3101",
-                "http://localhost:3102",
-                "http://localhost:3103",
-                "http://localhost:3104"
-                ));
+//        configuration.setAllowedOrigins(List.of(
+//                "http://localhost:3100",
+//                "http://localhost:3101",
+//                "http://localhost:3102",
+//                "http://localhost:3103",
+//                "http://localhost:3104"
+//                ));
+        configuration.setAllowedOriginPatterns(List.of("*"));  // Spring Boot 3
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
