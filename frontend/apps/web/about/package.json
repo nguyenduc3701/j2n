@@ -6,6 +6,9 @@
     "dev": "PORT=3100 next dev",
     "build": "next build",
     "start": "next start -p $PORT",
+    "dev:local": "NEXT_PUBLIC_ENV=local next dev",
+    "dev:docker": "NEXT_PUBLIC_ENV=docker next dev",
+    "dev:prod": "NEXT_PUBLIC_ENV=production next start",
     "lint": "eslint"
   },
   "dependencies": {
