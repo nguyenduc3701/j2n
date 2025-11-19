@@ -3,8 +3,11 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "dotenv -e .env -- turbo run dev",
-    "dev:about": "dotenv -e .env -- turbo run dev --filter about",
+    "dev": "yarn dev:local",
+    "dev:local": "dotenv -e .env.local -- turbo run dev",
+    "dev:production": "dotenv -e .env.production -- turbo run dev",
+    "dev:local:about": "dotenv -e .env.local -- turbo run dev --filter=about",
+    "dev:production:about": "dotenv -e .env.production -- turbo run dev --filter=about",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"

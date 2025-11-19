@@ -1,0 +1,25 @@
+# Node modules, Turborepo cache, build output
+node_modules
+.turbo
+.dist
+.next
+build
+
+# Git
+.git
+.gitignore
+
+# Env files (tùy bạn muốn copy vào Docker image hay không)
+.env.local
+.env.development
+.env.test
+
+# IDE/Editor files
+.vscode
+.idea
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
