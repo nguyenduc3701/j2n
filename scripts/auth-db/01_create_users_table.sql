@@ -1,0 +1,21 @@
+CREATE TABLE users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_name VARCHAR(50) NOT NULL UNIQUE,
+    full_name VARCHAR(100),
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone_number VARCHAR(20),
+    birth DATE,
+    image_url VARCHAR(255),
+    room_id BIGINT,
+    address VARCHAR(255),
+    company VARCHAR(100),
+    role_id BIGINT NOT NULL,
+    status ENUM('ACTIVE','INACTIVE','SUSPENDED') DEFAULT 'INACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    INDEX idx_role_id (role_id),
+    INDEX idx_status (status),
+    INDEX idx_is_deleted (is_deleted)
+);
