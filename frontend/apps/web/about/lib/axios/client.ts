@@ -6,7 +6,6 @@ export async function request<T>(
   options?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> {
   try {
-    console.log(`process.env.NEXT_PUBLIC_BFF_BASE_URL`,process.env.NEXT_PUBLIC_BFF_BASE_URL)
     const response = await axiosInstance({
       url,
       ...options,

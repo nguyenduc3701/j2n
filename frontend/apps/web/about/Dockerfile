@@ -8,14 +8,14 @@ WORKDIR /app
 
 # Copy các file config root của Turbo
 COPY package.json yarn.lock turbo.json ./
-COPY .env.production ./
+COPY .env.docker ./.env
 
 # Copy toàn bộ packages và ứng dụng about
 COPY packages ./packages
 COPY apps/web/about ./apps/web/about
 
-# Copy .env.production vào thư mục app about trước build
-COPY .env.production ./apps/web/about/
+# Copy .env.docker vào thư mục app about trước build
+COPY .env.docker ./apps/web/about/.env
 
 # Cài đặt tất cả dependencies (bao gồm dev)
 RUN yarn install --frozen-lockfile
@@ -39,9 +39,6 @@ COPY --from=builder /app/apps/web/about/.next ./.next
 COPY --from=builder /app/apps/web/about/public ./public
 COPY --from=builder /app/apps/web/about/package.json ./
 COPY --from=builder /app/apps/web/about/yarn.lock ./
-
-# (Tùy chọn) copy .env.production nếu muốn
-# COPY --from=builder /app/.env.production ./
 
 # Cài đặt production dependencies
 RUN yarn install --production --frozen-lockfile
