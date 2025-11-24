@@ -1,4 +1,4 @@
-package com.example.j2n.config;
+package com.example.j2n.bff_srv.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

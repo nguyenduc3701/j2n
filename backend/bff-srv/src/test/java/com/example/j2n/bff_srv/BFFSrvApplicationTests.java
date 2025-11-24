@@ -1,10 +1,10 @@
-package com.example.j2n.api_gateway_srv;
+package com.example.j2n.bff_srv;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApiGatewaySrvApplicationTests {
+class BFFSrvApplicationTests {
 
 	@Test
 	void contextLoads() {

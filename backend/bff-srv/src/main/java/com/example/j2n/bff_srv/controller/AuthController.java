@@ -1,4 +1,4 @@
-package com.example.j2n.controller;
+package com.example.j2n.bff_srv.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

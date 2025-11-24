@@ -1,13 +1,13 @@
-package com.example.j2n.auth_srv;
+package com.example.j2n.bff_srv.api_gateway_srv;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AuthSrvApplication {
+public class ApiGatewaySrvApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AuthSrvApplication.class, args);
+		SpringApplication.run(ApiGatewaySrvApplication.class, args);
 	}
 
 }
