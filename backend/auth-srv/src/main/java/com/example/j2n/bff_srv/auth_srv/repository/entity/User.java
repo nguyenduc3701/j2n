@@ -9,16 +9,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Entity
-@Table(name = "users",
-        indexes = {
-                @Index(name = "idx_role_id", columnList = "role_id"),
-                @Index(name = "idx_status", columnList = "status"),
-                @Index(name = "idx_is_deleted", columnList = "is_deleted")
-        })
-@NoArgsConstructor
+@Table(name = "users", indexes = {
+        @Index(name = "idx_role_id", columnList = "role_id"),
+        @Index(name = "idx_status", columnList = "status"),
+        @Index(name = "idx_is_deleted", columnList = "is_deleted")
+})
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

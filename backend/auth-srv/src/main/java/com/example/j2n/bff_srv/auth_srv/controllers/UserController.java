@@ -15,27 +15,37 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getUser(){
+    public ResponseEntity<Object> getUser() {
         return ResponseEntity.ok(userService.getUser());
     }
+
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getUserById(@PathVariable String userId){
+    public ResponseEntity<Object> getUserById(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
+
     @GetMapping(value = "/{role_id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getUserByRoleId(@PathVariable String roleId){
-        return ResponseEntity.ok(userService.getUserByRoleId(roleId));
+    public ResponseEntity<Object> getUsersByRoleId(@PathVariable String roleId) {
+        return ResponseEntity.ok(userService.getUsersByRoleId(roleId));
     }
+
     @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createUser(@RequestBody CreateUserRequest request){
+    public ResponseEntity<Object> createUser(@RequestBody CreateUserRequest request) {
         return ResponseEntity.ok(userService.createUser(request));
     }
+
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createUser(@PathVariable String userId,@RequestBody UpdateUserRequest request){
-        return ResponseEntity.ok(userService.updateUser(userId,request));
+    public ResponseEntity<Object> updateUser(@PathVariable String userId, @RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(userId, request));
     }
+
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> deleteUser(@PathVariable String userId){
+    public ResponseEntity<Object> deleteUser(@PathVariable String userId) {
         return ResponseEntity.ok(userService.deleteUser(userId));
+    }
+
+    @PostMapping(value = "/{id}/roles", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> assignRoleToUser(@PathVariable String userId, @RequestBody String roleId) {
+        return ResponseEntity.ok(userService.assignRoleToUser(userId, roleId));
     }
 }

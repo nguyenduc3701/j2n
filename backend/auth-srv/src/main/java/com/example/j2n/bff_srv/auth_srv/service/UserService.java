@@ -6,24 +6,31 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-    public String getUser(){
+    public String getUser() {
         return "Register Success";
     }
 
-    public String getUserById(String userId){
+    public String getUserById(String userId) {
         return "Register Success" + userId;
     }
 
-    public String getUserByRoleId(String roleId){
+    public String getUsersByRoleId(String roleId) {
         return "Register Success" + roleId;
     }
-    public String createUser(CreateUserRequest request){
+
+    public String createUser(CreateUserRequest request) {
         return "Register Success";
     }
-    public String updateUser(String userId,UpdateUserRequest request){
+
+    public String updateUser(String userId, UpdateUserRequest request) {
         return "Register Success";
     }
-    public String deleteUser(String userId){
+
+    public String deleteUser(String userId) {
+        return "Register Success";
+    }
+
+    public String assignRoleToUser(String userId, String roleId) {
         return "Register Success";
     }
 }
