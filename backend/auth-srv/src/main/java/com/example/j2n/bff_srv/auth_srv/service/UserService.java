@@ -1,5 +1,6 @@
 package com.example.j2n.bff_srv.auth_srv.service;
 
+import com.example.j2n.bff_srv.auth_srv.controllers.requests.AssignRoleRequest;
 import com.example.j2n.bff_srv.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.bff_srv.auth_srv.controllers.requests.UpdateUserRequest;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class UserService {
         return "Register Success";
     }
 
-    public String assignRoleToUser(String userId, String roleId) {
+    public String assignRoleToUser(String userId, AssignRoleRequest request) {
         return "Register Success";
     }
 }

@@ -1,5 +1,6 @@
 package com.example.j2n.bff_srv.auth_srv.controllers;
 
+import com.example.j2n.bff_srv.auth_srv.controllers.requests.AssignRoleRequest;
 import com.example.j2n.bff_srv.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.bff_srv.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.bff_srv.auth_srv.service.UserService;
@@ -45,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/{id}/roles", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> assignRoleToUser(@PathVariable String userId, @RequestBody String roleId) {
-        return ResponseEntity.ok(userService.assignRoleToUser(userId, roleId));
+    public ResponseEntity<Object> assignRoleToUser(@PathVariable String userId, @RequestBody AssignRoleRequest request) {
+        return ResponseEntity.ok(userService.assignRoleToUser(userId, request));
     }
 }
