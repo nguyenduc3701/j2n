@@ -29,9 +29,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordUtil passwordUtil;
     private final UserRepository userRepository;
-    
+
     public BaseResponse<LoginResponse> login(LoginRequest request) {
-        log.info("Login request: {}", request);
+        log.info("[AUTH-SRV] Login request: {}", request);
         validateLoginRequest(request);
         Optional<User> user = getUserByUsername(request.getUserName());
         if (!passwordUtil.matches(request.getPassword(), user.get().getPassword())) {
@@ -41,12 +41,12 @@ public class AuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("login_time", System.currentTimeMillis());
         String token = jwtUtil.generateToken(claims, user.get().getUsername());
-        log.info("Login Success");
-        return BaseResponse.success(new LoginResponse(token));      
+        log.info("[AUTH-SRV] Login Success");
+        return BaseResponse.success(new LoginResponse(token));
     }
 
     public BaseResponse<RegisterResponse> register(RegisterRequest request) {
-        log.info("Register request: {}", request);
+        log.info("[AUTH-SRV] Register request: {}", request);
         validateUsernameDoesNotExist(request.getUserName());
         User user = new User();
         user.setUsername(request.getUserName());
@@ -59,26 +59,26 @@ public class AuthService {
         user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
         user.setStatus(User.Status.ACTIVE);
         userRepository.save(user);
-        log.info("Register Success");
+        log.info("[AUTH-SRV] Register Success");
         return BaseResponse.success(buildRegisterResponse(user));
     }
 
     public BaseResponse<String> forgotPassword(ForgotPasswordRequest request) {
-        log.info("Forgot password request: {}", request);
+        log.info("[AUTH-SRV] Forgot password request: {}", request);
         return BaseResponse.success("Forgot Password Success");
     }
 
     private void validateUsernameDoesNotExist(String username) {
         if (userRepository.existsByUsername(username)) {
-            log.error("Username already exists: {}", username);
+            log.error("[AUTH-SRV] Username already exists: {}", username);
             throw new IllegalArgumentException(MessageEnum.USERNAME_ALREADY_EXISTS.getMessage());
         }
     }
 
-    private Optional<User> getUserByUsername(String userName) { 
+    private Optional<User> getUserByUsername(String userName) {
         Optional<User> user = userRepository.findByUsername(userName);
         if (user.isEmpty()) {
-            log.error("User not found: {}", userName);
+            log.error("[AUTH-SRV] User not found: {}", userName);
             throw new IllegalArgumentException(MessageEnum.USER_NOT_FOUND.getMessage());
         }
         return user;
@@ -86,11 +86,11 @@ public class AuthService {
 
     private void validateLoginRequest(LoginRequest request) {
         if (request.getUserName() == null || request.getUserName().trim().isEmpty()) {
-            log.error("Username is invalid");
+            log.error("[AUTH-SRV] Username is invalid");
             throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Username"));
         }
         if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            log.error("Password is invalid");
+            log.error("[AUTH-SRV] Password is invalid");
             throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Password"));
         }
     }
