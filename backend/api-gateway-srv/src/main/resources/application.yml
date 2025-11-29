@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: api-gateway-srv
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: auth-srv
+          uri: http://localhost:8182
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+
+server:
+  port: 8181
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -10,14 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth/users")
+@RequestMapping("/auth/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getUser() {
-        return ResponseEntity.ok(userService.getUser());
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,7 +46,8 @@ public class UserController {
     }
 
     @PostMapping(value = "/{id}/roles", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> assignRoleToUser(@PathVariable String userId, @RequestBody AssignRoleRequest request) {
+    public ResponseEntity<Object> assignRoleToUser(@PathVariable String userId,
+            @RequestBody AssignRoleRequest request) {
         return ResponseEntity.ok(userService.assignRoleToUser(userId, request));
     }
 }

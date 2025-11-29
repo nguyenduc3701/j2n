@@ -34,7 +34,7 @@ public class AuthService {
         log.info("Login request: {}", request);
         validateLoginRequest(request);
         Optional<User> user = getUserByUsername(request.getUserName());
-        if (!passwordUtil.matches(passwordUtil.encode(request.getPassword()), user.get().getPassword())) {
+        if (!passwordUtil.matches(request.getPassword(), user.get().getPassword())) {
             log.error("Invalid password");
             throw new IllegalArgumentException(MessageEnum.INVALID_CREDENTIALS.getMessage());
         }
@@ -56,7 +56,7 @@ public class AuthService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setAddress(request.getAddress());
         user.setCompany(request.getCompany());
-        user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));       
+        user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
         user.setStatus(User.Status.ACTIVE);
         userRepository.save(user);
         log.info("Register Success");

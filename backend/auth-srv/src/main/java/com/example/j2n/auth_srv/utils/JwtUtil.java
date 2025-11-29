@@ -1,6 +1,8 @@
 package com.example.j2n.auth_srv.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
@@ -22,7 +24,7 @@ public class JwtUtil {
     private long jwtExpirationMs;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(jwtSecret));
     }
 
     // Tạo token

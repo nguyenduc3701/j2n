@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class GatewayPath {
-    public static final String AUTH_LOGIN = "/auth/login";
-    public static final String AUTH_REGISTER = "/auth/register";
+    public static final String AUTH_LOGIN = "/api/auth/login";
+    public static final String AUTH_REGISTER = "/api/auth/register";
+    public static final String AUTH_USERS = "/api/auth/users";
 }

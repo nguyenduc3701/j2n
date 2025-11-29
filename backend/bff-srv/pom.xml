@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>j2n</artifactId>
+	<artifactId>bff-srv</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>bff-srv</name>
 	<description>Backend for Frontend service of J2N project</description>
@@ -88,6 +88,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
