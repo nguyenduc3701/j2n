@@ -13,6 +13,7 @@ public enum MessageEnum {
     TOKEN_EXPIRED("401", "Token expired"),
     ACCESS_DENIED("403", "Access denied"),
     FIELD_REQUIRED("400", "Field [%s] is required"),
+    ROLE_NOT_FOUND("404", "Role not found"),
     INTERNAL_ERROR("500", "Internal server error");
 
     private final String code;

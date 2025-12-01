@@ -1,6 +1,6 @@
 package com.example.j2n.auth_srv.controllers.requests;
 
-import com.example.j2n.auth_srv.repository.entity.User;
+import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -28,5 +28,5 @@ public class CreateUserRequest {
     private String company;
     @NotBlank(message = "Role is required")
     private Long roleId;
-    private User.Status status = User.Status.INACTIVE;
+    private UserEntity.Status status = UserEntity.Status.INACTIVE;
 }

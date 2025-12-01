@@ -5,7 +5,7 @@ import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
-import com.example.j2n.auth_srv.repository.entity.User;
+import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.RegisterResponse;
@@ -33,7 +33,7 @@ public class AuthService {
     public BaseResponse<LoginResponse> login(LoginRequest request) {
         log.info("[AUTH-SRV] Login request: {}", request);
         validateLoginRequest(request);
-        Optional<User> user = getUserByUsername(request.getUserName());
+        Optional<UserEntity> user = getUserByUsername(request.getUserName());
         if (!passwordUtil.matches(request.getPassword(), user.get().getPassword())) {
             log.error("Invalid password");
             throw new IllegalArgumentException(MessageEnum.INVALID_CREDENTIALS.getMessage());
@@ -41,7 +41,8 @@ public class AuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("login_time", System.currentTimeMillis());
         claims.put("user_name", user.get().getUsername());
-        claims.put("user_id", user.get().getId());
+        claims.put("user_id", user.get().getId().toString());
+        claims.put("role_id", user.get().getRoleId().toString());
         String token = jwtUtil.generateToken(claims, user.get().getUsername());
         log.info("[AUTH-SRV] Login Success");
         return BaseResponse.success(new LoginResponse(token));
@@ -50,7 +51,7 @@ public class AuthService {
     public BaseResponse<RegisterResponse> register(RegisterRequest request) {
         log.info("[AUTH-SRV] Register request: {}", request);
         validateUsernameDoesNotExist(request.getUserName());
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setUsername(request.getUserName());
         user.setPassword(passwordUtil.encode(request.getPassword()));
         user.setEmail(request.getEmail());
@@ -59,7 +60,7 @@ public class AuthService {
         user.setAddress(request.getAddress());
         user.setCompany(request.getCompany());
         user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
-        user.setStatus(User.Status.ACTIVE);
+        user.setStatus(UserEntity.Status.ACTIVE);
         userRepository.save(user);
         log.info("[AUTH-SRV] Register Success");
         return BaseResponse.success(buildRegisterResponse(user));
@@ -77,8 +78,8 @@ public class AuthService {
         }
     }
 
-    private Optional<User> getUserByUsername(String userName) {
-        Optional<User> user = userRepository.findByUsername(userName);
+    private Optional<UserEntity> getUserByUsername(String userName) {
+        Optional<UserEntity> user = userRepository.findByUsername(userName);
         if (user.isEmpty()) {
             log.error("[AUTH-SRV] User not found: {}", userName);
             throw new IllegalArgumentException(MessageEnum.USER_NOT_FOUND.getMessage());
@@ -97,7 +98,7 @@ public class AuthService {
         }
     }
 
-    private RegisterResponse buildRegisterResponse(User user) {
+    private RegisterResponse buildRegisterResponse(UserEntity user) {
         RegisterResponse response = new RegisterResponse();
         response.setId(user.getId().toString());
         response.setUserName(user.getUsername());

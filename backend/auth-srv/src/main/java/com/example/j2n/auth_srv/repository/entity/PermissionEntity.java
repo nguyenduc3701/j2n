@@ -1,9 +1,10 @@
 package com.example.j2n.auth_srv.repository.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "permissions")
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class PermissionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +23,10 @@ public class PermissionEntity {
 
     @Column(length = 255)
     private String description;
+
+    // -- Thêm quan hệ ngược (Optional nhưng hữu ích) --
+    // MappedBy trỏ đến tên field trong RoleEntity
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<RoleEntity> roles = new HashSet<>();
 }

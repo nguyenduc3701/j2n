@@ -25,22 +25,16 @@ public class RoleEntity {
     @Column(length = 255)
     private String description;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
-
-    @ManyToMany(fetch = FetchType.LAZY)
+    // SỬA: Thêm CascadeType.ALL để khi lưu Role, Permissions mới cũng được lưu (nếu
+    // cần)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "role_permissions", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
     @ToString.Exclude
     private Set<PermissionEntity> permissions = new HashSet<>();
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    // Helper method để quản lý quan hệ hai chiều
+    public void addPermission(PermissionEntity permission) {
+        this.permissions.add(permission);
+        permission.getRoles().add(this);
     }
 }

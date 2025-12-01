@@ -34,5 +34,6 @@ public class UserResponse {
         private String status;
         private String createdAt;
         private String updatedAt;
+        private List<String> permissions;
     }
 }

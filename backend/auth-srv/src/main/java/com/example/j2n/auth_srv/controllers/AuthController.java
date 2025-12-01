@@ -4,6 +4,7 @@ import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.service.AuthService;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
+import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.RegisterResponse;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 
@@ -23,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<BaseResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
@@ -33,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+    public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
         return ResponseEntity.ok(authService.forgotPassword(request));
     }
 }

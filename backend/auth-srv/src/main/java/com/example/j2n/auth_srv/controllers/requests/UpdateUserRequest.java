@@ -1,6 +1,6 @@
 package com.example.j2n.auth_srv.controllers.requests;
 
-import com.example.j2n.auth_srv.repository.entity.User;
+import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)   
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UpdateUserRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
@@ -20,5 +20,5 @@ public class UpdateUserRequest {
     private String phoneNumber;
     private String address;
     private String company;
-    private User.Status status = User.Status.INACTIVE;
+    private UserEntity.Status status = UserEntity.Status.INACTIVE;
 }
