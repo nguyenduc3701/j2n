@@ -15,6 +15,10 @@ spring:
           filters:
             - StripPrefix=1
 
+jwt:
+  secret: ${JWT_SECRET:TEST-SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:172800000}
+
 server:
   port: 8181
 

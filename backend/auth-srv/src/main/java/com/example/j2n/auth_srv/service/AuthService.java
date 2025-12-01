@@ -40,6 +40,8 @@ public class AuthService {
         }
         Map<String, Object> claims = new HashMap<>();
         claims.put("login_time", System.currentTimeMillis());
+        claims.put("user_name", user.get().getUsername());
+        claims.put("user_id", user.get().getId());
         String token = jwtUtil.generateToken(claims, user.get().getUsername());
         log.info("[AUTH-SRV] Login Success");
         return BaseResponse.success(new LoginResponse(token));
