@@ -1,5 +1,7 @@
 package com.example.j2n.auth_srv.controllers.requests;
 
+import java.time.LocalDate;
+
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -28,5 +30,7 @@ public class CreateUserRequest {
     private String company;
     @NotBlank(message = "Role is required")
     private Long roleId;
+    private Long roomId;
+    private LocalDate birth;
     private UserEntity.Status status = UserEntity.Status.INACTIVE;
 }

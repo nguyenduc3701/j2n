@@ -14,6 +14,7 @@ public enum MessageEnum {
     ACCESS_DENIED("403", "Access denied"),
     FIELD_REQUIRED("400", "Field [%s] is required"),
     ROLE_NOT_FOUND("404", "Role not found"),
+    ROLE_NOT_ALLOW("400", "Role not allow"),
     INTERNAL_ERROR("500", "Internal server error");
 
     private final String code;

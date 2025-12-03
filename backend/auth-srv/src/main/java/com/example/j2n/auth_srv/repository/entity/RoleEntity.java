@@ -3,7 +3,6 @@ package com.example.j2n.auth_srv.repository.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 

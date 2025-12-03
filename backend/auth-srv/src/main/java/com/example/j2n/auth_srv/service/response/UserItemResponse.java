@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class RegisterResponse {
+public class UserItemResponse {
     private String id;
     private String userName;
     private String email;

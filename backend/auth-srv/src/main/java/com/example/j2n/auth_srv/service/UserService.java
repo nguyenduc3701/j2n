@@ -1,5 +1,6 @@
 package com.example.j2n.auth_srv.service;
 
+import com.example.j2n.auth_srv.constant.CommonConst;
 import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.controllers.requests.AssignRoleRequest;
 import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
@@ -7,8 +8,10 @@ import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
+import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.example.j2n.auth_srv.utils.PageUtil;
+import com.example.j2n.auth_srv.utils.PasswordUtil;
 import com.example.j2n.auth_srv.utils.common.CurrentUser;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final CurrentUser currentUser;
     private final PermissionService permissionService;
+    private final AuthService authService;
+    private final PasswordUtil passwordUtil;
 
     public BaseResponse<UserResponse> getUsers() {
         log.info("[AUTH-SRV] Get users");
@@ -46,7 +52,8 @@ public class UserService {
     public BaseResponse<UserResponse.UserItem> getMe() {
         log.info("[AUTH-SRV] Get current user details");
         UserResponse.UserItem userItem = getUserItemById(currentUser.getCurrentUserId());
-        BaseResponse<List<String>> permissions = permissionService.getPermissionsByRoleId(currentUser.getCurrentRoleId());
+        BaseResponse<List<String>> permissions = permissionService
+                .getPermissionsByRoleId(currentUser.getCurrentRoleId());
         userItem.setPermissions(permissions.getData());
         log.info("[AUTH-SRV] Get current user details success for user");
         return BaseResponse.success(userItem);
@@ -57,24 +64,45 @@ public class UserService {
         return BaseResponse.success(user);
     }
 
-    public String getUsersByRoleId(String roleId) {
-        return "Register Success" + roleId;
+    public BaseResponse<UserItemResponse> createUser(CreateUserRequest request) {
+        log.info("[AUTH-SRV] Create user");
+        authService.validateUsernameDoesNotExist(request.getUserName());
+        validateAllowRole(request.getRoleId());
+        UserEntity user = new UserEntity();
+        user.setUsername(request.getUserName().trim());
+        user.setPassword(passwordUtil.encode(request.getPassword().trim()));
+        user.setEmail(request.getEmail().trim());
+        user.setFullName(request.getFullName().trim());
+        user.setPhoneNumber(request.getPhoneNumber().trim());
+        user.setAddress(request.getAddress().trim());
+        user.setCompany(request.getCompany().trim());
+        user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
+        user.setStatus(UserEntity.Status.INACTIVE);
+        user.setRoomId(request.getRoomId());
+        user.setBirth(request.getBirth());
+        userRepository.save(user);
+        log.info("[AUTH-SRV] Create user success");
+        return BaseResponse.success(authService.buildUserItemResponse(user));
     }
 
-    public String createUser(CreateUserRequest request) {
-        return "Register Success";
+    public BaseResponse<UserItemResponse> updateUser(String userId, UpdateUserRequest request) {
+        UserEntity user = validateUserById(userId);
+        validateAllowRole(request.getRoleId());
+        applyUpdateFields(user, request);
+        userRepository.save(user);
+        return BaseResponse.success(authService.buildUserItemResponse(user));
     }
 
-    public String updateUser(String userId, UpdateUserRequest request) {
-        return "Register Success";
+    public BaseResponse<Object> deleteUser(String userId) {
+        validateUserById(userId);
+        userRepository.deleteById(Long.parseLong(userId));
+        return BaseResponse.success(Map.of("id", userId));
     }
 
-    public String deleteUser(String userId) {
-        return "Register Success";
-    }
-
-    public String assignRoleToUser(String userId, AssignRoleRequest request) {
-        return "Register Success";
+    private void validateAllowRole(Long roleId) {
+        if (roleId == CommonConst.ROLE_ADMIN_ID) {
+            throw new IllegalArgumentException(MessageEnum.ROLE_NOT_ALLOW.getMessage());
+        }
     }
 
     private UserResponse.UserItem getUserItemById(String userId) {
@@ -84,6 +112,15 @@ public class UserService {
             throw new IllegalArgumentException(MessageEnum.USER_NOT_FOUND.getMessage());
         }
         return buildUserToUserResponse(user.get());
+    }
+
+    private UserEntity validateUserById(String userId) {
+        Optional<UserEntity> user = userRepository.findById(Long.parseLong(userId));
+        if (user.isEmpty()) {
+            log.error("[AUTH-SRV] User not found: {}", userId);
+            throw new IllegalArgumentException(MessageEnum.USER_NOT_FOUND.getMessage());
+        }
+        return user.get();
     }
 
     private List<UserResponse.UserItem> mapUserToUserResponse(List<UserEntity> users) {
@@ -127,6 +164,34 @@ public class UserService {
             default:
                 return "VISITOR";
         }
+    }
+
+    private void applyUpdateFields(UserEntity user, UpdateUserRequest request) {
+        if (request.getFullName() != null) {
+            user.setFullName(request.getFullName());
+        }
+        if (request.getPhoneNumber() != null) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+        if (request.getCompany() != null) {
+            user.setCompany(request.getCompany());
+        }
+        if (request.getBirth() != null) {
+            user.setBirth(request.getBirth());
+        }
+        if (request.getStatus() != null) {
+            user.setStatus(request.getStatus());
+        }
+
+        // if (request.getRoleId() != null) {
+        // var role = roleRepository.findById(request.getRoleId())
+        // .orElseThrow(() -> new RuntimeException("Role not found"));
+        // user.setRole(role);
+        // }
+
     }
 
 }

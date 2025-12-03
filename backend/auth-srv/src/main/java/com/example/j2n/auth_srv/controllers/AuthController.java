@@ -5,7 +5,7 @@ import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.service.AuthService;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
-import com.example.j2n.auth_srv.service.response.RegisterResponse;
+import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<RegisterResponse>> register(@RequestBody @Valid RegisterRequest request) {
+    public ResponseEntity<BaseResponse<UserItemResponse>> register(@RequestBody @Valid RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
 

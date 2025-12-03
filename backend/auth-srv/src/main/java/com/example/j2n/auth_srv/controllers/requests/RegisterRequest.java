@@ -1,5 +1,7 @@
 package com.example.j2n.auth_srv.controllers.requests;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.Email;
@@ -27,4 +29,5 @@ public class RegisterRequest {
     private String address;
     private String company;
     private Long roleId;
+    private LocalDate birth;
 }

@@ -8,7 +8,7 @@ import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
-import com.example.j2n.auth_srv.service.response.RegisterResponse;
+import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.utils.JwtUtil;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
@@ -48,34 +48,27 @@ public class AuthService {
         return BaseResponse.success(new LoginResponse(token));
     }
 
-    public BaseResponse<RegisterResponse> register(RegisterRequest request) {
+    public BaseResponse<UserItemResponse> register(RegisterRequest request) {
         log.info("[AUTH-SRV] Register request: {}", request);
         validateUsernameDoesNotExist(request.getUserName());
         UserEntity user = new UserEntity();
-        user.setUsername(request.getUserName());
-        user.setPassword(passwordUtil.encode(request.getPassword()));
-        user.setEmail(request.getEmail());
-        user.setFullName(request.getFullName());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setAddress(request.getAddress());
-        user.setCompany(request.getCompany());
+        user.setUsername(request.getUserName().trim());
+        user.setPassword(passwordUtil.encode(request.getPassword().trim()));
+        user.setEmail(request.getEmail().trim());
+        user.setFullName(request.getFullName().trim());
+        user.setPhoneNumber(request.getPhoneNumber().trim());
+        user.setAddress(request.getAddress().trim());
+        user.setCompany(request.getCompany().trim());
         user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
         user.setStatus(UserEntity.Status.ACTIVE);
         userRepository.save(user);
         log.info("[AUTH-SRV] Register Success");
-        return BaseResponse.success(buildRegisterResponse(user));
+        return BaseResponse.success(buildUserItemResponse(user));
     }
 
     public BaseResponse<String> forgotPassword(ForgotPasswordRequest request) {
         log.info("[AUTH-SRV] Forgot password request: {}", request);
         return BaseResponse.success("Forgot Password Success");
-    }
-
-    private void validateUsernameDoesNotExist(String username) {
-        if (userRepository.existsByUsername(username)) {
-            log.error("[AUTH-SRV] Username already exists: {}", username);
-            throw new IllegalArgumentException(MessageEnum.USERNAME_ALREADY_EXISTS.getMessage());
-        }
     }
 
     private Optional<UserEntity> getUserByUsername(String userName) {
@@ -98,8 +91,15 @@ public class AuthService {
         }
     }
 
-    private RegisterResponse buildRegisterResponse(UserEntity user) {
-        RegisterResponse response = new RegisterResponse();
+    public void validateUsernameDoesNotExist(String username) {
+        if (userRepository.existsByUsername(username)) {
+            log.error("[AUTH-SRV] Username already exists: {}", username);
+            throw new IllegalArgumentException(MessageEnum.USERNAME_ALREADY_EXISTS.getMessage());
+        }
+    }
+
+    public UserItemResponse buildUserItemResponse(UserEntity user) {
+        UserItemResponse response = new UserItemResponse();
         response.setId(user.getId().toString());
         response.setUserName(user.getUsername());
         response.setEmail(user.getEmail());

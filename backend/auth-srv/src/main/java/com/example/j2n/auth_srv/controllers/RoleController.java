@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.j2n.auth_srv.service.response.BaseResponse;
+import com.example.j2n.auth_srv.service.response.RoleResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth/roles")
@@ -12,13 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class RoleController {
     private final RoleService roleService;
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getRoles() {
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponse<List<RoleResponse>>> getRoles() {
         return ResponseEntity.ok(roleService.getRoles());
     }
 
-    @GetMapping(value = "/{id}/permissions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getPermissionsByRoleId(@PathVariable String roleId) {
-        return ResponseEntity.ok(roleService.getPermissionsByRoleId(roleId));
-    }
 }
