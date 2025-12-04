@@ -31,7 +31,7 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public BaseResponse<LoginResponse> login(LoginRequest request) {
-        log.info("[AUTH-SRV] Login request: {}", request);
+        log.info("[AUTH-SRV] Start login request: {}", request);
         validateLoginRequest(request);
         Optional<UserEntity> user = getUserByUsername(request.getUserName());
         if (!passwordUtil.matches(request.getPassword(), user.get().getPassword())) {
@@ -44,12 +44,12 @@ public class AuthService {
         claims.put("user_id", user.get().getId().toString());
         claims.put("role_id", user.get().getRoleId().toString());
         String token = jwtUtil.generateToken(claims, user.get().getUsername());
-        log.info("[AUTH-SRV] Login Success");
+        log.info("[AUTH-SRV] End login request");
         return BaseResponse.success(new LoginResponse(token));
     }
 
     public BaseResponse<UserItemResponse> register(RegisterRequest request) {
-        log.info("[AUTH-SRV] Register request: {}", request);
+        log.info("[AUTH-SRV] Start register request: {}", request);
         validateUsernameDoesNotExist(request.getUserName());
         UserEntity user = new UserEntity();
         user.setUsername(request.getUserName().trim());
@@ -62,12 +62,12 @@ public class AuthService {
         user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
         user.setStatus(UserEntity.Status.ACTIVE);
         userRepository.save(user);
-        log.info("[AUTH-SRV] Register Success");
+        log.info("[AUTH-SRV] End register request");
         return BaseResponse.success(buildUserItemResponse(user));
     }
 
     public BaseResponse<String> forgotPassword(ForgotPasswordRequest request) {
-        log.info("[AUTH-SRV] Forgot password request: {}", request);
+        log.info("[AUTH-SRV] Start forgot password request: {}", request);
         return BaseResponse.success("Forgot Password Success");
     }
 

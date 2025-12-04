@@ -39,33 +39,35 @@ public class UserService {
     private final PasswordUtil passwordUtil;
 
     public BaseResponse<UserResponse> getUsers() {
-        log.info("[AUTH-SRV] Get users");
+        log.info("[AUTH-SRV] Start get users");
         PageRequest pageRequest = PageUtil.buildPageRequest(0, 50);
         Page<UserEntity> pageData = userRepository.findAllByIsDeletedFalse(pageRequest);
         UserResponse response = new UserResponse();
         response.setUsers(mapUserToUserResponse(pageData.getContent()));
         response.setPage(PageUtil.buildPagingMeta(pageData));
-        log.info("[AUTH-SRV] Get users success");
+        log.info("[AUTH-SRV] End get users");
         return BaseResponse.success(response);
     }
 
     public BaseResponse<UserResponse.UserItem> getMe() {
-        log.info("[AUTH-SRV] Get current user details");
+        log.info("[AUTH-SRV] Start get current user details");
         UserResponse.UserItem userItem = getUserItemById(currentUser.getCurrentUserId());
         BaseResponse<List<String>> permissions = permissionService
                 .getPermissionsByRoleId(currentUser.getCurrentRoleId());
         userItem.setPermissions(permissions.getData());
-        log.info("[AUTH-SRV] Get current user details success for user");
+        log.info("[AUTH-SRV] End get current user details");
         return BaseResponse.success(userItem);
     }
 
     public BaseResponse<UserResponse.UserItem> getUserById(String userId) {
+        log.info("[AUTH-SRV] Start get user by id");
         UserResponse.UserItem user = getUserItemById(userId);
+        log.info("[AUTH-SRV] End get user by id");
         return BaseResponse.success(user);
     }
 
     public BaseResponse<UserItemResponse> createUser(CreateUserRequest request) {
-        log.info("[AUTH-SRV] Create user");
+        log.info("[AUTH-SRV] Start create user");
         authService.validateUsernameDoesNotExist(request.getUserName());
         validateAllowRole(request.getRoleId());
         UserEntity user = new UserEntity();
@@ -81,26 +83,31 @@ public class UserService {
         user.setRoomId(request.getRoomId());
         user.setBirth(request.getBirth());
         userRepository.save(user);
-        log.info("[AUTH-SRV] Create user success");
+        log.info("[AUTH-SRV] End create user");
         return BaseResponse.success(authService.buildUserItemResponse(user));
     }
 
     public BaseResponse<UserItemResponse> updateUser(String userId, UpdateUserRequest request) {
+        log.info("[AUTH-SRV] Start update user");
         UserEntity user = validateUserById(userId);
         validateAllowRole(request.getRoleId());
         applyUpdateFields(user, request);
         userRepository.save(user);
+        log.info("[AUTH-SRV] End update user");
         return BaseResponse.success(authService.buildUserItemResponse(user));
     }
 
     public BaseResponse<Object> deleteUser(String userId) {
+        log.info("[AUTH-SRV] Start delete user");
         validateUserById(userId);
         userRepository.deleteById(Long.parseLong(userId));
+        log.info("[AUTH-SRV] End delete user");
         return BaseResponse.success(Map.of("id", userId));
     }
 
     private void validateAllowRole(Long roleId) {
         if (roleId == CommonConst.ROLE_ADMIN_ID) {
+            log.error("[AUTH-SRV] Role not allow: {}", roleId);
             throw new IllegalArgumentException(MessageEnum.ROLE_NOT_ALLOW.getMessage());
         }
     }
@@ -185,12 +192,9 @@ public class UserService {
         if (request.getStatus() != null) {
             user.setStatus(request.getStatus());
         }
-
-        // if (request.getRoleId() != null) {
-        // var role = roleRepository.findById(request.getRoleId())
-        // .orElseThrow(() -> new RuntimeException("Role not found"));
-        // user.setRole(role);
-        // }
+        if (request.getRoleId() != null) {
+            user.setRoleId(request.getRoleId());
+        }
 
     }
 

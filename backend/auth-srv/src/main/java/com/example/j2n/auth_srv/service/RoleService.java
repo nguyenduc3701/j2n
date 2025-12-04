@@ -18,9 +18,9 @@ public class RoleService {
     private final RoleRepository roleRepository;
 
     public BaseResponse<List<RoleResponse>> getRoles() {
-        log.info("[AUTH-SRV] Get roles");
+        log.info("[AUTH-SRV] Start get roles");
         List<RoleEntity> roles = roleRepository.findAll();
-        log.info("[AUTH-SRV] Get roles success");
+        log.info("[AUTH-SRV] End get roles");
         return BaseResponse.success(mapRoleEntityListToRoleResponseList(roles));
     }
 

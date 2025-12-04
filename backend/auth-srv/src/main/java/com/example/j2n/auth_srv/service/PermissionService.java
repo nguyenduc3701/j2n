@@ -23,30 +23,30 @@ public class PermissionService {
     private final PermissionRepository permissionRepository;
 
     public BaseResponse<List<String>> getPermissionsByRoleId(String roleId) {
-        log.info("[AUTH-SRV] Get permissions by role id: {}", roleId);
+        log.info("[AUTH-SRV] Start get permissions by role id: {}", roleId);
         RoleEntity role = getRoleById(roleId);
-        log.info("[AUTH-SRV] Get permissions by role id success");
+        log.info("[AUTH-SRV] End get permissions by role id");
         List<String> permissionNames = role.getPermissions().stream()
                 .map(PermissionEntity::getName)
                 .toList();
-        log.info("[AUTH-SRV] Get permissions by role id success");
+        log.info("[AUTH-SRV] End get permissions by role id");
         return BaseResponse.success(permissionNames);
     }
 
     public RoleEntity getRoleById(String roleId) {
-        log.info("[AUTH-SRV] Get role by id: {}", roleId);
+        log.info("[AUTH-SRV] Start get role by id: {}", roleId);
         Optional<RoleEntity> role = roleRepository.findById(Long.parseLong(roleId));
         if (role.isEmpty()) {
             throw new IllegalArgumentException(MessageEnum.ROLE_NOT_FOUND.getMessage());
         }
-        log.info("[AUTH-SRV] Get role by id success");
+        log.info("[AUTH-SRV] End get role by id");
         return role.get();
     }
 
     public BaseResponse<List<PermissionResponse>> getPermissions() {
-        log.info("[AUTH-SRV] Get permissions");
+        log.info("[AUTH-SRV] Start get permissions");
         List<PermissionEntity> permissions = permissionRepository.findAll();
-        log.info("[AUTH-SRV] Get permissions success");
+        log.info("[AUTH-SRV] End get permissions");
         return BaseResponse.success(mapPermissionEntityListToPermissionResponseList(permissions));
     }
 
