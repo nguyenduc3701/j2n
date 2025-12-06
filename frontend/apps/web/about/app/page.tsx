@@ -1,11 +1,11 @@
 "use client";
 
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Button } from '@mantine/core';
+import { Button } from "@mantine/core";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useTranslation } from "@/lib/i18n/hooks";
-import {authApi} from '@/services/authServices'
+import { authApi } from "@/services/authServices";
 
 export default function Home() {
   const { theme, setTheme } = useAppStore();
@@ -17,13 +17,13 @@ export default function Home() {
       const res = await authApi.hello();
       if (!res) return;
       setText(String(res.data));
-    }
-    fetch()
-  },[]);
+    };
+    fetch();
+  }, []);
 
   const onHandleChangeLng = (lng: string) => {
     changeLanguage(lng);
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -84,16 +84,32 @@ export default function Home() {
           </a>
         </div>
         <div className="w-full flex justify-between items-center">
-          <Button variant="filled" color="teal" onClick={() => onHandleChangeLng("vi")}>
+          <Button
+            variant="filled"
+            color="teal"
+            onClick={() => onHandleChangeLng("vi")}
+          >
             Vietnamese
           </Button>
-          <Button variant="filled" color="teal" onClick={() => onHandleChangeLng("en")}>
+          <Button
+            variant="filled"
+            color="teal"
+            onClick={() => onHandleChangeLng("en")}
+          >
             English
           </Button>
-          <Button variant="filled" color="teal" onClick={() => onHandleChangeLng("kr")}>
+          <Button
+            variant="filled"
+            color="teal"
+            onClick={() => onHandleChangeLng("kr")}
+          >
             Korea
           </Button>
-          <Button variant="filled" color="teal" onClick={() => onHandleChangeLng("jp")}>
+          <Button
+            variant="filled"
+            color="teal"
+            onClick={() => onHandleChangeLng("jp")}
+          >
             Japan
           </Button>
         </div>

@@ -1,19 +1,37 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Saira_Condensed,
+  Noto_Sans_KR,
+  Noto_Sans_JP,
+  Merienda,
+} from "next/font/google";
 import { MantineProvider } from "@mantine/core";
 import { I18nProvider } from "@/lib/i18n/provider";
-import { useTranslation } from "@/lib/i18n/hooks";
-import "./globals.css";
+import "@/styles/globals.css";
 import "@mantine/core/styles.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const saira = Saira_Condensed({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-primary",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const notoKR = Noto_Sans_KR({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin", "latin-ext", "vietnamese", "cyrillic"],
+  variable: "--font-primary-kr",
+});
+
+const notoJP = Noto_Sans_JP({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin", "latin-ext", "vietnamese", "cyrillic"],
+  variable: "--font-primary-jp",
+});
+
+const merienda = Merienda({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-secondary",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${saira.variable} ${notoKR.variable} ${notoJP.variable} ${merienda.variable} antialiased`}
       >
         <MantineProvider>
           <I18nProvider>{children}</I18nProvider>

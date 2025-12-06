@@ -1,0 +1,15 @@
+@tailwind utilities;
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-primary), Arial, Helvetica, sans-serif;
+}
+
+html[lang="kr"] body {
+  font-family: var(--font-primary-kr), Arial, Helvetica, sans-serif;
+}
+
+html[lang="jp"] body {
+  font-family: var(--font-primary-jp), Arial, Helvetica, sans-serif;
+}
