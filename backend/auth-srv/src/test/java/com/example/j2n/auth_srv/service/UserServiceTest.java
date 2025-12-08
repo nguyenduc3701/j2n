@@ -26,6 +26,7 @@ import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
+import com.example.j2n.auth_srv.utils.ResponseFactory;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
@@ -87,10 +88,10 @@ class UserServiceTest {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 
-        when(currentUser.getCurrentUserId()).thenReturn(userId);
+        when(currentUser.getId()).thenReturn(userId);
         when(currentUser.getCurrentRoleId()).thenReturn(roleId);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(permissionService.getPermissionsByRoleId(roleId)).thenReturn(BaseResponse.success(List.of("READ")));
+        when(permissionService.getPermissionsByRoleId(roleId)).thenReturn(ResponseFactory.success(List.of("READ")));
 
         // Act
         BaseResponse<UserResponse.UserItem> response = userService.getMe();
@@ -138,7 +139,11 @@ class UserServiceTest {
         // Arrange
         CreateUserRequest request = new CreateUserRequest();
         request.setUserName("adminuser");
+        request.setEmail("admin@test.com");
+        request.setPassword("password123");
         request.setRoleId(1L); // Admin role
+
+        when(currentUser.getCurrentRoleId()).thenReturn("2"); // RECRUITER
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> userService.createUser(request));
@@ -174,6 +179,7 @@ class UserServiceTest {
     void deleteUser_ShouldThrowException_WhenUserNotFound() {
         // Arrange
         String userId = "1";
+        when(currentUser.getCurrentRoleId()).thenReturn("1"); // ADMIN
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -325,6 +331,7 @@ class UserServiceTest {
         itemResponse.setId("1");
         itemResponse.setUserName("newuser");
 
+        when(currentUser.getCurrentRoleId()).thenReturn("2"); // RECRUITER
         when(passwordUtil.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(UserEntity.class))).thenReturn(savedUser);
         when(authService.buildUserItemResponse(any(UserEntity.class))).thenReturn(itemResponse);
@@ -374,6 +381,7 @@ class UserServiceTest {
         UserEntity user = new UserEntity();
         user.setId(1L);
 
+        when(currentUser.getCurrentRoleId()).thenReturn("1"); // ADMIN
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Act
@@ -381,6 +389,6 @@ class UserServiceTest {
 
         // Assert
         assertNotNull(response);
-        verify(userRepository).deleteById(1L);
+        verify(userRepository).save(user);
     }
 }

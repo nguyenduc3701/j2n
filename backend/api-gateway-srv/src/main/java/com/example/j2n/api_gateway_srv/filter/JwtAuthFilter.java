@@ -2,7 +2,6 @@ package com.example.j2n.api_gateway_srv.filter;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -65,22 +64,14 @@ public class JwtAuthFilter implements WebFilter {
         exchange.getAttributes().put(X_USER_NAME, userName);
         exchange.getAttributes().put(X_ROLE_ID, roleId);
 
-        // Map role sang authorities
-//        List<SimpleGrantedAuthority> authorities = roleId != null
-//                ? List.of(new SimpleGrantedAuthority("ROLE_" + roleId))
-//                : Collections.emptyList();
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, null,
+                Collections.emptyList());
 
         // Build request mới chỉ thêm header nếu không null
         var requestBuilder = exchange.getRequest().mutate()
                 .header(X_USER_ID, userId)
-                .header(X_USER_NAME, userName);
-
-        if (roleId != null) {
-            requestBuilder.header(X_ROLE_ID, roleId);
-        }
+                .header(X_USER_NAME, userName)
+                .header(X_ROLE_ID, roleId);
 
         ServerWebExchange mutatedExchange = exchange.mutate()
                 .request(requestBuilder.build())

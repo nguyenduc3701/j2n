@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
+import com.example.j2n.auth_srv.utils.ResponseFactory;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.service.AuthService;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
@@ -52,7 +53,7 @@ class AuthControllerTest {
         request.setPassword("password");
 
         LoginResponse loginResponse = new LoginResponse("testToken");
-        when(authService.login(any(LoginRequest.class))).thenReturn(BaseResponse.success(loginResponse));
+        when(authService.login(any(LoginRequest.class))).thenReturn(ResponseFactory.success(loginResponse));
 
         // Act & Assert
         mockMvc.perform(post("/auth/login")
@@ -75,7 +76,7 @@ class AuthControllerTest {
         UserItemResponse userItemResponse = new UserItemResponse();
         userItemResponse.setUserName("newuser");
 
-        when(authService.register(any(RegisterRequest.class))).thenReturn(BaseResponse.success(userItemResponse));
+        when(authService.register(any(RegisterRequest.class))).thenReturn(ResponseFactory.success(userItemResponse));
 
         // Act & Assert
         mockMvc.perform(post("/auth/register")
@@ -92,7 +93,7 @@ class AuthControllerTest {
         request.setEmail("test@example.com");
 
         when(authService.forgotPassword(any(ForgotPasswordRequest.class)))
-                .thenReturn(BaseResponse.success("Forgot Password Success"));
+                .thenReturn(ResponseFactory.success("Forgot Password Success"));
 
         // Act & Assert
         mockMvc.perform(post("/auth/forgot-password")

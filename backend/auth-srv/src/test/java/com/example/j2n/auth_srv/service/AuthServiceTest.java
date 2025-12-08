@@ -8,6 +8,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -16,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.j2n.auth_srv.constant.CommonConst;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
@@ -40,6 +42,9 @@ class AuthServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PermissionService permissionService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -56,8 +61,13 @@ class AuthServiceTest {
         user.setPassword("encodedPassword");
         user.setRoleId(1L);
 
+        List<String> permissions = Arrays.asList("CAN_VIEW", "CAN_EDIT");
+        BaseResponse<List<String>> permissionsResponse = new BaseResponse<>();
+        permissionsResponse.setData(permissions);
+
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(passwordUtil.matches("password", "encodedPassword")).thenReturn(true);
+        when(permissionService.getPermissionsByRoleId("1")).thenReturn(permissionsResponse);
         when(jwtUtil.generateToken(any(), anyString())).thenReturn("testToken");
 
         // Act
@@ -66,6 +76,7 @@ class AuthServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals("testToken", response.getData().getToken());
+        verify(permissionService).getPermissionsByRoleId("1");
     }
 
     @Test
@@ -91,6 +102,7 @@ class AuthServiceTest {
         UserEntity user = new UserEntity();
         user.setUsername("testuser");
         user.setPassword("encodedPassword");
+        user.setRoleId(1L);
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(passwordUtil.matches("wrongpassword", "encodedPassword")).thenReturn(false);
@@ -155,12 +167,13 @@ class AuthServiceTest {
         request.setAddress("Test Address");
         request.setCompany("Test Company");
 
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
         when(userRepository.existsByUsername("newuser")).thenReturn(false);
         when(passwordUtil.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
             UserEntity user = invocation.getArgument(0);
             user.setId(1L);
-            user.setCreatedAt(java.time.LocalDateTime.now());
+            user.setCreatedAt(LocalDateTime.now());
             return user;
         });
 
@@ -178,8 +191,23 @@ class AuthServiceTest {
         // Arrange
         RegisterRequest request = new RegisterRequest();
         request.setUserName("existinguser");
+        request.setEmail("test@example.com");
 
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
         when(userRepository.existsByUsername("existinguser")).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> authService.register(request));
+    }
+
+    @Test
+    void register_ShouldThrowException_WhenEmailExists() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest();
+        request.setUserName("newuser");
+        request.setEmail("existing@example.com");
+
+        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> authService.register(request));
@@ -197,5 +225,25 @@ class AuthServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals("Forgot Password Success", response.getData());
+    }
+
+    @Test
+    void buildUserItemResponse_ShouldMapFieldsCorrectly() {
+        // Arrange
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setEmail("test@example.com");
+        user.setCreatedAt(LocalDateTime.now());
+
+        // Act
+        UserItemResponse response = authService.buildUserItemResponse(user);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("1", response.getId());
+        assertEquals("testuser", response.getUserName());
+        assertEquals("test@example.com", response.getEmail());
+        assertNotNull(response.getCreatedAt());
     }
 }

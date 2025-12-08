@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.j2n.auth_srv.service.PermissionService;
+import com.example.j2n.auth_srv.utils.ResponseFactory;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.PermissionResponse;
 
@@ -48,7 +49,7 @@ class PermissionControllerTest {
         permission2.setName("WRITE");
 
         List<PermissionResponse> permissions = Arrays.asList(permission1, permission2);
-        when(permissionService.getPermissions()).thenReturn(BaseResponse.success(permissions));
+        when(permissionService.getPermissions()).thenReturn(ResponseFactory.success(permissions));
 
         // Act & Assert
         mockMvc.perform(get("/api/auth/permissions")
@@ -64,7 +65,7 @@ class PermissionControllerTest {
         // Arrange
         String roleId = "1";
         List<String> permissions = Arrays.asList("READ", "WRITE", "DELETE");
-        when(permissionService.getPermissionsByRoleId(anyString())).thenReturn(BaseResponse.success(permissions));
+        when(permissionService.getPermissionsByRoleId(anyString())).thenReturn(ResponseFactory.success(permissions));
 
         // Act & Assert
         mockMvc.perform(get("/api/auth/permissions/{id}", roleId)

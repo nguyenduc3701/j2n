@@ -19,8 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.j2n.auth_srv.service.RoleService;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.RoleResponse;
+import com.example.j2n.auth_srv.utils.ResponseFactory;
 
 @ExtendWith(MockitoExtension.class)
 class RoleControllerTest {
@@ -47,7 +47,7 @@ class RoleControllerTest {
         role2.setName("USER");
 
         List<RoleResponse> roles = Arrays.asList(role1, role2);
-        when(roleService.getRoles()).thenReturn(BaseResponse.success(roles));
+        when(roleService.getRoles()).thenReturn(ResponseFactory.success(roles));
 
         // Act & Assert
         mockMvc.perform(get("/api/auth/roles")

@@ -29,6 +29,7 @@ import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.service.UserService;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
+import com.example.j2n.auth_srv.utils.ResponseFactory;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,7 +64,7 @@ class UserControllerTest {
                 UserResponse userResponse = new UserResponse();
                 userResponse.setUsers(Arrays.asList(user1, user2));
 
-                when(userService.getUsers()).thenReturn(BaseResponse.success(userResponse));
+                when(userService.getUsers()).thenReturn(ResponseFactory.success(userResponse));
 
                 // Act & Assert
                 mockMvc.perform(get("/auth/users")
@@ -81,7 +82,7 @@ class UserControllerTest {
                 currentUser.setUserName("currentUser");
                 currentUser.setPermissions(Arrays.asList("READ", "WRITE"));
 
-                when(userService.getMe()).thenReturn(BaseResponse.success(currentUser));
+                when(userService.getMe()).thenReturn(ResponseFactory.success(currentUser));
 
                 // Act & Assert
                 mockMvc.perform(get("/auth/users/me")
@@ -99,7 +100,7 @@ class UserControllerTest {
                 UserResponse.UserItem user = new UserResponse.UserItem();
                 user.setUserName("user1");
 
-                when(userService.getUserById(anyString())).thenReturn(BaseResponse.success(user));
+                when(userService.getUserById(anyString())).thenReturn(ResponseFactory.success(user));
 
                 // Act & Assert
                 mockMvc.perform(get("/auth/users/{id}", userId)
@@ -124,7 +125,7 @@ class UserControllerTest {
                 userItemResponse.setUserName("newuser");
 
                 when(userService.createUser(any(CreateUserRequest.class)))
-                                .thenReturn(BaseResponse.success(userItemResponse));
+                                .thenReturn(ResponseFactory.success(userItemResponse));
 
                 // Act & Assert
                 mockMvc.perform(post("/auth/users")
@@ -148,7 +149,7 @@ class UserControllerTest {
                 userItemResponse.setEmail("updated@example.com");
 
                 when(userService.updateUser(anyString(), any(UpdateUserRequest.class)))
-                                .thenReturn(BaseResponse.success(userItemResponse));
+                                .thenReturn(ResponseFactory.success(userItemResponse));
 
                 // Act & Assert
                 mockMvc.perform(put("/auth/users/{id}", userId)
@@ -165,7 +166,7 @@ class UserControllerTest {
                 // Arrange
                 String userId = "1";
                 when(userService.deleteUser(anyString()))
-                                .thenReturn(BaseResponse.success(Map.of("id", userId)));
+                                .thenReturn(ResponseFactory.success(Map.of("id", userId)));
 
                 // Act & Assert
                 mockMvc.perform(delete("/auth/users/{id}", userId)

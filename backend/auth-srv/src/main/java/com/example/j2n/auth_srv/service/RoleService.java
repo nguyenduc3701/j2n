@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import com.example.j2n.auth_srv.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import com.example.j2n.auth_srv.utils.ResponseFactory;
 
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.RoleResponse;
@@ -21,7 +22,7 @@ public class RoleService {
         log.info("[AUTH-SRV] Start get roles");
         List<RoleEntity> roles = roleRepository.findAll();
         log.info("[AUTH-SRV] End get roles");
-        return BaseResponse.success(mapRoleEntityListToRoleResponseList(roles));
+        return ResponseFactory.success(mapRoleEntityListToRoleResponseList(roles));
     }
 
     private List<RoleResponse> mapRoleEntityListToRoleResponseList(List<RoleEntity> roleEntities) {

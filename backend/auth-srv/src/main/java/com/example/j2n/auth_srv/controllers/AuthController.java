@@ -6,7 +6,9 @@ import com.example.j2n.auth_srv.service.AuthService;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
+import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
+import com.example.j2n.auth_srv.controllers.requests.VerifyRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,11 @@ public class AuthController {
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<UserItemResponse>> register(@RequestBody @Valid RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+
+    @PostMapping(value = "/verify", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponse<UserResponse.UserItem>> verify(@RequestBody @Valid VerifyRequest request) {
+        return ResponseEntity.ok(authService.verify(request));
     }
 
     @PostMapping(value = "/forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)

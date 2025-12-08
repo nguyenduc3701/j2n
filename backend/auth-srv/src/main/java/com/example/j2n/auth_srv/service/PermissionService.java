@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import java.util.List;
 import java.util.Optional;
+import com.example.j2n.auth_srv.utils.ResponseFactory;
 
 import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.repository.PermissionRepository;
@@ -30,7 +31,7 @@ public class PermissionService {
                 .map(PermissionEntity::getName)
                 .toList();
         log.info("[AUTH-SRV] End get permissions by role id");
-        return BaseResponse.success(permissionNames);
+        return ResponseFactory.success(permissionNames);
     }
 
     public RoleEntity getRoleById(String roleId) {
@@ -47,7 +48,7 @@ public class PermissionService {
         log.info("[AUTH-SRV] Start get permissions");
         List<PermissionEntity> permissions = permissionRepository.findAll();
         log.info("[AUTH-SRV] End get permissions");
-        return BaseResponse.success(mapPermissionEntityListToPermissionResponseList(permissions));
+        return ResponseFactory.success(mapPermissionEntityListToPermissionResponseList(permissions));
     }
 
     private List<PermissionResponse> mapPermissionEntityListToPermissionResponseList(
