@@ -1,9 +1,14 @@
+const path = require("path");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "../../apps/web/about/app/**/*.{js,ts,jsx,tsx}",
-    "../ui/src/**/*.{ts,tsx,js,jsx}",
+    path
+      .join(__dirname, "../../apps/web/about/**/*.{js,ts,jsx,tsx}")
+      .replace(/\\/g, "/"),
+    path.join(__dirname, "../ui/src/**/*.{ts,tsx,js,jsx}").replace(/\\/g, "/"),
   ],
+  safelist: ["text-green-600"],
   theme: {
     extend: {
       colors: {

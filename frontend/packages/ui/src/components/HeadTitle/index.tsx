@@ -22,7 +22,7 @@ const HeadTitle: React.FC<HeadTitleProps> = ({
 
   return (
     <div className="pb-4 flex items-baseline">
-      <h1 className={`font-bold ${titleSizeClasses[size]} text-red-600`}>
+      <h1 className={`font-bold ${titleSizeClasses[size]} text-violet-600`}>
         {title}
       </h1>
       {subTitle && (
