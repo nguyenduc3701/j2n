@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.j2n.bff_srv.controller.request.LoginRequest;
 import com.example.j2n.bff_srv.controller.request.RegisterRequest;
 import com.example.j2n.bff_srv.service.AuthService;
+import com.example.j2n.bff_srv.controller.request.CreateUserRequest;
 
 @RestController
 @RequestMapping("api/bff")
@@ -45,5 +46,9 @@ public class AuthController {
    @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
    public ResponseEntity<Object> getUserById(@PathVariable String id) {
       return ResponseEntity.ok(authService.getUserById(id));
+   }
+   @PostMapping(value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+   public ResponseEntity<Object> createUser(@RequestBody CreateUserRequest request) {
+      return ResponseEntity.ok(authService.createUser(request));
    }
 }

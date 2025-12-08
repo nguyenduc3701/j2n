@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import com.example.j2n.bff_srv.constant.GatewayPath;
 import com.example.j2n.bff_srv.controller.request.LoginRequest;
 import com.example.j2n.bff_srv.controller.request.RegisterRequest;
+import com.example.j2n.bff_srv.controller.request.CreateUserRequest;
 import com.example.j2n.bff_srv.utils.RestClientUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +35,8 @@ class AuthServiceTest {
         request.setPassword("password");
         Object expectedResponse = new Object();
 
-        when(restClientUtil.request(eq(GatewayPath.AUTH_LOGIN), eq(HttpMethod.POST), eq(request), eq(Object.class)))
+        when(restClientUtil.request(eq(GatewayPath.AUTH_LOGIN_PATH), eq(HttpMethod.POST), eq(request),
+                eq(Object.class)))
                 .thenReturn(expectedResponse);
 
         // Act
@@ -42,7 +44,8 @@ class AuthServiceTest {
 
         // Assert
         assertEquals(expectedResponse, result);
-        verify(restClientUtil).request(eq(GatewayPath.AUTH_LOGIN), eq(HttpMethod.POST), eq(request), eq(Object.class));
+        verify(restClientUtil).request(eq(GatewayPath.AUTH_LOGIN_PATH), eq(HttpMethod.POST), eq(request),
+                eq(Object.class));
     }
 
     @Test
@@ -52,7 +55,8 @@ class AuthServiceTest {
         request.setUserName("newuser");
         Object expectedResponse = new Object();
 
-        when(restClientUtil.request(eq(GatewayPath.AUTH_REGISTER), eq(HttpMethod.POST), eq(request), eq(Object.class)))
+        when(restClientUtil.request(eq(GatewayPath.AUTH_REGISTER_PATH), eq(HttpMethod.POST), eq(request),
+                eq(Object.class)))
                 .thenReturn(expectedResponse);
 
         // Act
@@ -60,7 +64,7 @@ class AuthServiceTest {
 
         // Assert
         assertEquals(expectedResponse, result);
-        verify(restClientUtil).request(eq(GatewayPath.AUTH_REGISTER), eq(HttpMethod.POST), eq(request),
+        verify(restClientUtil).request(eq(GatewayPath.AUTH_REGISTER_PATH), eq(HttpMethod.POST), eq(request),
                 eq(Object.class));
     }
 
@@ -69,7 +73,8 @@ class AuthServiceTest {
         // Arrange
         Object expectedResponse = new Object();
 
-        when(restClientUtil.request(eq(GatewayPath.AUTH_USERS), eq(HttpMethod.GET), eq(null), eq(Object.class)))
+        when(restClientUtil.request(eq(GatewayPath.AUTH_GET_LIST_USERS_PATH), eq(HttpMethod.GET), eq(null),
+                eq(Object.class)))
                 .thenReturn(expectedResponse);
 
         // Act
@@ -77,7 +82,8 @@ class AuthServiceTest {
 
         // Assert
         assertEquals(expectedResponse, result);
-        verify(restClientUtil).request(eq(GatewayPath.AUTH_USERS), eq(HttpMethod.GET), eq(null), eq(Object.class));
+        verify(restClientUtil).request(eq(GatewayPath.AUTH_GET_LIST_USERS_PATH), eq(HttpMethod.GET), eq(null),
+                eq(Object.class));
     }
 
     @Test
@@ -85,7 +91,7 @@ class AuthServiceTest {
         // Arrange
         String userId = "123";
         Object expectedResponse = new Object();
-        String expectedPath = String.format(GatewayPath.AUTH_USER_ID, userId);
+        String expectedPath = String.format(GatewayPath.AUTH_USER_ID_PATH, userId);
 
         when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), eq(Object.class)))
                 .thenReturn(expectedResponse);
@@ -103,7 +109,7 @@ class AuthServiceTest {
         // Arrange
         Object expectedResponse = new Object();
 
-        when(restClientUtil.request(eq(GatewayPath.AUTH_ME), eq(HttpMethod.GET), eq(null), eq(Object.class)))
+        when(restClientUtil.request(eq(GatewayPath.AUTH_ME_PATH), eq(HttpMethod.GET), eq(null), eq(Object.class)))
                 .thenReturn(expectedResponse);
 
         // Act
@@ -111,6 +117,29 @@ class AuthServiceTest {
 
         // Assert
         assertEquals(expectedResponse, result);
-        verify(restClientUtil).request(eq(GatewayPath.AUTH_ME), eq(HttpMethod.GET), eq(null), eq(Object.class));
+        verify(restClientUtil).request(eq(GatewayPath.AUTH_ME_PATH), eq(HttpMethod.GET), eq(null), eq(Object.class));
+    }
+
+    @Test
+    void createUser_ShouldCallRestClientWithCorrectParameters() {
+        // Arrange
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUserName("newuser");
+        request.setPassword("password123");
+        request.setEmail("user@example.com");
+        request.setRoleId(2L);
+        Object expectedResponse = new Object();
+
+        when(restClientUtil.request(eq(GatewayPath.AUTH_CREATE_USER_PATH), eq(HttpMethod.POST), eq(request),
+                eq(Object.class)))
+                .thenReturn(expectedResponse);
+
+        // Act
+        Object result = authService.createUser(request);
+
+        // Assert
+        assertEquals(expectedResponse, result);
+        verify(restClientUtil).request(eq(GatewayPath.AUTH_CREATE_USER_PATH), eq(HttpMethod.POST), eq(request),
+                eq(Object.class));
     }
 }

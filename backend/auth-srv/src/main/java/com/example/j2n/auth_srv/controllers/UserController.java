@@ -8,7 +8,9 @@ import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import static com.example.j2n.auth_srv.constant.PermissionConst.CAN_CREATE_USER;
 
 @RestController
 @RequestMapping("/auth/users")
@@ -31,6 +33,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @PreAuthorize("hasAuthority(CAN_CREATE_USER)")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> createUser(@RequestBody CreateUserRequest request) {
         return ResponseEntity.ok(userService.createUser(request));

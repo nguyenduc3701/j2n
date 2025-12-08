@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordUtil passwordUtil;
     private final UserRepository userRepository;
+    private final PermissionService permissionService;
 
     public BaseResponse<LoginResponse> login(LoginRequest request) {
         log.info("[AUTH-SRV] Start login request: {}", request);
@@ -38,11 +40,14 @@ public class AuthService {
             log.error("Invalid password");
             throw new IllegalArgumentException(MessageEnum.INVALID_CREDENTIALS.getMessage());
         }
+        String roleId = user.get().getRoleId().toString();
+        BaseResponse<List<String>> permissions = permissionService.getPermissionsByRoleId(roleId);
         Map<String, Object> claims = new HashMap<>();
         claims.put("login_time", System.currentTimeMillis());
         claims.put("user_name", user.get().getUsername());
         claims.put("user_id", user.get().getId().toString());
-        claims.put("role_id", user.get().getRoleId().toString());
+        claims.put("role_id", roleId);
+        claims.put("permissions", List.of());
         String token = jwtUtil.generateToken(claims, user.get().getUsername());
         log.info("[AUTH-SRV] End login request");
         return BaseResponse.success(new LoginResponse(token));

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.List;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Component
 @RequiredArgsConstructor
@@ -35,14 +36,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         try {
             Claims claims = jwtUtil.validateToken(token);
-//            String userId = claims.get("user_id", String.class);
             String username = claims.getSubject();
+            List<String> permissions = claims.get("permissions", List.class);
+            List<SimpleGrantedAuthority> authorities = permissions.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .toList();
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     username,
                     null,
-                    List.of() // bạn có thể thêm roles vào đây nếu có
-            );
+                    authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

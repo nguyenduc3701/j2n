@@ -2,7 +2,6 @@ package com.example.j2n.auth_srv.service;
 
 import com.example.j2n.auth_srv.constant.CommonConst;
 import com.example.j2n.auth_srv.constant.MessageEnum;
-import com.example.j2n.auth_srv.controllers.requests.AssignRoleRequest;
 import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
