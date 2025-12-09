@@ -6,7 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<UserEntity, Long>,
+        org.springframework.data.jpa.repository.JpaSpecificationExecutor<UserEntity> {
     Optional<UserEntity> findById(Long id);
 
     Optional<UserEntity> findByUsername(String username);

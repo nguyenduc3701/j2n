@@ -22,7 +22,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.time.LocalDate;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+import com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest;
 
 @Slf4j
 @Service
@@ -34,68 +38,73 @@ public class UserService {
     private final PasswordUtil passwordUtil;
     private final CurrentUser currentUser;
 
-    public BaseResponse<UserResponse> getUsers() {
-        log.info("[AUTH-SRV] Fetching user list");
-        PageRequest pageRequest = PageUtil.buildPageRequest(0, 50);
-        Page<UserEntity> pageData = userRepository.findAllByIsDeletedFalse(pageRequest);
+    public BaseResponse<UserResponse> searchUsers(SearchUsersRequest request) {
+        log.info("[AUTH-SRV] Start fetching user list with filter: {}", request);
+        validateUnknownFields(request);
+        PageRequest pageRequest = PageUtil.buildPageRequest(request.getPage(), request.getSize());
+        Specification<UserEntity> spec = buildSpecification(request);
+        Page<UserEntity> pageData = userRepository.findAll(spec, pageRequest);
         UserResponse response = new UserResponse();
         response.setUsers(mapUserEntitiesToUserItems(pageData.getContent()));
         response.setPage(PageUtil.buildPagingMeta(pageData));
-        log.info("[AUTH-SRV] Retrieved {} users", pageData.getTotalElements());
+        log.info("[AUTH-SRV] End fetching user list. Retrieved {} users", pageData.getTotalElements());
         return ResponseFactory.success(response);
     }
 
     public BaseResponse<UserResponse.UserItem> getMe() {
-        log.info("[AUTH-SRV] Fetching current user details");
-        UserResponse.UserItem userItem = getUserItemById(currentUser.getId());
+        log.info("[AUTH-SRV] Start fetching current user details");
+        UserEntity userItem = findUserByIdOrThrow(currentUser.getId());
         List<String> permissions = permissionService
-                .getPermissionsByRoleId(userItem.getRoleId())
+                .getPermissionsByRoleId(userItem.getRoleId().toString())
                 .getData();
-        userItem.setPermissions(permissions);
-        log.info("[AUTH-SRV] Current user retrieved: {}", userItem.getUserName());
-        return ResponseFactory.success(userItem);
+        UserResponse.UserItem response = buildUserItemFromEntity(userItem);
+        response.setPermissions(permissions);
+        log.info("[AUTH-SRV] End fetching current user details. Current user retrieved: {}", response.getUserName());
+        return ResponseFactory.success(response);
     }
 
     public BaseResponse<UserResponse.UserItem> getUserById(String userId) {
-        log.info("[AUTH-SRV] Fetching user by ID: {}", userId);
+        log.info("[AUTH-SRV] Start fetching user by ID: {}", userId);
         UserResponse.UserItem user = getUserItemById(userId);
-        log.info("[AUTH-SRV] User retrieved: {}", user.getUserName());
+        log.info("[AUTH-SRV] End fetching user by ID. User retrieved: {}", user.getUserName());
         return ResponseFactory.success(user);
     }
 
     public BaseResponse<UserItemResponse> createUser(CreateUserRequest request) {
-        log.info("[AUTH-SRV] Creating user: {}", request.getUserName());
-        validateCanCreateUserByRoleId();
+        log.info("[AUTH-SRV] Start creating user: {}", request.getUserName());
+        validateUserRoleCanAction();
+        authService.validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         authService.validateUsernameAndEmailDoesNotExist(request.getUserName(), request.getEmail());
-        validateAllowRole(request.getRoleId());
+        validateAllowRoleInRequest(request.getRoleId());
         UserEntity user = buildUserFromCreateRequest(request);
-        user = userRepository.save(user);
-        log.info("[AUTH-SRV] User created successfully: {}", user.getUsername());
+        userRepository.save(user);
+        log.info("[AUTH-SRV] End creating user. User created successfully");
         return ResponseFactory.success(authService.buildUserItemResponse(user));
     }
 
     public BaseResponse<UserItemResponse> updateUser(String userId, UpdateUserRequest request) {
-        log.info("[AUTH-SRV] Updating user ID: {}", userId);
+        log.info("[AUTH-SRV] Start updating user ID: {}", userId);
+        validateUserCanAction(userId);
+        validateAllowRoleInRequest(request.getRoleId());
         UserEntity user = findUserByIdOrThrow(userId);
-        validateAllowRole(request.getRoleId());
         applyUpdateFields(user, request);
-        user = userRepository.save(user);
-        log.info("[AUTH-SRV] User updated successfully: {}", user.getUsername());
+        userRepository.save(user);
+        log.info("[AUTH-SRV] End updating user. User updated successfully");
         return ResponseFactory.success(authService.buildUserItemResponse(user));
     }
 
     public BaseResponse<Object> deleteUser(String userId) {
-        log.info("[AUTH-SRV] Deleting user ID: {}", userId);
-        validateCanCreateUserByRoleId();
+        log.info("[AUTH-SRV] Start deleting user ID: {}", userId);
+        validateUserRoleCanAction();
         UserEntity user = findUserByIdOrThrow(userId);
         user.setStatus(UserEntity.Status.INACTIVE);
         user.setIsDeleted(true);
         userRepository.save(user);
-        log.info("[AUTH-SRV] User deleted successfully: {}", user.getUsername());
+        log.info("[AUTH-SRV] End deleting user. User deleted successfully");
         return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, null);
     }
 
-    public UserEntity findUserByIdOrThrow(String userId) {
+    private UserEntity findUserByIdOrThrow(String userId) {
         return userRepository.findById(Long.parseLong(userId))
                 .orElseThrow(() -> {
                     log.error("[AUTH-SRV] User not found: {}", userId);
@@ -103,7 +112,7 @@ public class UserService {
                 });
     }
 
-    public UserResponse.UserItem getUserItemById(String userId) {
+    private UserResponse.UserItem getUserItemById(String userId) {
         UserEntity user = findUserByIdOrThrow(userId);
         return buildUserItemFromEntity(user);
     }
@@ -150,13 +159,13 @@ public class UserService {
 
     // ==================== Mapping Methods ====================
 
-    public List<UserResponse.UserItem> mapUserEntitiesToUserItems(List<UserEntity> users) {
+    private List<UserResponse.UserItem> mapUserEntitiesToUserItems(List<UserEntity> users) {
         return users.stream()
                 .map(this::buildUserItemFromEntity)
                 .toList();
     }
 
-    public UserResponse.UserItem buildUserItemFromEntity(UserEntity user) {
+    private UserResponse.UserItem buildUserItemFromEntity(UserEntity user) {
         UserResponse.UserItem userItem = new UserResponse.UserItem();
         userItem.setId(user.getId());
         userItem.setUserName(user.getUsername());
@@ -191,9 +200,58 @@ public class UserService {
         return "VISITOR";
     }
 
+    private Specification<UserEntity> buildSpecification(SearchUsersRequest request) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("isDeleted"), false));
+
+            if (request.getId().isPresent()) {
+                predicates.add(cb.equal(root.get("id"), request.getId().get()));
+            }
+            if (request.getFullName().isPresent() && !request.getFullName().get().isEmpty()) {
+                predicates
+                        .add(cb.like(cb.lower(root.get("fullName")),
+                                "%" + request.getFullName().get().toLowerCase() + "%"));
+            }
+            if (request.getEmail().isPresent() && !request.getEmail().get().isEmpty()) {
+                predicates
+                        .add(cb.like(cb.lower(root.get("email")), "%" + request.getEmail().get().toLowerCase() + "%"));
+            }
+            if (request.getPhoneNumber().isPresent() && !request.getPhoneNumber().get().isEmpty()) {
+                predicates.add(cb.like(root.get("phoneNumber"), "%" + request.getPhoneNumber().get() + "%"));
+            }
+            if (request.getUserName().isPresent() && !request.getUserName().get().isEmpty()) {
+                predicates
+                        .add(cb.like(cb.lower(root.get("username")),
+                                "%" + request.getUserName().get().toLowerCase() + "%"));
+            }
+            if (request.getRoleId().isPresent()) {
+                predicates.add(cb.equal(root.get("roleId"), request.getRoleId().get()));
+            }
+            if (request.getStatus().isPresent() && !request.getStatus().get().isEmpty()) {
+                try {
+                    predicates.add(cb.equal(root.get("status"), UserEntity.Status.valueOf(request.getStatus().get())));
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid status filter: {}", request.getStatus().get());
+                }
+            }
+            if (request.getStartDate().isPresent()) {
+                predicates.add(
+                        cb.greaterThanOrEqualTo(root.get("createdAt").as(LocalDate.class),
+                                request.getStartDate().get()));
+            }
+            if (request.getEndDate().isPresent()) {
+                predicates.add(
+                        cb.lessThanOrEqualTo(root.get("createdAt").as(LocalDate.class), request.getEndDate().get()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
     // ==================== Validation Methods ====================
 
-    private void validateCanCreateUserByRoleId() {
+    private void validateUserRoleCanAction() {
         String currentRoleId = currentUser.getRoleId();
         if (!currentRoleId.equals(CommonConst.ROLE_ADMIN_ID.toString())
                 && !currentRoleId.equals(CommonConst.ROLE_RECRUITER_ID.toString())) {
@@ -202,10 +260,28 @@ public class UserService {
         }
     }
 
-    private void validateAllowRole(Long roleId) {
+    private void validateAllowRoleInRequest(Long roleId) {
         if (CommonConst.ROLE_ADMIN_ID.equals(roleId)) {
             log.error("[AUTH-SRV] Cannot create/update user with ADMIN role. Role ID: {}", roleId);
             throw new IllegalArgumentException(MessageEnum.ROLE_NOT_ALLOW_CREATE_USER.getMessage());
+        }
+    }
+
+    private void validateUserCanAction(String reqUserId) {
+        String crtUserId = currentUser.getId();
+        String crtRoleId = currentUser.getRoleId();
+        if (!crtUserId.equals(reqUserId) && !crtRoleId.equals(CommonConst.ROLE_ADMIN_ID.toString())) {
+            log.error(
+                    "[AUTH-SRV] User lacks permission to update user. Current user ID: {}, Current role ID: {}, Requested user ID: {}",
+                    crtUserId, crtRoleId, reqUserId);
+            throw new IllegalArgumentException(MessageEnum.USER_NOT_ALLOW_ACTION.getMessage());
+        }
+    }
+
+    private void validateUnknownFields(SearchUsersRequest request) {
+        if (request.hasUnknownFields()) {
+            log.error("[AUTH-SRV] Unknown fields in request: {}", request.getUnknownFields());
+            throw new IllegalArgumentException(MessageEnum.UNKNOWN_FIELDS.getMessage());
         }
     }
 }

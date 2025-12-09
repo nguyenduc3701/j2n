@@ -56,6 +56,7 @@ class UserServiceTest {
     @Test
     void getUsers_ShouldReturnAllUsers() {
         // Arrange
+        com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest request = new com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest();
         UserEntity user = new UserEntity();
         user.setId(1L);
         user.setUsername("testuser");
@@ -65,10 +66,11 @@ class UserServiceTest {
         user.setUpdatedAt(LocalDateTime.now());
 
         Page<UserEntity> page = new PageImpl<>(List.of(user));
-        when(userRepository.findAllByIsDeletedFalse(any(PageRequest.class))).thenReturn(page);
+        when(userRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class),
+                any(PageRequest.class))).thenReturn(page);
 
         // Act
-        BaseResponse<UserResponse> response = userService.getUsers();
+        BaseResponse<UserResponse> response = userService.searchUsers(request);
 
         // Assert
         assertNotNull(response);
@@ -89,7 +91,7 @@ class UserServiceTest {
         user.setUpdatedAt(LocalDateTime.now());
 
         when(currentUser.getId()).thenReturn(userId);
-        when(currentUser.getCurrentRoleId()).thenReturn(roleId);
+        when(currentUser.getRoleId()).thenReturn(roleId);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(permissionService.getPermissionsByRoleId(roleId)).thenReturn(ResponseFactory.success(List.of("READ")));
 
@@ -143,7 +145,7 @@ class UserServiceTest {
         request.setPassword("password123");
         request.setRoleId(1L); // Admin role
 
-        when(currentUser.getCurrentRoleId()).thenReturn("2"); // RECRUITER
+        when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> userService.createUser(request));
@@ -179,7 +181,7 @@ class UserServiceTest {
     void deleteUser_ShouldThrowException_WhenUserNotFound() {
         // Arrange
         String userId = "1";
-        when(currentUser.getCurrentRoleId()).thenReturn("1"); // ADMIN
+        when(currentUser.getRoleId()).thenReturn("1"); // ADMIN
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -331,7 +333,7 @@ class UserServiceTest {
         itemResponse.setId("1");
         itemResponse.setUserName("newuser");
 
-        when(currentUser.getCurrentRoleId()).thenReturn("2"); // RECRUITER
+        when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER
         when(passwordUtil.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(UserEntity.class))).thenReturn(savedUser);
         when(authService.buildUserItemResponse(any(UserEntity.class))).thenReturn(itemResponse);
@@ -381,7 +383,7 @@ class UserServiceTest {
         UserEntity user = new UserEntity();
         user.setId(1L);
 
-        when(currentUser.getCurrentRoleId()).thenReturn("1"); // ADMIN
+        when(currentUser.getRoleId()).thenReturn("1"); // ADMIN
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Act

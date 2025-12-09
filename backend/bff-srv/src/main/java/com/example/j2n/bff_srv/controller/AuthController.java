@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.j2n.bff_srv.controller.request.LoginRequest;
 import com.example.j2n.bff_srv.controller.request.RegisterRequest;
 import com.example.j2n.bff_srv.service.AuthService;
+import com.example.j2n.bff_srv.controller.request.SearchUserRequest;
 import com.example.j2n.bff_srv.controller.request.CreateUserRequest;
 
 @RestController
@@ -33,9 +34,9 @@ public class AuthController {
       return ResponseEntity.ok(authService.register(request));
    }
 
-   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
-   public ResponseEntity<Object> getListUsers() {
-      return ResponseEntity.ok(authService.getListUsers());
+   @PostMapping(value = "/users/list", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+   public ResponseEntity<Object> getListUsers(@RequestBody SearchUserRequest request) {
+      return ResponseEntity.ok(authService.getListUsers(request));
    }
 
    @GetMapping(value = "/users/me", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,6 +48,7 @@ public class AuthController {
    public ResponseEntity<Object> getUserById(@PathVariable String id) {
       return ResponseEntity.ok(authService.getUserById(id));
    }
+
    @PostMapping(value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
    public ResponseEntity<Object> createUser(@RequestBody CreateUserRequest request) {
       return ResponseEntity.ok(authService.createUser(request));

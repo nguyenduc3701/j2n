@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest;
 
 @RestController
 @RequestMapping("/auth/users")
@@ -18,9 +19,9 @@ public class UserController {
     private final UserService userService;
 
     @PreAuthorize("hasAuthority('CAN_VIEW_MANAGEMENT_PAGE')")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<UserResponse>> getUsers() {
-        return ResponseEntity.ok(userService.getUsers());
+    @PostMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponse<UserResponse>> listUsers(@RequestBody SearchUsersRequest request) {
+        return ResponseEntity.ok(userService.searchUsers(request));
     }
 
     @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)

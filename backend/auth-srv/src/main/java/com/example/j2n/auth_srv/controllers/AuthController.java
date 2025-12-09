@@ -35,10 +35,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
 
-    @PostMapping(value = "/verify", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<UserResponse.UserItem>> verify(@RequestBody @Valid VerifyRequest request) {
-        return ResponseEntity.ok(authService.verify(request));
-    }
+    // @PostMapping(value = "/verify", produces = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<BaseResponse<UserResponse.UserItem>>
+    // verify(@RequestBody @Valid VerifyRequest request) {
+    // return ResponseEntity.ok(authService.verify(request));
+    // }
 
     @PostMapping(value = "/forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {

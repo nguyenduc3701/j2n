@@ -56,6 +56,7 @@ class UserControllerTest {
         @Test
         void getUsers_ShouldReturnAllUsers() throws Exception {
                 // Arrange
+                com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest request = new com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest();
                 UserResponse.UserItem user1 = new UserResponse.UserItem();
                 user1.setUserName("user1");
                 UserResponse.UserItem user2 = new UserResponse.UserItem();
@@ -64,11 +65,14 @@ class UserControllerTest {
                 UserResponse userResponse = new UserResponse();
                 userResponse.setUsers(Arrays.asList(user1, user2));
 
-                when(userService.getUsers()).thenReturn(ResponseFactory.success(userResponse));
+                when(userService.searchUsers(
+                                any(com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest.class)))
+                                .thenReturn(ResponseFactory.success(userResponse));
 
                 // Act & Assert
-                mockMvc.perform(get("/auth/users")
-                                .contentType(MediaType.APPLICATION_JSON))
+                mockMvc.perform(post("/auth/users/list")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.data.users").isArray())
                                 .andExpect(jsonPath("$.data.users[0].user_name").value("user1"))

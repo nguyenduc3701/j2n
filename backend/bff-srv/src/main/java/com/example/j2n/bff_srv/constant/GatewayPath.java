@@ -6,7 +6,7 @@ import lombok.Getter;
 public class GatewayPath {
     public static final String AUTH_LOGIN_PATH = "/api/auth/login";
     public static final String AUTH_REGISTER_PATH = "/api/auth/register";
-    public static final String AUTH_GET_LIST_USERS_PATH = "/api/auth/users";
+    public static final String AUTH_GET_LIST_USERS_PATH = "/api/auth/users/list";
     public static final String AUTH_ME_PATH = "/api/auth/users/me";
     public static final String AUTH_USER_ID_PATH = "/api/auth/users/%s";
     public static final String AUTH_CREATE_USER_PATH = "/api/auth/users";

@@ -9,7 +9,6 @@ import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
-import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.utils.JwtUtil;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
@@ -31,44 +30,34 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordUtil passwordUtil;
     private final UserRepository userRepository;
-    private final UserService userService;
     private final PermissionService permissionService;
 
     public BaseResponse<LoginResponse> login(LoginRequest request) {
-        log.info("[AUTH-SRV] Login attempt for user: {}", request.getUserName());
-        validateLoginRequest(request);
+        log.info("[AUTH-SRV] Start Login attempt for user: {}", request.getUserName());
+        validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         UserEntity user = findUserByUsername(request.getUserName());
-        validatePassword(request.getPassword(), user.getPassword());
+        validateMatchedPassword(request.getPassword(), user.getPassword());
         String token = generateAuthToken(user);
-        log.info("[AUTH-SRV] Login successful for user: {}", user.getUsername());
+        log.info("[AUTH-SRV] End Login successful for user: {}", user.getUsername());
         return ResponseFactory.success(new LoginResponse(token));
     }
 
     public BaseResponse<UserItemResponse> register(RegisterRequest request) {
-        log.info("[AUTH-SRV] Registration attempt for user: {}", request.getUserName());
+        log.info("[AUTH-SRV] Start Registration attempt for user: {}", request.getUserName());
+        validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         validateUsernameAndEmailDoesNotExist(request.getUserName(), request.getEmail());
-        validatePassword(request.getPassword());
         UserEntity user = createUserFromRequest(request);
-        user = userRepository.save(user);
-        log.info("[AUTH-SRV] User registered successfully: {}", user.getUsername());
+        userRepository.save(user);
+        log.info("[AUTH-SRV] End Registration attempt for user: {}", request.getUserName());
         return ResponseFactory.success(buildUserItemResponse(user));
     }
 
     public BaseResponse<String> forgotPassword(ForgotPasswordRequest request) {
-        log.info("[AUTH-SRV] Forgot password request for email: {}", request.getEmail());
+        log.info("[AUTH-SRV] Start Forgot password request for email: {}", request.getEmail());
         // TODO: Implement forgot password logic (send email, generate reset token,
         // etc.)
+        log.info("[AUTH-SRV] End Forgot password request for email: {}", request.getEmail());
         return ResponseFactory.success("Forgot Password Success");
-    }
-
-    public BaseResponse<UserResponse.UserItem> verify(VerifyRequest request) {
-        log.info("[AUTH-SRV] Verify request for user: {}", request.getUserId());
-        validateUser(request);
-        UserResponse.UserItem userItem = userService.getUserItemById(request.getUserId());
-        List<String> permissions = permissionService.getPermissionsByRoleId(request.getRoleId()).getData();
-        userItem.setPermissions(permissions);
-        log.info("[AUTH-SRV] Verify request for user: {} success", request.getUserId());
-        return ResponseFactory.success(userItem);
     }
 
     // ==================== Private Helper Methods ====================
@@ -81,27 +70,7 @@ public class AuthService {
                 });
     }
 
-    public void validateUser(VerifyRequest request) {
-        UserEntity user = userRepository.findById(Long.parseLong(request.getUserId()))
-                .orElseThrow(() -> {
-                    log.error("[AUTH-SRV] User not found: {}", request.getUserId());
-                    return new IllegalArgumentException(MessageEnum.INVALID_USER_INFORMATION.getMessage());
-                });
-
-        if (!user.getRoleId().toString().equals(request.getRoleId())) {
-            log.error("[AUTH-SRV] Role mismatch. Expected: {}, Got: {}", user.getRoleId(), request.getRoleId());
-            throw new IllegalArgumentException(MessageEnum.INVALID_USER_INFORMATION.getMessage());
-        }
-
-        List<String> actualPermissions = permissionService.getPermissionsByRoleId(user.getRoleId().toString())
-                .getData();
-        if (request.getPermissions() != null && !actualPermissions.equals(request.getPermissions())) {
-            log.error("[AUTH-SRV] Permissions mismatch for user: {}", request.getUserId());
-            throw new IllegalArgumentException(MessageEnum.INVALID_USER_INFORMATION.getMessage());
-        }
-    }
-
-    private void validatePassword(String rawPassword, String encodedPassword) {
+    private void validateMatchedPassword(String rawPassword, String encodedPassword) {
         if (!passwordUtil.matches(rawPassword, encodedPassword)) {
             log.error("[AUTH-SRV] Invalid password attempt");
             throw new IllegalArgumentException(MessageEnum.INVALID_CREDENTIALS.getMessage());
@@ -138,24 +107,15 @@ public class AuthService {
         return user;
     }
 
-    // ==================== Validation Methods ====================
+    // ==================== Public Validation Methods ====================
 
-    private void validateLoginRequest(LoginRequest request) {
-        if (request.getUserName() == null || request.getUserName().trim().isEmpty()) {
-            log.error("[AUTH-SRV] Username is required");
-            throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Username"));
-        }
-        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            log.error("[AUTH-SRV] Password is required");
-            throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Password"));
-        }
-    }
-
-    private void validatePassword(String password) {
-        if (password.length() < CommonConst.PASSWORD_MIN_LENGTH) {
-            log.error("[AUTH-SRV] Password is too short");
-            throw new IllegalArgumentException(MessageEnum.PASSWORD_TOO_SHORT.getMessage());
-        }
+    public UserItemResponse buildUserItemResponse(UserEntity user) {
+        UserItemResponse response = new UserItemResponse();
+        response.setId(user.getId().toString());
+        response.setUserName(user.getUsername());
+        response.setEmail(user.getEmail());
+        response.setCreatedAt(user.getCreatedAt().toString());
+        return response;
     }
 
     public void validateUsernameAndEmailDoesNotExist(String username, String email) {
@@ -169,14 +129,18 @@ public class AuthService {
         }
     }
 
-    // ==================== Public Utility Methods ====================
-
-    public UserItemResponse buildUserItemResponse(UserEntity user) {
-        UserItemResponse response = new UserItemResponse();
-        response.setId(user.getId().toString());
-        response.setUserName(user.getUsername());
-        response.setEmail(user.getEmail());
-        response.setCreatedAt(user.getCreatedAt().toString());
-        return response;
+    public void validateUserNameAndPasswordRequest(String userName, String password) {
+        if (userName == null || userName.trim().isEmpty()) {
+            log.error("[AUTH-SRV] Username is required");
+            throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Username"));
+        }
+        if (password == null || password.trim().isEmpty()) {
+            log.error("[AUTH-SRV] Password is required");
+            throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Password"));
+        }
+        if (password.length() < CommonConst.PASSWORD_MIN_LENGTH) {
+            log.error("[AUTH-SRV] Password is too short");
+            throw new IllegalArgumentException(MessageEnum.PASSWORD_TOO_SHORT.getMessage());
+        }
     }
 }

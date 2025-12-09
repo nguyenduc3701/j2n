@@ -14,11 +14,13 @@ public enum MessageEnum {
     TOKEN_EXPIRED("401", "Token expired"),
     ACCESS_DENIED("403", "Access denied"),
     FIELD_REQUIRED("400", "Field [%s] is required"),
+    UNKNOWN_FIELDS("400", "Unknown fields [%s] in request"),
     ROLE_NOT_FOUND("404", "Role not found"),
     ROLE_NOT_ALLOW_ACTION("400", "Role not allow action"),
     ROLE_NOT_ALLOW_CREATE_USER("400", "Role not allow create user"),
     PERMISSION_DENIED("403", "Permission denied"),
     DELETE_USER_SUCCESS("200", "Delete user successfully"),
+    USER_NOT_ALLOW_ACTION("400", "User not allow action"),
     PASSWORD_TOO_SHORT("400", "Password too short"),
     INVALID_USER_INFORMATION("400", "Invalid user information"),
     INTERNAL_ERROR("500", "Internal server error");

@@ -6,6 +6,7 @@ import com.example.j2n.bff_srv.constant.GatewayPath;
 import com.example.j2n.bff_srv.controller.request.LoginRequest;
 import com.example.j2n.bff_srv.controller.request.RegisterRequest;
 import com.example.j2n.bff_srv.controller.request.CreateUserRequest;
+import com.example.j2n.bff_srv.controller.request.SearchUserRequest;
 import com.example.j2n.bff_srv.utils.RestClientUtil;
 import org.springframework.http.HttpMethod;
 
@@ -24,8 +25,8 @@ public class AuthService {
         return restClientUtil.request(GatewayPath.AUTH_REGISTER_PATH, HttpMethod.POST, request, Object.class);
     }
 
-    public Object getListUsers() {
-        return restClientUtil.request(GatewayPath.AUTH_GET_LIST_USERS_PATH, HttpMethod.GET, null, Object.class);
+    public Object getListUsers(SearchUserRequest request) {
+        return restClientUtil.request(GatewayPath.AUTH_GET_LIST_USERS_PATH, HttpMethod.POST, request, Object.class);
     }
 
     public Object getUserById(String id) {
