@@ -1,24 +1,19 @@
 package com.example.j2n.bff_srv.interceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import com.example.j2n.bff_srv.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 
 @Component
+@Slf4j
 public class JwtDecodeInterceptor implements HandlerInterceptor {
-    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
-
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull Object handler) throws Exception {
-        log.info("[BFF-SRV] Pre-handle method called");
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             try {
@@ -30,7 +25,6 @@ public class JwtDecodeInterceptor implements HandlerInterceptor {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
-        log.info("[BFF-SRV] Pre-handle method completed");
         return true;
     }
 }

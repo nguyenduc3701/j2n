@@ -102,7 +102,7 @@ public class UserService {
         user.setIsDeleted(true);
         userRepository.save(user);
         log.info("[AUTH-SRV] End deleting user. User deleted successfully");
-        return ResponseFactory.<Object>of(MessageEnum.DELETE_USER_SUCCESS, null);
+        return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, null);
     }
 
     private UserEntity findUserByIdOrThrow(String userId) {
