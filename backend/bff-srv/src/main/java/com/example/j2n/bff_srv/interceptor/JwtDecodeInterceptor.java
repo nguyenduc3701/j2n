@@ -19,7 +19,6 @@ public class JwtDecodeInterceptor implements HandlerInterceptor {
             try {
                 String token = authHeader.substring(7);
                 request.setAttribute("TOKEN", token);
-                request.setAttribute("FROM-BFF", true);
             } catch (Exception e) {
                 log.error("[BFF-SRV] Failed to decode JWT token", e);
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);

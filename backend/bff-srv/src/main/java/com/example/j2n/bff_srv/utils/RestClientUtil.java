@@ -29,6 +29,7 @@ public class RestClientUtil {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("FROM-BFF", "true");
 
         // Lấy token từ request hiện tại nếu có
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
@@ -37,10 +38,6 @@ public class RestClientUtil {
             String token = (String) currentRequest.getAttribute("TOKEN");
             if (token != null && !token.isEmpty()) {
                 headers.set("Authorization", "Bearer " + token);
-            }
-            Boolean fromBff = (Boolean) currentRequest.getAttribute("FROM-BFF");
-            if (Boolean.TRUE.equals(fromBff)) {
-                headers.set("FROM-BFF", "true");
             }
         }
 
