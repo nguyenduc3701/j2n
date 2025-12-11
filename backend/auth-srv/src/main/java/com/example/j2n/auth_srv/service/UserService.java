@@ -1,18 +1,18 @@
 package com.example.j2n.auth_srv.service;
 
-import com.example.j2n.auth_srv.constant.CommonConst;
-import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.service.response.UserResponse;
-import com.example.j2n.auth_srv.utils.PageUtil;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
-import com.example.j2n.auth_srv.utils.ResponseFactory;
 import com.example.j2n.auth_srv.utils.common.CurrentUser;
+import com.example.j2n.constants.CommonConst;
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.MessageEnum;
+import com.example.j2n.utils.PageUtil;
+import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.ArrayList;
+
 import java.time.LocalDate;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -79,7 +80,7 @@ public class UserService {
         UserEntity user = buildUserFromCreateRequest(request);
         userRepository.save(user);
         log.info("[AUTH-SRV] End creating user. User created successfully");
-        return ResponseFactory.success(authService.buildUserItemResponse(user));
+        return ResponseFactory.of(MessageEnum.CREATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
     public BaseResponse<UserItemResponse> updateUser(String userId, UpdateUserRequest request) {
@@ -90,7 +91,7 @@ public class UserService {
         applyUpdateFields(user, request);
         userRepository.save(user);
         log.info("[AUTH-SRV] End updating user. User updated successfully");
-        return ResponseFactory.success(authService.buildUserItemResponse(user));
+        return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
     public BaseResponse<Object> deleteUser(String userId) {
@@ -101,7 +102,7 @@ public class UserService {
         user.setIsDeleted(true);
         userRepository.save(user);
         log.info("[AUTH-SRV] End deleting user. User deleted successfully");
-        return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, null);
+        return ResponseFactory.<Object>of(MessageEnum.DELETE_USER_SUCCESS, null);
     }
 
     private UserEntity findUserByIdOrThrow(String userId) {

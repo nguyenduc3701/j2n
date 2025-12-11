@@ -3,14 +3,13 @@ package com.example.j2n.auth_srv.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.example.j2n.dto.BaseResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +20,6 @@ import com.example.j2n.auth_srv.repository.PermissionRepository;
 import com.example.j2n.auth_srv.repository.RoleRepository;
 import com.example.j2n.auth_srv.repository.entity.PermissionEntity;
 import com.example.j2n.auth_srv.repository.entity.RoleEntity;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.PermissionResponse;
 
 @ExtendWith(MockitoExtension.class)

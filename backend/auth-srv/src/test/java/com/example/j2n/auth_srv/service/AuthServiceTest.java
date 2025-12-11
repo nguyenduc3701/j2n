@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.j2n.auth_srv.utils.JwtGeneralUtil;
+import com.example.j2n.constants.CommonConst;
+import com.example.j2n.dto.BaseResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,17 +27,15 @@ import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
-import com.example.j2n.auth_srv.utils.JwtUtil;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
     @Mock
-    private JwtUtil jwtUtil;
+    private JwtGeneralUtil jwtUtil;
 
     @Mock
     private PasswordUtil passwordUtil;
@@ -68,7 +69,7 @@ class AuthServiceTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(passwordUtil.matches("password", "encodedPassword")).thenReturn(true);
         when(permissionService.getPermissionsByRoleId("1")).thenReturn(permissionsResponse);
-        when(jwtUtil.generateToken(any(), anyString())).thenReturn("testToken");
+        when(jwtUtil.generate(any(), anyString())).thenReturn("testToken");
 
         // Act
         BaseResponse<LoginResponse> response = authService.login(request);
@@ -156,6 +157,17 @@ class AuthServiceTest {
     }
 
     @Test
+    void login_ShouldThrowException_WhenPasswordIsTooShort() {
+        // Arrange
+        LoginRequest request = new LoginRequest();
+        request.setUserName("testuser");
+        request.setPassword("123"); // Less than 8 chars
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+    }
+
+    @Test
     void register_ShouldReturnUser_WhenRequestIsValid() {
         // Arrange
         RegisterRequest request = new RegisterRequest();
@@ -187,10 +199,43 @@ class AuthServiceTest {
     }
 
     @Test
+    void register_ShouldDefaultToVisitorRole_WhenRoleIsNull() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest();
+        request.setUserName("visitoruser");
+        request.setPassword("password");
+        request.setEmail("visitor@example.com");
+        request.setFullName("Visitor User");
+        request.setPhoneNumber("1234567890");
+        request.setAddress("Test Address");
+        request.setCompany("Test Company");
+        request.setRoleId(null); // Role is null
+
+        when(userRepository.existsByEmail("visitor@example.com")).thenReturn(false);
+        when(userRepository.existsByUsername("visitoruser")).thenReturn(false);
+        when(passwordUtil.encode("password")).thenReturn("encodedPassword");
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
+            UserEntity user = invocation.getArgument(0);
+            user.setId(1L);
+            user.setCreatedAt(LocalDateTime.now());
+            return user;
+        });
+
+        // Act
+        BaseResponse<UserItemResponse> response = authService.register(request);
+
+        // Assert
+        assertNotNull(response);
+        verify(userRepository).save(org.mockito.ArgumentMatchers.argThat(
+                user -> user.getRoleId().equals(CommonConst.ROLE_VISITOR_ID)));
+    }
+
+    @Test
     void register_ShouldThrowException_WhenUsernameExists() {
         // Arrange
         RegisterRequest request = new RegisterRequest();
         request.setUserName("existinguser");
+        request.setPassword("password");
         request.setEmail("test@example.com");
 
         when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
@@ -205,6 +250,7 @@ class AuthServiceTest {
         // Arrange
         RegisterRequest request = new RegisterRequest();
         request.setUserName("newuser");
+        request.setPassword("password");
         request.setEmail("existing@example.com");
 
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);

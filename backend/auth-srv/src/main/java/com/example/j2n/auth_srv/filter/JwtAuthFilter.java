@@ -1,12 +1,11 @@
 package com.example.j2n.auth_srv.filter;
 
+import com.example.j2n.auth_srv.utils.JwtGeneralUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.example.j2n.auth_srv.utils.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -26,7 +25,7 @@ import com.example.j2n.auth_srv.dto.JwtUserPrincipal;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private final JwtGeneralUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -38,7 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         String token = authHeader.substring(7);
         try {
-            Claims claims = jwtUtil.validateToken(token);
+            Claims claims = jwtUtil.validate(token);
             String userId = claims.get("user_id", String.class);
             String username = claims.get("user_name", String.class);
             List<String> permissions = claims.get("permissions", List.class);

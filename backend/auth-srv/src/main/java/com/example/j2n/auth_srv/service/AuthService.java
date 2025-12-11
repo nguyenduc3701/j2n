@@ -1,22 +1,21 @@
 package com.example.j2n.auth_srv.service;
 
-import com.example.j2n.auth_srv.constant.CommonConst;
-import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.repository.UserRepository;
-import com.example.j2n.auth_srv.utils.JwtUtil;
+import com.example.j2n.auth_srv.utils.JwtGeneralUtil;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
-import com.example.j2n.auth_srv.utils.ResponseFactory;
+import com.example.j2n.constants.CommonConst;
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.MessageEnum;
+import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import com.example.j2n.auth_srv.controllers.requests.VerifyRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final JwtUtil jwtUtil;
+    private final JwtGeneralUtil jwtUtil;
     private final PasswordUtil passwordUtil;
     private final UserRepository userRepository;
     private final PermissionService permissionService;
@@ -79,7 +78,7 @@ public class AuthService {
 
     private String generateAuthToken(UserEntity user) {
         Map<String, Object> claims = buildTokenClaims(user);
-        return jwtUtil.generateToken(claims, user.getUsername());
+        return jwtUtil.generate(claims, user.getUsername());
     }
 
     private Map<String, Object> buildTokenClaims(UserEntity user) {

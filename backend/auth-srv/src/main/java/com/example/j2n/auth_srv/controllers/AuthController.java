@@ -3,13 +3,11 @@ package com.example.j2n.auth_srv.controllers;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.service.AuthService;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
-import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
-import com.example.j2n.auth_srv.controllers.requests.VerifyRequest;
 
+import com.example.j2n.dto.BaseResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

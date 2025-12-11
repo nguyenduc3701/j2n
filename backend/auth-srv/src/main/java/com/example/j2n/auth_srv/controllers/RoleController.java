@@ -1,11 +1,11 @@
 package com.example.j2n.auth_srv.controllers;
 
 import com.example.j2n.auth_srv.service.RoleService;
+import com.example.j2n.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.RoleResponse;
 import java.util.List;
 

@@ -1,14 +1,14 @@
 package com.example.j2n.auth_srv.service;
 
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.utils.ResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import com.example.j2n.auth_srv.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import com.example.j2n.auth_srv.utils.ResponseFactory;
 
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.RoleResponse;
 import com.example.j2n.auth_srv.repository.entity.RoleEntity;
 

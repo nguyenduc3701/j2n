@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.j2n.utils.ResponseFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,10 +19,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
-import com.example.j2n.auth_srv.utils.ResponseFactory;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.service.AuthService;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,5 +1,6 @@
 package com.example.j2n.auth_srv.controllers.requests;
 
+import com.example.j2n.dto.PagingRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

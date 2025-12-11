@@ -92,12 +92,16 @@ class AuthControllerTest {
     @WithMockUser
     void getListUsers_ShouldReturnSuccess() throws Exception {
         // Arrange
+        com.example.j2n.bff_srv.controller.request.SearchUserRequest request = new com.example.j2n.bff_srv.controller.request.SearchUserRequest();
         Map<String, String> expectedResponse = Collections.singletonMap("users", "[]");
-        when(authService.getListUsers()).thenReturn(expectedResponse);
+        when(authService.getListUsers(any(com.example.j2n.bff_srv.controller.request.SearchUserRequest.class)))
+                .thenReturn(expectedResponse);
 
         // Act & Assert
-        mockMvc.perform(get(USERS_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post(USERS_ENDPOINT + "/list")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
     }
 
@@ -125,6 +129,24 @@ class AuthControllerTest {
         // Act & Assert
         mockMvc.perform(get(USER_BY_ID_ENDPOINT, userId)
                 .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void createUser_ShouldReturnSuccess() throws Exception {
+        // Arrange
+        com.example.j2n.bff_srv.controller.request.CreateUserRequest request = new com.example.j2n.bff_srv.controller.request.CreateUserRequest();
+        request.setUserName("newuser");
+        Map<String, String> expectedResponse = Collections.singletonMap("user", "newuser");
+        when(authService.createUser(any(com.example.j2n.bff_srv.controller.request.CreateUserRequest.class)))
+                .thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(post(USERS_ENDPOINT)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
     }
 }

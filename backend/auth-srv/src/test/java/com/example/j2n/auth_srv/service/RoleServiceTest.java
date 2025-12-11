@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.example.j2n.dto.BaseResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.j2n.auth_srv.repository.RoleRepository;
 import com.example.j2n.auth_srv.repository.entity.RoleEntity;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.RoleResponse;
 
 @ExtendWith(MockitoExtension.class)

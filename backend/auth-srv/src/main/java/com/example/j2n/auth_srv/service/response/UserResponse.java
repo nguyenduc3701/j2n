@@ -3,6 +3,7 @@ package com.example.j2n.auth_srv.service.response;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.example.j2n.dto.PagingResponse;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 

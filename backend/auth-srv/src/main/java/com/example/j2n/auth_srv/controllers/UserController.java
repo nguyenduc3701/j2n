@@ -1,10 +1,10 @@
 package com.example.j2n.auth_srv.controllers;
 
 import com.example.j2n.auth_srv.service.UserService;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
 import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
+import com.example.j2n.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

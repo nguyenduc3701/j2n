@@ -1,53 +1,50 @@
 package com.example.j2n.auth_srv.exception;
 
-import java.nio.file.AccessDeniedException;
-
-import org.springframework.http.HttpStatus;
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.MessageEnum;
+import com.example.j2n.utils.ResponseFactory;
+import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
-import lombok.extern.slf4j.Slf4j;
-import com.example.j2n.auth_srv.service.response.BaseResponse;
-import com.example.j2n.auth_srv.utils.ResponseFactory;
-import com.example.j2n.auth_srv.constant.MessageEnum;
-import io.jsonwebtoken.JwtException;
+import java.nio.file.AccessDeniedException;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalDefaultExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<Object>> handleException(Exception e) {
-        log.error("[AUTH-SRV] Exception: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        log.error("[AUTH-SRV] Exception: {}", e.getMessage(), e);
+        return ResponseEntity.status(MessageEnum.INTERNAL_ERROR.getHttpStatus().getCode())
                 .body(ResponseFactory.error(MessageEnum.INTERNAL_ERROR));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<BaseResponse<Object>> handleAccessDeniedException(AccessDeniedException e) {
-        log.error("[AUTH-SRV] AccessDeniedException: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        log.error("[AUTH-SRV] AccessDeniedException: {}", e.getMessage(), e);
+        return ResponseEntity.status(MessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
                 .body(ResponseFactory.error(MessageEnum.ACCESS_DENIED));
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
-    public ResponseEntity<BaseResponse<Object>> handleMethodArgumentNotValidException(WebExchangeBindException e) {
-        log.error("[AUTH-SRV] WebExchangeBindException: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+    public ResponseEntity<BaseResponse<Object>> handleWebExchangeBindException(WebExchangeBindException e) {
+        log.error("[AUTH-SRV] WebExchangeBindException: {}", e.getMessage(), e);
+        return ResponseEntity.status(MessageEnum.FIELD_REQUIRED.getHttpStatus().getCode())
                 .body(ResponseFactory.error(MessageEnum.FIELD_REQUIRED));
     }
 
     @ExceptionHandler(JwtException.class)
-    public ResponseEntity<BaseResponse<Object>> handleAuthenticationException(JwtException e) {
-        log.error("[AUTH-SRV] JwtException: {}", e.getMessage());
-        MessageEnum msg;
-        if (e.getMessage().contains("expired")) {
-            msg = MessageEnum.TOKEN_EXPIRED;
-        } else {
-            msg = MessageEnum.TOKEN_INVALID;
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+    public ResponseEntity<BaseResponse<Object>> handleJwtException(JwtException e) {
+        log.error("[AUTH-SRV] JwtException: {}", e.getMessage(), e);
+
+        MessageEnum msg = e.getMessage() != null && e.getMessage().contains("expired")
+                ? MessageEnum.TOKEN_EXPIRED
+                : MessageEnum.TOKEN_INVALID;
+
+        return ResponseEntity.status(msg.getHttpStatus().getCode())
                 .body(ResponseFactory.error(msg));
     }
 }
