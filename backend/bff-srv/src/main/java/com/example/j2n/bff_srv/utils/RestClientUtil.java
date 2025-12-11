@@ -27,7 +27,7 @@ public class RestClientUtil {
     public <T, R> T request(String path, HttpMethod method, R body, Class<T> responseType) {
         String url = gatewayConfig.getBaseUrl() + path;
 
-        HttpHeaders headers = new HttpHeaders();    
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Lấy token từ request hiện tại nếu có
@@ -38,6 +38,10 @@ public class RestClientUtil {
             if (token != null && !token.isEmpty()) {
                 headers.set("Authorization", "Bearer " + token);
             }
+            Boolean fromBff = (Boolean) currentRequest.getAttribute("FROM-BFF");
+            if (Boolean.TRUE.equals(fromBff)) {
+                headers.set("FROM-BFF", "true");
+            }
         }
 
         HttpEntity<R> entity = new HttpEntity<>(body, headers);
@@ -45,13 +49,15 @@ public class RestClientUtil {
         try {
             ResponseEntity<T> response = restTemplate.exchange(url, method, entity, responseType);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException(String.format(MessageEnum.GATEWAY_REQUEST_FAILED.getMessage(), url, response.getStatusCode()));
+                throw new RuntimeException(
+                        String.format(MessageEnum.GATEWAY_REQUEST_FAILED.getMessage(), url, response.getStatusCode()));
             } else {
                 response.getBody();
             }
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
-            throw new RuntimeException(String.format(MessageEnum.GATEWAY_REQUEST_FAILED.getMessage(), url, ex.getStatusCode()), ex);
+            throw new RuntimeException(
+                    String.format(MessageEnum.GATEWAY_REQUEST_FAILED.getMessage(), url, ex.getStatusCode()), ex);
         }
     }
 }

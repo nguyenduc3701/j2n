@@ -1,6 +1,7 @@
 package com.example.j2n.api_gateway_srv.filter;
 
 import com.example.j2n.api_gateway_srv.utils.JwtGeneralUtil;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -16,11 +17,19 @@ import org.springframework.lang.NonNull;
 
 import java.util.Collections;
 import java.util.List;
+import org.springframework.core.io.buffer.DataBuffer;
+
+import com.example.j2n.enums.MessageEnum;
+import com.example.j2n.utils.ResponseFactory;
+import com.example.j2n.dto.BaseResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter implements WebFilter {
     private final JwtGeneralUtil jwtGeneralUtil;
+    private final ObjectMapper objectMapper;
     private final String X_USER_ID = "X-User-Id";
     private final String X_USER_NAME = "X-User-Name";
     private final String X_ROLE_ID = "X-Role-Id";
@@ -30,6 +39,7 @@ public class JwtAuthFilter implements WebFilter {
     private final List<String> BY_PASS_AUTH_LIST = List.of("/api/auth/login", "/api/auth/register");
 
     @Override
+    @SneakyThrows
     public @NonNull Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
 
@@ -37,10 +47,26 @@ public class JwtAuthFilter implements WebFilter {
             return chain.filter(exchange);
         }
 
+        String fromBff = exchange.getRequest().getHeaders().getFirst("FROM-BFF");
+        if (!Boolean.parseBoolean(fromBff)) {
+            BaseResponse<Object> response = ResponseFactory.error(MessageEnum.SERVICE_NOT_RECOGNIZED);
+            byte[] bytes = objectMapper.writeValueAsBytes(response);
+            DataBuffer buffer = exchange.getResponse()
+                    .bufferFactory()
+                    .wrap(bytes);
+            exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
+            return exchange.getResponse().writeWith(Mono.just(buffer)).then(Mono.empty());
+        }
+
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            BaseResponse<Object> response = ResponseFactory.error(MessageEnum.TOKEN_INVALID);
+            byte[] bytes = objectMapper.writeValueAsBytes(response);
+            DataBuffer buffer = exchange.getResponse()
+                    .bufferFactory()
+                    .wrap(bytes);
+            exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
+            return exchange.getResponse().writeWith(Mono.just(buffer)).then(Mono.empty());
         }
 
         String token = authHeader.substring(7);
@@ -48,8 +74,13 @@ public class JwtAuthFilter implements WebFilter {
         try {
             claims = jwtGeneralUtil.verify(token);
         } catch (Exception e) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            BaseResponse<Object> response = ResponseFactory.error(MessageEnum.TOKEN_INVALID);
+            byte[] bytes = objectMapper.writeValueAsBytes(response);
+            DataBuffer buffer = exchange.getResponse()
+                    .bufferFactory()
+                    .wrap(bytes);
+            exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
+            return exchange.getResponse().writeWith(Mono.just(buffer)).then(Mono.empty());
         }
 
         // Lấy giá trị từ JWT
