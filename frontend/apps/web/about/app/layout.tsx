@@ -7,7 +7,7 @@ import {
 } from "next/font/google";
 import { MantineProvider } from "@mantine/core";
 import { I18nProvider } from "@/lib/i18n/provider";
-import "@/styles/globals.css";
+import "@repo/ui/src/styles/globals.css";
 import "@mantine/core/styles.css";
 
 const saira = Saira_Condensed({

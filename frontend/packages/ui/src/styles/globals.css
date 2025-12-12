@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@source "../components/**/*.{ts,tsx,js,jsx}";
+@source "../../../apps/web/**/*.{ts,tsx,js,jsx}";
+
+@theme {
+  /* J2N Sand Colors */
+  --color-j2n-sand-50: #f7f4f3;
+  --color-j2n-sand-100: #efeae7;
+  --color-j2n-sand-200: #e7e1df;
+  --color-j2n-sand-300: #dcd2ce;
+  --color-j2n-sand-400: #d1c4bf;
+  --color-j2n-sand-500: #cec3c1;
+  --color-j2n-sand-600: #b7aaa7;
+  --color-j2n-sand-700: #9e918e;
+  --color-j2n-sand-800: #847876;
+  --color-j2n-sand-900: #695e5c;
+
+  /* J2N Sand Light Colors */
+  --color-j2n-sand-light-50: #ffffff;
+  --color-j2n-sand-light-100: #faf8f7;
+  --color-j2n-sand-light-200: #f4f1ee;
+  --color-j2n-sand-light-300: #efeae7;
+  --color-j2n-sand-light-400: #e6e0dc;
+  --color-j2n-sand-light-500: #ddd6d2;
+  --color-j2n-sand-light-600: #c7c0bc;
+  --color-j2n-sand-light-700: #ada7a3;
+  --color-j2n-sand-light-800: #938e8a;
+  --color-j2n-sand-light-900: #787470;
+
+  /* J2N Sand Medium Colors */
+  --color-j2n-sand-medium-50: #ffffff;
+  --color-j2n-sand-medium-100: #f7f7f7;
+  --color-j2n-sand-medium-200: #ededed;
+  --color-j2n-sand-medium-300: #e3e1e1;
+  --color-j2n-sand-medium-400: #dad8d8;
+  --color-j2n-sand-medium-500: #cfcbcb;
+  --color-j2n-sand-medium-600: #b8b4b4;
+  --color-j2n-sand-medium-700: #9d9999;
+  --color-j2n-sand-medium-800: #827e7e;
+  --color-j2n-sand-medium-900: #676363;
+
+  /* J2N Mauve Colors */
+  --color-j2n-mauve-50: #f5f2f4;
+  --color-j2n-mauve-100: #e8e1e6;
+  --color-j2n-mauve-200: #d5c8d1;
+  --color-j2n-mauve-300: #bfaab9;
+  --color-j2n-mauve-400: #9f8999;
+  --color-j2n-mauve-500: #75616a;
+  --color-j2n-mauve-600: #5e4f56;
+  --color-j2n-mauve-700: #493d43;
+  --color-j2n-mauve-800: #362c32;
+  --color-j2n-mauve-900: #241d22;
+
+  /* J2N Grape Deep Colors */
+  --color-j2n-grape-deep-50: #f3f1f7;
+  --color-j2n-grape-deep-100: #e3dff0;
+  --color-j2n-grape-deep-200: #c5bdd9;
+  --color-j2n-grape-deep-300: #a193be;
+  --color-j2n-grape-deep-400: #6f6192;
+  --color-j2n-grape-deep-500: #2d253c;
+  --color-j2n-grape-deep-600: #241d30;
+  --color-j2n-grape-deep-700: #1b1624;
+  --color-j2n-grape-deep-800: #130f19;
+  --color-j2n-grape-deep-900: #0b0910;
+
+  /* J2N Plum Dark Colors */
+  --color-j2n-plum-dark-50: #f4f1f4;
+  --color-j2n-plum-dark-100: #ded7e0;
+  --color-j2n-plum-dark-200: #c5b9c7;
+  --color-j2n-plum-dark-300: #a693a9;
+  --color-j2n-plum-dark-400: #7e6a82;
+  --color-j2n-plum-dark-500: #4b3d4c;
+  --color-j2n-plum-dark-600: #3c313d;
+  --color-j2n-plum-dark-700: #2e252e;
+  --color-j2n-plum-dark-800: #211a20;
+  --color-j2n-plum-dark-900: #151114;
+
+  /* J2N Ink Colors */
+  --color-j2n-ink-50: #f3f2f3;
+  --color-j2n-ink-100: #e2e0e4;
+  --color-j2n-ink-200: #c8c4ca;
+  --color-j2n-ink-300: #a6a0aa;
+  --color-j2n-ink-400: #6e6871;
+  --color-j2n-ink-500: #0f080f;
+  --color-j2n-ink-600: #0c060c;
+  --color-j2n-ink-700: #090409;
+  --color-j2n-ink-800: #060306;
+  --color-j2n-ink-900: #040204;
+}
+
+@tailwind utilities;
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-primary), Arial, Helvetica, sans-serif;
+}
+
+.font-secondary {
+  font-family: var(--font-secondary);
+}
+
+.font-secondary-300 {
+  font-family: var(--font-secondary);
+  font-weight: 300;
+}
+.font-secondary-400 {
+  font-family: var(--font-secondary);
+  font-weight: 400;
+}
+.font-secondary-500 {
+  font-family: var(--font-secondary);
+  font-weight: 500;
+}
+.font-secondary-600 {
+  font-family: var(--font-secondary);
+  font-weight: 600;
+}
+.font-secondary-700 {
+  font-family: var(--font-secondary);
+  font-weight: 700;
+}
+
+.font-primary {
+  font-family: var(--font-primary);
+}
+
+.font-primary-300 {
+  font-family: var(--font-primary);
+  font-weight: 300;
+}
+.font-primary-400 {
+  font-family: var(--font-primary);
+  font-weight: 400;
+}
+.font-primary-500 {
+  font-family: var(--font-primary);
+  font-weight: 500;
+}
+.font-primary-600 {
+  font-family: var(--font-primary);
+  font-weight: 600;
+}
+.font-primary-700 {
+  font-family: var(--font-primary);
+  font-weight: 700;
+}
+
+html[lang="en"] body {
+  font-family: var(--font-primary);
+}
+
+html[lang="vi"] body {
+  font-family: var(--font-secondary);
+}
+
+html[lang="kr"] body {
+  font-family: var(--font-primary-kr), Arial, Helvetica, sans-serif;
+}
+
+html[lang="jp"] body {
+  font-family: var(--font-primary-jp), Arial, Helvetica, sans-serif;
+}

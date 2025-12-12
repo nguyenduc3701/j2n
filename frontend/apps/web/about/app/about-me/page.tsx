@@ -1,17 +1,29 @@
-import React from "react";
-import HeadTitle from "@repo/components/HeadTitle";
+import J2NTitle, { TileSize } from "@repo/components/J2NTitle";
+import J2NSection from "@repo/components/J2NSection";
+import J2NAvatar from "@repo/components/J2NAvatar";
+import J2NImage from "@repo/components/J2NImage";
 
 const AboutMePage = () => {
   return (
-    <div>
+    <J2NSection name="about-me" className="bg-j2n-sand-500">
       <h1>about me</h1>
-      <HeadTitle
+      <J2NTitle
         title="Frontend Layer"
-        size="xl"
-        divider
+        size={TileSize.xl}
         subTitle="(Frontend Developer)"
+        divider
       />
-    </div>
+      <J2NAvatar
+        size={"175px"}
+        src="https://scontent.fhan17-1.fna.fbcdn.net/v/t39.30808-6/597199448_122360319680004195_2578910024324556104_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEuYDeAh87at7_HxHk89rwLIyWAuvqobBEjJYC6-qhsEbSTlevtwQ6eZEsrqZSAizMqXtxEiLELE1LREdveXPN8&_nc_ohc=z2SA9lopvE0Q7kNvwEaOk6g&_nc_oc=AdkEeGRtB4p_J3SsDP7Jkd_inQt1xKEqHkFGQijqfDSANi0BsuMDD3Lw_UKPpliJt08&_nc_zt=23&_nc_ht=scontent.fhan17-1.fna&_nc_gid=L8iGssMXOixVVTN9g1w7-w&oh=00_Afkq3seLdsf8qoAZbcvNN5HCbI3_kD9wMjTCfQOzBMEYuQ&oe=6941AADC"
+      />
+      <J2NImage
+        src="https://scontent.fhan17-1.fna.fbcdn.net/v/t39.30808-6/597199448_122360319680004195_2578910024324556104_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEuYDeAh87at7_HxHk89rwLIyWAuvqobBEjJYC6-qhsEbSTlevtwQ6eZEsrqZSAizMqXtxEiLELE1LREdveXPN8&_nc_ohc=z2SA9lopvE0Q7kNvwEaOk6g&_nc_oc=AdkEeGRtB4p_J3SsDP7Jkd_inQt1xKEqHkFGQijqfDSANi0BsuMDD3Lw_UKPpliJt08&_nc_zt=23&_nc_ht=scontent.fhan17-1.fna&_nc_gid=L8iGssMXOixVVTN9g1w7-w&oh=00_Afkq3seLdsf8qoAZbcvNN5HCbI3_kD9wMjTCfQOzBMEYuQ&oe=6941AADC"
+        alt="Avatar"
+        width="250px"
+        height="250px"
+      />
+    </J2NSection>
   );
 };
 
