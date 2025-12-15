@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   reactStrictMode: false,
+  images: {
+    domains: ["picsum.photos"],
+  },
 };
 
 export default nextConfig;

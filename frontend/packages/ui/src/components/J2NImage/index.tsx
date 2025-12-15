@@ -1,6 +1,6 @@
 "use client";
 
-import { Image } from "@mantine/core";
+import Image from "next/image";
 import styled from "styled-components";
 
 const Frame = styled.div`
@@ -67,22 +67,33 @@ const Frame = styled.div`
 
 interface ImageFrameProps {
   src: string;
-  alt?: string;
+  alt: string;
   classNames?: string;
   width?: string;
   height?: string;
 }
 
 function J2NImage({ src, alt, classNames, width, height }: ImageFrameProps) {
+  const imageWidth = Number(width?.replace("px", "")) || 300;
+  const imageHeight = Number(height?.replace("px", "")) || 300;
   return (
     <Frame
       className={`image-wrapper h-auto w-fit ${classNames || ""} `}
-      style={{ width }}
+      style={{ width: imageWidth }}
     >
       <div className="corner-br-horizontal" />
       <div className="corner-br-vertical" />
       <div className="clip-shape">
-        <Image src={src} alt={alt} w={width} h={height} fit="cover" />
+        <Image
+          className="image-item"
+          src={src}
+          alt={alt}
+          width={imageWidth}
+          height={imageHeight}
+          objectFit="cover"
+          objectPosition="center"
+          loading="lazy"
+        />
       </div>
     </Frame>
   );
