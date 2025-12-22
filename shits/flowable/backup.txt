@@ -1,0 +1,139 @@
+# services:
+#   flowable-ui:
+#     build: .
+#     image: flowable-ui:6.8.0-patched
+#     # image: flowable/flowable-ui:6.8.0
+#     container_name: flowable-ui
+#     # restart: unless-stopped
+#     environment:
+#       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+#       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/keycloak?currentSchema=flowable
+#       SPRING_DATASOURCE_USERNAME: keycloak
+#       SPRING_DATASOURCE_PASSWORD: keycloak
+#       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID: flowable-ui
+#       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: "FpnkN590q3x8NRg8FAkklKVsmGhhIDK7"
+#       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_NAME: "Flowable UI"
+#       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE: authorization_code
+#       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_REDIRECT_URI: "{baseUrl}/login/oauth2/code/{registrationId}"
+#       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_NAME_ATTRIBUTE: preferred_username
+
+#       # Cấu hình tường minh từng Endpoint để Spring không tự đi 'Discovery' và so sánh Issuer nữa
+#       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_AUTHORIZATION_URI: http://localhost:8081/auth/realms/Flowable/protocol/openid-connect/auth
+#       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/token
+#       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_JWK_SET_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/certs
+#       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_INFO_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/userinfo
+#       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE: openid,profile,email
+
+#       FLOWABLE_COMMON_APP_SECURITY_TYPE: oauth2
+#       # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_AUTHORITIES_ATTRIBUTE: groups
+#       # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_ADMIN_AUTHORITIES: access-admin
+#       # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_MODELER_AUTHORITIES: access-modeler
+#       # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_TASK_AUTHORITIES: access-task
+#       # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_IDM_AUTHORITIES: access-idm
+#       # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_REST_API_AUTHORITIES: access-rest-api
+
+#       FLOWABLE_DATABASE_SCHEMA: flowable
+#       FLOWABLE_DATABASE_SCHEMA_UPDATE: true
+#       FLOWABLE_COMMON_APP_DATABASE_SCHEMA_UPDATE: true
+#       FLOWABLE_COMMON_APP_IDM_ADMIN_USER: admin
+#       FLOWABLE_COMMON_APP_IDM_ADMIN_PASSWORD: test
+#       FLOWABLE_IDM_APP_KEYCLOAK_ENABLED: true
+#       FLOWABLE_IDM_APP_KEYCLOAK_SERVER: http://keycloak:8080/auth
+#       FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_REALM: master
+#       FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_USER: admin
+#       FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_PASSWORD: admin
+#       FLOWABLE_IDM_APP_KEYCLOAK_REALM: Flowable
+
+#       FLOWABLE_IDM_SECURITY_AUTHENTICATION_MODE: external
+#       FLOWABLE_IDM_SECURITY_EXTERNAL_ENABLED: true
+#       FLOWABLE_IDM_SECURITY_EXTERNAL_AUTHORITIES_CLAIM_NAME: roles
+
+#       FLOWABLE_COMMON_APP_IDM_SERVICE_ENABLED: false
+#       FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_ADMIN: admin
+#       FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_MODELER: modeler
+#       FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_TASK: task
+#       FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_IDM: idm
+#       FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_REST_API: rest-api
+
+#       FLOWABLE_IDM_APP_KEYCLOAK_ROLE_CLAIM_NAME: roles
+#       SERVER_PORT: 8080
+
+#       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
+#       # LOGGING_LEVEL_ORG_FLOWABLE_UI_COMMON_SECURITY: DEBUG
+#     ports:
+#       - "6660:8080"
+#     networks:
+#       - shared-network
+# networks:
+#   shared-network:
+#     external: true
+#     name: flowable-keycloak-net
+
+services:
+  flowable-ui:
+    build: .
+    image: flowable-ui:6.8.0-patched
+    container_name: flowable-ui
+
+    environment:
+      # ===== Database =====
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/keycloak?currentSchema=flowable
+      SPRING_DATASOURCE_USERNAME: keycloak
+      SPRING_DATASOURCE_PASSWORD: keycloak
+
+      # ===== OAuth2 LOGIN (Keycloak) =====
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID: flowable-ui
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: "FpnkN590q3x8NRg8FAkklKVsmGhhIDK7"
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_NAME: "Flowable UI"
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE: authorization_code
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_REDIRECT_URI: "{baseUrl}/login/oauth2/code/{registrationId}"
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE: openid,profile,email
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_NAME_ATTRIBUTE: preferred_username
+
+      # Explicit endpoints (Keycloak 24)
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_AUTHORIZATION_URI: http://localhost:8081/auth/realms/Flowable/protocol/openid-connect/auth
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/token
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_JWK_SET_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_INFO_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/userinfo
+
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_AUTHORITIES_ATTRIBUTE: groups
+
+
+      # ===== BẮT BUỘC: ép UI login bằng OAuth2 =====
+      FLOWABLE_COMMON_APP_SECURITY_TYPE: oauth2
+
+      # ===== External identity (đọc role từ token) =====
+      FLOWABLE_IDM_SECURITY_AUTHENTICATION_MODE: external
+      # FLOWABLE_IDM_SECURITY_EXTERNAL_ENABLED: true
+      # FLOWABLE_IDM_SECURITY_EXTERNAL_AUTHORITIES_CLAIM_NAME: roles
+
+      # ===== Role → Group mapping (Flowable hiểu) =====
+      # FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_ADMIN: admin
+      # FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_MODELER: modeler
+      # FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_TASK: user
+      # FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_IDM: idm
+      # FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_REST_API: rest-api
+
+      # ===== DB init =====
+      FLOWABLE_DATABASE_SCHEMA: flowable
+      FLOWABLE_DATABASE_SCHEMA_UPDATE: true
+      FLOWABLE_COMMON_APP_DATABASE_SCHEMA_UPDATE: true
+
+      # ===== Không dùng IDM native =====
+      FLOWABLE_COMMON_APP_IDM_SERVICE_ENABLED: false
+
+      # ===== Misc =====
+      SERVER_PORT: 8080
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
+
+    ports:
+      - "6660:8080"
+
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true
+    name: flowable-keycloak-net
