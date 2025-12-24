@@ -1,0 +1,40 @@
+services:
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: openldap
+    environment:
+      # Tên tổ chức và Domain (sẽ dùng để khai báo DN trong Keycloak)
+      LDAP_ORGANISATION: "Flowable Enterprise"
+      LDAP_DOMAIN: "flowable.com"
+      LDAP_ADMIN_PASSWORD: "admin_password"
+      # Cho phép kết nối không cần TLS để test nhanh (cẩn thận khi lên production)
+      LDAP_TLS: "false"
+    ports:
+      - "389:389"   # Cổng LDAP mặc định
+      - "636:636"   # Cổng LDAPS (SSL)
+    networks:
+      - flowable-keycloak-net
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8082:80"
+    depends_on:
+      - openldap
+    networks:
+      - flowable-keycloak-net
+
+networks:
+  flowable-keycloak-net:
+    external: true
+
+volumes:
+  ldap_data:
+  ldap_config:

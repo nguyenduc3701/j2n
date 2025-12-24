@@ -11,7 +11,7 @@ services:
       SPRING_DATASOURCE_USERNAME: keycloak
       SPRING_DATASOURCE_PASSWORD: keycloak
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID: flowable-ui
-      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: "FpnkN590q3x8NRg8FAkklKVsmGhhIDK7"
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: "fR7JY7uJgHjwTLFlh9OPJ2KAGJRWf8fX"
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_NAME: "Flowable UI"
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE: authorization_code
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_REDIRECT_URI: "{baseUrl}/login/oauth2/code/{registrationId}"
@@ -22,44 +22,164 @@ services:
       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/token
       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_JWK_SET_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/certs
       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_INFO_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/userinfo
-      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE: openid,profile,email
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE: openid,profile,email,flowable-scope
+
 
       FLOWABLE_COMMON_APP_SECURITY_TYPE: oauth2
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_AUTHORITIES-ATTRIBUTE: roles
       FLOWABLE_COMMON_APP_SECURITY_OAUTH2_AUTHORITIES_ATTRIBUTE: roles
-      # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_ADMIN_AUTHORITIES: access-admin
-      # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_MODELER_AUTHORITIES: access-modeler
-      # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_TASK_AUTHORITIES: access-task
-      # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_IDM_AUTHORITIES: access-idm
-      # FLOWABLE_COMMON_APP_SECURITY_OAUTH2_REST_API_AUTHORITIES: access-rest-api
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_GROUPS-ATTRIBUTE: userGroups
+
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_LOAD-AUTHORITIES-FROM-IDENTITY-SERVICE: false
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_ADMIN: "access-admin,Admin"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_MODELER: "access-modeler,Admin,Taskers"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_IDM: "access-idm,Admin,Taskers"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_TASK: "access-task,Admin,Taskers"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_REST_API: "access-rest-api,Admin"
 
       FLOWABLE_DATABASE_SCHEMA: flowable
       FLOWABLE_DATABASE_SCHEMA_UPDATE: true
       FLOWABLE_COMMON_APP_DATABASE_SCHEMA_UPDATE: true
-      FLOWABLE_COMMON_APP_IDM_ADMIN_USER: admin.act
-      FLOWABLE_COMMON_APP_IDM_ADMIN_PASSWORD: 123123
-      FLOWABLE_IDM_APP_KEYCLOAK_ENABLED: true
+      # FLOWABLE_COMMON_APP_IDM_ADMIN_USER: admin.act
+      # FLOWABLE_COMMON_APP_IDM_ADMIN_PASSWORD: 123123
+      # FLOWABLE_IDM_APP_KEYCLOAK_ENABLED: true
       FLOWABLE_IDM_APP_KEYCLOAK_SERVER: http://keycloak:8080/auth
       FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_REALM: master
       FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_USER: admin
       FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_PASSWORD: admin
       FLOWABLE_IDM_APP_KEYCLOAK_REALM: Flowable
 
-      FLOWABLE_IDM_SECURITY_AUTHENTICATION_MODE: external
-      FLOWABLE_IDM_SECURITY_EXTERNAL_ENABLED: true
-      FLOWABLE_IDM_SECURITY_EXTERNAL_AUTHORITIES_CLAIM_NAME: roles
+      # FLOWABLE_IDM_SECURITY_AUTHENTICATION_MODE: external
+      # FLOWABLE_IDM_SECURITY_EXTERNAL_ENABLED: true
+      # FLOWABLE_IDM_SECURITY_EXTERNAL_AUTHORITIES_CLAIM_NAME: roles
 
-      FLOWABLE_COMMON_APP_IDM_SERVICE_ENABLED: false
-      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_ADMIN: admin
-      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_MODELER: modeler
-      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_TASK: task
-      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_IDM: idm
-      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_REST_API: rest-api
+      FLOWABLE_COMMON_APP_IDM_SERVICE_ENABLED: "true"
+      FLOWABLE_IDM_SECURITY_TYPE: oauth2
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_USER-NAME-ATTRIBUTE: preferred_username
+      FLOWABLE_IDM_READONLY: true
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_LOAD_AUTHORITIES_FROM_IDENTITY_SERVICE: false
+
+      FLOWABLE_IDM_LDAP_SERVER: "ldap://openldap"
+      FLOWABLE_IDM_LDAP_PORT: 389 
+
+      # FLOWABLE_IDM_LDAP_ENABLED: true
+      FLOWABLE_IDM_LDAP_URL: "ldap://openldap:389"
+      FLOWABLE_COMMON_APP_IDM_LDAP_URL: "ldap://openldap:389"
+      # --- KẾT NỐI (Giữ nguyên) ---
+      # FLOWABLE_IDM_LDAP_BASE_DN: "dc=flowable,dc=com"
+      # FLOWABLE_IDM_LDAP_USER: "cn=admin,dc=flowable,dc=com"
+      # FLOWABLE_IDM_LDAP_PASSWORD: "admin_password"
+      # FLOWABLE_IDM_LDAP_USER_BASE_DN: "ou=users,dc=flowable,dc=com"
+
+      # # --- USER MAPPING (Đây là phần giải quyết lỗi Null) ---
+      # # Kết quả ldapsearch: uid: a.act -> Map vào "id"
+      # FLOWABLE_IDM_LDAP_USER_ID_ATTRIBUTE: "uid"
+      
+      # # Kết quả ldapsearch: givenName: A -> Map vào "firstName"
+      # FLOWABLE_IDM_LDAP_USER_FIRST_NAME_ATTRIBUTE: "givenName"
+      
+      # # Kết quả ldapsearch: sn: Nguyen -> Map vào "lastName"
+      # FLOWABLE_IDM_LDAP_USER_LAST_NAME_ATTRIBUTE: "sn"
+      
+      # # Kết quả ldapsearch: cn: A Nguyen -> Map vào "fullName"
+      # # Chú ý: Dùng dấu gạch dưới chuẩn Spring cho bản 6.8
+      # FLOWABLE_IDM_LDAP_ATTRIBUTE_FULL_NAME: "cn"
+      
+      # # Vì ldapsearch của bạn KHÔNG CÓ trường 'mail', hãy dùng tạm 'uid' 
+      # # để cột Email không bị null (Hoặc bạn vào LDAP thêm trường 'mail' vào)
+      # FLOWABLE_IDM_LDAP_USER_EMAIL_ATTRIBUTE: "uid" 
+
+      # # --- QUERIES & PATTERNS (Cực kỳ quan trọng) ---
+      # # Kết quả ldapsearch của bạn là: dn: cn=A Nguyen,ou=users...
+      # # Vì RDN của bạn dùng 'cn' nên pattern PHẢI LÀ cn={0}
+      # # FLOWABLE_IDM_LDAP_USER_DN_PATTERN: "cn={0},ou=users,dc=flowable,dc=com"
+      
+      # FLOWABLE_IDM_LDAP_QUERY_ALL_USERS: "(objectClass=inetOrgPerson)"
+      # FLOWABLE_IDM_LDAP_QUERY_USER_BY_ID: "(&(objectClass=inetOrgPerson)(uid={0}))"
+      # # Query tìm kiếm theo tên (dùng cho Modeler assignment)
+      # FLOWABLE_IDM_LDAP_QUERY_USER_BY_FULL_NAME_LIKE: "(&(objectClass=inetOrgPerson)(|(cn=*{0}*)(uid=*{0}*)(sn=*{0}*)))"
+
+      # # LDAP Sync Configuration
+      # FLOWABLE_IDM_LDAP_ENABLED: true
+      # FLOWABLE_IDM_LDAP_URL: "ldap://openldap:389"
+      # FLOWABLE_COMMON_APP_IDM_LDAP_URL: "ldap://openldap:389"
+      # FLOWABLE_IDM_LDAP_BASE_DN: "dc=flowable,dc=com"
+      # FLOWABLE_IDM_LDAP_USER: "cn=admin,dc=flowable,dc=com"
+      # FLOWABLE_IDM_LDAP_PASSWORD: "admin_password"
+      
+      # FLOWABLE_IDM_LDAP_USER_DN_PATTERN: "cn={0},ou=users,dc=flowable,dc=com"
+      # FLOWABLE_IDM_LDAP_USER_ID_ATTRIBUTE: "uid"
+      # # FLOWABLE_IDM_LDAP_USER_FIRST_NAME_ATTRIBUTE: "givenName"
+      # FLOWABLE_IDM_LDAP_USER_LAST_NAME_ATTRIBUTE: sn
+      # FLOWABLE_IDM_LDAP_USER_EMAIL_ATTRIBUTE: "mail"
+      # FLOWABLE_IDM_LDAP_USER_ID: "uid"
+
+      # FLOWABLE_IDM_LDAP_ATTRIBUTE_FULL_NAME: "cn"
+      # FLOWABLE_IDM_LDAP_USER_FULL_NAME: "cn"
+
+      # FLOWABLE_IDM_LDAP_USER_FIRST_NAME_ATTRIBUTE: "givenName"
+      # FLOWABLE_IDM_LDAP_USER_FIRST_NAME: "givenName"
+
+      # # User specific LDAP properties
+      # FLOWABLE_LDAP_USER_QUERY_BASE: "ou=users"
+      # FLOWABLE_LDAP_USER_QUERY_DEFAULT_FILTER: "(objectClass=inetOrgPerson)"
+      # FLOWABLE_LDAP_USER_MAPPINGS_DISTINGUISHED_NAME: "distinguishedName"
+      # FLOWABLE_LDAP_USER_MAPPINGS_MEMBER_OF: "memberOf:1.2.840.113556.1.4.1941:"
+      # FLOWABLE_LDAP_USER_MAPPINGS_ID: "uid"
+      # FLOWABLE_LDAP_USER_MAPPINGS_FIRST_NAME: "givenName"
+      # FLOWABLE_LDAP_USER_MAPPINGS_LAST_NAME: "sn"
+      # FLOWABLE_LDAP_USER_MAPPINGS_DISPLAY_NAME: "cn"
+      # FLOWABLE_LDAP_USER_MAPPINGS_EMAIL: "mail"
+      # # FLOWABLE_LDAP_USER_MAPPINGS_INFO_NAME_COMPANY: "firm"
+      # # FLOWABLE_LDAP_USER_MAPPINGS_INFO_NAME_LOCATION: "site"
+      # FLOWABLE_LDAP_USER_SORT_MODE: "disabled"
+
+      # Chỉ định trường nào trong Token là ID của người dùng (thường là preferred_username hoặc sub)
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_USER_NAME_ATTRIBUTE: preferred_username
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_USER_ID_CLAIM: preferred_username
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_FIRST_NAME_CLAIM: given_name
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_LAST_NAME_CLAIM: family_name
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_EMAIL_CLAIM: mail
+
+
+      # # Cấu hình Query để sửa lỗi 'No queryUserByFullNameLike configured'
+      # # Nó sẽ tìm kiếm dựa trên việc khớp (Like) vào cn (Common Name) hoặc uid
+      # FLOWABLE_IDM_LDAP_QUERY_USER_BY_ID: "(&(objectClass=inetOrgPerson)(uid={0}))"
+      # FLOWABLE_IDM_LDAP_QUERY_USER_BY_FULL_NAME_LIKE: "(&(objectClass=inetOrgPerson)(|(cn=*{0}*)(sn=*{0}*)(uid=*{0}*)))"
+      # FLOWABLE_IDM_LDAP_QUERY_ALL_USERS: "(objectClass=inetOrgPerson)"
+
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_ENABLED: "true"
+
+      FLOWABLE_IDM_LDAP_ENABLED: "false"
+
+      FLOWABLE_IDM_OAUTH2_USER_AUTO_CREATE: "true"
+      FLOWABLE_IDM_OAUTH2_USER_AUTO_UPDATE: "true"
+      FLOWABLE_IDM_EXTERNAL_IDM_ENABLED: "true"
+
+      FLOWABLE_IDM_EXTERNAL_IDM_TYPE: keycloak
+
+      FLOWABLE_IDM_EXTERNAL_IDM_USER_SYNC_ENABLED: "true"
+
+      FLOWABLE_IDM_EXTERNAL_IDM_USER_ID_ATTRIBUTE: preferred_username
+      FLOWABLE_IDM_EXTERNAL_IDM_FIRST_NAME_ATTRIBUTE: given_name
+      FLOWABLE_IDM_EXTERNAL_IDM_LAST_NAME_ATTRIBUTE: family_name
+      FLOWABLE_IDM_EXTERNAL_IDM_FULL_NAME_ATTRIBUTE: name
+
+      # Cấu trúc Group
+      FLOWABLE_IDM_LDAP_GROUP_BASE_DN: "ou=groups,dc=flowable,dc=com"
+      FLOWABLE_IDM_LDAP_GROUP_ID_ATTRIBUTE: "cn"
+      FLOWABLE_IDM_LDAP_GROUP_NAME_ATTRIBUTE: "cn"
+      FLOWABLE_IDM_LDAP_GROUP_MEMBER_ATTRIBUTE: "member"
+      
+      # Cấu hình Query cho Group (để không bị lỗi tương tự khi search Group)
+      FLOWABLE_IDM_LDAP_QUERY_GROUP_BY_ID: "(&(objectClass=groupOfNames)(cn={0}))"
+      FLOWABLE_IDM_LDAP_QUERY_ALL_GROUPS: "(objectClass=groupOfNames)"
 
       FLOWABLE_IDM_APP_KEYCLOAK_ROLE_CLAIM_NAME: roles
       SERVER_PORT: 8080
 
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
-      # LOGGING_LEVEL_ORG_FLOWABLE_UI_COMMON_SECURITY: DEBUG
+      LOGGING_LEVEL_ORG_FLOWABLE_IDM_ENGINE_IMPL_LDAP: DEBUG
     ports:
       - "6660:8080"
     networks:
