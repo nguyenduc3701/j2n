@@ -1,0 +1,83 @@
+services:
+  flowable-ui:
+    build: .
+    image: flowable-ui:6.8.0-patched
+    container_name: flowable-ui
+    environment:
+      # --- 1. KẾT NỐI DATABASE ---
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      # Lưu ý: currentSchema=flowable giúp tách biệt bảng của Flowable trong DB Keycloak
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/keycloak?currentSchema=flowable
+      SPRING_DATASOURCE_USERNAME: keycloak
+      SPRING_DATASOURCE_PASSWORD: keycloak
+
+      # --- 2. CẤU HÌNH ĐĂNG KÝ OAUTH2 CLIENT (Chứng minh thư của App) ---
+      FLOWABLE_COMMON_APP_SECURITY_TYPE: oauth2
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID: flowable-ui
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: "wKW80IiBHqGTAlcZc085LMqLDn8NUypZ"
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE: openid,profile,email
+      
+      # Các dòng dưới đây là mặc định của Spring Security, có thể để lại để tường minh
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_NAME: "Flowable UI"
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE: authorization_code
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_REDIRECT_URI: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+      # --- 3. CẤU HÌNH PROVIDER (Giải quyết lỗi Issuer mismatch) ---
+      # Phía Trình duyệt (Browser) gọi: Dùng localhost:8081
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_AUTHORIZATION_URI: http://localhost:8081/auth/realms/Flowable/protocol/openid-connect/auth
+      
+      # Phía Server (Flowable) gọi nội bộ: Dùng keycloak:8080
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/token
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_JWK_SET_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_INFO_URI: http://keycloak:8080/auth/realms/Flowable/protocol/openid-connect/userinfo
+      
+      # Định danh User chính là preferred_username (admin.act)
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_NAME_ATTRIBUTE: preferred_username
+
+      # --- 4. CẤU HÌNH ĐỒNG BỘ USER VÀO DB (Provisioning) ---
+      # Các config này giúp Flowable tự INSERT vào bảng ACT_ID_USER
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_USERNAME_ATTRIBUTE: preferred_username
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_EMAIL_ATTRIBUTE: email
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_FIRST_NAME_ATTRIBUTE: given_name
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_LAST_NAME_ATTRIBUTE: family_name
+      
+      # --- 5. HỆ THỐNG & LOGGING ---
+      SERVER_PORT: 8080
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG # Để soi lỗi nếu login thất bại
+
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_INFO_AUTHENTICATION_METHOD: header
+
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_LOAD_AUTHORITIES_FROM_IDENTITY_SERVICE: "false"
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_IDM_USER_ID_ATTRIBUTE: preferred_username
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_AUTHORITIES_ATTRIBUTE: roles
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_GROUPS_ATTRIBUTE: groups
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_ADMIN: "access-admin"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_MODELER: "access-modeler"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_IDM: "access-idm"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_TASK: "access-task"
+      FLOWABLE_COMMON_APP_ROLE_MAPPINGS_ACCESS_REST_API: "access-rest-api"
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_USER_DEFINITION_GROUP_MAPPINGS_0_GROUP_KEY: "Admin"
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_USER_DEFINITION_GROUP_MAPPINGS_0_USER_DEFINITION_KEY: "access-admin"
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_USER_DEFINITION_GROUP_MAPPINGS_1_GROUP_KEY: "Admin"
+      FLOWABLE_SECURITY_OAUTH2_CLIENT_MAPPER_USER_DEFINITION_GROUP_MAPPINGS_1_USER_DEFINITION_KEY: "access-modeler"
+      FLOWABLE_COMMON_APP_SECURITY_OAUTH2_USER_NAME_ATTRIBUTE: preferred_username
+      FLOWABLE_IDM_LDAP_ENABLED: "false"
+      FLOWABLE_IDM_APP_KEYCLOAK_ENABLED: "true"
+      FLOWABLE_IDM_APP_KEYCLOAK_SERVER: http://keycloak:8080/auth
+      FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_REALM: master
+      FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_USER: admin
+      FLOWABLE_IDM_APP_KEYCLOAK_AUTHENTICATION_PASSWORD: admin
+      FLOWABLE_IDM_APP_KEYCLOAK_REALM: Flowable
+      FLOWABLE_IDM_OAUTH2_USER_AUTO_CREATE: "true"
+      FLOWABLE_IDM_OAUTH2_USER_AUTO_UPDATE: "true"
+
+      # --- DÒNG KHÔNG CẦN THIẾT (ĐÃ COMMENT) ---
+      # SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://localhost:8081/auth/realms/Flowable (Dòng này gây lỗi mismatch)
+    ports:
+      - "6660:8080"
+    networks:
+      - shared-network
+networks:
+  shared-network:
+    external: true
+    name: flowable-keycloak-net
