@@ -10,4 +10,9 @@ public class GatewayPath {
     public static final String AUTH_ME_PATH = "/api/auth/users/me";
     public static final String AUTH_USER_ID_PATH = "/api/auth/users/%s";
     public static final String AUTH_CREATE_USER_PATH = "/api/auth/users";
+    public static final String AUTH_UPDATE_USER_PATH = "/api/auth/users/%s";
+    public static final String AUTH_DELETE_USER_PATH = "/api/auth/users/%s";
+    public static final String AUTH_GET_ROLES_PATH = "/api/auth/roles";
+    public static final String AUTH_GET_PERMISSIONS_PATH = "/api/auth/permissions";
+    public static final String AUTH_GET_PERMISSIONS_BY_ROLE_ID_PATH = "/api/auth/permissions/%s";
 }

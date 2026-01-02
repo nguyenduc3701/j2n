@@ -146,4 +146,97 @@ class AuthServiceTest {
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_CREATE_USER_PATH), eq(HttpMethod.POST), eq(request),
                                 eq(Object.class));
         }
+
+        @Test
+        void updateUser_ShouldCallRestClientWithCorrectParameters() {
+                // Arrange
+                String userId = "123";
+                com.example.j2n.bff_srv.controller.request.UpdateUserRequest request = new com.example.j2n.bff_srv.controller.request.UpdateUserRequest();
+                request.setFirstName("Updated");
+                request.setLastName("User");
+                Object expectedResponse = new Object();
+                String expectedPath = String.format(GatewayPath.AUTH_UPDATE_USER_PATH, userId);
+
+                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), eq(Object.class)))
+                                .thenReturn(expectedResponse);
+
+                // Act
+                Object result = authService.updateUser(userId, request);
+
+                // Assert
+                assertEquals(expectedResponse, result);
+                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), eq(Object.class));
+        }
+
+        @Test
+        void deleteUser_ShouldCallRestClientWithCorrectParameters() {
+                // Arrange
+                String userId = "123";
+                Object expectedResponse = new Object();
+                String expectedPath = String.format(GatewayPath.AUTH_DELETE_USER_PATH, userId);
+
+                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), eq(Object.class)))
+                                .thenReturn(expectedResponse);
+
+                // Act
+                Object result = authService.deleteUser(userId);
+
+                // Assert
+                assertEquals(expectedResponse, result);
+                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), eq(Object.class));
+        }
+
+        @Test
+        void getRoles_ShouldCallRestClientWithCorrectParameters() {
+                // Arrange
+                Object expectedResponse = new Object();
+
+                when(restClientUtil.request(eq(GatewayPath.AUTH_GET_ROLES_PATH), eq(HttpMethod.GET), eq(null),
+                                eq(Object.class)))
+                                .thenReturn(expectedResponse);
+
+                // Act
+                Object result = authService.getRoles();
+
+                // Assert
+                assertEquals(expectedResponse, result);
+                verify(restClientUtil).request(eq(GatewayPath.AUTH_GET_ROLES_PATH), eq(HttpMethod.GET), eq(null),
+                                eq(Object.class));
+        }
+
+        @Test
+        void getPermissions_ShouldCallRestClientWithCorrectParameters() {
+                // Arrange
+                Object expectedResponse = new Object();
+
+                when(restClientUtil.request(eq(GatewayPath.AUTH_GET_PERMISSIONS_PATH), eq(HttpMethod.GET), eq(null),
+                                eq(Object.class)))
+                                .thenReturn(expectedResponse);
+
+                // Act
+                Object result = authService.getPermissions();
+
+                // Assert
+                assertEquals(expectedResponse, result);
+                verify(restClientUtil).request(eq(GatewayPath.AUTH_GET_PERMISSIONS_PATH), eq(HttpMethod.GET), eq(null),
+                                eq(Object.class));
+        }
+
+        @Test
+        void getPermissionsByRoleId_ShouldCallRestClientWithCorrectParameters() {
+                // Arrange
+                String roleId = "1";
+                Object expectedResponse = new Object();
+                String expectedPath = String.format(GatewayPath.AUTH_GET_PERMISSIONS_BY_ROLE_ID_PATH, roleId);
+
+                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), eq(Object.class)))
+                                .thenReturn(expectedResponse);
+
+                // Act
+                Object result = authService.getPermissionsByRoleId(roleId);
+
+                // Assert
+                assertEquals(expectedResponse, result);
+                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.GET), eq(null), eq(Object.class));
+        }
 }

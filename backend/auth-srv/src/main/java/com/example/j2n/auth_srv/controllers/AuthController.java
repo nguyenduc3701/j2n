@@ -8,6 +8,8 @@ import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 
 import com.example.j2n.dto.BaseResponse;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -23,11 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
 
+    @Operation(summary = "Login", description = "Login with username and password")
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @Operation(summary = "Register", description = "Register with username and password")
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<UserItemResponse>> register(@RequestBody @Valid RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));

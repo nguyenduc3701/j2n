@@ -3,8 +3,10 @@ package com.example.j2n.bff_srv.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -147,6 +149,80 @@ class AuthControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void updateUser_ShouldReturnSuccess() throws Exception {
+        // Arrange
+        String userId = "123";
+        com.example.j2n.bff_srv.controller.request.UpdateUserRequest request = new com.example.j2n.bff_srv.controller.request.UpdateUserRequest();
+        request.setFirstName("Updated");
+        request.setLastName("User");
+        Map<String, String> expectedResponse = Collections.singletonMap("user", "updated");
+        when(authService.updateUser(userId, request)).thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(put(USERS_ENDPOINT + "/" + userId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void deleteUser_ShouldReturnSuccess() throws Exception {
+        // Arrange
+        String userId = "123";
+        Map<String, String> expectedResponse = Collections.singletonMap("message", "deleted");
+        when(authService.deleteUser(userId)).thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(delete(USERS_ENDPOINT + "/" + userId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void getRoles_ShouldReturnSuccess() throws Exception {
+        // Arrange
+        Map<String, String> expectedResponse = Collections.singletonMap("roles", "[]");
+        when(authService.getRoles()).thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/bff/roles")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void getPermissions_ShouldReturnSuccess() throws Exception {
+        // Arrange
+        Map<String, String> expectedResponse = Collections.singletonMap("permissions", "[]");
+        when(authService.getPermissions()).thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/bff/permissions")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void getPermissionsByRoleId_ShouldReturnSuccess() throws Exception {
+        // Arrange
+        String roleId = "1";
+        Map<String, String> expectedResponse = Collections.singletonMap("permissions", "[]");
+        when(authService.getPermissionsByRoleId(roleId)).thenReturn(expectedResponse);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/bff/roles/" + roleId + "/permissions")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 }

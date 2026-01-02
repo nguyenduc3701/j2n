@@ -1,5 +1,6 @@
 package com.example.j2n.auth_srv.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
 import com.example.j2n.auth_srv.service.RoleService;
 import com.example.j2n.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 public class RoleController {
     private final RoleService roleService;
 
+    @Operation(summary = "Get all roles", description = "Get all roles")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<List<RoleResponse>>> getRoles() {
         return ResponseEntity.ok(roleService.getRoles());

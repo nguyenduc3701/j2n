@@ -1,0 +1,15 @@
+package com.example.j2n.dto;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class BaseResponse<T> {
+    private String code;
+    private String message;
+    private T data;
+}
