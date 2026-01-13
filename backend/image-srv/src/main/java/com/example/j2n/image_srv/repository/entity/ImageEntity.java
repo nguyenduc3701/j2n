@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "images", indexes = {
         @Index(name = "idx_owner", columnList = "owner_type, owner_id"),
-        @Index(name = "idx_type", columnList = "image_type"),
-        @Index(name = "idx_images_is_deleted", columnList = "is_deleted")
+        @Index(name = "idx_bucket", columnList = "bucket_name")
 })
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,14 +39,11 @@ public class ImageEntity {
     @Column(name = "file_size")
     private Long fileSize;
 
-    @Column(name = "image_type", length = 50)
-    private String imageType;
-
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    @Column(name = "bucket_name", length = 50)
+    private String bucketName;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

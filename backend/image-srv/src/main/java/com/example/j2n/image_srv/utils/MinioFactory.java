@@ -1,6 +1,5 @@
 package com.example.j2n.image_srv.utils;
 
-import com.example.j2n.image_srv.config.MinioConfig;
 import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +14,13 @@ import java.util.UUID;
 @Slf4j
 public class MinioFactory {
     private final MinioClient minioClient;
-    private final MinioConfig minioConfig;
 
-    public String upload(MultipartFile file) {
+    public String upload(MultipartFile file, String bucketName) {
         try {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(minioConfig.getBucket())
+                            .bucket(bucketName)
                             .object(fileName)
                             .stream(file.getInputStream(), file.getSize(), -1)
                             .contentType(file.getContentType())
@@ -34,11 +32,11 @@ public class MinioFactory {
         }
     }
 
-    public InputStream getObject(String fileName) {
+    public InputStream getObject(String fileName, String bucketName) {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
-                            .bucket(minioConfig.getBucket())
+                            .bucket(bucketName)
                             .object(fileName)
                             .build());
         } catch (Exception e) {
@@ -47,11 +45,11 @@ public class MinioFactory {
         }
     }
 
-    public void removeObject(String fileName) {
+    public void removeObject(String fileName, String bucketName) {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
-                            .bucket(minioConfig.getBucket())
+                            .bucket(bucketName)
                             .object(fileName)
                             .build());
         } catch (Exception e) {

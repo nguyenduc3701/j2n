@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
-    List<ImageEntity> findByOwnerTypeAndOwnerIdAndIsDeletedFalse(String ownerType, Long ownerId);
-    List<ImageEntity> findByImageTypeAndIsDeletedFalse(String imageType);
+    List<ImageEntity> findByOwnerTypeAndOwnerIdAndIsActiveTrue(String ownerType, Long ownerId);
 }

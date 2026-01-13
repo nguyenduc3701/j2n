@@ -6,13 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UploadImageRequest {
-    private String ownerType;
+    private Optional<String> ownerType;
     private Long ownerId;
-    private String imageType;
     private MultipartFile file;
 }

@@ -19,16 +19,18 @@ public class ImageControllers {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload image", description = "Upload image")
     public ImageEntity uploadImage(UploadImageRequest request) {
-        return imageService.uploadImage(
-                request.getOwnerType(),
-                request.getOwnerId(),
-                request.getImageType(),
-                request.getFile());
+        return imageService.uploadImage(request);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{ownerType}/{id}")
     @Operation(summary = "Get image by id", description = "Get image by id")
-    public ResponseEntity<InputStreamResource> getImageById(@PathVariable Long id) {
-        return imageService.getImageResource(id);
+    public ResponseEntity<InputStreamResource> getImageById(@PathVariable String ownerType, @PathVariable Long id) {
+        return imageService.getImageResource(ownerType, id);
+    }
+
+    @GetMapping("/latest-static")
+    @Operation(summary = "Get latest static image", description = "Get latest static image")
+    public ResponseEntity<InputStreamResource> getLatestStaticImage() {
+        return imageService.getStaticPDF();
     }
 }
