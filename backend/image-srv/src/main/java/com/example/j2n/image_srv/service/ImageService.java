@@ -18,19 +18,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.time.Year;
+
 import org.springframework.http.HttpHeaders;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ImageService {
+    private final static String FILE_PREFIX_NAME_STRING = "cv_nguyenminhduc_";
     private final ImageRepository imageRepository;
     private final MinioFactory minioFactory;
 
     public ImageEntity uploadImage(UploadImageRequest request) {
-        log.info("[ImageSrv] Start uploading image: {}", request.getFile().getOriginalFilename());
         validateUploadImageRequest(request);
         validateFileTypeSize(request.getFile());
+        log.info("[ImageSrv] Start uploading image: {}", request.getFile().getOriginalFilename());
         validateOwnerType(request.getOwnerType().orElse(null));
         String fileName = minioFactory.upload(request.getFile(),
                 mapOwnerTypeToBucketName(request.getOwnerType().orElse(OwnerType.DEFAULT)));
@@ -68,11 +71,17 @@ public class ImageService {
     }
 
     private void validateUploadImageRequest(UploadImageRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Request is null");
+        }
         if (request.getOwnerType() == null) {
             throw new IllegalArgumentException("Owner type is null");
         }
         if (request.getOwnerId() == null) {
             throw new IllegalArgumentException("Owner id is null");
+        }
+        if (request.getFile() == null) {
+            throw new IllegalArgumentException("File is null");
         }
     }
 
@@ -96,9 +105,6 @@ public class ImageService {
     }
 
     private void validateFileTypeSize(MultipartFile file) {
-        if (file == null) {
-            throw new IllegalArgumentException("File is null");
-        }
         if (!file.getContentType().startsWith("image/")) {
             throw new IllegalArgumentException("File is not an image");
         }
@@ -107,12 +113,17 @@ public class ImageService {
         }
     }
 
-    public ResponseEntity<InputStreamResource> getStaticPDF() {
+    public ResponseEntity<InputStreamResource> getStaticFile(String year) {
         try {
-            ClassPathResource classPathResource = new ClassPathResource("static/cv_nguyenminhduc_2025.pdf");
+            String downloadYear = year;
+            if (year.equals("latest")) {
+                downloadYear = Year.now().toString();
+            }
+            String fileName = String.format(FILE_PREFIX_NAME_STRING + downloadYear + ".pdf");
+            ClassPathResource classPathResource = new ClassPathResource("static/" + fileName);
             InputStreamResource resource = new InputStreamResource(classPathResource.getInputStream());
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=cv_nguyenminhduc_2025.pdf")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                     .contentType(MediaType.APPLICATION_PDF)
                     .contentLength(classPathResource.contentLength())
                     .body(resource);

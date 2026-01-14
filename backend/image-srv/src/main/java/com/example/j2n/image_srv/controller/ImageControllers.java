@@ -27,10 +27,4 @@ public class ImageControllers {
     public ResponseEntity<InputStreamResource> getImageById(@PathVariable String ownerType, @PathVariable Long id) {
         return imageService.getImageResource(ownerType, id);
     }
-
-    @GetMapping("/latest-static")
-    @Operation(summary = "Get latest static image", description = "Get latest static image")
-    public ResponseEntity<InputStreamResource> getLatestStaticImage() {
-        return imageService.getStaticPDF();
-    }
 }
