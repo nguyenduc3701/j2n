@@ -1,10 +1,12 @@
 package com.example.j2n.image_srv.service;
 
+import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.image_srv.constant.BucketConstant;
 import com.example.j2n.image_srv.constant.OwnerType;
 import com.example.j2n.image_srv.dto.request.UploadImageRequest;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
+import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.image_srv.utils.MinioFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,29 +45,56 @@ class ImageServiceTest {
     void uploadImage_Success() {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
         UploadImageRequest request = UploadImageRequest.builder()
-                .file(file)
+                .files(List.of(file))
                 .ownerType(Optional.of("USER"))
                 .ownerId(1L)
                 .build();
 
         when(minioFactory.upload(any(), anyString())).thenReturn("generated_path");
-        when(imageRepository.save(any(ImageEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(imageRepository.save(any(ImageEntity.class))).thenAnswer(invocation -> {
+            ImageEntity entity = invocation.getArgument(0);
+            entity.setId(1L);
+            return entity;
+        });
 
-        ImageEntity result = imageService.uploadImage(request);
+        BaseResponse<List<ImageItemResponse>> result = imageService.uploadImage(request);
 
         assertNotNull(result);
-        assertEquals("USER", result.getOwnerType());
-        assertEquals(1L, result.getOwnerId());
-        assertEquals("generated_path", result.getFilePath());
-        assertEquals(BucketConstant.USER_BUCKET, result.getBucketName());
+        assertEquals(1, result.getData().size());
+        ImageItemResponse response = result.getData().get(0);
+        assertEquals(1L, response.getId());
+        assertEquals("generated_path", response.getFilePath());
         verify(imageRepository, times(1)).save(any(ImageEntity.class));
+        verify(minioFactory).upload(any(), eq(BucketConstant.USER_BUCKET));
+    }
+
+    @Test
+    void uploadImage_MultiFile_Success() {
+        MockMultipartFile file1 = new MockMultipartFile("file", "test1.jpg", "image/jpeg", "content1".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("file", "test2.jpg", "image/jpeg", "content2".getBytes());
+        UploadImageRequest request = UploadImageRequest.builder()
+                .files(List.of(file1, file2))
+                .ownerType(Optional.of("USER"))
+                .ownerId(1L)
+                .build();
+
+        when(minioFactory.upload(any(), anyString())).thenReturn("path1", "path2");
+        when(imageRepository.save(any(ImageEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BaseResponse<List<ImageItemResponse>> result = imageService.uploadImage(request);
+
+        assertNotNull(result);
+        assertEquals(2, result.getData().size());
+        assertEquals("path1", result.getData().get(0).getFilePath());
+        assertEquals("path2", result.getData().get(1).getFilePath());
+        verify(imageRepository, times(2)).save(any(ImageEntity.class));
     }
 
     @Test
     void uploadImage_InvalidOwnerType_ThrowsException() {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
         UploadImageRequest request = UploadImageRequest.builder()
-                .file(file)
+                .files(List.of(file))
                 .ownerType(Optional.of("INVALID"))
                 .ownerId(1L)
                 .build();
@@ -76,7 +106,7 @@ class ImageServiceTest {
     void uploadImage_NullOwnerType_UsesDefault() {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
         UploadImageRequest request = UploadImageRequest.builder()
-                .file(file)
+                .files(List.of(file))
                 .ownerType(Optional.empty())
                 .ownerId(1L)
                 .build();
@@ -84,17 +114,17 @@ class ImageServiceTest {
         when(minioFactory.upload(any(), anyString())).thenReturn("path");
         when(imageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        ImageEntity result = imageService.uploadImage(request);
+        BaseResponse<List<ImageItemResponse>> result = imageService.uploadImage(request);
 
-        assertEquals(OwnerType.DEFAULT, result.getOwnerType());
-        assertEquals(BucketConstant.DEFAULT_BUCKET, result.getBucketName());
+        assertEquals("path", result.getData().get(0).getFilePath());
+        verify(minioFactory).upload(any(), eq(BucketConstant.DEFAULT_BUCKET));
     }
 
     @Test
     void uploadImage_FileTypeNotImage_ThrowsException() {
         MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes());
         UploadImageRequest request = UploadImageRequest.builder()
-                .file(file)
+                .files(List.of(file))
                 .ownerType(Optional.of("USER"))
                 .ownerId(1L)
                 .build();
@@ -107,7 +137,7 @@ class ImageServiceTest {
         byte[] largeContent = new byte[1024 * 1024 * 6]; // 6MB
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", largeContent);
         UploadImageRequest request = UploadImageRequest.builder()
-                .file(file)
+                .files(List.of(file))
                 .ownerType(Optional.of("USER"))
                 .ownerId(1L)
                 .build();
@@ -125,7 +155,7 @@ class ImageServiceTest {
         UploadImageRequest request = UploadImageRequest.builder()
                 .ownerType(Optional.of("USER"))
                 .ownerId(null)
-                .file(new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes()))
+                .files(List.of(new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes())))
                 .build();
         assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
     }
@@ -135,17 +165,27 @@ class ImageServiceTest {
         UploadImageRequest request = UploadImageRequest.builder()
                 .ownerType(null)
                 .ownerId(1L)
-                .file(new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes()))
+                .files(List.of(new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes())))
                 .build();
         assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
-    void validateUploadImageRequest_NullFile_ThrowsException() {
+    void validateUploadImageRequest_NullFiles_ThrowsException() {
         UploadImageRequest request = UploadImageRequest.builder()
                 .ownerType(Optional.of("USER"))
                 .ownerId(1L)
-                .file(null)
+                .files(null)
+                .build();
+        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+    }
+
+    @Test
+    void validateUploadImageRequest_EmptyFiles_ThrowsException() {
+        UploadImageRequest request = UploadImageRequest.builder()
+                .ownerType(Optional.of("USER"))
+                .ownerId(1L)
+                .files(List.of())
                 .build();
         assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
     }
@@ -187,14 +227,14 @@ class ImageServiceTest {
     private void testBucketMapping(String type, String expectedBucket) {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
         UploadImageRequest request = UploadImageRequest.builder()
-                .file(file)
+                .files(List.of(file))
                 .ownerType(Optional.of(type))
                 .ownerId(1L)
                 .build();
         when(minioFactory.upload(any(), eq(expectedBucket))).thenReturn("path");
         when(imageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        ImageEntity result = imageService.uploadImage(request);
-        assertEquals(expectedBucket, result.getBucketName());
+        imageService.uploadImage(request);
+        verify(minioFactory).upload(any(), eq(expectedBucket));
     }
 
     @Test
@@ -206,8 +246,6 @@ class ImageServiceTest {
 
     @Test
     void getStaticFile_Latest_Success() {
-        // "latest" uses Year.now() which matches cv_nguyenminhduc_2026.pdf in this
-        // environment
         ResponseEntity<InputStreamResource> response = imageService.getStaticFile("latest");
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());

@@ -1,24 +1,26 @@
 package com.example.j2n.image_srv.controller;
 
 import com.example.j2n.image_srv.dto.request.UploadImageRequest;
-import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.ImageService;
+import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.j2n.dto.BaseResponse;
+import java.util.List;
 
 @RestController
-@RequestMapping("api/image")
+@RequestMapping("/image")
 @RequiredArgsConstructor
 public class ImageControllers {
     private final ImageService imageService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload image", description = "Upload image")
-    public ImageEntity uploadImage(UploadImageRequest request) {
+    public BaseResponse<List<ImageItemResponse>> uploadImage(UploadImageRequest request) {
         return imageService.uploadImage(request);
     }
 

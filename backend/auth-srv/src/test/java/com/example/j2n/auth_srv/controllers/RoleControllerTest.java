@@ -50,7 +50,7 @@ class RoleControllerTest {
         when(roleService.getRoles()).thenReturn(ResponseFactory.success(roles));
 
         // Act & Assert
-        mockMvc.perform(get("/api/auth/roles")
+        mockMvc.perform(get("/auth/roles")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())

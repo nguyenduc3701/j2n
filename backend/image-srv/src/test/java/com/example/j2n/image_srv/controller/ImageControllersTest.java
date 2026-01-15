@@ -1,8 +1,11 @@
 package com.example.j2n.image_srv.controller;
 
+import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.image_srv.dto.request.UploadImageRequest;
-import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.ImageService;
+import com.example.j2n.image_srv.service.response.ImageItemResponse;
+import com.example.j2n.utils.ResponseFactory;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,16 +41,17 @@ class ImageControllersTest {
     @Test
     void uploadImage_Success() {
         UploadImageRequest request = UploadImageRequest.builder()
-                .file(new MockMultipartFile("file", "test.jpg", "image/jpeg", "test content".getBytes()))
+                .files(List.of(new MockMultipartFile("file", "test.jpg", "image/jpeg", "test content".getBytes())))
                 .build();
-        ImageEntity expected = new ImageEntity();
-        expected.setId(1L);
+        ImageItemResponse responseItem = new ImageItemResponse();
+        responseItem.setId(1L);
+        List<ImageItemResponse> expected = List.of(responseItem);
 
-        when(imageService.uploadImage(any(UploadImageRequest.class))).thenReturn(expected);
+        when(imageService.uploadImage(any(UploadImageRequest.class))).thenReturn(ResponseFactory.success(expected));
 
-        ImageEntity result = imageControllers.uploadImage(request);
+        BaseResponse<List<ImageItemResponse>> result = imageControllers.uploadImage(request);
 
-        assertEquals(expected, result);
+        assertEquals(expected, result.getData());
     }
 
     @Test

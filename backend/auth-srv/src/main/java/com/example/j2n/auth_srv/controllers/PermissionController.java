@@ -12,7 +12,7 @@ import java.util.List;
 import com.example.j2n.auth_srv.service.response.PermissionResponse;
 
 @RestController
-@RequestMapping("/api/auth/permissions")
+@RequestMapping("/auth/permissions")
 @RequiredArgsConstructor
 public class PermissionController {
     private final PermissionService permissionService;

@@ -1,7 +1,12 @@
 spring:
   application:
     name: api-gateway-srv
-
+  codec:
+    max-in-memory-size: 50MB
+  webflux:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
   cloud:
     gateway:
       discovery:
@@ -14,10 +19,19 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=1
+        - id: image-srv
+          uri: http://localhost:8183
+          predicates:
+            - Path=/api/image/**
+          filters:
+            - StripPrefix=1
 
 jwt:
   secret: ${JWT_SECRET:J2N-X9mN2bV4cL7pQ1rS8tY6hJ3kD5fW0eGhKiPoLmNzRqStUvWxYApiGatewaySrv}
   expiration-ms: ${JWT_EXPIRATION_MS:172800000}
+
+internal:
+  token: ${INTERNAL_TOKEN}
 
 server:
   port: 8181

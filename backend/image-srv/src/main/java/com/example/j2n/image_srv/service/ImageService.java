@@ -1,11 +1,15 @@
 package com.example.j2n.image_srv.service;
 
+import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.image_srv.constant.BucketConstant;
 import com.example.j2n.image_srv.constant.OwnerType;
 import com.example.j2n.image_srv.dto.request.UploadImageRequest;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
+import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.image_srv.utils.MinioFactory;
+import com.example.j2n.utils.ResponseFactory;
+
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.Year;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 
@@ -30,25 +36,20 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final MinioFactory minioFactory;
 
-    public ImageEntity uploadImage(UploadImageRequest request) {
+    public BaseResponse<List<ImageItemResponse>> uploadImage(UploadImageRequest request) {
         validateUploadImageRequest(request);
-        validateFileTypeSize(request.getFile());
-        log.info("[ImageSrv] Start uploading image: {}", request.getFile().getOriginalFilename());
         validateOwnerType(request.getOwnerType().orElse(null));
-        String fileName = minioFactory.upload(request.getFile(),
-                mapOwnerTypeToBucketName(request.getOwnerType().orElse(OwnerType.DEFAULT)));
-        ImageEntity imageEntity = new ImageEntity();
-        imageEntity.setOwnerType(request.getOwnerType().orElse(OwnerType.DEFAULT));
-        imageEntity.setOwnerId(request.getOwnerId());
-        imageEntity.setFileName(request.getFile().getOriginalFilename());
-        imageEntity.setFilePath(fileName);
-        imageEntity.setContentType(request.getFile().getContentType());
-        imageEntity.setFileSize(request.getFile().getSize());
-        imageEntity.setBucketName(mapOwnerTypeToBucketName(request.getOwnerType().orElse(OwnerType.DEFAULT)));
-        imageEntity.setIsActive(true);
-        ImageEntity saved = imageRepository.save(imageEntity);
-        log.info("[ImageSrv] End uploading image: {}", fileName);
-        return saved;
+        log.info("[ImageSrv] Start uploading images");
+        List<ImageItemResponse> result = new ArrayList<>();
+        for (MultipartFile file : request.getFiles()) {
+            validateFileTypeSize(file);
+            String fileName = minioFactory.upload(file,
+                    mapOwnerTypeToBucketName(request.getOwnerType().orElse(OwnerType.DEFAULT)));
+            ImageEntity imageEntity = buildAndSaveEntity(request, file, fileName);
+            result.add(mapEntityToImageItemResponse(imageEntity));
+        }
+        log.info("[ImageSrv] End uploading images");
+        return ResponseFactory.success(result);
     }
 
     public ResponseEntity<InputStreamResource> getImageResource(String ownerType, Long id) {
@@ -80,8 +81,8 @@ public class ImageService {
         if (request.getOwnerId() == null) {
             throw new IllegalArgumentException("Owner id is null");
         }
-        if (request.getFile() == null) {
-            throw new IllegalArgumentException("File is null");
+        if (request.getFiles() == null || request.getFiles().isEmpty()) {
+            throw new IllegalArgumentException("Files is null or empty");
         }
     }
 
@@ -130,5 +131,25 @@ public class ImageService {
         } catch (IOException e) {
             throw new RuntimeException("Cannot read static file", e);
         }
+    }
+
+    private ImageItemResponse mapEntityToImageItemResponse(ImageEntity imageEntity) {
+        ImageItemResponse imageItemResponse = new ImageItemResponse();
+        imageItemResponse.setId(imageEntity.getId());
+        imageItemResponse.setFilePath(imageEntity.getFilePath());
+        return imageItemResponse;
+    }
+
+    private ImageEntity buildAndSaveEntity(UploadImageRequest request, MultipartFile file, String fileName) {
+        ImageEntity imageEntity = new ImageEntity();
+        imageEntity.setOwnerType(request.getOwnerType().orElse(OwnerType.DEFAULT));
+        imageEntity.setOwnerId(request.getOwnerId());
+        imageEntity.setFileName(file.getOriginalFilename());
+        imageEntity.setFilePath(fileName);
+        imageEntity.setContentType(file.getContentType());
+        imageEntity.setFileSize(file.getSize());
+        imageEntity.setBucketName(mapOwnerTypeToBucketName(request.getOwnerType().orElse(OwnerType.DEFAULT)));
+        imageEntity.setIsActive(true);
+        return imageRepository.save(imageEntity);
     }
 }

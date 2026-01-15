@@ -17,7 +17,7 @@ public class MinioFactory {
 
     public String upload(MultipartFile file, String bucketName) {
         try {
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ", "_");
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)

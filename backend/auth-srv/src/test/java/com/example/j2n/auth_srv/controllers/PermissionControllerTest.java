@@ -51,7 +51,7 @@ class PermissionControllerTest {
         when(permissionService.getPermissions()).thenReturn(ResponseFactory.success(permissions));
 
         // Act & Assert
-        mockMvc.perform(get("/api/auth/permissions")
+        mockMvc.perform(get("/auth/permissions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
@@ -67,7 +67,7 @@ class PermissionControllerTest {
         when(permissionService.getPermissionsByRoleId(anyString())).thenReturn(ResponseFactory.success(permissions));
 
         // Act & Assert
-        mockMvc.perform(get("/api/auth/permissions/{id}", roleId)
+        mockMvc.perform(get("/auth/permissions/{id}", roleId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())

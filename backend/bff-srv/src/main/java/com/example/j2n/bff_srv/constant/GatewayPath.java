@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class GatewayPath {
+    // auth-srv
     public static final String AUTH_LOGIN_PATH = "/api/auth/login";
     public static final String AUTH_REGISTER_PATH = "/api/auth/register";
     public static final String AUTH_GET_LIST_USERS_PATH = "/api/auth/users/list";
@@ -15,4 +16,8 @@ public class GatewayPath {
     public static final String AUTH_GET_ROLES_PATH = "/api/auth/roles";
     public static final String AUTH_GET_PERMISSIONS_PATH = "/api/auth/permissions";
     public static final String AUTH_GET_PERMISSIONS_BY_ROLE_ID_PATH = "/api/auth/permissions/%s";
+    // image-srv
+    public static final String IMAGE_UPLOAD_PATH = "/api/image/upload";
+    public static final String IMAGE_GET_IMAGE_PATH = "/api/image/%s/%s";
+    public static final String IMAGE_DOWNLOAD_FILE_PATH = "/api/image/file/curriculum-vitae/%s";
 }

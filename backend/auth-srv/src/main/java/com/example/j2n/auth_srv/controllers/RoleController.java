@@ -11,7 +11,7 @@ import com.example.j2n.auth_srv.service.response.RoleResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth/roles")
+@RequestMapping("/auth/roles")
 @RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;

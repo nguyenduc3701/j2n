@@ -9,13 +9,5 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ImageItemResponse {
     private Long id;
-    private String ownerType;
-    private Long ownerId;
-    private String fileName;
     private String filePath;
-    private String contentType;
-    private Long fileSize;
-    private String createdAt;
-    private String updatedAt;
-    private String url;
 }

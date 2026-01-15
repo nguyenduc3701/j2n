@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/file")
+@RequestMapping("/image/file")
 @RequiredArgsConstructor
 public class FileControllers {
     private final ImageService imageService;
