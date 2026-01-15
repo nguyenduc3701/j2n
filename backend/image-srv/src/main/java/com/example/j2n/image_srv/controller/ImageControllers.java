@@ -1,6 +1,6 @@
 package com.example.j2n.image_srv.controller;
 
-import com.example.j2n.image_srv.dto.request.UploadImageRequest;
+import com.example.j2n.image_srv.controller.request.UploadImageRequest;
 import com.example.j2n.image_srv.service.ImageService;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import io.swagger.v3.oas.annotations.Operation;

@@ -3,7 +3,7 @@ package com.example.j2n.image_srv.service;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.image_srv.constant.BucketConstant;
 import com.example.j2n.image_srv.constant.OwnerType;
-import com.example.j2n.image_srv.dto.request.UploadImageRequest;
+import com.example.j2n.image_srv.controller.request.UploadImageRequest;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;

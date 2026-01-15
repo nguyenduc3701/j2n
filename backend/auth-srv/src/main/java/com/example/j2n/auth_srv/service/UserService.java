@@ -85,8 +85,6 @@ public class UserService {
 
     public BaseResponse<UserItemResponse> updateUser(String userId, UpdateUserRequest request) {
         log.info("[AUTH-SRV] Start updating user ID: {}", userId);
-        validateUserCanAction(userId);
-        validateAllowRoleInRequest(request.getRoleId());
         UserEntity user = findUserByIdOrThrow(userId);
         applyUpdateFields(user, request);
         userRepository.save(user);
@@ -103,6 +101,16 @@ public class UserService {
         userRepository.save(user);
         log.info("[AUTH-SRV] End deleting user. User deleted successfully");
         return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, null);
+    }
+
+    public BaseResponse<UserItemResponse> updateUserImageUrl(String userId, String imageUrl, String imageId) {
+        log.info("[AUTH-SRV] Start updating user image URL ID: {}", userId);
+        UserEntity user = findUserByIdOrThrow(userId);
+        String imageFinalUrl = String.format("/api/bff/image/user/%s", imageId);
+        user.setImageUrl(imageFinalUrl);
+        userRepository.save(user);
+        log.info("[AUTH-SRV] End updating user image URL. User updated successfully");
+        return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
     private UserEntity findUserByIdOrThrow(String userId) {
@@ -155,6 +163,9 @@ public class UserService {
         }
         if (request.getRoleId() != null) {
             user.setRoleId(request.getRoleId());
+        }
+        if (request.getImageUrl() != null) {
+            user.setImageUrl(request.getImageUrl());
         }
     }
 
@@ -244,6 +255,9 @@ public class UserService {
             if (request.getEndDate().isPresent()) {
                 predicates.add(
                         cb.lessThanOrEqualTo(root.get("createdAt").as(LocalDate.class), request.getEndDate().get()));
+            }
+            if (request.getImageUrl().isPresent()) {
+                predicates.add(cb.equal(root.get("imageUrl"), request.getImageUrl().get()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

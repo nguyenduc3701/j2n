@@ -1,7 +1,7 @@
 package com.example.j2n.image_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.image_srv.dto.request.UploadImageRequest;
+import com.example.j2n.image_srv.controller.request.UploadImageRequest;
 import com.example.j2n.image_srv.service.ImageService;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.utils.ResponseFactory;

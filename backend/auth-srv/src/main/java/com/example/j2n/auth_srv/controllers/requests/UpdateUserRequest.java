@@ -19,4 +19,5 @@ public class UpdateUserRequest {
     private Long roomId;
     private LocalDate birth;
     private UserEntity.Status status;
+    private String imageUrl;
 }

@@ -23,4 +23,6 @@ public class SearchUsersRequest extends PagingRequest {
     private Optional<String> userName;
     private Optional<LocalDate> startDate;
     private Optional<LocalDate> endDate;
+    private Optional<String> imageUrl;
+
 }

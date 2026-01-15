@@ -3,11 +3,13 @@ package com.example.j2n.image_srv.service;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.image_srv.constant.BucketConstant;
 import com.example.j2n.image_srv.constant.OwnerType;
-import com.example.j2n.image_srv.dto.request.UploadImageRequest;
+import com.example.j2n.image_srv.controller.request.UploadImageRequest;
+import com.example.j2n.image_srv.messaging.publisher.UserEventPublisher;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.image_srv.utils.MinioFactory;
+import com.example.j2n.messaging.event.UserAvatarUploadEvent;
 import com.example.j2n.utils.ResponseFactory;
 
 import java.io.IOException;
@@ -35,6 +37,7 @@ public class ImageService {
     private final static String FILE_PREFIX_NAME_STRING = "cv_nguyenminhduc_";
     private final ImageRepository imageRepository;
     private final MinioFactory minioFactory;
+    private final UserEventPublisher avatarEventPublisher;
 
     public BaseResponse<List<ImageItemResponse>> uploadImage(UploadImageRequest request) {
         validateUploadImageRequest(request);
@@ -48,6 +51,8 @@ public class ImageService {
             ImageEntity imageEntity = buildAndSaveEntity(request, file, fileName);
             result.add(mapEntityToImageItemResponse(imageEntity));
         }
+        publishAvatarUploadedEvent(request.getFiles(), request.getOwnerId().toString(), result.get(0).getFilePath(),
+                request.getOwnerType().orElse(OwnerType.DEFAULT), result.get(0).getId().toString());
         log.info("[ImageSrv] End uploading images");
         return ResponseFactory.success(result);
     }
@@ -151,5 +156,16 @@ public class ImageService {
         imageEntity.setBucketName(mapOwnerTypeToBucketName(request.getOwnerType().orElse(OwnerType.DEFAULT)));
         imageEntity.setIsActive(true);
         return imageRepository.save(imageEntity);
+    }
+
+    private void publishAvatarUploadedEvent(List<MultipartFile> files, String userId, String imageUrl, String ownerType,
+            String imageId) {
+        if (files.isEmpty() || files.size() > 1 || !ownerType.equals(OwnerType.USER) || imageId == null) {
+            log.info("[ImageSrv] Skip publishing avatar uploaded event");
+            return;
+        }
+        log.info("[ImageSrv] Publishing avatar uploaded event");
+        UserAvatarUploadEvent event = new UserAvatarUploadEvent(userId, imageId, imageUrl);
+        avatarEventPublisher.publishAvatarUploaded(event);
     }
 }

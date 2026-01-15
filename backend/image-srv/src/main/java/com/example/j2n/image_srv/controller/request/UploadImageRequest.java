@@ -1,4 +1,4 @@
-package com.example.j2n.image_srv.dto.request;
+package com.example.j2n.image_srv.controller.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
