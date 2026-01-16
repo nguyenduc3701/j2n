@@ -2,7 +2,7 @@
 package com.example.j2n.api_gateway_srv.constant;
 
 import com.example.j2n.enums.HttpStatusCode;
-import com.example.j2n.interfaces.BaseMessage;
+import com.example.j2n.impl.BaseMessage;
 import lombok.Getter;
 
 @Getter

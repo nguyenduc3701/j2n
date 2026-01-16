@@ -1,7 +1,7 @@
 package com.example.j2n.image_srv.exception;
 
 import com.example.j2n.image_srv.exception.mapper.ExceptionMapper;
-import com.example.j2n.interfaces.BaseMessage;
+import com.example.j2n.impl.BaseMessage;
 
 import lombok.extern.slf4j.Slf4j;
 

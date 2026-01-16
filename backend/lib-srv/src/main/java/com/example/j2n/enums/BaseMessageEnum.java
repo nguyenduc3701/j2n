@@ -1,7 +1,7 @@
 package com.example.j2n.enums;
 
 import lombok.Getter;
-import com.example.j2n.interfaces.BaseMessage;
+import com.example.j2n.impl.BaseMessage;
 
 @Getter
 public enum BaseMessageEnum implements BaseMessage {

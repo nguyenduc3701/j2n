@@ -4,7 +4,7 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.example.j2n.interfaces.BaseMessage;
+import com.example.j2n.impl.BaseMessage;
 
 @Slf4j
 @AllArgsConstructor

@@ -1,4 +1,4 @@
-package com.example.j2n.interfaces;
+package com.example.j2n.impl;
 
 import com.example.j2n.enums.HttpStatusCode;
 

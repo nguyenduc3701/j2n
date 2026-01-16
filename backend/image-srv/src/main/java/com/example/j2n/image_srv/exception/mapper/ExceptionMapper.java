@@ -7,7 +7,7 @@ import com.example.j2n.exception.ExternalServiceException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.image_srv.constant.MessageEnum;
 import com.example.j2n.image_srv.exception.StaticFileReadException;
-import com.example.j2n.interfaces.BaseMessage;
+import com.example.j2n.impl.BaseMessage;
 
 public class ExceptionMapper {
 
