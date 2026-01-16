@@ -1,22 +1,23 @@
 package com.example.j2n.utils;
 
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.MessageEnum;
+import com.example.j2n.enums.BaseMessageEnum;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.example.j2n.interfaces.BaseMessage;
 
 @Slf4j
 @AllArgsConstructor
 public class ResponseFactory {
     public static <T> BaseResponse<T> success(T data) {
         BaseResponse<T> res = new BaseResponse<>();
-        res.setCode(String.valueOf(MessageEnum.SUCCESS.getHttpStatus().getCode()));
-        res.setMessage(combinedMessage(MessageEnum.SUCCESS.getCode(), MessageEnum.SUCCESS.getMessage()));
+        res.setCode(String.valueOf(BaseMessageEnum.SUCCESS.getHttpStatus().getCode()));
+        res.setMessage(combinedMessage(BaseMessageEnum.SUCCESS.getCode(), BaseMessageEnum.SUCCESS.getMessage()));
         res.setData(data);
         return res;
     }
 
-    public static <T> BaseResponse<T> of(MessageEnum msg, T data) {
+    public static <T> BaseResponse<T> of(BaseMessage msg, T data) {
         BaseResponse<T> res = new BaseResponse<>();
         res.setCode(String.valueOf(msg.getHttpStatus().getCode()));
         res.setMessage(combinedMessage(msg.getCode(), msg.getMessage()));
@@ -24,14 +25,14 @@ public class ResponseFactory {
         return res;
     }
 
-    public static <T> BaseResponse<T> error(MessageEnum msg) {
+    public static <T> BaseResponse<T> error(BaseMessage msg) {
         BaseResponse<T> res = new BaseResponse<>();
         res.setCode(String.valueOf(msg.getHttpStatus().getCode()));
         res.setMessage(combinedMessage(msg.getCode(), msg.getMessage()));
         return res;
     }
 
-    private static String combinedMessage(String code, String message){
+    private static String combinedMessage(String code, String message) {
         return String.format("[%s] %s", code, message);
     }
 }

@@ -3,7 +3,7 @@ package com.example.j2n.auth_srv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.example.j2n")
 public class AuthSrvApplication {
 
 	public static void main(String[] args) {

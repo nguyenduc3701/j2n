@@ -1,19 +1,17 @@
-package com.example.j2n.auth_srv.config;
+package com.example.j2n.auth_srv.messaging.user.config;
 
-import com.example.j2n.messaging.constant.UserEventConstants;
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import com.example.j2n.auth_srv.messaging.user.constant.UserEventConstants;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.Binding;
+
 
 @Configuration
-public class RabbitMQConfig {
-
-    @Bean
-    public Jackson2JsonMessageConverter jacksonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
+public class UserEventConfig {
     @Bean
     public TopicExchange userExchange() {
         return new TopicExchange(UserEventConstants.EXCHANGE_USER);

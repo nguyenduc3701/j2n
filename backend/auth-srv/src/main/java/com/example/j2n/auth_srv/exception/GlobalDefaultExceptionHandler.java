@@ -1,7 +1,8 @@
 package com.example.j2n.auth_srv.exception;
 
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.MessageEnum;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.utils.ResponseFactory;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -18,15 +19,15 @@ public class GlobalDefaultExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<Object>> handleException(Exception e) {
         log.error("[AUTH-SRV] Exception: {}", e.getMessage(), e);
-        return ResponseEntity.status(MessageEnum.INTERNAL_ERROR.getHttpStatus().getCode())
-                .body(ResponseFactory.error(MessageEnum.INTERNAL_ERROR));
+        return ResponseEntity.status(BaseMessageEnum.INTERNAL_ERROR.getHttpStatus().getCode())
+                .body(ResponseFactory.error(BaseMessageEnum.INTERNAL_ERROR));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<BaseResponse<Object>> handleAccessDeniedException(AccessDeniedException e) {
         log.error("[AUTH-SRV] AccessDeniedException: {}", e.getMessage(), e);
-        return ResponseEntity.status(MessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
-                .body(ResponseFactory.error(MessageEnum.ACCESS_DENIED));
+        return ResponseEntity.status(BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
+                .body(ResponseFactory.error(BaseMessageEnum.ACCESS_DENIED));
     }
 
     @ExceptionHandler(WebExchangeBindException.class)

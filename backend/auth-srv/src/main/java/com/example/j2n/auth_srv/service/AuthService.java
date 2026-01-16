@@ -11,11 +11,11 @@ import com.example.j2n.auth_srv.utils.JwtGeneralUtil;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.MessageEnum;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.example.j2n.auth_srv.constant.MessageEnum;
 
 import java.util.HashMap;
 import java.util.List;

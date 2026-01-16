@@ -1,27 +1,18 @@
-package com.example.j2n.image_srv.config;
+package com.example.j2n.messaging.config;
 
-import com.example.j2n.messaging.constant.UserEventConstants;
-import org.springframework.amqp.core.TopicExchange;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 
 @Slf4j
 @Configuration
-public class RabbitMQConfig {
-    @Bean
-    public TopicExchange userExchange() {
-        return new TopicExchange(UserEventConstants.EXCHANGE_USER);
-    }
-
-    @Bean
-    public Jackson2JsonMessageConverter jacksonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
+@Primary
+public class RabbitTemplateConfig {
     @Bean
     public RabbitTemplate rabbitTemplate(
             ConnectionFactory connectionFactory,
@@ -31,13 +22,24 @@ public class RabbitMQConfig {
         template.setMessageConverter(jacksonMessageConverter);
         template.setConfirmCallback((correlationData, ack, cause) -> {
             if (ack) {
-                log.info("✅ Event {} published successfully",
-                        correlationData != null ? correlationData.getId() : "unknown");
+                log.info("[RABBIT-CONFIRM-OK] correlation={}, cause={}",
+                        correlationData != null ? correlationData.getId() : null,
+                        cause);
             } else {
-                log.error("❌ Failed to publish event {}", correlationData != null ? correlationData.getId() : "unknown",
+                log.error("[RABBIT-CONFIRM-FAIL] correlation={}, cause={}",
+                        correlationData != null ? correlationData.getId() : null,
                         cause);
             }
         });
+
+        // return: routing fail
+        template.setReturnsCallback(returned -> {
+            log.error("[RABBIT-RETURN] exchange={}, routingKey={}, replyText={}",
+                    returned.getExchange(),
+                    returned.getRoutingKey(),
+                    returned.getReplyText());
+        });
         return template;
     }
+
 }

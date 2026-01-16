@@ -1,4 +1,4 @@
-package com.example.j2n.messaging.constant;
+package com.example.j2n.auth_srv.messaging.user.constant;
 
 import lombok.Data;
 

@@ -2,14 +2,16 @@ package com.example.j2n.image_srv.service;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.image_srv.constant.BucketConstant;
+import com.example.j2n.image_srv.constant.MessageEnum;
 import com.example.j2n.image_srv.constant.OwnerType;
 import com.example.j2n.image_srv.controller.request.UploadImageRequest;
-import com.example.j2n.image_srv.messaging.publisher.UserEventPublisher;
+import com.example.j2n.image_srv.exception.StaticFileReadException;
+import com.example.j2n.image_srv.messaging.user.event.UserAvatarUploadEvent;
+import com.example.j2n.image_srv.messaging.user.publisher.UserEventPublisher;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.image_srv.utils.MinioFactory;
-import com.example.j2n.messaging.event.UserAvatarUploadEvent;
 import com.example.j2n.utils.ResponseFactory;
 
 import java.io.IOException;
@@ -134,7 +136,7 @@ public class ImageService {
                     .contentLength(classPathResource.contentLength())
                     .body(resource);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot read static file", e);
+            throw new StaticFileReadException(MessageEnum.CAN_NOT_READ_STATIC_FILE.getMessage(), e);
         }
     }
 

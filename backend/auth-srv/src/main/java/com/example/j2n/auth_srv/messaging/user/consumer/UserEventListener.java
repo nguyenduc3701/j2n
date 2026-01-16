@@ -1,8 +1,8 @@
-package com.example.j2n.auth_srv.messaging.consumer;
+package com.example.j2n.auth_srv.messaging.user.consumer;
 
+import com.example.j2n.auth_srv.messaging.user.constant.UserEventConstants;
+import com.example.j2n.auth_srv.messaging.user.event.UserAvatarUploadEvent;
 import com.example.j2n.auth_srv.service.UserService;
-import com.example.j2n.messaging.constant.UserEventConstants;
-import com.example.j2n.messaging.event.UserAvatarUploadEvent;
 import com.rabbitmq.client.Channel;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class UserEventListener {
         try {
             log.info("[EVENT] user.avatar.uploaded userId={}, imageUrl={}",
                     event.getUserId(), event.getImageUrl());
-            userService.updateUserImageUrl(event.getUserId(), event.getImageUrl(), event.getImageId());
+            userService.updateUserImageUrl(event.getUserId(), event.getImageId());
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             log.info("[EVENT] user.avatar.uploaded userId={}, imageUrl={}",
                     event.getUserId(), event.getImageUrl());

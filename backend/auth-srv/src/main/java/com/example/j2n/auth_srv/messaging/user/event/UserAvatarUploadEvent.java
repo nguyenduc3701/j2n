@@ -1,4 +1,4 @@
-package com.example.j2n.messaging.event;
+package com.example.j2n.auth_srv.messaging.user.event;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

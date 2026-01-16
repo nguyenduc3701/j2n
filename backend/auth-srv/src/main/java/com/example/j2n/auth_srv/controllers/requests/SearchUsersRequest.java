@@ -14,15 +14,15 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @EqualsAndHashCode(callSuper = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class SearchUsersRequest extends PagingRequest {
-    private Optional<String> fullName;
-    private Optional<String> email;
-    private Optional<String> phoneNumber;
-    private Optional<Long> roleId;
-    private Optional<String> status;
-    private Optional<Long> id;
-    private Optional<String> userName;
-    private Optional<LocalDate> startDate;
-    private Optional<LocalDate> endDate;
-    private Optional<String> imageUrl;
+    private Optional<String> fullName = Optional.empty();
+    private Optional<String> email = Optional.empty();
+    private Optional<String> phoneNumber = Optional.empty();
+    private Optional<Long> roleId = Optional.empty();
+    private Optional<String> status = Optional.empty();
+    private Optional<Long> id = Optional.empty();
+    private Optional<String> userName = Optional.empty();
+    private Optional<LocalDate> startDate = Optional.empty();
+    private Optional<LocalDate> endDate = Optional.empty();
+    private Optional<String> imageUrl = Optional.empty();
 
 }

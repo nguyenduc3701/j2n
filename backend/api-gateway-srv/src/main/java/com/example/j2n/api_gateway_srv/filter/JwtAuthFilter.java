@@ -1,5 +1,6 @@
 package com.example.j2n.api_gateway_srv.filter;
 
+import com.example.j2n.api_gateway_srv.constant.MessageEnum;
 import com.example.j2n.api_gateway_srv.utils.JwtGeneralUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import org.springframework.core.io.buffer.DataBuffer;
 
-import com.example.j2n.enums.MessageEnum;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.dto.BaseResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

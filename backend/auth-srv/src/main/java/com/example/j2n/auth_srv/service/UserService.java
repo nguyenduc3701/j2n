@@ -1,5 +1,6 @@
 package com.example.j2n.auth_srv.service;
 
+import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
@@ -10,7 +11,7 @@ import com.example.j2n.auth_srv.utils.PasswordUtil;
 import com.example.j2n.auth_srv.utils.common.CurrentUser;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.MessageEnum;
+import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
@@ -103,7 +104,7 @@ public class UserService {
         return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, null);
     }
 
-    public BaseResponse<UserItemResponse> updateUserImageUrl(String userId, String imageUrl, String imageId) {
+    public BaseResponse<UserItemResponse> updateUserImageUrl(String userId, String imageId) {
         log.info("[AUTH-SRV] Start updating user image URL ID: {}", userId);
         UserEntity user = findUserByIdOrThrow(userId);
         String imageFinalUrl = String.format("/api/bff/image/user/%s", imageId);
@@ -256,9 +257,6 @@ public class UserService {
                 predicates.add(
                         cb.lessThanOrEqualTo(root.get("createdAt").as(LocalDate.class), request.getEndDate().get()));
             }
-            if (request.getImageUrl().isPresent()) {
-                predicates.add(cb.equal(root.get("imageUrl"), request.getImageUrl().get()));
-            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -279,17 +277,6 @@ public class UserService {
         if (CommonConst.ROLE_ADMIN_ID.equals(roleId)) {
             log.error("[AUTH-SRV] Cannot create/update user with ADMIN role. Role ID: {}", roleId);
             throw new IllegalArgumentException(MessageEnum.ROLE_NOT_ALLOW_CREATE_USER.getMessage());
-        }
-    }
-
-    private void validateUserCanAction(String reqUserId) {
-        String crtUserId = currentUser.getId();
-        String crtRoleId = currentUser.getRoleId();
-        if (!crtUserId.equals(reqUserId) && !crtRoleId.equals(CommonConst.ROLE_ADMIN_ID.toString())) {
-            log.error(
-                    "[AUTH-SRV] User lacks permission to update user. Current user ID: {}, Current role ID: {}, Requested user ID: {}",
-                    crtUserId, crtRoleId, reqUserId);
-            throw new IllegalArgumentException(MessageEnum.USER_NOT_ALLOW_ACTION.getMessage());
         }
     }
 
