@@ -19,6 +19,23 @@ services:
     volumes:
       - minio-data:/data
 
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set myminio http://minio:9000 minio minio123;
+      mc mb -p myminio/j2n-user;
+      mc mb -p myminio/j2n-product;
+      mc mb -p myminio/j2n-room;
+      mc mb -p myminio/j2n-default;
+      mc mb -p myminio/j2n-travel;
+      mc ls myminio;
+      exit 0;
+      "
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
