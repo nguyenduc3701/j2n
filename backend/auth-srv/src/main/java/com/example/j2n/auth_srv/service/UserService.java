@@ -12,6 +12,9 @@ import com.example.j2n.auth_srv.utils.common.CurrentUser;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.exception.AccessDeniedException;
+import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.exception.UnknowFieldException;
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +89,17 @@ public class UserService {
 
     public BaseResponse<UserItemResponse> updateUser(String userId, UpdateUserRequest request) {
         log.info("[AUTH-SRV] Start updating user ID: {}", userId);
+        validateUserRoleCanAction();
+        if (!currentUser.getId().equals(userId)
+                && !currentUser.getRoleId().equals(CommonConst.ROLE_ADMIN_ID.toString())) {
+            log.error(
+                    "[AUTH-SRV] User lacks permission to update another user. Current User ID: {}, Target User ID: {}",
+                    currentUser.getId(), userId);
+            throw new AccessDeniedException(MessageEnum.ROLE_NOT_ALLOW_ACTION);
+        }
+        if (request.getRoleId() != null) {
+            validateAllowRoleInRequest(request.getRoleId());
+        }
         UserEntity user = findUserByIdOrThrow(userId);
         applyUpdateFields(user, request);
         userRepository.save(user);
@@ -118,7 +132,7 @@ public class UserService {
         return userRepository.findById(Long.parseLong(userId))
                 .orElseThrow(() -> {
                     log.error("[AUTH-SRV] User not found: {}", userId);
-                    return new IllegalArgumentException(MessageEnum.USER_NOT_FOUND.getMessage());
+                    return new DataNotFoundException(MessageEnum.USER_NOT_FOUND);
                 });
     }
 
@@ -269,21 +283,21 @@ public class UserService {
         if (!currentRoleId.equals(CommonConst.ROLE_ADMIN_ID.toString())
                 && !currentRoleId.equals(CommonConst.ROLE_RECRUITER_ID.toString())) {
             log.error("[AUTH-SRV] User lacks permission to create/delete users. Role ID: {}", currentRoleId);
-            throw new IllegalArgumentException(MessageEnum.ROLE_NOT_ALLOW_ACTION.getMessage());
+            throw new AccessDeniedException(MessageEnum.ROLE_NOT_ALLOW_ACTION);
         }
     }
 
     private void validateAllowRoleInRequest(Long roleId) {
         if (CommonConst.ROLE_ADMIN_ID.equals(roleId)) {
             log.error("[AUTH-SRV] Cannot create/update user with ADMIN role. Role ID: {}", roleId);
-            throw new IllegalArgumentException(MessageEnum.ROLE_NOT_ALLOW_CREATE_USER.getMessage());
+            throw new AccessDeniedException(MessageEnum.ROLE_NOT_ALLOW_CREATE_USER);
         }
     }
 
     private void validateUnknownFields(SearchUsersRequest request) {
         if (request.hasUnknownFields()) {
             log.error("[AUTH-SRV] Unknown fields in request: {}", request.getUnknownFields());
-            throw new IllegalArgumentException(MessageEnum.UNKNOWN_FIELDS.getMessage());
+            throw new UnknowFieldException(BaseMessageEnum.UNKNOWN_FIELDS);
         }
     }
 }

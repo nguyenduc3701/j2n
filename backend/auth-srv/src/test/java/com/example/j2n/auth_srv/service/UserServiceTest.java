@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.exception.AccessDeniedException;
+import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.exception.UnknowFieldException;
 import com.example.j2n.utils.ResponseFactory;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Expression;
@@ -294,7 +297,7 @@ class UserServiceTest {
         request.addUnknownField("unknown", "value");
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.searchUsers(request));
+        assertThrows(UnknowFieldException.class, () -> userService.searchUsers(request));
     }
 
     @Test
@@ -353,7 +356,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.getUserById(userId));
+        assertThrows(DataNotFoundException.class, () -> userService.getUserById(userId));
     }
 
     @Test
@@ -368,7 +371,7 @@ class UserServiceTest {
         when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(request));
+        assertThrows(AccessDeniedException.class, () -> userService.createUser(request));
     }
 
     @Test
@@ -380,7 +383,7 @@ class UserServiceTest {
         when(currentUser.getRoleId()).thenReturn("99"); // VISITOR
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(request));
+        assertThrows(AccessDeniedException.class, () -> userService.createUser(request));
     }
 
     @Test
@@ -394,7 +397,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUser(userId, request));
+        assertThrows(DataNotFoundException.class, () -> userService.updateUser(userId, request));
     }
 
     @Test
@@ -407,7 +410,7 @@ class UserServiceTest {
         when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER (Not Admin)
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUser(userId, request));
+        assertThrows(AccessDeniedException.class, () -> userService.updateUser(userId, request));
     }
 
     @Test
@@ -426,7 +429,7 @@ class UserServiceTest {
         // reached because validation fails first
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUser(userId, request));
+        assertThrows(AccessDeniedException.class, () -> userService.updateUser(userId, request));
     }
 
     @Test
@@ -438,7 +441,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.deleteUser(userId));
+        assertThrows(DataNotFoundException.class, () -> userService.deleteUser(userId));
     }
 
     @Test
@@ -570,6 +573,33 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUser_ShouldUpdateImageUrl_WhenImageUrlIsProvided() {
+        // Arrange
+        String userId = "1";
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setImageUrl("/new/image/url.jpg");
+
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setImageUrl("/old/image/url.jpg");
+
+        UserItemResponse itemResponse = new UserItemResponse();
+        itemResponse.setId("1");
+
+        lenient().when(currentUser.getId()).thenReturn("1");
+        lenient().when(currentUser.getRoleId()).thenReturn("1"); // ADMIN
+        lenient().when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        lenient().when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(authService.buildUserItemResponse(any(UserEntity.class))).thenReturn(itemResponse);
+
+        // Act
+        userService.updateUser(userId, request);
+
+        // Assert
+        assertEquals("/new/image/url.jpg", user.getImageUrl());
+    }
+
+    @Test
     void createUser_ShouldReturnUser_WhenRequestIsValid() {
         // Arrange
         CreateUserRequest request = new CreateUserRequest();
@@ -652,5 +682,41 @@ class UserServiceTest {
         // Assert
         assertNotNull(response);
         verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateUserImageUrl_ShouldUpdateImageUrl_WhenUserExists() {
+        // Arrange
+        String userId = "1";
+        String imageId = "image-123";
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+
+        UserItemResponse itemResponse = new UserItemResponse();
+        itemResponse.setId("1");
+
+        lenient().when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        lenient().when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(authService.buildUserItemResponse(any(UserEntity.class))).thenReturn(itemResponse);
+
+        // Act
+        BaseResponse<UserItemResponse> response = userService.updateUserImageUrl(userId, imageId);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("/api/bff/image/user/" + imageId, user.getImageUrl());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateUserImageUrl_ShouldThrowException_WhenUserDoesNotExist() {
+        // Arrange
+        String userId = "1";
+        String imageId = "image-123";
+        lenient().when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(DataNotFoundException.class, () -> userService.updateUserImageUrl(userId, imageId));
     }
 }

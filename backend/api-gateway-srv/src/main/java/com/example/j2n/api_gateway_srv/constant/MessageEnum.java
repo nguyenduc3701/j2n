@@ -1,6 +1,7 @@
 
 package com.example.j2n.api_gateway_srv.constant;
 
+import com.example.j2n.dto.SimpleBaseMessage;
 import com.example.j2n.enums.HttpStatusCode;
 import com.example.j2n.impl.BaseMessage;
 import lombok.Getter;
@@ -22,5 +23,13 @@ public enum MessageEnum implements BaseMessage {
         this.code = code;
         this.httpStatus = httpStatus;
         this.message = message;
+    }
+
+    @Override
+    public BaseMessage withArgs(Object... args) {
+        return new SimpleBaseMessage(
+                this.code,
+                this.httpStatus,
+                String.format(this.message, args));
     }
 }

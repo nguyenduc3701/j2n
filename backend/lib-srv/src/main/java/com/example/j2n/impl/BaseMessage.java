@@ -8,4 +8,6 @@ public interface BaseMessage {
     String getMessage();
 
     HttpStatusCode getHttpStatus();
+
+    BaseMessage withArgs(Object... args);
 }

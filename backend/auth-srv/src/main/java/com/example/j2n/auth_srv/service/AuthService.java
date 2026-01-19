@@ -3,6 +3,8 @@ package com.example.j2n.auth_srv.service;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
+import com.example.j2n.auth_srv.exception.FieldExistedException;
+import com.example.j2n.auth_srv.exception.InvalidCredentialException;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
@@ -11,6 +13,9 @@ import com.example.j2n.auth_srv.utils.JwtGeneralUtil;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,14 +70,14 @@ public class AuthService {
         return userRepository.findByUsername(userName)
                 .orElseThrow(() -> {
                     log.error("[AUTH-SRV] User not found: {}", userName);
-                    return new IllegalArgumentException(MessageEnum.USER_NOT_FOUND.getMessage());
+                    return new DataNotFoundException(MessageEnum.USER_NOT_FOUND);
                 });
     }
 
     private void validateMatchedPassword(String rawPassword, String encodedPassword) {
         if (!passwordUtil.matches(rawPassword, encodedPassword)) {
             log.error("[AUTH-SRV] Invalid password attempt");
-            throw new IllegalArgumentException(MessageEnum.INVALID_CREDENTIALS.getMessage());
+            throw new InvalidCredentialException();
         }
     }
 
@@ -120,26 +125,26 @@ public class AuthService {
     public void validateUsernameAndEmailDoesNotExist(String username, String email) {
         if (userRepository.existsByEmail(email)) {
             log.error("[AUTH-SRV] Email already exists: {}", email);
-            throw new IllegalArgumentException(MessageEnum.EMAIL_ALREADY_EXISTS.getMessage());
+            throw new FieldExistedException("Email");
         }
         if (userRepository.existsByUsername(username)) {
             log.error("[AUTH-SRV] Username already exists: {}", username);
-            throw new IllegalArgumentException(MessageEnum.USERNAME_ALREADY_EXISTS.getMessage());
+            throw new FieldExistedException("Username");
         }
     }
 
     public void validateUserNameAndPasswordRequest(String userName, String password) {
         if (userName == null || userName.trim().isEmpty()) {
             log.error("[AUTH-SRV] Username is required");
-            throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Username"));
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Username"));
         }
         if (password == null || password.trim().isEmpty()) {
             log.error("[AUTH-SRV] Password is required");
-            throw new IllegalArgumentException(String.format(MessageEnum.FIELD_REQUIRED.getMessage(), "Password"));
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Password"));
         }
         if (password.length() < CommonConst.PASSWORD_MIN_LENGTH) {
             log.error("[AUTH-SRV] Password is too short");
-            throw new IllegalArgumentException(MessageEnum.PASSWORD_TOO_SHORT.getMessage());
+            throw new InvalidInputException(MessageEnum.PASSWORD_TOO_SHORT);
         }
     }
 }

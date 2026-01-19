@@ -1,11 +1,13 @@
 package com.example.j2n.exception;
 
+import com.example.j2n.impl.BaseMessage;
+
 public class DataNotFoundException extends BaseServiceException {
-    public DataNotFoundException(String message) {
+    public DataNotFoundException(BaseMessage message) {
         super(message);
     }
 
-    public DataNotFoundException(String message, Throwable cause) {
+    public DataNotFoundException(BaseMessage message, Throwable cause) {
         super(message, cause);
     }
 }

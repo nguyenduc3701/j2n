@@ -32,6 +32,13 @@ public class ResponseFactory {
         return res;
     }
 
+    public static <T> BaseResponse<T> base(BaseMessage msg) {
+        BaseResponse<T> res = new BaseResponse<>();
+        res.setCode(String.valueOf(msg.getHttpStatus().getCode()));
+        res.setMessage(msg.getMessage());
+        return res;
+    }
+
     private static String combinedMessage(String code, String message) {
         return String.format("[%s] %s", code, message);
     }

@@ -13,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import com.example.j2n.exception.InvalidInputException;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,13 +53,31 @@ class ImageServiceTest {
     }
 
     @Test
+    void uploadImage_NoOwnerType_Success() {
+        MockMultipartFile file = new MockMultipartFile("files", "test.jpg", "image/jpeg", "content".getBytes());
+        UploadImageRequest request = UploadImageRequest.builder()
+                .files(List.of(file))
+                .ownerId(1L)
+                .ownerType(Optional.empty())
+                .build();
+
+        when(restClientUtil.requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), eq(Object.class)))
+                .thenReturn(new Object());
+
+        Object result = imageService.uploadImage(request);
+
+        assertNotNull(result);
+        verify(restClientUtil).requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), eq(Object.class));
+    }
+
+    @Test
     void uploadImage_MissingFiles_ThrowsException() {
         UploadImageRequest request = UploadImageRequest.builder()
                 .files(null)
                 .ownerId(1L)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
@@ -68,7 +87,7 @@ class ImageServiceTest {
                 .ownerId(1L)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
@@ -79,7 +98,7 @@ class ImageServiceTest {
                 .ownerId(null)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(request));
     }
 
     @Test

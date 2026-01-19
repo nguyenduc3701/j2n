@@ -1,10 +1,14 @@
 package com.example.j2n.image_srv.service;
 
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.image_srv.constant.BucketConstant;
-import com.example.j2n.image_srv.constant.MessageEnum;
 import com.example.j2n.image_srv.constant.OwnerType;
 import com.example.j2n.image_srv.controller.request.UploadImageRequest;
+import com.example.j2n.image_srv.exception.FileSizeException;
+import com.example.j2n.image_srv.exception.FileTypeException;
+import com.example.j2n.image_srv.exception.OwnerTypeException;
 import com.example.j2n.image_srv.exception.StaticFileReadException;
 import com.example.j2n.image_srv.messaging.user.event.UserAvatarUploadEvent;
 import com.example.j2n.image_srv.messaging.user.publisher.UserEventPublisher;
@@ -13,6 +17,7 @@ import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.image_srv.utils.MinioFactory;
 import com.example.j2n.utils.ResponseFactory;
+import com.example.j2n.exception.DataNotFoundException;
 
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -72,30 +77,30 @@ public class ImageService {
 
     public ImageEntity validateImageId(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Image id is null");
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Image id"));
         }
         return imageRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Image id does not exist"));
+                .orElseThrow(() -> new DataNotFoundException(BaseMessageEnum.NOT_FOUND.withArgs("Image id")));
     }
 
     private void validateUploadImageRequest(UploadImageRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Request is null");
+            throw new InvalidInputException(BaseMessageEnum.INVALID_REQUEST);
         }
         if (request.getOwnerType() == null) {
-            throw new IllegalArgumentException("Owner type is null");
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Owner type"));
         }
         if (request.getOwnerId() == null) {
-            throw new IllegalArgumentException("Owner id is null");
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Owner id"));
         }
         if (request.getFiles() == null || request.getFiles().isEmpty()) {
-            throw new IllegalArgumentException("Files is null or empty");
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Files"));
         }
     }
 
     private void validateOwnerType(String ownerType) {
         if (ownerType != null && !OwnerType.isValid(ownerType)) {
-            throw new IllegalArgumentException("Invalid owner type");
+            throw new OwnerTypeException();
         }
     }
 
@@ -114,10 +119,10 @@ public class ImageService {
 
     private void validateFileTypeSize(MultipartFile file) {
         if (!file.getContentType().startsWith("image/")) {
-            throw new IllegalArgumentException("File is not an image");
+            throw new FileTypeException();
         }
         if (file.getSize() > 1024 * 1024 * 5) {
-            throw new IllegalArgumentException("File size is too large");
+            throw new FileSizeException();
         }
     }
 
@@ -136,7 +141,7 @@ public class ImageService {
                     .contentLength(classPathResource.contentLength())
                     .body(resource);
         } catch (IOException e) {
-            throw new StaticFileReadException(MessageEnum.CAN_NOT_READ_STATIC_FILE.getMessage(), e);
+            throw new StaticFileReadException(e);
         }
     }
 

@@ -1,11 +1,13 @@
 package com.example.j2n.exception;
 
+import com.example.j2n.impl.BaseMessage;
+
 public class ConfigurationException extends BaseServiceException {
-    public ConfigurationException(String message) {
+    public ConfigurationException(BaseMessage message) {
         super(message);
     }
 
-    public ConfigurationException(String message, Throwable cause) {
+    public ConfigurationException(BaseMessage message, Throwable cause) {
         super(message, cause);
     }
 }

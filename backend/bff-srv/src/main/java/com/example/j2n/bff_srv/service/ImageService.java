@@ -3,7 +3,6 @@ package com.example.j2n.bff_srv.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.j2n.bff_srv.constant.GatewayPath;
 import com.example.j2n.bff_srv.controller.request.UploadImageRequest;
 import com.example.j2n.bff_srv.utils.RestClientUtil;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.exception.InvalidInputException;
 
 @Service
 @RequiredArgsConstructor
@@ -49,11 +50,11 @@ public class ImageService {
     private void validateRequest(UploadImageRequest request) {
         if (request.getFiles() == null || request.getFiles().isEmpty()) {
             log.error("Files is required");
-            throw new IllegalArgumentException("Files is required");
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Files"));
         }
         if (request.getOwnerId() == null) {
             log.error("Owner id is required");
-            throw new IllegalArgumentException("Owner id is required");
+            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Owner id"));
         }
     }
 }

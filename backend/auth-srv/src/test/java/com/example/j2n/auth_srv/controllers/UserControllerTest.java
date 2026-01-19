@@ -49,6 +49,8 @@ class UserControllerTest {
         void setUp() {
                 mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
                 objectMapper = new ObjectMapper();
+                objectMapper.registerModule(new com.fasterxml.jackson.datatype.jdk8.Jdk8Module());
+                objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
         }
 
         @Test

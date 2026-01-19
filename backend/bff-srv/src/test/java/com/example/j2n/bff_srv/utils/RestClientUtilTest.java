@@ -166,4 +166,107 @@ class RestClientUtilTest {
             return true;
         }), eq(String.class));
     }
+
+    @Test
+    void request_Success_WithEmptyToken() {
+        when(request.getAttribute("TOKEN")).thenReturn("");
+        ResponseEntity<String> response = new ResponseEntity<>("success", HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(response);
+
+        String result = restClientUtil.request("/test", HttpMethod.GET, null, String.class);
+
+        assertEquals("success", result);
+        verify(restTemplate).exchange(anyString(), any(HttpMethod.class), argThat(entity -> {
+            assertNull(entity.getHeaders().getFirst("Authorization"));
+            return true;
+        }), eq(String.class));
+    }
+
+    @Test
+    void requestUpload_Success_WithEmptyToken() {
+        when(request.getAttribute("TOKEN")).thenReturn("");
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("files", "dummy-resource");
+
+        ResponseEntity<String> response = new ResponseEntity<>("success", HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(response);
+
+        String result = restClientUtil.requestUpload("/upload", body, String.class);
+
+        assertEquals("success", result);
+        verify(restTemplate).exchange(anyString(), eq(HttpMethod.POST), argThat(entity -> {
+            assertNull(entity.getHeaders().getFirst("Authorization"));
+            return true;
+        }), eq(String.class));
+    }
+
+    @Test
+    void requestUpload_NullBody_ThrowsException() {
+        assertThrows(RuntimeException.class, () -> restClientUtil.requestUpload("/upload", null, String.class));
+    }
+
+    @Test
+    void requestBinary_Failed_HttpStatusCodeException() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        assertThrows(RuntimeException.class, () -> restClientUtil.requestBinary("/binary"));
+    }
+
+    @Test
+    void requestBinary_Success_WithEmptyToken() {
+        when(request.getAttribute("TOKEN")).thenReturn("");
+        byte[] content = "binary".getBytes();
+        ResponseEntity<byte[]> response = new ResponseEntity<>(content, HttpStatus.OK);
+
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class)))
+                .thenReturn(response);
+
+        ResponseEntity<byte[]> result = restClientUtil.requestBinary("/binary");
+
+        assertEquals(content, result.getBody());
+        verify(restTemplate).exchange(anyString(), eq(HttpMethod.GET), argThat(entity -> {
+            assertNull(entity.getHeaders().getFirst("Authorization"));
+            return true;
+        }), eq(byte[].class));
+    }
+
+    @Test
+    void requestBinary_NoRequestContext() {
+        RequestContextHolder.resetRequestAttributes();
+        byte[] content = "binary".getBytes();
+        ResponseEntity<byte[]> response = new ResponseEntity<>(content, HttpStatus.OK);
+
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(byte[].class)))
+                .thenReturn(response);
+
+        ResponseEntity<byte[]> result = restClientUtil.requestBinary("/binary");
+
+        assertEquals(content, result.getBody());
+        verify(restTemplate).exchange(anyString(), eq(HttpMethod.GET), argThat(entity -> {
+            assertNull(entity.getHeaders().getFirst("Authorization"));
+            return true;
+        }), eq(byte[].class));
+    }
+
+    @Test
+    void requestUpload_NoRequestContext() {
+        RequestContextHolder.resetRequestAttributes();
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("files", "dummy-resource");
+
+        ResponseEntity<String> response = new ResponseEntity<>("success", HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(response);
+
+        String result = restClientUtil.requestUpload("/upload", body, String.class);
+
+        assertEquals("success", result);
+        verify(restTemplate).exchange(anyString(), eq(HttpMethod.POST), argThat(entity -> {
+            assertNull(entity.getHeaders().getFirst("Authorization"));
+            return true;
+        }), eq(String.class));
+    }
 }

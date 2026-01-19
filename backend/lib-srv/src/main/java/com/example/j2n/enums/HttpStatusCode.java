@@ -19,4 +19,13 @@ public enum HttpStatusCode {
         this.code = code;
         this.reasonPhrase = reasonPhrase;
     }
+
+    public static HttpStatusCode from(int code) {
+        for (HttpStatusCode status : values()) {
+            if (status.code == code) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown HTTP status code: " + code);
+    }
 }

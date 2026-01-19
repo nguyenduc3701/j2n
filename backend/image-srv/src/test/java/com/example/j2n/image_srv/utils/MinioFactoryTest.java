@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
+import com.example.j2n.exception.ExternalServiceException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -44,11 +45,11 @@ class MinioFactoryTest {
     }
 
     @Test
-    void upload_Exception_ThrowsRuntimeException() throws Exception {
+    void upload_Exception_ThrowsExternalServiceException() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
         when(minioClient.putObject(any(PutObjectArgs.class))).thenThrow(new RuntimeException("Minio error"));
 
-        assertThrows(RuntimeException.class, () -> minioFactory.upload(file, "bucket"));
+        assertThrows(ExternalServiceException.class, () -> minioFactory.upload(file, "bucket"));
     }
 
     @Test
@@ -62,10 +63,10 @@ class MinioFactoryTest {
     }
 
     @Test
-    void getObject_Exception_ThrowsRuntimeException() throws Exception {
+    void getObject_Exception_ThrowsExternalServiceException() throws Exception {
         when(minioClient.getObject(any(GetObjectArgs.class))).thenThrow(new RuntimeException("Minio error"));
 
-        assertThrows(RuntimeException.class, () -> minioFactory.getObject("file", "bucket"));
+        assertThrows(ExternalServiceException.class, () -> minioFactory.getObject("file", "bucket"));
     }
 
     @Test
@@ -76,9 +77,9 @@ class MinioFactoryTest {
     }
 
     @Test
-    void removeObject_Exception_ThrowsRuntimeException() throws Exception {
+    void removeObject_Exception_ThrowsExternalServiceException() throws Exception {
         doThrow(new RuntimeException("Minio error")).when(minioClient).removeObject(any(RemoveObjectArgs.class));
 
-        assertThrows(RuntimeException.class, () -> minioFactory.removeObject("file", "bucket"));
+        assertThrows(ExternalServiceException.class, () -> minioFactory.removeObject("file", "bucket"));
     }
 }

@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.exception.ExternalServiceException;
+
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -28,7 +31,7 @@ public class MinioFactory {
             return fileName;
         } catch (Exception e) {
             log.error("[MinioFactory] Error uploading file to Minio: {}", e.getMessage());
-            throw new RuntimeException("Failed to upload file to Minio", e);
+            throw new ExternalServiceException(BaseMessageEnum.EXTERNAL_SERVICE_ERROR, e);
         }
     }
 
@@ -41,7 +44,7 @@ public class MinioFactory {
                             .build());
         } catch (Exception e) {
             log.error("[MinioFactory] Error getting file from Minio: {}", e.getMessage());
-            throw new RuntimeException("Failed to get file from Minio", e);
+            throw new ExternalServiceException(BaseMessageEnum.EXTERNAL_SERVICE_ERROR, e);
         }
     }
 
@@ -54,7 +57,7 @@ public class MinioFactory {
                             .build());
         } catch (Exception e) {
             log.error("[MinioFactory] Error removing file from Minio: {}", e.getMessage());
-            throw new RuntimeException("Failed to remove file from Minio", e);
+            throw new ExternalServiceException(BaseMessageEnum.EXTERNAL_SERVICE_ERROR, e);
         }
     }
 }

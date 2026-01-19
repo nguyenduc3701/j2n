@@ -13,9 +13,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.j2n.auth_srv.exception.FieldExistedException;
+import com.example.j2n.auth_srv.exception.InvalidCredentialException;
 import com.example.j2n.auth_srv.utils.JwtGeneralUtil;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.exception.InvalidInputException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -90,7 +94,7 @@ class AuthServiceTest {
         when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(DataNotFoundException.class, () -> authService.login(request));
     }
 
     @Test
@@ -109,7 +113,7 @@ class AuthServiceTest {
         when(passwordUtil.matches("wrongpassword", "encodedPassword")).thenReturn(false);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(InvalidCredentialException.class, () -> authService.login(request));
     }
 
     @Test
@@ -120,7 +124,7 @@ class AuthServiceTest {
         request.setPassword("password");
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(InvalidInputException.class, () -> authService.login(request));
     }
 
     @Test
@@ -131,7 +135,7 @@ class AuthServiceTest {
         request.setPassword("password");
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(InvalidInputException.class, () -> authService.login(request));
     }
 
     @Test
@@ -142,7 +146,7 @@ class AuthServiceTest {
         request.setPassword(null);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(InvalidInputException.class, () -> authService.login(request));
     }
 
     @Test
@@ -153,7 +157,7 @@ class AuthServiceTest {
         request.setPassword("");
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(InvalidInputException.class, () -> authService.login(request));
     }
 
     @Test
@@ -164,7 +168,7 @@ class AuthServiceTest {
         request.setPassword("123"); // Less than 8 chars
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.login(request));
+        assertThrows(InvalidInputException.class, () -> authService.login(request));
     }
 
     @Test
@@ -242,7 +246,7 @@ class AuthServiceTest {
         when(userRepository.existsByUsername("existinguser")).thenReturn(true);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.register(request));
+        assertThrows(FieldExistedException.class, () -> authService.register(request));
     }
 
     @Test
@@ -256,7 +260,7 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.register(request));
+        assertThrows(FieldExistedException.class, () -> authService.register(request));
     }
 
     @Test

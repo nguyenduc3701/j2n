@@ -15,6 +15,13 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.j2n.bff_srv.constant.MessageEnum;
+import com.example.j2n.bff_srv.dto.DownstreamMessage;
+import com.example.j2n.bff_srv.service.response.BaseResponse;
+import com.example.j2n.enums.HttpStatusCode;
+import com.example.j2n.exception.ExternalServiceException;
+import com.example.j2n.exception.InvalidInputException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -24,6 +31,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class RestClientUtil {
     private final RestTemplate restTemplate;
     private final GatewayConfig gatewayConfig;
+    private final ObjectMapper objectMapper;
 
     public <T, R> T request(String path, HttpMethod method, R body, Class<T> responseType) {
         String url = gatewayConfig.getBaseUrl() + path;
@@ -47,15 +55,13 @@ public class RestClientUtil {
         try {
             ResponseEntity<T> response = restTemplate.exchange(url, method, entity, responseType);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException(
-                        String.format(MessageEnum.GATEWAY_REQUEST_FAILED.getMessage(), url, response.getStatusCode()));
+                throw new ExternalServiceException(MessageEnum.GATEWAY_REQUEST_FAILED);
             } else {
                 response.getBody();
             }
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
-            throw new RuntimeException(
-                    String.format(MessageEnum.GATEWAY_REQUEST_FAILED.getMessage(), url, ex.getStatusCode()), ex);
+            throw buildExternalException(ex);
         }
     }
 
@@ -65,7 +71,7 @@ public class RestClientUtil {
             Class<T> responseType) {
         // Validate bắt buộc phải có key "files"
         if (body == null || !body.containsKey("files")) {
-            throw new RuntimeException(MessageEnum.FILE_NOT_FOUND.getMessage());
+            throw new InvalidInputException(MessageEnum.FILE_NOT_FOUND);
         }
 
         String url = gatewayConfig.getBaseUrl() + path;
@@ -94,14 +100,10 @@ public class RestClientUtil {
                     responseType);
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
-            throw new RuntimeException(
-                    String.format(
-                            MessageEnum.GATEWAY_REQUEST_FAILED.getMessage(),
-                            url,
-                            ex.getStatusCode()),
-                    ex);
+            throw buildExternalException(ex);
         }
     }
+
     public ResponseEntity<byte[]> requestBinary(String path) {
         String url = gatewayConfig.getBaseUrl() + path;
         HttpHeaders headers = new HttpHeaders();
@@ -115,12 +117,35 @@ public class RestClientUtil {
             }
         }
         HttpEntity<Void> entity = new HttpEntity<>(headers);
-        return restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                byte[].class
-        );
+        try {
+            return restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    byte[].class);
+        } catch (HttpStatusCodeException ex) {
+            throw buildExternalException(ex);
+        }
+    }
+
+    private ExternalServiceException buildExternalException(HttpStatusCodeException ex) {
+        try {
+            BaseResponse<?> downstream = objectMapper.readValue(
+                    ex.getResponseBodyAsString(),
+                    BaseResponse.class);
+
+            return new ExternalServiceException(
+                    new DownstreamMessage(
+                            downstream.getCode(),
+                            HttpStatusCode.from(ex.getStatusCode().value()),
+                            downstream.getMessage()),
+                    ex);
+
+        } catch (JsonProcessingException je) {
+            return new ExternalServiceException(
+                    MessageEnum.GATEWAY_REQUEST_FAILED,
+                    je);
+        }
     }
 
 }

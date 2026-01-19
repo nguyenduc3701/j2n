@@ -1,13 +1,21 @@
 package com.example.j2n.image_srv.service;
 
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.image_srv.constant.BucketConstant;
 import com.example.j2n.image_srv.constant.OwnerType;
 import com.example.j2n.image_srv.controller.request.UploadImageRequest;
+import com.example.j2n.image_srv.exception.FileSizeException;
+import com.example.j2n.image_srv.exception.FileTypeException;
+import com.example.j2n.image_srv.exception.OwnerTypeException;
+import com.example.j2n.image_srv.exception.StaticFileReadException;
+import com.example.j2n.image_srv.messaging.user.publisher.UserEventPublisher;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.image_srv.utils.MinioFactory;
+import com.example.j2n.utils.ResponseFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,12 +42,23 @@ class ImageServiceTest {
     @Mock
     private MinioFactory minioFactory;
 
+    @Mock
+    private UserEventPublisher avatarEventPublisher;
+
     @InjectMocks
     private ImageService imageService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        // Default mock for save
+        lenient().when(imageRepository.save(any(ImageEntity.class))).thenAnswer(invocation -> {
+            ImageEntity entity = invocation.getArgument(0);
+            if (entity != null) {
+                entity.setId(1L);
+            }
+            return entity;
+        });
     }
 
     @Test
@@ -51,11 +71,6 @@ class ImageServiceTest {
                 .build();
 
         when(minioFactory.upload(any(), anyString())).thenReturn("generated_path");
-        when(imageRepository.save(any(ImageEntity.class))).thenAnswer(invocation -> {
-            ImageEntity entity = invocation.getArgument(0);
-            entity.setId(1L);
-            return entity;
-        });
 
         BaseResponse<List<ImageItemResponse>> result = imageService.uploadImage(request);
 
@@ -66,6 +81,7 @@ class ImageServiceTest {
         assertEquals("generated_path", response.getFilePath());
         verify(imageRepository, times(1)).save(any(ImageEntity.class));
         verify(minioFactory).upload(any(), eq(BucketConstant.USER_BUCKET));
+        verify(avatarEventPublisher).publishAvatarUploaded(any());
     }
 
     @Test
@@ -79,7 +95,6 @@ class ImageServiceTest {
                 .build();
 
         when(minioFactory.upload(any(), anyString())).thenReturn("path1", "path2");
-        when(imageRepository.save(any(ImageEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         BaseResponse<List<ImageItemResponse>> result = imageService.uploadImage(request);
 
@@ -88,6 +103,7 @@ class ImageServiceTest {
         assertEquals("path1", result.getData().get(0).getFilePath());
         assertEquals("path2", result.getData().get(1).getFilePath());
         verify(imageRepository, times(2)).save(any(ImageEntity.class));
+        verify(avatarEventPublisher, never()).publishAvatarUploaded(any());
     }
 
     @Test
@@ -99,7 +115,7 @@ class ImageServiceTest {
                 .ownerId(1L)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(OwnerTypeException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
@@ -112,12 +128,28 @@ class ImageServiceTest {
                 .build();
 
         when(minioFactory.upload(any(), anyString())).thenReturn("path");
-        when(imageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         BaseResponse<List<ImageItemResponse>> result = imageService.uploadImage(request);
 
         assertEquals("path", result.getData().get(0).getFilePath());
         verify(minioFactory).upload(any(), eq(BucketConstant.DEFAULT_BUCKET));
+        verify(avatarEventPublisher, never()).publishAvatarUploaded(any());
+    }
+
+    @Test
+    void uploadImage_NotUser_SkipsEvent() {
+        MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
+        UploadImageRequest request = UploadImageRequest.builder()
+                .files(List.of(file))
+                .ownerType(Optional.of("PRODUCT"))
+                .ownerId(1L)
+                .build();
+
+        when(minioFactory.upload(any(), anyString())).thenReturn("path");
+
+        imageService.uploadImage(request);
+
+        verify(avatarEventPublisher, never()).publishAvatarUploaded(any());
     }
 
     @Test
@@ -129,7 +161,7 @@ class ImageServiceTest {
                 .ownerId(1L)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(FileTypeException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
@@ -142,12 +174,12 @@ class ImageServiceTest {
                 .ownerId(1L)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(FileSizeException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
     void validateUploadImageRequest_NullRequest_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(null));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(null));
     }
 
     @Test
@@ -157,7 +189,7 @@ class ImageServiceTest {
                 .ownerId(null)
                 .files(List.of(new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes())))
                 .build();
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
@@ -167,7 +199,7 @@ class ImageServiceTest {
                 .ownerId(1L)
                 .files(List.of(new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes())))
                 .build();
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
@@ -177,7 +209,7 @@ class ImageServiceTest {
                 .ownerId(1L)
                 .files(null)
                 .build();
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
@@ -187,12 +219,13 @@ class ImageServiceTest {
                 .ownerId(1L)
                 .files(List.of())
                 .build();
-        assertThrows(IllegalArgumentException.class, () -> imageService.uploadImage(request));
+        assertThrows(InvalidInputException.class, () -> imageService.uploadImage(request));
     }
 
     @Test
     void getImageResource_Success() {
         ImageEntity entity = new ImageEntity();
+        entity.setId(1L);
         entity.setFilePath("path");
         entity.setContentType("image/jpeg");
         when(imageRepository.findById(1L)).thenReturn(Optional.of(entity));
@@ -209,32 +242,47 @@ class ImageServiceTest {
     @Test
     void validateImageId_NotFound_ThrowsException() {
         when(imageRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> imageService.getImageResource("USER", 1L));
+        assertThrows(DataNotFoundException.class, () -> imageService.getImageResource("USER", 1L));
     }
 
     @Test
     void validateImageId_NullId_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> imageService.validateImageId(null));
+        assertThrows(InvalidInputException.class, () -> imageService.validateImageId(null));
     }
 
     @Test
     void mapOwnerTypeToBucketName_AllTypes() {
-        testBucketMapping("USER", BucketConstant.USER_BUCKET);
-        testBucketMapping("PRODUCT", BucketConstant.PRODUCT_BUCKET);
-        testBucketMapping("ROOM", BucketConstant.ROOM_BUCKET);
-    }
-
-    private void testBucketMapping(String type, String expectedBucket) {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
-        UploadImageRequest request = UploadImageRequest.builder()
+
+        // USER
+        UploadImageRequest requestUser = UploadImageRequest.builder()
                 .files(List.of(file))
-                .ownerType(Optional.of(type))
+                .ownerType(Optional.of("USER"))
                 .ownerId(1L)
                 .build();
-        when(minioFactory.upload(any(), eq(expectedBucket))).thenReturn("path");
-        when(imageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        imageService.uploadImage(request);
-        verify(minioFactory).upload(any(), eq(expectedBucket));
+        when(minioFactory.upload(any(), eq(BucketConstant.USER_BUCKET))).thenReturn("path");
+        imageService.uploadImage(requestUser);
+        verify(minioFactory).upload(any(), eq(BucketConstant.USER_BUCKET));
+
+        // PRODUCT
+        UploadImageRequest requestProduct = UploadImageRequest.builder()
+                .files(List.of(file))
+                .ownerType(Optional.of("PRODUCT"))
+                .ownerId(1L)
+                .build();
+        when(minioFactory.upload(any(), eq(BucketConstant.PRODUCT_BUCKET))).thenReturn("path");
+        imageService.uploadImage(requestProduct);
+        verify(minioFactory).upload(any(), eq(BucketConstant.PRODUCT_BUCKET));
+
+        // ROOM
+        UploadImageRequest requestRoom = UploadImageRequest.builder()
+                .files(List.of(file))
+                .ownerType(Optional.of("ROOM"))
+                .ownerId(1L)
+                .build();
+        when(minioFactory.upload(any(), eq(BucketConstant.ROOM_BUCKET))).thenReturn("path");
+        imageService.uploadImage(requestRoom);
+        verify(minioFactory).upload(any(), eq(BucketConstant.ROOM_BUCKET));
     }
 
     @Test
@@ -252,7 +300,7 @@ class ImageServiceTest {
     }
 
     @Test
-    void getStaticFile_IOError_ThrowsRuntimeException() {
-        assertThrows(RuntimeException.class, () -> imageService.getStaticFile("nonexistent_year"));
+    void getStaticFile_IOError_ThrowsStaticFileReadException() {
+        assertThrows(StaticFileReadException.class, () -> imageService.getStaticFile("nonexistent_year"));
     }
 }
