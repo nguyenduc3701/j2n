@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class InternalAuthFilter extends OncePerRequestFilter {
     private static final String X_USER_ID = "X-User-Id";
     private static final String X_USER_NAME = "X-User-Name";
     private static final String X_ROLE_ID = "X-Role-Id";
+    private static final List<String> NOT_FILTER_LIST = List.of("/swagger-ui", "/v3/api-docs");
 
     @Value("${internal.token}")
     private String internalToken;
@@ -59,5 +61,11 @@ public class InternalAuthFilter extends OncePerRequestFilter {
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return NOT_FILTER_LIST.stream().anyMatch(path::startsWith);
     }
 }
