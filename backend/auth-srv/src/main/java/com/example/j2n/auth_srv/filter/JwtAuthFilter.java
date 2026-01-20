@@ -26,6 +26,7 @@ import com.example.j2n.auth_srv.dto.JwtUserPrincipal;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtGeneralUtil jwtUtil;
+    private static final List<String> NOT_FILTER_LIST = List.of("/swagger-ui", "/v3/api-docs");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -54,5 +55,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         filterChain.doFilter(request, response);
+    }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return NOT_FILTER_LIST.stream().anyMatch(path::startsWith);
     }
 }

@@ -23,7 +23,6 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/image/*/*", "/image/file/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(internalAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
