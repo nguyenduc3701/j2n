@@ -31,7 +31,7 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS:172800000}
 
 internal:
-  token: ${INTERNAL_TOKEN}
+  token: ${INTERNAL_TOKEN:J2N-i9n1ofG7kL2mP9qRtVxZ4sB8nC1yHjDdUwAeIoPkLmQrStUvWxYzAbCImageSrv}
 
 server:
   port: 8181
