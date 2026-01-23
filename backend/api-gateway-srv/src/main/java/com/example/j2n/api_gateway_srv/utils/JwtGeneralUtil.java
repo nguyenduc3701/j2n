@@ -15,9 +15,10 @@ public class JwtGeneralUtil {
     @Value("${internal.token}")
     private String internalToken;
 
-    public JwtGeneralUtil(@Value("${jwt.secret}") String jwtSecret,
-            @Value("${jwt.expiration-ms}") Long jwtExpirationMs) {
-        this.jwtUtil = new JwtUtil(jwtSecret, jwtExpirationMs);
+    public JwtGeneralUtil(
+            @Value("${jwt.secret}") String jwtSecret,
+            @Value("${jwt.clock-skew-seconds:60}") long clockSkewSeconds) {
+        this.jwtUtil = new JwtUtil(jwtSecret, clockSkewSeconds);
     }
 
     public Claims verify(String token) {

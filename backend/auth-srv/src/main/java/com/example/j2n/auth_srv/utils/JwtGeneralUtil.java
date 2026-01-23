@@ -11,15 +11,26 @@ import java.util.Map;
 public class JwtGeneralUtil {
     private final JwtUtil jwtUtil;
 
-    public JwtGeneralUtil(@Value("${jwt.secret}") String jwtSecret,
-                          @Value("${jwt.expiration-ms}") Long jwtExpirationMs) {
-        this.jwtUtil = new JwtUtil(jwtSecret, jwtExpirationMs);
+    public JwtGeneralUtil(
+            @Value("${jwt.secret}") String jwtSecret,
+            @Value("${jwt.clock-skew-seconds:60}") long clockSkewSeconds) {
+        this.jwtUtil = new JwtUtil(jwtSecret, clockSkewSeconds);
     }
+
     public Claims validate(String token) {
         return this.jwtUtil.validateToken(token);
     }
-    public String generate(Map<String, Object> claims, String subject) {
-        return this.jwtUtil.generateToken(claims,subject);
+
+    public String generate(Map<String, Object> claims, String subject, String sessionId, long expirationMs) {
+        return this.jwtUtil.generateToken(claims, subject, sessionId, expirationMs);
+    }
+
+    public String getSubject(String token) {
+        return this.jwtUtil.getSubject(token);
+    }
+
+    public String getSessionId(String token) {
+        return this.jwtUtil.getSessionId(token);
     }
 
 }

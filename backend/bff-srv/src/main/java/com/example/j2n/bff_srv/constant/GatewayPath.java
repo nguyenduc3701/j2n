@@ -16,6 +16,8 @@ public class GatewayPath {
     public static final String AUTH_GET_ROLES_PATH = "/api/auth/roles";
     public static final String AUTH_GET_PERMISSIONS_PATH = "/api/auth/permissions";
     public static final String AUTH_GET_PERMISSIONS_BY_ROLE_ID_PATH = "/api/auth/permissions/%s";
+    public static final String AUTH_REFRESH_TOKEN_PATH = "/api/auth/refresh-token";
+    public static final String AUTH_LOGOUT_PATH = "/api/auth/logout";
     // image-srv
     public static final String IMAGE_UPLOAD_PATH = "/api/image/upload";
     public static final String IMAGE_GET_IMAGE_PATH = "/api/image/%s/%s";

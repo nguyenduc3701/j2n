@@ -4,9 +4,15 @@ spring:
   codec:
     max-in-memory-size: 50MB
   webflux:
+    base-path: /
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+  data:
+    redis:
+      host: localhost
+      port: 9194
+      password: yourpassword123
   cloud:
     gateway:
       discovery:
@@ -19,16 +25,27 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 3
+                key-resolver: "#{@ipKeyResolver}"
         - id: image-srv
           uri: http://localhost:8183
           predicates:
             - Path=/api/image/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@userKeyResolver}"
 
 jwt:
   secret: ${JWT_SECRET:J2N-X9mN2bV4cL7pQ1rS8tY6hJ3kD5fW0eGhKiPoLmNzRqStUvWxYApiGatewaySrv}
   expiration-ms: ${JWT_EXPIRATION_MS:172800000}
+  clock-skew-seconds: ${JWT_CLOCK_SKEW_SECONDS:60}
 
 internal:
   token: ${INTERNAL_TOKEN:J2N-i9n1ofG7kL2mP9qRtVxZ4sB8nC1yHjDdUwAeIoPkLmQrStUvWxYzAbCImageSrv}

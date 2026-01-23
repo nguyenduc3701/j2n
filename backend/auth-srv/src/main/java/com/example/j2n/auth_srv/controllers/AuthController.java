@@ -1,6 +1,8 @@
 package com.example.j2n.auth_srv.controllers;
 
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
+import com.example.j2n.auth_srv.controllers.requests.LogoutRequest;
+import com.example.j2n.auth_srv.controllers.requests.RefreshTokenRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.service.AuthService;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
@@ -16,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,11 +40,15 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
 
-    // @PostMapping(value = "/verify", produces = MediaType.APPLICATION_JSON_VALUE)
-    // public ResponseEntity<BaseResponse<UserResponse.UserItem>>
-    // verify(@RequestBody @Valid VerifyRequest request) {
-    // return ResponseEntity.ok(authService.verify(request));
-    // }
+    @PostMapping(value = "/refresh-token", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponse<LoginResponse>> refreshToken(@RequestHeader("X-Refresh-Token") String refreshToken) {
+        return ResponseEntity.ok(authService.refreshToken(refreshToken));
+    }
+
+    @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponse<String>> logout(@RequestHeader("Authorization") String authorization, @RequestHeader("X-Refresh-Token") String refreshToken) {
+        return ResponseEntity.ok(authService.logout(authorization, refreshToken));
+    }
 
     @PostMapping(value = "/forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {

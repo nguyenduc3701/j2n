@@ -13,36 +13,42 @@ import java.util.Map;
 public class JwtUtil {
 
     private final Key signingKey;
-    private final long expirationMs;
+    private final long clockSkewSeconds;
 
-    // Nhận secret + expiration từ service khi khởi tạo
-    public JwtUtil(String secret, long expirationMs) {
-        this.signingKey = Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(secret));
-        this.expirationMs = expirationMs;
+    public JwtUtil(String secret) {
+        this(secret, 60); // Default 60 seconds clock skew
     }
 
-    // Tạo token
-    public String generateToken(Map<String, Object> claims, String subject) {
+    public JwtUtil(String secret, long clockSkewSeconds) {
+        this.signingKey = Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(secret));
+        this.clockSkewSeconds = clockSkewSeconds;
+    }
+
+    public String generateToken(Map<String, Object> claims, String subject, String sessionId, long expirationMs) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
+                .setId(sessionId)
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // Verify token
     public Claims validateToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(signingKey)
+                .setAllowedClockSkewSeconds(clockSkewSeconds)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    // Lấy subject từ token
     public String getSubject(String token) {
         return validateToken(token).getSubject();
+    }
+
+    public String getSessionId(String token) {
+        return validateToken(token).getId();
     }
 }

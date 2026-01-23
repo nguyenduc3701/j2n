@@ -11,6 +11,7 @@ public enum BaseMessageEnum implements BaseMessage {
     SUCCESS("200200", HttpStatusCode.OK, "Success"),
 
     // ===== System / Server Layer (500xxx) =====
+    NON_RETRYABLE("400403", HttpStatusCode.BAD_REQUEST, "Request is invalid and cannot be retried"),
     UNKNOWN_FIELDS("400401", HttpStatusCode.BAD_REQUEST, "Unknown field"),
     INTERNAL_ERROR("500500", HttpStatusCode.INTERNAL_SERVER_ERROR, "Internal server error"),
     ACCESS_DENIED("500501", HttpStatusCode.FORBIDDEN, "Access denied"),

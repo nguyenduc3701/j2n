@@ -3,6 +3,7 @@ package com.example.j2n.bff_srv.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -34,7 +35,7 @@ public class ImageService {
         request.getOwnerType()
                 .ifPresent(value -> body.add("ownerType", value));
         log.info("[End] Upload image request: {}", request);
-        return restClientUtil.requestUpload(GatewayPath.IMAGE_UPLOAD_PATH, body, Object.class);
+        return restClientUtil.requestUpload(GatewayPath.IMAGE_UPLOAD_PATH, body, new ParameterizedTypeReference(){});
     }
 
     public ResponseEntity<byte[]> getImageResource(String ownerType, String id) {

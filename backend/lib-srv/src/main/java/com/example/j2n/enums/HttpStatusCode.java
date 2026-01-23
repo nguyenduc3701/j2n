@@ -10,6 +10,7 @@ public enum HttpStatusCode {
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
     CONFLICT(409, "Conflict"),
+    TOO_MANY_REQUESTS(429, "Too Many Requests"),
     INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 
     private final int code;

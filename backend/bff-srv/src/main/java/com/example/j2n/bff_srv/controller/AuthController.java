@@ -14,12 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.j2n.bff_srv.controller.request.LoginRequest;
+import com.example.j2n.bff_srv.controller.request.RefreshTokenRequest;
 import com.example.j2n.bff_srv.controller.request.RegisterRequest;
 import com.example.j2n.bff_srv.service.AuthService;
+import com.example.j2n.bff_srv.service.response.ClientLoginResponse;
+import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.bff_srv.controller.request.SearchUserRequest;
 import com.example.j2n.bff_srv.controller.request.CreateUserRequest;
 import com.example.j2n.bff_srv.controller.request.UpdateUserRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("api/bff")
@@ -30,8 +34,9 @@ public class AuthController {
 
    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
    @Operation(summary = "Login", description = "Login")
-   public ResponseEntity<Object> login(@RequestBody LoginRequest request) {
-      return ResponseEntity.ok(authService.login(request));
+   public ResponseEntity<BaseResponse<ClientLoginResponse>> login(@RequestBody LoginRequest request,
+         HttpServletResponse response) {
+      return ResponseEntity.ok(authService.login(request, response));
    }
 
    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -92,5 +97,11 @@ public class AuthController {
    @Operation(summary = "Get permissions by role id", description = "Get permissions by role id")
    public ResponseEntity<Object> getPermissionsByRoleId(@PathVariable String roleId) {
       return ResponseEntity.ok(authService.getPermissionsByRoleId(roleId));
+   }
+
+   @PostMapping(value = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+   @Operation(summary = "Logout", description = "Logout")
+   public ResponseEntity<Object> logout() {
+      return ResponseEntity.ok(authService.logout());
    }
 }

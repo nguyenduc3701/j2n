@@ -22,6 +22,8 @@ public enum MessageEnum implements BaseMessage {
 
     TOKEN_INVALID("300101", HttpStatusCode.UNAUTHORIZED, "Invalid token"),
     TOKEN_EXPIRED("300102", HttpStatusCode.UNAUTHORIZED, "Token expired"),
+    INVALID_REFRESH_TOKEN("300103", HttpStatusCode.UNAUTHORIZED, "Invalid refresh token"),
+    INVALID_REFRESH_TOKEN_EXPIRED("300104", HttpStatusCode.UNAUTHORIZED, "Invalid refresh token expired"),
 
     SERVICE_NOT_RECOGNIZED("500511", HttpStatusCode.INTERNAL_SERVER_ERROR, "Service not recognized");
 

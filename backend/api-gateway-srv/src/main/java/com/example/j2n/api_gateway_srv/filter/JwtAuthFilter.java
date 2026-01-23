@@ -1,34 +1,39 @@
 package com.example.j2n.api_gateway_srv.filter;
 
-import com.example.j2n.api_gateway_srv.constant.MessageEnum;
-import com.example.j2n.api_gateway_srv.utils.JwtGeneralUtil;
-import org.springframework.http.HttpHeaders;
+import java.util.Collections;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+
+import com.example.j2n.api_gateway_srv.exception.ExpiredTokenException;
+import com.example.j2n.api_gateway_srv.exception.InvalidTokenException;
+import com.example.j2n.api_gateway_srv.exception.NotRecognizedServiceException;
+import com.example.j2n.api_gateway_srv.utils.JwtGeneralUtil;
+import com.example.j2n.constants.CommonConst;
+import com.example.j2n.utils.RedisUtil;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
-import org.springframework.lang.NonNull;
-
-import java.util.Collections;
-import java.util.List;
-import org.springframework.core.io.buffer.DataBuffer;
-
-import com.example.j2n.utils.ResponseFactory;
-import com.example.j2n.dto.BaseResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter implements WebFilter {
+    @Autowired
+    private RedisUtil redisUtil;
     private final JwtGeneralUtil jwtGeneralUtil;
-    private final ObjectMapper objectMapper;
 
     // Các hằng số định nghĩa tên Header sẽ gửi xuống Microservices phía sau
     private final String X_INTERNAL_TOKEN = "X-Internal-Token";
@@ -41,8 +46,7 @@ public class JwtAuthFilter implements WebFilter {
     private final String KEY_USER_NAME = "user_name";
     private final String KEY_ROLE_ID = "role_id";
 
-    // Danh sách các API công khai không cần kiểm tra Token
-    private final List<String> BY_PASS_AUTH_LIST = List.of("/api/auth/login", "/api/auth/register");
+    private final List<String> BY_PASS_AUTH_LIST = List.of("/api/auth/login", "/api/auth/register","/api/auth/refresh-token","/api/auth/logout");
 
     @Override
     @SneakyThrows
@@ -52,19 +56,22 @@ public class JwtAuthFilter implements WebFilter {
 
         // 2. Kiểm tra nếu path nằm trong danh sách bypass thì cho đi tiếp luôn
         if (BY_PASS_AUTH_LIST.contains(path)) {
+            log.info("[GATEWAY] Bypass auth filter");
             return chain.filter(exchange);
         }
 
         // 3. Kiểm tra Header "FROM-BFF" để đảm bảo request đến từ nguồn tin cậy (BFF)
         String fromBff = exchange.getRequest().getHeaders().getFirst("FROM-BFF");
         if (!Boolean.parseBoolean(fromBff)) {
-            return setErrorResponse(exchange, MessageEnum.SERVICE_NOT_RECOGNIZED);
+            log.warn("[GATEWAY] Not recognized service");
+            throw new NotRecognizedServiceException();
         }
 
         // 4. Lấy và kiểm tra định dạng Header Authorization (Bearer Token)
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return setErrorResponse(exchange, MessageEnum.TOKEN_INVALID);
+            log.warn("[GATEWAY] Invalid token");
+            throw new InvalidTokenException();
         }
 
         // 5. Trích xuất token và thực hiện verify (giải mã/kiểm tra chữ ký)
@@ -72,9 +79,29 @@ public class JwtAuthFilter implements WebFilter {
         Claims claims;
         try {
             claims = jwtGeneralUtil.verify(token);
+        } catch (ExpiredJwtException e) {
+            log.warn("[GATEWAY] Token expired");
+            throw new ExpiredTokenException();
+        } catch (JwtException e) {
+            log.warn("[GATEWAY] Invalid token");
+            throw new InvalidTokenException();
         } catch (Exception e) {
-            // Nếu token hết hạn hoặc sai chữ ký thì trả về lỗi ngay
-            return setErrorResponse(exchange, MessageEnum.TOKEN_INVALID);
+            log.warn("[GATEWAY] Invalid token");
+            throw new InvalidTokenException();
+        }
+
+        String sessionId = claims.getId();
+        if (sessionId == null) {
+            log.warn("[GATEWAY] Invalid token");
+            throw new InvalidTokenException();
+        }
+
+        // Kiểm tra sự tồn tại của session trong Redis
+        // Key: auth:session:{sessionId}
+        String sessionKey = CommonConst.AUTH_SESSION_PREFIX + sessionId;
+        if (!redisUtil.hasKey(sessionKey)) {
+            log.warn("[GATEWAY] Session has been revoked/logged out: {}", sessionId);
+            throw new ExpiredTokenException();
         }
 
         // 6. Lấy thông tin người dùng từ nội dung Token (Claims)
@@ -109,19 +136,9 @@ public class JwtAuthFilter implements WebFilter {
 
         // 11. Tiếp tục chuỗi filter và ghi đè SecurityContext với thông tin user đã xác
         // thực
+
+        log.info("[GATEWAY] User {} has been authenticated", userId);
         return chain.filter(mutatedExchange)
                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
-    }
-
-    /**
-     * Hàm hỗ trợ ghi đè response trả về lỗi dưới dạng JSON khi filter chặn lại
-     */
-    @SneakyThrows
-    private Mono<Void> setErrorResponse(ServerWebExchange exchange, MessageEnum messageEnum) {
-        BaseResponse<Object> response = ResponseFactory.error(messageEnum);
-        byte[] bytes = objectMapper.writeValueAsBytes(response);
-        DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-        exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, "application/json");
-        return exchange.getResponse().writeWith(Mono.just(buffer)).then(Mono.empty());
     }
 }

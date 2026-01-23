@@ -1,9 +1,14 @@
 package com.example.j2n.bff_srv.utils;
 
+import com.example.j2n.bff_srv.client.AuthServiceClient;
 import com.example.j2n.bff_srv.config.GatewayConfig;
+import com.example.j2n.bff_srv.constant.GatewayPath;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,7 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.j2n.bff_srv.constant.MessageEnum;
 import com.example.j2n.bff_srv.dto.DownstreamMessage;
-import com.example.j2n.bff_srv.service.response.BaseResponse;
+import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.HttpStatusCode;
 import com.example.j2n.exception.ExternalServiceException;
 import com.example.j2n.exception.InvalidInputException;
@@ -26,39 +31,39 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 public class RestClientUtil {
+    private static final String REFRESH_TOKEN = "refresh_token";
     private final RestTemplate restTemplate;
     private final GatewayConfig gatewayConfig;
     private final ObjectMapper objectMapper;
+    @Qualifier("authRestTemplate")
+    private final RestTemplate authRestTemplate;
 
-    public <T, R> T request(String path, HttpMethod method, R body, Class<T> responseType) {
+    public <T, R> T request(String path, HttpMethod method, R body, ParameterizedTypeReference<T> responseType) {
         String url = gatewayConfig.getBaseUrl() + path;
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("FROM-BFF", "true");
 
+        if (path.equals(GatewayPath.AUTH_LOGOUT_PATH)){
+            String refreshToken = getRefreshTokenFromCookie();
+            headers.set("X-Refresh-Token", refreshToken);
+        }
+
         // Lấy token từ request hiện tại nếu có
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes sra) {
-            HttpServletRequest currentRequest = sra.getRequest();
-            String token = (String) currentRequest.getAttribute("TOKEN");
-            if (token != null && !token.isEmpty()) {
-                headers.set("Authorization", "Bearer " + token);
-            }
+        String token = getCurrentToken();
+        if (token != null && !token.isEmpty()) {
+            headers.set("Authorization", "Bearer " + token);
         }
 
         HttpEntity<R> entity = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<T> response = restTemplate.exchange(url, method, entity, responseType);
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new ExternalServiceException(MessageEnum.GATEWAY_REQUEST_FAILED);
-            } else {
-                response.getBody();
-            }
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
             throw buildExternalException(ex);
@@ -68,7 +73,7 @@ public class RestClientUtil {
     public <T> T requestUpload(
             String path,
             MultiValueMap<String, Object> body,
-            Class<T> responseType) {
+            ParameterizedTypeReference<T> responseType) {
         // Validate bắt buộc phải có key "files"
         if (body == null || !body.containsKey("files")) {
             throw new InvalidInputException(MessageEnum.FILE_NOT_FOUND);
@@ -81,13 +86,9 @@ public class RestClientUtil {
         headers.set("FROM-BFF", "true");
 
         // Forward token
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes sra) {
-            HttpServletRequest currentRequest = sra.getRequest();
-            String token = (String) currentRequest.getAttribute("TOKEN");
-            if (token != null && !token.isEmpty()) {
-                headers.set("Authorization", "Bearer " + token);
-            }
+        String token = getCurrentToken();
+        if (token != null && !token.isEmpty()) {
+            headers.set("Authorization", "Bearer " + token);
         }
 
         HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
@@ -108,13 +109,9 @@ public class RestClientUtil {
         String url = gatewayConfig.getBaseUrl() + path;
         HttpHeaders headers = new HttpHeaders();
         headers.set("FROM-BFF", "true");
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes sra) {
-            HttpServletRequest currentRequest = sra.getRequest();
-            String token = (String) currentRequest.getAttribute("TOKEN");
-            if (token != null && !token.isEmpty()) {
-                headers.set("Authorization", "Bearer " + token);
-            }
+        String token = getCurrentToken();
+        if (token != null && !token.isEmpty()) {
+            headers.set("Authorization", "Bearer " + token);
         }
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         try {
@@ -146,6 +143,41 @@ public class RestClientUtil {
                     MessageEnum.GATEWAY_REQUEST_FAILED,
                     je);
         }
+    }
+
+    public <T> T requestAuth(String path, HttpMethod method, Object body, Map<String, String> customHeaders, ParameterizedTypeReference<T> responseType) {
+        String url = gatewayConfig.getBaseUrl() + path;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        if (customHeaders != null) {
+            customHeaders.forEach(headers::set);
+        }
+        HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<T> response = authRestTemplate.exchange(url, method, entity, responseType);
+        return response.getBody();
+    }
+
+    private String getCurrentToken() {
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs instanceof ServletRequestAttributes sra) {
+            return (String) sra.getRequest().getAttribute("TOKEN");
+        }
+        return null;
+    }
+
+    public String getRefreshTokenFromCookie() {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attr == null)
+            return null;
+
+        Cookie[] cookies = attr.getRequest().getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (REFRESH_TOKEN.equals(cookie.getName()))
+                    return cookie.getValue();
+            }
+        }
+        return null;
     }
 
 }

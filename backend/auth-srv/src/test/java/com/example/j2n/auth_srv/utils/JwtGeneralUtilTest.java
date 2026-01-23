@@ -1,10 +1,8 @@
 package com.example.j2n.auth_srv.utils;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.impl.DefaultClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +18,7 @@ class JwtGeneralUtilTest {
 
     @BeforeEach
     void setUp() {
-        jwtGeneralUtil = new JwtGeneralUtil(secret, expiration);
+        jwtGeneralUtil = new JwtGeneralUtil(secret, 60L);
     }
 
     @Test
@@ -28,12 +26,26 @@ class JwtGeneralUtilTest {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", "ADMIN");
         String subject = "testuser";
+        String jti = "test-jti";
 
-        String token = jwtGeneralUtil.generate(claims, subject);
+        String token = jwtGeneralUtil.generate(claims, subject, jti, expiration);
         assertNotNull(token);
 
         Claims validatedClaims = jwtGeneralUtil.validate(token);
         assertEquals(subject, validatedClaims.getSubject());
         assertEquals("ADMIN", validatedClaims.get("role"));
+        assertEquals(jti, validatedClaims.getId());
+    }
+
+    @Test
+    void getSubjectAndJti_Success() {
+        Map<String, Object> claims = new HashMap<>();
+        String subject = "testuser";
+        String jti = "test-jti";
+
+        String token = jwtGeneralUtil.generate(claims, subject, jti, expiration);
+
+        assertEquals(subject, jwtGeneralUtil.getSubject(token));
+        assertEquals(jti, jwtGeneralUtil.getJti(token));
     }
 }

@@ -8,9 +8,10 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import com.example.j2n.bff_srv.repository.entity.ConfigurationEntity;
 import com.example.j2n.bff_srv.service.ConfigurationService;
+import com.example.j2n.dto.BaseResponse;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.MediaType;
-import com.example.j2n.bff_srv.service.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController

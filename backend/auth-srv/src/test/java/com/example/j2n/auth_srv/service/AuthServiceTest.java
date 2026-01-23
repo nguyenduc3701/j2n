@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,9 +14,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.j2n.auth_srv.controllers.requests.LogoutRequest;
+import com.example.j2n.auth_srv.controllers.requests.RefreshTokenRequest;
 import com.example.j2n.auth_srv.exception.FieldExistedException;
 import com.example.j2n.auth_srv.exception.InvalidCredentialException;
+import com.example.j2n.auth_srv.exception.RefreshTokenExpiredException;
 import com.example.j2n.auth_srv.utils.JwtGeneralUtil;
+import com.example.j2n.auth_srv.utils.RedisUtil;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
@@ -50,6 +55,9 @@ class AuthServiceTest {
     @Mock
     private PermissionService permissionService;
 
+    @Mock
+    private RedisUtil redisUtil;
+
     @InjectMocks
     private AuthService authService;
 
@@ -73,14 +81,14 @@ class AuthServiceTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(passwordUtil.matches("password", "encodedPassword")).thenReturn(true);
         when(permissionService.getPermissionsByRoleId("1")).thenReturn(permissionsResponse);
-        when(jwtUtil.generate(any(), anyString())).thenReturn("testToken");
+        when(jwtUtil.generate(any(), anyString(), anyString(), anyLong())).thenReturn("testToken");
 
         // Act
         BaseResponse<LoginResponse> response = authService.login(request);
 
         // Assert
         assertNotNull(response);
-        assertEquals("testToken", response.getData().getToken());
+        assertEquals("testToken", response.getData().getAccessToken());
         verify(permissionService).getPermissionsByRoleId("1");
     }
 
@@ -264,6 +272,24 @@ class AuthServiceTest {
     }
 
     @Test
+    void refreshToken_ShouldThrowException_WhenUserNotFoundInDb() {
+        // Arrange
+        RefreshTokenRequest request = new RefreshTokenRequest();
+        request.setRefreshToken("validRefreshToken");
+
+        String userId = "1";
+        String refreshKey = "refresh:validRefreshToken";
+
+        when(redisUtil.hasKey(refreshKey)).thenReturn(true);
+        when(redisUtil.getValue(refreshKey)).thenReturn(userId);
+        when(redisUtil.getValue("user_refresh:" + userId)).thenReturn("validRefreshToken");
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(DataNotFoundException.class, () -> authService.refreshToken(request));
+    }
+
+    @Test
     void forgotPassword_ShouldReturnSuccess() {
         // Arrange
         ForgotPasswordRequest request = new ForgotPasswordRequest();
@@ -295,5 +321,99 @@ class AuthServiceTest {
         assertEquals("testuser", response.getUserName());
         assertEquals("test@example.com", response.getEmail());
         assertNotNull(response.getCreatedAt());
+    }
+
+    @Test
+    void logout_ShouldReturnSuccess() {
+        // Arrange
+        LogoutRequest request = new LogoutRequest();
+        request.setRefreshToken("refreshToken");
+        String refreshKey = "refresh:refreshToken";
+        String userId = "1";
+
+        when(redisUtil.hasKey(refreshKey)).thenReturn(true);
+        when(redisUtil.getValue(refreshKey)).thenReturn(userId);
+
+        // Act
+        BaseResponse<String> response = authService.logout(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("Logout Success", response.getData());
+        verify(redisUtil).deleteKey(refreshKey);
+        verify(redisUtil).deleteKey("user_refresh:" + userId);
+    }
+
+    @Test
+    void logout_ShouldThrowException_WhenRefreshTokenIsNull() {
+        // Arrange
+        LogoutRequest request = new LogoutRequest();
+        request.setRefreshToken(null);
+
+        // Act & Assert
+        assertThrows(InvalidInputException.class, () -> authService.logout(request));
+    }
+
+    @Test
+    void refreshToken_ShouldReturnNewToken_WhenValid() {
+        // Arrange
+        RefreshTokenRequest request = new RefreshTokenRequest();
+        request.setRefreshToken("validRefreshToken");
+        String refreshKey = "refresh:validRefreshToken";
+        String userId = "1";
+        String userRefreshKey = "user_refresh:" + userId;
+
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setRoleId(1L);
+
+        List<String> permissions = Arrays.asList("CAN_VIEW");
+        BaseResponse<List<String>> permissionsResponse = new BaseResponse<>();
+        permissionsResponse.setData(permissions);
+
+        when(redisUtil.hasKey(refreshKey)).thenReturn(true);
+        when(redisUtil.getValue(refreshKey)).thenReturn(userId);
+        when(redisUtil.getValue(userRefreshKey)).thenReturn("validRefreshToken");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(permissionService.getPermissionsByRoleId("1")).thenReturn(permissionsResponse);
+        when(jwtUtil.generate(any(), anyString(), anyString(), anyLong())).thenReturn("newToken");
+
+        // Act
+        BaseResponse<LoginResponse> response = authService.refreshToken(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("newToken", response.getData().getAccessToken());
+    }
+
+    @Test
+    void refreshToken_ShouldThrowException_WhenRefreshTokenExpired() {
+        // Arrange
+        RefreshTokenRequest request = new RefreshTokenRequest();
+        request.setRefreshToken("oldRefreshToken");
+        String refreshKey = "refresh:oldRefreshToken";
+        String userId = "1";
+        String userRefreshKey = "user_refresh:" + userId;
+
+        when(redisUtil.hasKey(refreshKey)).thenReturn(true);
+        when(redisUtil.getValue(refreshKey)).thenReturn(userId);
+        when(redisUtil.getValue(userRefreshKey)).thenReturn("newRefreshToken");
+
+        // Act & Assert
+        assertThrows(RefreshTokenExpiredException.class, () -> authService.refreshToken(request));
+    }
+
+    @Test
+    void refreshToken_ShouldThrowException_WhenUserNotFoundInRedis() {
+        // Arrange
+        RefreshTokenRequest request = new RefreshTokenRequest();
+        request.setRefreshToken("unknownToken");
+        String refreshKey = "refresh:unknownToken";
+
+        when(redisUtil.hasKey(refreshKey)).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(DataNotFoundException.class, () -> authService.refreshToken(request));
     }
 }
