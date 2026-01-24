@@ -1,8 +1,8 @@
-import J2NTitle, { TileSize } from "@repo/components/J2NTitle";
-import J2NSection from "@repo/components/J2NSection";
-import J2NAvatar from "@repo/components/J2NAvatar";
-import J2NImage from "@repo/components/J2NImage";
-import J2NButton, { J2NButtonTypes } from "@repo/components/J2NButton";
+import J2NTitle, { TileSize } from "@repo/components/atoms/J2NTitle";
+import J2NSection from "@repo/components/atoms/J2NSection";
+import J2NAvatar from "@repo/components/atoms/J2NAvatar";
+import J2NImage from "@repo/components/atoms/J2NImage";
+import J2NButton, { J2NButtonTypes } from "@repo/components/atoms/J2NButton";
 import { IconDownload } from "@tabler/icons-react";
 
 const AboutMePage = () => {

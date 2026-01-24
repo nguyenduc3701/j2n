@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import { MantineProvider } from "@mantine/core";
 import { I18nProvider } from "@/lib/i18n/provider";
+import J2NHeader from "@repo/components/molecules/J2NHeader";
 import "@repo/ui/src/styles/globals.css";
 import "@mantine/core/styles.css";
 
@@ -50,7 +51,10 @@ export default function RootLayout({
         className={`${saira.variable} ${notoKR.variable} ${notoJP.variable} ${merienda.variable} antialiased`}
       >
         <MantineProvider>
-          <I18nProvider>{children}</I18nProvider>
+          <I18nProvider>
+            <J2NHeader logoSrc="https://png.pngtree.com/element_pic/00/16/09/2057e0eecf792fb.jpg" />
+            <main>{children}</main>
+          </I18nProvider>
         </MantineProvider>
       </body>
     </html>
