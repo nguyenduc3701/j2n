@@ -35,7 +35,9 @@ public class ImageService {
         request.getOwnerType()
                 .ifPresent(value -> body.add("ownerType", value));
         log.info("[End] Upload image request: {}", request);
-        return restClientUtil.requestUpload(GatewayPath.IMAGE_UPLOAD_PATH, body, new ParameterizedTypeReference(){});
+        return restClientUtil.requestUpload(GatewayPath.IMAGE_UPLOAD_PATH, body,
+                new ParameterizedTypeReference<Object>() {
+                });
     }
 
     public ResponseEntity<byte[]> getImageResource(String ownerType, String id) {

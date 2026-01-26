@@ -38,14 +38,14 @@ class JwtGeneralUtilTest {
     }
 
     @Test
-    void getSubjectAndJti_Success() {
+    void getSubjectAndSessionId_Success() {
         Map<String, Object> claims = new HashMap<>();
         String subject = "testuser";
-        String jti = "test-jti";
+        String sessionId = "test-session-id";
 
-        String token = jwtGeneralUtil.generate(claims, subject, jti, expiration);
+        String token = jwtGeneralUtil.generate(claims, subject, sessionId, expiration);
 
         assertEquals(subject, jwtGeneralUtil.getSubject(token));
-        assertEquals(jti, jwtGeneralUtil.getJti(token));
+        assertEquals(sessionId, jwtGeneralUtil.getSessionId(token));
     }
 }

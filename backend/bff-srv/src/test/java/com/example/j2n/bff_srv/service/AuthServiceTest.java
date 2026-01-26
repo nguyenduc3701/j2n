@@ -1,6 +1,8 @@
 package com.example.j2n.bff_srv.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,17 +14,26 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 
+import com.example.j2n.bff_srv.client.AuthServiceClient;
 import com.example.j2n.bff_srv.constant.GatewayPath;
 import com.example.j2n.bff_srv.controller.request.LoginRequest;
 import com.example.j2n.bff_srv.controller.request.RegisterRequest;
 import com.example.j2n.bff_srv.controller.request.CreateUserRequest;
 import com.example.j2n.bff_srv.utils.RestClientUtil;
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.bff_srv.service.response.LoginResponse;
+import com.example.j2n.bff_srv.service.response.ClientLoginResponse;
+import com.example.j2n.utils.ResponseFactory;
+import org.springframework.core.ParameterizedTypeReference;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
         @Mock
         private RestClientUtil restClientUtil;
+
+        @Mock
+        private AuthServiceClient authServiceClient;
 
         @InjectMocks
         private AuthService authService;
@@ -33,19 +44,25 @@ class AuthServiceTest {
                 LoginRequest request = new LoginRequest();
                 request.setUserName("testuser");
                 request.setPassword("password");
-                Object expectedResponse = new Object();
+
+                LoginResponse loginResponse = new LoginResponse();
+                loginResponse.setAccessToken("access-token");
+                loginResponse.setRefreshToken("refresh-token");
+                BaseResponse<LoginResponse> serviceResponse = ResponseFactory.success(loginResponse);
 
                 when(restClientUtil.request(eq(GatewayPath.AUTH_LOGIN_PATH), eq(HttpMethod.POST), eq(request),
-                                eq(Object.class)))
-                                .thenReturn(expectedResponse);
+                                any(ParameterizedTypeReference.class)))
+                                .thenReturn(serviceResponse);
 
                 // Act
-                Object result = authService.login(request);
+                BaseResponse<ClientLoginResponse> result = authService.login(request, null);
 
                 // Assert
-                assertEquals(expectedResponse, result);
+                assertNotNull(result);
+                assertEquals("access-token", result.getData().getAccessToken());
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_LOGIN_PATH), eq(HttpMethod.POST), eq(request),
-                                eq(Object.class));
+                                any(ParameterizedTypeReference.class));
+                verify(authServiceClient).updateResponseCredentials("access-token", "refresh-token");
         }
 
         @Test
@@ -56,7 +73,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
 
                 when(restClientUtil.request(eq(GatewayPath.AUTH_REGISTER_PATH), eq(HttpMethod.POST), eq(request),
-                                eq(Object.class)))
+                                any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -65,7 +82,7 @@ class AuthServiceTest {
                 // Assert
                 assertEquals(expectedResponse, result);
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_REGISTER_PATH), eq(HttpMethod.POST), eq(request),
-                                eq(Object.class));
+                                any());
         }
 
         @Test
@@ -75,7 +92,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
 
                 when(restClientUtil.request(eq(GatewayPath.AUTH_GET_LIST_USERS_PATH), eq(HttpMethod.POST), eq(request),
-                                eq(Object.class)))
+                                any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -85,7 +102,7 @@ class AuthServiceTest {
                 assertEquals(expectedResponse, result);
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_GET_LIST_USERS_PATH), eq(HttpMethod.POST),
                                 eq(request),
-                                eq(Object.class));
+                                any());
         }
 
         @Test
@@ -95,7 +112,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
                 String expectedPath = String.format(GatewayPath.AUTH_USER_ID_PATH, userId);
 
-                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), eq(Object.class)))
+                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -103,7 +120,7 @@ class AuthServiceTest {
 
                 // Assert
                 assertEquals(expectedResponse, result);
-                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.GET), eq(null), eq(Object.class));
+                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any());
         }
 
         @Test
@@ -112,7 +129,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
 
                 when(restClientUtil.request(eq(GatewayPath.AUTH_ME_PATH), eq(HttpMethod.GET), eq(null),
-                                eq(Object.class)))
+                                any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -121,7 +138,7 @@ class AuthServiceTest {
                 // Assert
                 assertEquals(expectedResponse, result);
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_ME_PATH), eq(HttpMethod.GET), eq(null),
-                                eq(Object.class));
+                                any());
         }
 
         @Test
@@ -135,7 +152,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
 
                 when(restClientUtil.request(eq(GatewayPath.AUTH_CREATE_USER_PATH), eq(HttpMethod.POST), eq(request),
-                                eq(Object.class)))
+                                any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -144,7 +161,7 @@ class AuthServiceTest {
                 // Assert
                 assertEquals(expectedResponse, result);
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_CREATE_USER_PATH), eq(HttpMethod.POST), eq(request),
-                                eq(Object.class));
+                                any());
         }
 
         @Test
@@ -157,7 +174,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
                 String expectedPath = String.format(GatewayPath.AUTH_UPDATE_USER_PATH, userId);
 
-                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), eq(Object.class)))
+                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -165,7 +182,7 @@ class AuthServiceTest {
 
                 // Assert
                 assertEquals(expectedResponse, result);
-                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), eq(Object.class));
+                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any());
         }
 
         @Test
@@ -175,7 +192,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
                 String expectedPath = String.format(GatewayPath.AUTH_DELETE_USER_PATH, userId);
 
-                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), eq(Object.class)))
+                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -183,7 +200,7 @@ class AuthServiceTest {
 
                 // Assert
                 assertEquals(expectedResponse, result);
-                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), eq(Object.class));
+                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), any());
         }
 
         @Test
@@ -192,7 +209,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
 
                 when(restClientUtil.request(eq(GatewayPath.AUTH_GET_ROLES_PATH), eq(HttpMethod.GET), eq(null),
-                                eq(Object.class)))
+                                any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -201,7 +218,7 @@ class AuthServiceTest {
                 // Assert
                 assertEquals(expectedResponse, result);
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_GET_ROLES_PATH), eq(HttpMethod.GET), eq(null),
-                                eq(Object.class));
+                                any());
         }
 
         @Test
@@ -210,7 +227,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
 
                 when(restClientUtil.request(eq(GatewayPath.AUTH_GET_PERMISSIONS_PATH), eq(HttpMethod.GET), eq(null),
-                                eq(Object.class)))
+                                any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -219,7 +236,7 @@ class AuthServiceTest {
                 // Assert
                 assertEquals(expectedResponse, result);
                 verify(restClientUtil).request(eq(GatewayPath.AUTH_GET_PERMISSIONS_PATH), eq(HttpMethod.GET), eq(null),
-                                eq(Object.class));
+                                any());
         }
 
         @Test
@@ -229,7 +246,7 @@ class AuthServiceTest {
                 Object expectedResponse = new Object();
                 String expectedPath = String.format(GatewayPath.AUTH_GET_PERMISSIONS_BY_ROLE_ID_PATH, roleId);
 
-                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), eq(Object.class)))
+                when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any()))
                                 .thenReturn(expectedResponse);
 
                 // Act
@@ -237,6 +254,37 @@ class AuthServiceTest {
 
                 // Assert
                 assertEquals(expectedResponse, result);
-                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.GET), eq(null), eq(Object.class));
+                verify(restClientUtil).request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any());
+        }
+
+        @Test
+        void logout_ShouldCallRestClientWithCorrectParameters() {
+                // Arrange
+                Object expectedResponse = new Object();
+                when(restClientUtil.request(eq(GatewayPath.AUTH_LOGOUT_PATH), eq(HttpMethod.POST), eq(null), any()))
+                                .thenReturn(expectedResponse);
+
+                // Act
+                Object result = authService.logout();
+
+                // Assert
+                assertEquals(expectedResponse, result);
+                verify(restClientUtil).request(eq(GatewayPath.AUTH_LOGOUT_PATH), eq(HttpMethod.POST), eq(null), any());
+        }
+
+        @Test
+        void login_AccessTokenNull_ThrowsUnauthorizedException() {
+                // Arrange
+                LoginRequest request = new LoginRequest();
+                LoginResponse loginResponse = new LoginResponse();
+                loginResponse.setAccessToken(null); // Missing token
+                BaseResponse<LoginResponse> serviceResponse = ResponseFactory.success(loginResponse);
+
+                when(restClientUtil.request(eq(GatewayPath.AUTH_LOGIN_PATH), eq(HttpMethod.POST), eq(request), any()))
+                                .thenReturn(serviceResponse);
+
+                // Act & Assert
+                org.junit.jupiter.api.Assertions.assertThrows(com.example.j2n.exception.UnauthorizedException.class,
+                                () -> authService.login(request, null));
         }
 }

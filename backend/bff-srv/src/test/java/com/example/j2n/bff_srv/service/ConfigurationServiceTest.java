@@ -18,7 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.j2n.bff_srv.repository.ConfigurationRepository;
 import com.example.j2n.bff_srv.repository.entity.ConfigurationEntity;
-import com.example.j2n.bff_srv.service.response.BaseResponse;
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.utils.ResponseFactory;
 
 @ExtendWith(MockitoExtension.class)
 class ConfigurationServiceTest {
@@ -39,7 +40,7 @@ class ConfigurationServiceTest {
         config1.setDescription("Portfolio name");
         config1.setCreatedAt(LocalDateTime.now());
         config1.setUpdatedAt(LocalDateTime.now());
-        config1.setIsDeleted(false);
+        config1.setDeleted(false);
 
         ConfigurationEntity config2 = new ConfigurationEntity();
         config2.setId(2L);
@@ -48,7 +49,7 @@ class ConfigurationServiceTest {
         config2.setDescription("Pre introduction text");
         config2.setCreatedAt(LocalDateTime.now());
         config2.setUpdatedAt(LocalDateTime.now());
-        config2.setIsDeleted(false);
+        config2.setDeleted(false);
 
         ConfigurationEntity config3 = new ConfigurationEntity();
         config3.setId(3L);
@@ -57,7 +58,7 @@ class ConfigurationServiceTest {
         config3.setDescription("Main introduction text");
         config3.setCreatedAt(LocalDateTime.now());
         config3.setUpdatedAt(LocalDateTime.now());
-        config3.setIsDeleted(false);
+        config3.setDeleted(false);
 
         List<ConfigurationEntity> mockConfigurations = Arrays.asList(config1, config2, config3);
         when(configurationRepository.findByKeyIn(anyList())).thenReturn(mockConfigurations);
@@ -89,7 +90,7 @@ class ConfigurationServiceTest {
         config1.setDescription("Store portal base URL");
         config1.setCreatedAt(LocalDateTime.now());
         config1.setUpdatedAt(LocalDateTime.now());
-        config1.setIsDeleted(false);
+        config1.setDeleted(false);
 
         ConfigurationEntity config2 = new ConfigurationEntity();
         config2.setId(5L);
@@ -98,7 +99,7 @@ class ConfigurationServiceTest {
         config2.setDescription("Room portal base URL");
         config2.setCreatedAt(LocalDateTime.now());
         config2.setUpdatedAt(LocalDateTime.now());
-        config2.setIsDeleted(false);
+        config2.setDeleted(false);
 
         ConfigurationEntity config3 = new ConfigurationEntity();
         config3.setId(6L);
@@ -107,7 +108,7 @@ class ConfigurationServiceTest {
         config3.setDescription("Management portal base URL");
         config3.setCreatedAt(LocalDateTime.now());
         config3.setUpdatedAt(LocalDateTime.now());
-        config3.setIsDeleted(false);
+        config3.setDeleted(false);
 
         List<ConfigurationEntity> mockConfigurations = Arrays.asList(config1, config2, config3);
         when(configurationRepository.findByKeyIn(anyList())).thenReturn(mockConfigurations);

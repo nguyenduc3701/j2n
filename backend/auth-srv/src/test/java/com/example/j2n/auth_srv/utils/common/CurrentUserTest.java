@@ -64,8 +64,44 @@ class CurrentUserTest {
     }
 
     @Test
+    void isFromBff_Null() {
+        when(request.getHeader("FROM-BFF")).thenReturn(null);
+        assertFalse(currentUser.isFromBff());
+    }
+
+    @Test
+    void isFromBff_CaseInsensitive_True() {
+        when(request.getHeader("FROM-BFF")).thenReturn("TRUE");
+        assertTrue(currentUser.isFromBff());
+    }
+
+    @Test
+    void isFromBff_CaseInsensitive_True2() {
+        when(request.getHeader("FROM-BFF")).thenReturn("True");
+        assertTrue(currentUser.isFromBff());
+    }
+
+    @Test
     void getRequest_NoAttributes_ThrowsException() {
         RequestContextHolder.resetRequestAttributes();
         assertThrows(IllegalStateException.class, () -> currentUser.getId());
+    }
+
+    @Test
+    void getRequest_NoAttributes_ThrowsException_ForGetUserName() {
+        RequestContextHolder.resetRequestAttributes();
+        assertThrows(IllegalStateException.class, () -> currentUser.getUserName());
+    }
+
+    @Test
+    void getRequest_NoAttributes_ThrowsException_ForGetRoleId() {
+        RequestContextHolder.resetRequestAttributes();
+        assertThrows(IllegalStateException.class, () -> currentUser.getRoleId());
+    }
+
+    @Test
+    void getRequest_NoAttributes_ThrowsException_ForIsFromBff() {
+        RequestContextHolder.resetRequestAttributes();
+        assertThrows(IllegalStateException.class, () -> currentUser.isFromBff());
     }
 }

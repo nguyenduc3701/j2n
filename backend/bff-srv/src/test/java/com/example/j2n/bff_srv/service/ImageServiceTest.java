@@ -18,6 +18,7 @@ import com.example.j2n.exception.InvalidInputException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -43,13 +44,13 @@ class ImageServiceTest {
                 .ownerType(Optional.of("USER"))
                 .build();
 
-        when(restClientUtil.requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), eq(Object.class)))
+        when(restClientUtil.requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), any()))
                 .thenReturn(new Object());
 
         Object result = imageService.uploadImage(request);
 
         assertNotNull(result);
-        verify(restClientUtil).requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), eq(Object.class));
+        verify(restClientUtil).requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), any());
     }
 
     @Test
@@ -61,13 +62,13 @@ class ImageServiceTest {
                 .ownerType(Optional.empty())
                 .build();
 
-        when(restClientUtil.requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), eq(Object.class)))
+        when(restClientUtil.requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), any()))
                 .thenReturn(new Object());
 
         Object result = imageService.uploadImage(request);
 
         assertNotNull(result);
-        verify(restClientUtil).requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), eq(Object.class));
+        verify(restClientUtil).requestUpload(eq(GatewayPath.IMAGE_UPLOAD_PATH), any(), any());
     }
 
     @Test

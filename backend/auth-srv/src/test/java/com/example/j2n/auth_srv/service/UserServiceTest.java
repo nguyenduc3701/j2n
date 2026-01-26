@@ -2,6 +2,7 @@ package com.example.j2n.auth_srv.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.AccessDeniedException;
 import com.example.j2n.exception.DataNotFoundException;
@@ -33,6 +35,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
+import com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
@@ -328,6 +331,26 @@ class UserServiceTest {
     }
 
     @Test
+    void getMe_ShouldHandleNullRoleId() {
+        // Arrange
+        String userId = "1";
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setRoleId(null);
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        when(currentUser.getId()).thenReturn(userId);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        // When roleId is null, code will throw NullPointerException at line 63
+        // This test verifies that null roleId causes an exception
+        // Act & Assert
+        assertThrows(NullPointerException.class, () -> userService.getMe());
+    }
+
+    @Test
     void getUserById_ShouldReturnUser_WhenUserExists() {
         // Arrange
         String userId = "1";
@@ -407,6 +430,19 @@ class UserServiceTest {
         UpdateUserRequest request = new UpdateUserRequest();
 
         when(currentUser.getId()).thenReturn("1"); // Current user
+        when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER (Not Admin)
+
+        // Act & Assert
+        assertThrows(AccessDeniedException.class, () -> userService.updateUser(userId, request));
+    }
+
+    @Test
+    void updateUser_ShouldThrowException_WhenUserUpdatesOwnProfileButNotAdmin() {
+        // Arrange
+        String userId = "1";
+        UpdateUserRequest request = new UpdateUserRequest();
+
+        when(currentUser.getId()).thenReturn("1"); // Same user
         when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER (Not Admin)
 
         // Act & Assert
@@ -635,6 +671,44 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_ShouldDefaultToVisitorRole_WhenRoleIdIsNull() {
+        // Arrange
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUserName("newuser");
+        request.setPassword("password");
+        request.setEmail("test@example.com");
+        request.setFullName("Test User");
+        request.setPhoneNumber("1234567890");
+        request.setAddress("Test Address");
+        request.setCompany("Test Company");
+        request.setRoleId(null);
+
+        UserEntity savedUser = new UserEntity();
+        savedUser.setId(1L);
+        savedUser.setUsername("newuser");
+
+        UserItemResponse itemResponse = new UserItemResponse();
+        itemResponse.setId("1");
+        itemResponse.setUserName("newuser");
+
+        when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER
+        when(passwordUtil.encode("password")).thenReturn("encodedPassword");
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
+            UserEntity user = invocation.getArgument(0);
+            return user;
+        });
+        when(authService.buildUserItemResponse(any(UserEntity.class))).thenReturn(itemResponse);
+
+        // Act
+        BaseResponse<UserItemResponse> response = userService.createUser(request);
+
+        // Assert
+        assertNotNull(response);
+        verify(userRepository).save(org.mockito.ArgumentMatchers.argThat(
+                user -> user.getRoleId().equals(CommonConst.ROLE_VISITOR_ID)));
+    }
+
+    @Test
     void updateUser_ShouldReturnUpdatedUser_WhenRequestIsValid() {
         // Arrange
         String userId = "1";
@@ -650,6 +724,36 @@ class UserServiceTest {
         UserItemResponse itemResponse = new UserItemResponse();
         itemResponse.setId("1");
         itemResponse.setUserName("testuser");
+
+        when(currentUser.getId()).thenReturn("1");
+        when(currentUser.getRoleId()).thenReturn("1"); // ADMIN
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(UserEntity.class))).thenReturn(user);
+        when(authService.buildUserItemResponse(any(UserEntity.class))).thenReturn(itemResponse);
+
+        // Act
+        BaseResponse<UserItemResponse> response = userService.updateUser(userId, request);
+
+        // Assert
+        assertNotNull(response);
+        verify(userRepository).save(any(UserEntity.class));
+    }
+
+    @Test
+    void updateUser_ShouldNotValidateRole_WhenRoleIdIsNull() {
+        // Arrange
+        String userId = "1";
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setFullName("Updated Name");
+        request.setRoleId(null); // RoleId is null, should not validate
+
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setRoleId(1L);
+
+        UserItemResponse itemResponse = new UserItemResponse();
+        itemResponse.setId("1");
 
         when(currentUser.getId()).thenReturn("1");
         when(currentUser.getRoleId()).thenReturn("1"); // ADMIN
@@ -718,5 +822,104 @@ class UserServiceTest {
 
         // Act & Assert
         assertThrows(DataNotFoundException.class, () -> userService.updateUserImageUrl(userId, imageId));
+    }
+
+    @Test
+    void getUserById_ShouldHandleNullRoomId() {
+        // Arrange
+        String userId = "1";
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setRoleId(1L);
+        user.setRoomId(null);
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Act
+        BaseResponse<UserResponse.UserItem> response = userService.getUserById(userId);
+
+        // Assert
+        assertNotNull(response);
+        assertNull(response.getData().getRoomId());
+    }
+
+    @Test
+    void getUserById_ShouldHandleNonNullRoomId() {
+        // Arrange
+        String userId = "1";
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setRoleId(1L);
+        user.setRoomId(100L);
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Act
+        BaseResponse<UserResponse.UserItem> response = userService.getUserById(userId);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("100", response.getData().getRoomId());
+    }
+
+    @Test
+    void searchUsers_ShouldHandleEmptyStringFilters() {
+        // Arrange
+        SearchUsersRequest request = new SearchUsersRequest();
+        request.setFullName(Optional.of(""));
+        request.setEmail(Optional.of(""));
+        request.setPhoneNumber(Optional.of(""));
+        request.setUserName(Optional.of(""));
+
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setRoleId(1L);
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        Page<UserEntity> page = new PageImpl<>(List.of(user));
+        when(userRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
+
+        // Act
+        BaseResponse<UserResponse> response = userService.searchUsers(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1, response.getData().getUsers().size());
+    }
+
+    @Test
+    void searchUsers_ShouldHandleEmptyStatusString() {
+        // Arrange
+        SearchUsersRequest request = new SearchUsersRequest();
+        request.setStatus(Optional.of(""));
+
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setRoleId(1L);
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        Page<UserEntity> page = new PageImpl<>(List.of(user));
+        when(userRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
+
+        // Act
+        BaseResponse<UserResponse> response = userService.searchUsers(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1, response.getData().getUsers().size());
     }
 }

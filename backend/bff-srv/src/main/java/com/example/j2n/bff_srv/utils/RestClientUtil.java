@@ -49,7 +49,7 @@ public class RestClientUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("FROM-BFF", "true");
 
-        if (path.equals(GatewayPath.AUTH_LOGOUT_PATH)){
+        if (path.equals(GatewayPath.AUTH_LOGOUT_PATH)) {
             String refreshToken = getRefreshTokenFromCookie();
             headers.set("X-Refresh-Token", refreshToken);
         }
@@ -64,6 +64,9 @@ public class RestClientUtil {
 
         try {
             ResponseEntity<T> response = restTemplate.exchange(url, method, entity, responseType);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ExternalServiceException(MessageEnum.GATEWAY_REQUEST_FAILED);
+            }
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
             throw buildExternalException(ex);
@@ -99,6 +102,9 @@ public class RestClientUtil {
                     HttpMethod.POST,
                     entity,
                     responseType);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ExternalServiceException(MessageEnum.GATEWAY_REQUEST_FAILED);
+            }
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
             throw buildExternalException(ex);
@@ -115,11 +121,15 @@ public class RestClientUtil {
         }
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         try {
-            return restTemplate.exchange(
+            ResponseEntity<byte[]> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     entity,
                     byte[].class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new ExternalServiceException(MessageEnum.GATEWAY_REQUEST_FAILED);
+            }
+            return response;
         } catch (HttpStatusCodeException ex) {
             throw buildExternalException(ex);
         }
@@ -145,7 +155,8 @@ public class RestClientUtil {
         }
     }
 
-    public <T> T requestAuth(String path, HttpMethod method, Object body, Map<String, String> customHeaders, ParameterizedTypeReference<T> responseType) {
+    public <T> T requestAuth(String path, HttpMethod method, Object body, Map<String, String> customHeaders,
+            ParameterizedTypeReference<T> responseType) {
         String url = gatewayConfig.getBaseUrl() + path;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

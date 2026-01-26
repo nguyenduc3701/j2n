@@ -1,13 +1,12 @@
 package com.example.j2n.auth_srv.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.example.j2n.auth_srv.controllers.requests.LogoutRequest;
-import com.example.j2n.auth_srv.controllers.requests.RefreshTokenRequest;
 import com.example.j2n.utils.ResponseFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +62,7 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.token").value("testToken"))
+                .andExpect(jsonPath("$.data.access_token").value("testToken"))
                 .andExpect(jsonPath("$.data.refresh_token").value("testRefreshToken"));
     }
 
@@ -93,15 +92,13 @@ class AuthControllerTest {
     @Test
     void logout_ShouldReturnSuccess() throws Exception {
         // Arrange
-        LogoutRequest request = new LogoutRequest();
-        request.setRefreshToken("testRefreshToken");
-
-        when(authService.logout(any(LogoutRequest.class))).thenReturn(ResponseFactory.success("Logout Success"));
+        when(authService.logout(anyString(), anyString()))
+                .thenReturn(ResponseFactory.success("Logout Success"));
 
         // Act & Assert
         mockMvc.perform(post("/auth/logout")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .header("Authorization", "Bearer testToken")
+                .header("X-Refresh-Token", "testRefreshToken"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value("Logout Success"));
     }
@@ -109,19 +106,15 @@ class AuthControllerTest {
     @Test
     void refreshToken_ShouldReturnSuccess() throws Exception {
         // Arrange
-        RefreshTokenRequest request = new RefreshTokenRequest();
-        request.setRefreshToken("oldRefreshToken");
-
         LoginResponse loginResponse = new LoginResponse("newToken", "newRefreshToken");
-        when(authService.refreshToken(any(RefreshTokenRequest.class)))
+        when(authService.refreshToken(anyString()))
                 .thenReturn(ResponseFactory.success(loginResponse));
 
         // Act & Assert
         mockMvc.perform(post("/auth/refresh-token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .header("X-Refresh-Token", "oldRefreshToken"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.token").value("newToken"));
+                .andExpect(jsonPath("$.data.access_token").value("newToken"));
     }
 
     @Test

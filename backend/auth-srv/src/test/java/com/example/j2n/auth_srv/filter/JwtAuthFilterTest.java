@@ -1,6 +1,8 @@
 package com.example.j2n.auth_srv.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -118,5 +120,88 @@ class JwtAuthFilterTest {
         // Assert
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    void doFilterInternal_ShouldReturn401_WhenPermissionsIsNull() throws ServletException, IOException {
+        // Arrange
+        String token = "validToken";
+        String username = "testuser";
+        String userId = "1";
+
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+
+        Claims claims = mock(Claims.class);
+        when(jwtUtil.validate(token)).thenReturn(claims);
+        when(claims.get("user_id", String.class)).thenReturn(userId);
+        when(claims.get("user_name", String.class)).thenReturn(username);
+        when(claims.get(eq("permissions"), eq(List.class))).thenReturn(null);
+
+        // Act
+        jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+        // Assert
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(filterChain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    void doFilterInternal_ShouldHandleEmptyPermissions() throws ServletException, IOException {
+        // Arrange
+        String token = "validToken";
+        String username = "testuser";
+        String userId = "1";
+        List<String> permissions = Collections.emptyList();
+
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+
+        Claims claims = mock(Claims.class);
+        when(jwtUtil.validate(token)).thenReturn(claims);
+        when(claims.get("user_id", String.class)).thenReturn(userId);
+        when(claims.get("user_name", String.class)).thenReturn(username);
+        when(claims.get(eq("permissions"), eq(List.class))).thenReturn(permissions);
+
+        // Act
+        jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+        // Assert
+        verify(filterChain).doFilter(request, response);
+        assert SecurityContextHolder.getContext().getAuthentication() != null;
+    }
+
+    @Test
+    void shouldNotFilter_ShouldReturnTrue_WhenPathStartsWithSwaggerUi() {
+        // Arrange
+        when(request.getRequestURI()).thenReturn("/swagger-ui/index.html");
+
+        // Act
+        boolean result = jwtAuthFilter.shouldNotFilter(request);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldNotFilter_ShouldReturnTrue_WhenPathStartsWithApiDocs() {
+        // Arrange
+        when(request.getRequestURI()).thenReturn("/v3/api-docs");
+
+        // Act
+        boolean result = jwtAuthFilter.shouldNotFilter(request);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldNotFilter_ShouldReturnFalse_WhenPathDoesNotMatch() {
+        // Arrange
+        when(request.getRequestURI()).thenReturn("/api/auth/login");
+
+        // Act
+        boolean result = jwtAuthFilter.shouldNotFilter(request);
+
+        // Assert
+        assertFalse(result);
     }
 }
