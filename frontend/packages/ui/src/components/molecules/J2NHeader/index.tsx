@@ -48,16 +48,16 @@ const J2NHeader = (props: IHeaderProps) => {
           href="/"
           className="header-branch flex items-center cursor-pointer"
         >
-          <div className="branch-logo max-w-[130px] max-h-[130px]">
+          <div className="branch-logo max-w-[100px] max-h-[100px]">
             <img
-              className="j2n-logo object-contain scale-[1.5]"
+              className="j2n-logo object-contain scale-[2]"
               src={finalLogoSrc}
               alt={title}
               width={"100%"}
               height={"100%"}
             />
           </div>
-          <h1 className="branch-title text-3xl font-secondary-700 text-j2n-grape-deep-500">
+          <h1 className="branch-title text-2xl font-secondary-700 text-j2n-grape-deep-500">
             {title}
           </h1>
         </Link>
