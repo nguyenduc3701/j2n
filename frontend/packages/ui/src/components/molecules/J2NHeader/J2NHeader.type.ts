@@ -1,10 +1,7 @@
 export interface IHeaderProps {
-  logoSrc: string;
-  logoWidth?: string | number;
-  logoHeight?: string | number;
+  logoSrc?: string;
   className?: string;
   title?: string;
-  menuItems?: IMenuItem[];
 }
 
 export interface IMenuItem {

@@ -1,4 +1,4 @@
-import J2NTitle, { TileSize } from "@repo/components/atoms/J2NTitle";
+import J2NTitle, { TileSize } from "@repo/components/molecules/J2NTitle";
 import J2NSection from "@repo/components/atoms/J2NSection";
 import J2NAvatar from "@repo/components/atoms/J2NAvatar";
 import J2NImage from "@repo/components/atoms/J2NImage";

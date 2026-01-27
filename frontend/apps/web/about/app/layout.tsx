@@ -52,7 +52,7 @@ export default function RootLayout({
       >
         <MantineProvider>
           <I18nProvider>
-            <J2NHeader logoSrc="https://png.pngtree.com/element_pic/00/16/09/2057e0eecf792fb.jpg" />
+            <J2NHeader title="Jadon Nguyen" />
             <main>{children}</main>
           </I18nProvider>
         </MantineProvider>

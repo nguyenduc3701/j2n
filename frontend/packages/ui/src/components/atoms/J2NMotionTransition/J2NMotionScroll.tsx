@@ -1,43 +1,19 @@
 "use client";
 
-import React, { useRef } from "react";
 import { motion, useInView, Variants } from "framer-motion";
+import { useRef } from "react";
+import { MarginType, IMotionScrollProps } from "./J2NMotionTrasition.type";
 
-type MarginValue = `${number}${"px" | "%"}`;
-export type MarginType =
-  | MarginValue
-  | `${MarginValue} ${MarginValue}`
-  | `${MarginValue} ${MarginValue} ${MarginValue}`
-  | `${MarginValue} ${MarginValue} ${MarginValue} ${MarginValue}`;
-
-export type MotionDirection = "up" | "down" | "left" | "right" | "none";
-
-export interface MotionTransitionProps {
-  children: React.ReactNode;
-  /** animation xuất hiện một lần khi scroll */
-  once?: boolean;
-  /** hướng chuyển động */
-  direction?: MotionDirection;
-  /** độ trễ */
-  delay?: number;
-  /** thời gian animation */
-  duration?: number;
-  /** khoảng offset để kích hoạt in view */
-  margin?: MarginType | undefined;
-  /** className để truyền vào wrapper */
-  className?: string;
-}
-
-/** Component dùng chung cho fade + slide transition */
-export default function MotionTransition({
+/** Component dùng chung cho slide transition khi scroll */
+export default function J2NMotionScroll({
   children,
   once = true,
-  direction = "none",
+  direction = "up",
   delay = 0,
   duration = 0.45,
-  margin = "0px 0px -100px 0px" as MarginType,
+  margin = "0px 0px -50px 0px" as MarginType,
   className,
-}: MotionTransitionProps) {
+}: IMotionScrollProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const inView = useInView(ref, { once, margin });
 
@@ -79,7 +55,7 @@ export default function MotionTransition({
   return (
     <motion.div
       ref={ref}
-      className={`motion-transition-wrapper ${className}`}
+      className={`motion-scroll-wrapper ${className}`}
       variants={variants}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
