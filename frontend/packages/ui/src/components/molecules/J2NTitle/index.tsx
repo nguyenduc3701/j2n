@@ -1,24 +1,12 @@
 import React from "react";
+import { IJ2NTitleProps, TileSize } from "./J2NTitle.type";
 
-export enum TileSize {
-  xl = "xl",
-  lg = "lg",
-  md = "md",
-  sm = "sm",
-}
-
-interface TitleProps {
-  size?: TileSize;
-  title: string;
-  subTitle?: string;
-  divider?: boolean;
-}
-
-const J2NTitle: React.FC<TitleProps> = ({
+const J2NTitle: React.FC<IJ2NTitleProps> = ({
   size = TileSize.md,
   title,
   subTitle,
   divider = false,
+  className,
 }) => {
   const titleSizeClasses = {
     [TileSize.xl]: "text-3xl",
@@ -28,7 +16,7 @@ const J2NTitle: React.FC<TitleProps> = ({
   };
 
   return (
-    <div className="title-wrapper flex flex-col">
+    <div className={`title-wrapper flex flex-col ${className}`}>
       {divider && (
         <div className="w-full h-0.5 bg-j2n-sand-medium-300 mb-3.5"></div>
       )}
