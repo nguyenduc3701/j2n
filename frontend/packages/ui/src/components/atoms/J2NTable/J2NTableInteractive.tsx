@@ -1,25 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import {
-  Table,
-  TableThead,
-  TableTbody,
-  TableTr,
-  TableTh,
-  TableTd,
-  TableScrollContainer,
   Checkbox,
-  Pagination,
   Flex,
+  Pagination,
+  Table,
+  TableScrollContainer,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableThead,
+  TableTr,
 } from "@mantine/core";
-import { IJ2NTableProps, IRenderedRow } from "./J2NTable.type";
-
-interface IJ2NTableInteractiveProps<T>
-  extends Omit<IJ2NTableProps<T>, "columns"> {
-  headers: string[];
-  renderedRows: IRenderedRow<T>[];
-}
+import { useEffect, useState } from "react";
+import { IJ2NTableInteractiveProps } from "./J2NTable.type";
 
 const J2NTableInteractive = <T extends Record<string, any>>({
   headers,

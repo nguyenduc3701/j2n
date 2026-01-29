@@ -28,3 +28,9 @@ export interface IRenderedRow<T> {
   cells: React.ReactNode[];
   record: T;
 }
+
+export interface IJ2NTableInteractiveProps<T>
+  extends Omit<IJ2NTableProps<T>, "columns"> {
+  headers: string[];
+  renderedRows: IRenderedRow<T>[];
+}
