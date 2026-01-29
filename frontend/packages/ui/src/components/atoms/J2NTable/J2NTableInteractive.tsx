@@ -142,7 +142,7 @@ const J2NTableInteractive = <T extends Record<string, any>>({
       </TableScrollContainer>
 
       {pageSize && totalPages > 1 && (
-        <Flex justify="center" mt="md">
+        <Flex justify="flex-end" mt="md">
           <Pagination
             total={totalPages}
             value={activePage}
@@ -150,6 +150,11 @@ const J2NTableInteractive = <T extends Record<string, any>>({
             color="j2n-ink.5"
             size="sm"
             radius="md"
+            styles={{
+              control: {
+                backgroundColor: "transparent",
+              },
+            }}
           />
         </Flex>
       )}

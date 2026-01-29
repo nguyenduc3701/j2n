@@ -7,8 +7,8 @@ import J2NButton, { J2NButtonTypes } from "@repo/components/atoms/J2NButton";
 import J2NAccount from "@repo/components/molecules/J2NAccount";
 import { IconDownload } from "@tabler/icons-react";
 import J2NFooter from "@repo/components/molecules/J2NFooter";
-import J2NTable from "@repo/components/atoms/J2NTable";
-import { Table, Box, Flex } from "@mantine/core";
+import ProjectsTable from "./ProjectsTable";
+import { Box, Flex } from "@mantine/core";
 
 const mockProjects = [
   {
@@ -32,19 +32,6 @@ const mockProjects = [
 ];
 
 const AboutMePage = () => {
-  const columns = [
-    { key: "id", title: "No." },
-    {
-      key: "name",
-      title: "Project Name",
-      render: (record: any) => (
-        <span className="font-secondary-600">{record.name}</span>
-      ),
-    },
-    { key: "tech", title: "Technologies" },
-    { key: "year", title: "Year" },
-  ];
-
   return (
     <J2NSection name="about-me" className="bg-j2n-sand-500 p-6">
       <h1>about me</h1>
@@ -72,13 +59,7 @@ const AboutMePage = () => {
 
       <Box className="my-10">
         <J2NTitle title="Recent Projects" size={TileSize.md} className="mb-4" />
-        <J2NTable
-          columns={columns}
-          data={mockProjects}
-          useCheckbox={true}
-          pageSize={2}
-          onCheckboxChange={(selected) => console.log("Selected:", selected)}
-        />
+        <ProjectsTable data={mockProjects} />
       </Box>
 
       <Flex gap="md" className="mb-10">
