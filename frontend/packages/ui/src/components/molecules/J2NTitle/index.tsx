@@ -20,7 +20,7 @@ const J2NTitle: React.FC<IJ2NTitleProps> = ({
       {divider && (
         <div className="w-full h-0.5 bg-j2n-sand-medium-300 mb-3.5"></div>
       )}
-      <div className="flex items-baseline pl-2">
+      <div className="flex items-baseline">
         <h1
           className={`font-secondary-700 ${titleSizeClasses[size]} text-j2n-plum-dark-500`}
         >

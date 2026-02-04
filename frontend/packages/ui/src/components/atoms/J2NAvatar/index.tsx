@@ -1,16 +1,14 @@
-import { Avatar, AvatarProps } from "@mantine/core";
+import { Avatar } from "@mantine/core";
+import { J2NAvatarProps } from "./J2NAvatar.type";
 
-interface J2NAvatarProps extends AvatarProps {
-  src: string;
-  isRounded?: boolean;
-}
-
-function J2NAvatar({ isRounded = true, ...props }: J2NAvatarProps) {
+function J2NAvatar({ isRounded = true, className, ...props }: J2NAvatarProps) {
   if (!isRounded) {
     return <Avatar {...props} />;
   }
   return (
-    <div className="avatar-wrapper w-fit p-1.5 border-2 border-j2n-sand-medium-300 bg-transparent rounded-full">
+    <div
+      className={`avatar-wrapper w-fit p-1.5 border-2 border-j2n-sand-medium-300 bg-transparent rounded-full ${className}`}
+    >
       <Avatar {...props} />
     </div>
   );

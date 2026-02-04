@@ -1,15 +1,14 @@
+import { I18nProvider } from "@/lib/i18n/provider";
+import { MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css";
+import "@repo/ui/src/styles/globals.css";
 import type { Metadata } from "next";
 import {
-  Saira_Condensed,
-  Noto_Sans_KR,
-  Noto_Sans_JP,
   Merienda,
+  Noto_Sans_JP,
+  Noto_Sans_KR,
+  Saira_Condensed,
 } from "next/font/google";
-import { MantineProvider } from "@mantine/core";
-import { I18nProvider } from "@/lib/i18n/provider";
-import J2NHeader from "@repo/components/molecules/J2NHeader";
-import "@repo/ui/src/styles/globals.css";
-import "@mantine/core/styles.css";
 
 const saira = Saira_Condensed({
   weight: ["300", "400", "500", "600", "700"],
@@ -51,10 +50,7 @@ export default function RootLayout({
         className={`${saira.variable} ${notoKR.variable} ${notoJP.variable} ${merienda.variable} antialiased`}
       >
         <MantineProvider>
-          <I18nProvider>
-            <J2NHeader title="Jadon Nguyen" />
-            <main>{children}</main>
-          </I18nProvider>
+          <I18nProvider>{children}</I18nProvider>
         </MantineProvider>
       </body>
     </html>

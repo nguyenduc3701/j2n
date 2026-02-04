@@ -19,6 +19,7 @@ export interface J2NButtonProps extends ButtonProps {
 const J2NButton: React.FC<J2NButtonProps> = ({
   children,
   j2nType = J2NButtonTypes.PRIMARY,
+  className,
   ...props
 }) => {
   return (
@@ -26,8 +27,7 @@ const J2NButton: React.FC<J2NButtonProps> = ({
       className={clsx(
         "transition-all duration-200",
         J2N_BUTTON_CLASSES[j2nType],
-        props.className,
-        props.classNames
+        className,
       )}
       {...props}
     >
