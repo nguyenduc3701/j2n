@@ -33,6 +33,8 @@
     "@mantine/nprogress": "^8.3.9",
     "@mantine/spotlight": "^8.3.9",
     "@mantine/tiptap": "^8.3.9",
+    "@ridemountainpig/svgl-react": "^1.0.15",
+    "@tabler/icons-react": "^3.36.1",
     "@tiptap/extension-link": "^3.13.0",
     "@tiptap/pm": "^3.13.0",
     "@tiptap/react": "^3.13.0",
@@ -45,7 +47,6 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.5.1",
-    "styled-components": "^6.1.19",
-    "@tabler/icons-react": "^3.36.1"
+    "styled-components": "^6.1.19"
   }
 }
