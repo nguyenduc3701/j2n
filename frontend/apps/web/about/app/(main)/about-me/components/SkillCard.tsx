@@ -47,7 +47,7 @@ const SkillCard: React.FC<SkillCardProps> = ({
             direction="column"
             gap={2}
           >
-            <div className="shrink-0">{icon}</div>
+            <div className="shrink-0 pb-2">{icon}</div>
             <Text
               size={name.length > 12 && isLarge ? "sm" : isLarge ? "lg" : "md"}
               className="text-j2n-ink-300 text-center"

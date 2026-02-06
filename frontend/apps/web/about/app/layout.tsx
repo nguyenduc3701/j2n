@@ -1,6 +1,7 @@
 import { I18nProvider } from "@/lib/i18n/provider";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
+import "@mantine/carousel/styles.css";
 import "@repo/ui/src/styles/globals.css";
 import type { Metadata } from "next";
 import {

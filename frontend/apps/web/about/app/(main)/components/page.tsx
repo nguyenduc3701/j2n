@@ -12,7 +12,7 @@ import J2NTitle from "@repo/components/molecules/J2NTitle";
 import { TileSize } from "@repo/components/molecules/J2NTitle/J2NTitle.type";
 import { IconDownload } from "@tabler/icons-react";
 import ProjectsTable from "./ProjectsTable";
-import CustomDivider from "../about-me/components/GithubDivider";
+import GithubDivider from "../about-me/components/GithubDivider";
 
 const mockProjects = [
   {
@@ -88,7 +88,7 @@ const ComponentsPage = () => {
           </p>
         </J2NTimeline.Item>
       </J2NTimeline>
-      <CustomDivider />
+      <GithubDivider url="https://github.com/nguyenduc3701" />
     </J2NSection>
   );
 };

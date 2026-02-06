@@ -9,21 +9,25 @@ import J2NButton, { J2NButtonTypes } from "@repo/components/atoms/J2NButton";
 import J2NImage from "@repo/components/atoms/J2NImage";
 import J2NTimeline from "@repo/components/atoms/J2NTimeline";
 import { IconDownload } from "@tabler/icons-react";
+import { Carousel, CarouselSlide } from "@mantine/carousel";
+import Image from "next/image";
 
 import SkillCard from "./components/SkillCard";
 import TimelineCard from "./components/TimelineCard";
 import PersonalCard from "./components/PersonalCard";
+import GithubDivider from "./components/GithubDivider";
 import {
   mainSkills,
   otherSkills,
   timelineData,
   personalData,
 } from "./components/data";
+import J2NFooter from "@repo/components/molecules/J2NFooter";
 
 const AboutMePage = () => {
   return (
     <J2NMotionFade>
-      <div className="about-me-wrapper px-48">
+      <div className="about-me-wrapper px-62">
         <J2NSection name="short-introduction" className="py-20">
           <Center>
             <Stack align="center">
@@ -44,13 +48,13 @@ const AboutMePage = () => {
         </J2NSection>
         <J2NDivider />
         <J2NSection name="main-introduction" className="py-20">
-          <Flex gap="md" justify="space-between" align="flex-start">
+          <Flex gap="md" justify="space-around" align="flex-start">
             <Box className="max-w-[50%]">
               <J2NImage
                 src="https://picsum.photos/id/237/200/300"
                 alt="Avatar"
-                width="500px"
-                height="550px"
+                width="600px"
+                height="650px"
               />
             </Box>
             <Box className="max-w-[50%]">
@@ -133,6 +137,46 @@ const AboutMePage = () => {
             ))}
           </SimpleGrid>
         </J2NSection>
+        <GithubDivider url="https://github.com/nguyenduc3701" />
+        <J2NSection name="personal-photos" className="py-10">
+          <Carousel
+            withIndicators
+            height={900}
+            slideSize="50%"
+            slideGap={50}
+            emblaOptions={{ loop: true, align: "start" }}
+          >
+            <CarouselSlide>
+              <Image
+                src="https://picsum.photos/id/237/200/300"
+                alt="Avatar"
+                width={1000}
+                height={1000}
+                className="w-full h-full object-cover shadow-lg rounded-md"
+              />
+            </CarouselSlide>
+            <CarouselSlide>
+              <Image
+                src="https://picsum.photos/id/237/200/300"
+                alt="Avatar"
+                height={700}
+                width={500}
+                className="w-full h-full object-cover shadow-lg rounded-md"
+              />
+            </CarouselSlide>
+            <CarouselSlide>
+              <Image
+                src="https://picsum.photos/id/237/200/300"
+                height={700}
+                width={500}
+                alt="Avatar"
+                className="w-full h-full object-cover shadow-lg rounded-md"
+              />
+            </CarouselSlide>
+          </Carousel>
+        </J2NSection>
+        <J2NDivider />
+        <J2NFooter className="pt-2 pb-5" />
       </div>
     </J2NMotionFade>
   );

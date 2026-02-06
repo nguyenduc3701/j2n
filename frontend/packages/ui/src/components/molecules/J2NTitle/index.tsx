@@ -32,7 +32,11 @@ const J2NTitle: React.FC<IJ2NTitleProps> = ({
           className={`font-secondary-700 ${titleSizeClasses[size]} text-j2n-plum-dark-500`}
         >
           <span
-            className={`inline-block w-[70%] ${underline ? "border-b-3 border-j2n-mauve-500" : ""} whitespace-break-spaces text-j2n-plum-dark-600`}
+            className={`relative inline-block w-full ${
+              underline
+                ? "pb-1 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[3px] after:w-[70%] after:bg-j2n-mauve-500"
+                : ""
+            } whitespace-break-spaces text-j2n-plum-dark-600 pb-3`}
             style={underlineStyle}
           >
             {title}

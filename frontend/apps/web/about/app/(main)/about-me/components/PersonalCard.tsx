@@ -17,8 +17,8 @@ const PersonalCard = ({ title, description, icon }: IPersonalCardProps) => {
         radius="lg"
         className="cursor-default bg-j2n-sand-500/70! transition-all duration-200 w-full"
       >
-        <Center className="px-3 py-5 h-full">
-          <Stack gap={1} align="center" justify="space-between" h="100%">
+        <Center className="px-5 py-10 h-full">
+          <Stack gap={2} align="center" justify="space-between" h="100%">
             {icon}
             <Text fw={500} className="text-j2n-plum-dark-500! text-3xl!">
               {title}
