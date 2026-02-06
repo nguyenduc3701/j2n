@@ -7,8 +7,8 @@ export default function MainLayout({
 }) {
   return (
     <>
-      <J2NHeader title="Jadon Nguyen" className="bg-j2n-sand-500!" />
-      <main className="bg-j2n-sand-500">{children}</main>
+      <J2NHeader title="Jadon Nguyen" className="bg-j2n-sand-100!" />
+      <main className="bg-j2n-sand-100">{children}</main>
     </>
   );
 }

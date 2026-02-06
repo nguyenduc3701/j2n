@@ -1,6 +1,6 @@
-import React from "react";
-import { Paper, Stack, Text, Tooltip, Center, Flex } from "@mantine/core";
+import { Flex, Paper, Text, Tooltip } from "@mantine/core";
 import J2NMotionFade from "@repo/components/atoms/J2NMotionTransition/J2NMotionFade";
+import React from "react";
 
 export interface SkillCardProps {
   name: string;
@@ -34,7 +34,7 @@ const SkillCard: React.FC<SkillCardProps> = ({
           shadow="sm"
           className={`
           cursor-default
-          bg-j2n-sand-light-300!
+          bg-j2n-sand-light-400!
           hover:bg-j2n-sand-light-500!
           transition-all duration-200
           ${isLarge ? "w-full aspect-square" : "w-full h-[150px]"}

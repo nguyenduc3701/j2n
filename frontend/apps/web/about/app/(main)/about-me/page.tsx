@@ -7,9 +7,18 @@ import { TileSize } from "@repo/components/molecules/J2NTitle/J2NTitle.type";
 import J2NTitle from "@repo/components/molecules/J2NTitle";
 import J2NButton, { J2NButtonTypes } from "@repo/components/atoms/J2NButton";
 import J2NImage from "@repo/components/atoms/J2NImage";
+import J2NTimeline from "@repo/components/atoms/J2NTimeline";
 import { IconDownload } from "@tabler/icons-react";
-import SkillCard from "./SkillCard";
-import { mainSkills, otherSkills } from "./skills";
+
+import SkillCard from "./components/SkillCard";
+import TimelineCard from "./components/TimelineCard";
+import PersonalCard from "./components/PersonalCard";
+import {
+  mainSkills,
+  otherSkills,
+  timelineData,
+  personalData,
+} from "./components/data";
 
 const AboutMePage = () => {
   return (
@@ -104,6 +113,25 @@ const AboutMePage = () => {
           >
             Career Timeline
           </Text>
+          <J2NTimeline animate={true}>
+            {timelineData.map((item, index) => (
+              <TimelineCard key={index} index={index} {...item} />
+            ))}
+          </J2NTimeline>
+        </J2NSection>
+        <J2NDivider />
+        <J2NSection name="personal-information" className="py-20">
+          <Text
+            size="lg"
+            className="font-secondary-700 text-j2n-plum-dark-500! pb-5!"
+          >
+            Personal Information
+          </Text>
+          <SimpleGrid cols={3} spacing="xl" className="pb-5">
+            {personalData.map((item, index) => (
+              <PersonalCard key={index} {...item} />
+            ))}
+          </SimpleGrid>
         </J2NSection>
       </div>
     </J2NMotionFade>

@@ -1,3 +1,5 @@
+import { CSSProperties } from "react";
+
 export enum TileSize {
   xl = "xl",
   lg = "lg",
@@ -11,4 +13,7 @@ export interface IJ2NTitleProps {
   subTitle?: string;
   divider?: boolean;
   className?: string;
+  underline?: boolean;
+  underlineStyle?: CSSProperties;
+  reverseSubTitle?: boolean;
 }

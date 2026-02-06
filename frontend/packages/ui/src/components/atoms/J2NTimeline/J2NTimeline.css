@@ -1,0 +1,18 @@
+/* Global styles for 50px icon */
+.j2n-timeline .vertical-timeline-element-icon {
+  width: 50px;
+  height: 50px;
+}
+
+@media only screen and (max-width: 1169px) {
+  .j2n-timeline .vertical-timeline-element-icon {
+    margin-left: -5px;
+  }
+}
+
+@media only screen and (min-width: 1170px) {
+  /* Fix centering for 50px icon on desktop */
+  .j2n-timeline .vertical-timeline-element-icon {
+    margin-left: -25px;
+  }
+}
