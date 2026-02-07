@@ -1,3 +1,295 @@
 {
-    "hello": "Hello"
+  "About me": "About me",
+  "username": "Username",
+  "password": "Password",
+  "login": "Login",
+  "register": "Register",
+  "confirm_password": "Confirm password",
+  "role": "Role",
+  "recruiter": "Recruiter",
+  "renter": "Renter",
+  "visiter": "Visitor",
+  "back_to_login": "Back to login",
+  "System": "System",
+  "Room": "Room",
+  "Store": "Store",
+  "Travel": "Travel",
+  "Management": "Management",
+  "short_intro": "“I'm a Fullstack developer with about 6 years of experience, specializing in JavaScript, TypeScript, ReactJS and Java... “",
+  "career_title": "About my career journey",
+  "career_desc": "Hi, I'm a front-end developer with about 6 years of experience, specializing in JavaScript, TypeScript, and ReactJS. My journey in the tech industry has allowed me to work on several impactful company projects, where I've not only honed my front-end skills but also gained valuable insights into backend development with Java Spring Boot. While front-end development is my primary focus, I bring a well-rounded approach to my work, ensuring that my projects are robust and integrated seamlessly with backend systems. Currently, I am actively broadening my technical scope by diving deeper into server-side architecture and database management to transition into a versatile Full-stack Developer. This evolution allows me to take full ownership of the development lifecycle, from crafting intuitive user interfaces to architecting scalable microservices. By merging my extensive frontend expertise with a growing mastery of the backend, I aim to build comprehensive, end-to-end solutions that drive real business value.",
+  "download_cv": "Download CV",
+  "skills_tech": "Skills & Technology",
+  "other_tech": "Others Technology & Tools",
+  "career_timeline": "Career Timeline",
+  "personal_info": "Personal Information",
+  "contact_info": "Contact Information",
+  "contact_desc": "Feel free to reach out for collaboration or just a friendly hello!",
+  "Technologies": "Technologies:",
+  "years": "years",
+  "personal_projects": "Personal Projects",
+  "avatar": "Avatar",
+  "footer_text": "I appreciate your attention, and i would welcome the opportunity to collaborate when the time comes.",
+  "skills": {
+    "reactjs": "Core expertise used to build diverse interfaces, from travel platforms to complex digital wallets.",
+    "javascript": "The foundation of my career, applied in developing high-performance web portals and APIs.",
+    "typescript": "Quickly mastered during my first week at Add-on to ensure type-safety for Microsoft-integrated systems.",
+    "java_spring": "Self-taught and officially applied at Ascend to build robust services for digital wallet systems.",
+    "nextjs": "Leveraged to build and optimize various enterprise portals, enhancing both SEO and performance.",
+    "html": "Built semantic & accessible foundations for diverse enterprise applications.",
+    "css": "Crafting pixel-perfect and responsive interfaces since the start of my career.",
+    "ant_design": "Developed complex interfaces for Digital Wallet portals and Travel projects.",
+    "redux": "Managed sophisticated global states for heavy-duty financial applications.",
+    "sass": "Structured modular styles for large-scale projects at Add-on and Ascend.",
+    "tailwind": "Main utility-first framework used to speed up UI development in modern apps.",
+    "docker": "Standardizing development environments and microservices deployment.",
+    "kubernetes": "Maintaining and scaling containerized services for production stability.",
+    "mysql": "Designing database schemas and writing optimized scripts for Digital Wallet services.",
+    "rabbitmq": "Decoupling microservices and managing background tasks for wallet services.",
+    "redis": "Boosting system performance through efficient caching layers in production.",
+    "fluent_ui": "Customized UI libraries for Microsoft Add-on booking systems as a Team Lead.",
+    "keycloak": "Implemented as a reliable authentication and authorization service for high-performance backends.",
+    "mantine_ui": "Selected for modern portal developments requiring highly flexible components.",
+    "firebase": "Structured databases and real-time features for travel-related projects.",
+    "postgresql": "Implemented as a reliable relational database for high-performance backends.",
+    "nodejs": "Built scalable APIs and backend utilities during my early career at Travel Connect.",
+    "flowable": "Automating complex business processes for enterprise-level workflows.",
+    "zustand": "Optimizing state management in newer Next.js and React portals.",
+    "react_native": "Personal projects: Exploring mobile development and cross-platform UX/UI.",
+    "graphql": "Personal projects: Investigating efficient data fetching and flexible API schemas."
+  },
+  "timeline": {
+    "uni": {
+      "title": "University Of Economics - Technology For Industries",
+      "desc": "Major in Information Technology"
+    },
+    "travel_connect": {
+      "title": "Travel Connect",
+      "subtitle": "( Frontend Developer )",
+      "desc": "Designed, provided feedback on UX/UI, and structured the database. During my time working here, I participated in building APIs by NodeJS within a short period.",
+      "tooltip": "Travel Connect is a startup providing travel package solutions for both B2B and B2C clients, offering flexible, transparent, and cost-optimized tour options.",
+      "tech": "Used JavaScript, ReactJS, Ant Design, and Firebase to build the interface for a travel project."
+    },
+    "add_on_fe": {
+      "title": "Add-on Development",
+      "subtitle": "( Frontend Developer )",
+      "desc": "Worked as a frontend developer responsible for the UI of a new project. Custom a UI library based on Fluent UI to meet the required functionalities, designed UX/UI interfaces",
+      "tooltip": "A software development company specializing in Microsoft ecosystem extensions and custom enterprise booking solutions.",
+      "tech": "Leveraged TypeScript, ReactJS, Figma, and Fluent UI to build complex booking interfaces integrated with Microsoft."
+    },
+    "cafe_review": {
+      "title": "Cafe Review",
+      "subtitle": "( Fullstack Developer )",
+      "desc": "A specialized media tool for content aggregators to automate news collection and manage editorial workflows.",
+      "tooltip": "Cafe Review is a short-term outsourced project that provides an online news platform capable of automatically crawling articles from selected sources while also supporting manual content creation.",
+      "tech": "Used Javascript, Typescript, Bootstrap, ReactJS to build the interface for UI. Used Java Spring Boot and MySQL to write APIs and services, and created scripts to design tables in the database."
+    },
+    "add_on_lead": {
+      "title": "Add-on Development",
+      "subtitle": "( Leader Frontend Team )",
+      "desc": "Worked as a developer, then became the team leader of a group of 5 fresher and junior members, designed UX/UI interfaces, reviewed code, presented, and received requirements directly from the PO.",
+      "tooltip": "A software development company specializing in Microsoft ecosystem extensions and custom enterprise booking solutions.",
+      "tech": "Utilized Figma for UI/UX prototyping, alongside Advanced TypeScript, Git-flow, and customized enterprise UI frameworks."
+    },
+    "ascend": {
+      "title": "Ascend Technology",
+      "subtitle": "( Fullstack Developer )",
+      "desc": "Maintained stability and developed new features based on requirements, enhancing the project's security and performance. Responsible for maintaining and developing 4 portals and 3 services.",
+      "tooltip": "Ascend Technology, founded in 2017 under Ascend Group, develops the core e-payment platform powering TrueMoney services. The company supports key products including TrueMoney Wallet, WeCard, CashCard, kiosks, payment gateways, and remittance solutions.",
+      "tech": "Used Javascript, Typescript, ReactJS, NextJS, Tailwind, Ant Design to build the interface for UI. Used Java Spring Boot and MySQL to write APIs and services, and created scripts to design tables in the database."
+    }
+  },
+  "personal": {
+    "hobbies": {
+      "title": "Hobbies",
+      "desc": " Manchester United, Football, Games, Movies, Banh Mi, Travel,..."
+    },
+    "hometown": {
+      "title": "Hometown",
+      "desc": "Ngo Cho Kham Thien, Van Mieu - Quoc Tu Giam, Hanoi, Vietnam"
+    },
+    "personality": {
+      "title": "Personality",
+      "desc": "Capable of working independently and collaboratively, with strong self-learning skills and an open-minded approach to new ideas."
+    }
+  },
+  "system": {
+    "overview": {
+      "title": "J2N Project",
+      "desc": "J2N Projects is a full-stack project designed with a micro-frontend architecture using Turborepo for modular UI development. The backend is structured as a microservices ecosystem to ensure scalability and service isolation, with MySQL serving as the primary database for data storage and management."
+    },
+    "frontend": {
+      "title": "Frontend Layer",
+      "subtitle": "(Micro Frontends using Next.js)",
+      "desc": "The UI layer is split into multiple independent Next.js applications, where each app is responsible for a specific business domain:",
+      "key_char": "Key Characteristics:",
+      "list": {
+        "0": "Each frontend is deployed independently.",
+        "1": "Failures in one module do not affect the others.",
+        "2": "All frontends communicate with backend exclusively through the BFF Service, ensuring consistent data shape and shielding the UI from backend complexity."
+      },
+      "ui_design": "UI Design:"
+    },
+    "backend": {
+      "title": "Backend Layer",
+      "subtitle": "(Microservices using Java Spring Boot)",
+      "desc": "The backend consists of two main parts: the BFF, the API Gateway, and a set of domain-driven microservices.",
+      "bff": {
+        "title": "(a) BFF Service (Backend for Frontend)",
+        "desc": "The BFF contains no business logic; it mainly forwards requests to the API Gateway.",
+        "list": {
+          "0": "Acts as an adapter between all frontend apps and the internal backend system.",
+          "1": "Responsibilities:"
+        },
+        "sublist": {
+          "0": "Normalize requests and responses",
+          "1": "Perform lightweight validation",
+          "2": "Aggregate data from multiple services (future support)",
+          "3": "Prevent FE from calling internal services directly"
+        }
+      },
+      "gateway": {
+        "title": "(b) API Gateway Service",
+        "desc": "The API Gateway is the single controlled entry point to the backend.",
+        "key_resp": "Key responsibilities:",
+        "list": {
+          "0": "Verify JWT tokens",
+          "1": "Route requests to the correct micro-service",
+          "2": "Apply rate-limiting, throttling, and logging (expandable)",
+          "3": "Hide internal micro-services from the client"
+        }
+      },
+      "microservices": {
+        "title": "(c) Microservices Layer (Java Spring Boot)",
+        "desc": "Each service is a standalone Spring Boot application following the “one service, one domain” approach:"
+      }
+    },
+    "database": {
+      "title": "Database Layer",
+      "subtitle": "(MySQL per Service)",
+      "desc": "Each microservice has its own dedicated MySQL database.",
+      "advantages": "Advantages",
+      "list": {
+        "0": "No shared schema → loose coupling",
+        "1": "Each service manages its own schema (clean domain boundaries)",
+        "2": "Easy to migrate or scale only the services that need it",
+        "3": "System stability is improved (failures in one DB do not affect others)"
+      }
+    },
+    "message": {
+      "title": "Message Layer",
+      "subtitle": "(RabbitMQ)",
+      "desc": "RabbitMQ is used for asynchronous communication between services.",
+      "use_cases": "Use Cases",
+      "list": {
+        "0": "Sending notifications or emails",
+        "1": "Cross-service data synchronization",
+        "2": "Background/long-running tasks",
+        "3": "High-load event processing"
+      },
+      "desc_bottom": "Each type of event has its own queue to maintain isolation and reliability."
+    },
+    "flow": {
+      "title": "Request Flow & Event Flow",
+      "request": {
+        "title": "I. Request Flow (Frontend → Backend)",
+        "list": {
+          "0": "Frontend sends a request to the BFF Service.",
+          "1": "BFF normalizes and forwards the request to the API Gateway.",
+          "2": "API Gateway:",
+          "sublist": {
+            "0": "Validates JWT",
+            "1": "Routes the request to the appropriate microservice"
+          },
+          "3": "Microservice processes business logic and interacts with its MySQL database.",
+          "4": "Response returns through the same chain: Service → Gateway → BFF → Frontend"
+        }
+      },
+      "event": {
+        "title": "II. Event Flow (Asynchronous Processing)",
+        "list": {
+          "0": "A microservice triggers an event (e.g., user created, new order, image uploaded).",
+          "1": "The service publishes the event to a specific RabbitMQ queue.",
+          "2": "Other subscribed services receive and process the event.",
+          "3": "Tasks run in the background without delaying the user-facing response."
+        }
+      },
+      "desc": "This ensures smoother performance and better scalability."
+    },
+    "security": {
+      "title": "Security & Authentication",
+      "jwt": {
+        "title": "I. JWT Authentication",
+        "list": {
+          "0": "User logs in from the frontend → BFF → Auth Service.",
+          "1": "Auth Service returns a JWT token.",
+          "2": "Frontend stores the token securely.",
+          "3": "All future requests include this token through BFF → Gateway."
+        }
+      },
+      "gateway": {
+        "title": "II. API Gateway Security",
+        "list": {
+          "0": "Single point responsible for token verification.",
+          "1": "Internal services never receive unauthenticated direct requests.",
+          "2": "Optional IP whitelisting for service-to-service communication."
+        }
+      },
+      "isolation": {
+        "title": "III. Microservice Isolation",
+        "list": {
+          "0": "Each service accesses only its own database.",
+          "1": "Prevents cross-service data leakage or accidental coupling."
+        }
+      },
+      "rabbitmq": {
+        "title": "IV. RabbitMQ Security",
+        "list": {
+          "0": "Only authorized services may publish or consume events.",
+          "1": "Ensures safe asynchronous communication."
+        }
+      }
+    },
+    "data": {
+      "columns": {
+        "application": "Application",
+        "render": "Render Mode",
+        "purpose": "Purpose",
+        "service": "Service",
+        "responsibility": "Responsibility"
+      },
+      "apps": {
+        "about": "About/System",
+        "management": "Management",
+        "room": "Room",
+        "store": "Store",
+        "travel": "Travel"
+      },
+      "render": {
+        "ssr": "Server side render",
+        "csr": "Client side render"
+      },
+      "purpose": {
+        "system": "System introduction and public info pages",
+        "management": "Internal management dashboard",
+        "room": "Room management features",
+        "store": "Store, product, and order handling",
+        "travel": "Travel booking and management"
+      },
+      "services": {
+        "auth": "Auth Service",
+        "image": "Image Service",
+        "room": "Room Service",
+        "store": "Store Service",
+        "travel": "Travel Service"
+      },
+      "responsibility": {
+        "auth": "Authentication, registration, login, token generation and management users",
+        "image": "Image upload, processing, metadata",
+        "room": "Management Room info, status, reservations and caculate bills",
+        "store": "Management Products, orders, inventory",
+        "travel": "Management booking, flight, hotel, tour"
+      }
+    }
+  }
 }

@@ -13,9 +13,9 @@ const Frame = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-    width: 100px;
+    width: 300px;
     height: 3px;
-    background: #e3e1e1;
+    background: #75616a;
   }
 
   /* Top-left corner L-shaped border (vertical part) */
@@ -25,8 +25,8 @@ const Frame = styled.div`
     top: 0;
     left: 0;
     width: 3px;
-    height: 100px;
-    background: #e3e1e1;
+    height: 300px;
+    background: #75616a;
   }
 
   /* Bottom-right corner L-shaped border (horizontal part) */
@@ -34,9 +34,9 @@ const Frame = styled.div`
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 100px;
+    width: 300px;
     height: 3px;
-    background: #e3e1e1;
+    background: #75616a;
   }
 
   /* Bottom-right corner L-shaped border (vertical part) */
@@ -45,8 +45,8 @@ const Frame = styled.div`
     bottom: 0;
     right: 0;
     width: 3px;
-    height: 100px;
-    background: #e3e1e1;
+    height: 300px;
+    background: #75616a;
   }
 
   /* Clip shape - cut top-right and bottom-left corners */
@@ -61,7 +61,7 @@ const Frame = styled.div`
       0 calc(100% - 40px)
     );
     overflow: hidden;
-    background: #e3e1e1;
+    background: #75616a;
   }
 `;
 
@@ -71,6 +71,7 @@ interface ImageFrameProps {
   classNames?: string;
   width?: string | number;
   height?: string | number;
+  sizes?: string;
 }
 
 function J2NImage({
@@ -79,6 +80,7 @@ function J2NImage({
   classNames,
   width = "100%",
   height = "100%",
+  sizes,
 }: ImageFrameProps) {
   const getIntrinsicValue = (val: string | number) => {
     if (typeof val === "number") return val;
@@ -113,6 +115,7 @@ function J2NImage({
           fill={useFill}
           style={{ objectFit: "cover", objectPosition: "center" }}
           loading="lazy"
+          sizes={sizes}
         />
       </div>
     </Frame>

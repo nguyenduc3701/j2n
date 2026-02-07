@@ -2,7 +2,8 @@
 
 import React from "react";
 import J2NTimeline from "@repo/components/atoms/J2NTimeline";
-import J2NTitle from "@repo/components/molecules/J2NTitle";
+import TransTitle from "@repo/components/molecules/J2NTitle/TransTitle";
+import J2NTransText from "@repo/components/atoms/J2NTransText";
 import { TileSize } from "@repo/components/molecules/J2NTitle/J2NTitle.type";
 import { Text, Tooltip, Flex } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
@@ -50,7 +51,7 @@ const TimelineCard = ({
             autoContrast
             multiline
             openDelay={300}
-            label={tooltip}
+            label={<J2NTransText tKey={tooltip} />}
             color="#EFEAE7"
             position={index % 2 === 0 ? "top-end" : "top-start"}
           >
@@ -60,9 +61,8 @@ const TimelineCard = ({
             />
           </Tooltip>
         )}
-        <J2NTitle
-          className="mb-2"
-          title={title}
+        <TransTitle
+          tKey={title}
           subTitle={subTitle}
           size={TileSize.sm}
           underline={false}
@@ -80,7 +80,7 @@ const TimelineCard = ({
             autoContrast
             multiline
             openDelay={300}
-            label={tooltip}
+            label={<J2NTransText tKey={tooltip} />}
             color="#EFEAE7"
             position={index % 2 === 0 ? "top-end" : "top-start"}
           >
@@ -92,13 +92,18 @@ const TimelineCard = ({
         )}
       </Flex>
       {description && (
-        <Text size="md" className="text-j2n-ink-400! m-0!">
-          {description}
-        </Text>
+        <J2NTransText
+          tKey={description}
+          size="md"
+          className="text-j2n-ink-400! mb-1! mt-0!"
+        />
       )}
       {technologies && (
         <Text size="md" className="text-j2n-ink-400! m-0!">
-          Technologies: {technologies}
+          <b className="mr-1">
+            <J2NTransText fw={700} span tKey="Technologies" />
+          </b>
+          <J2NTransText span tKey={technologies} />
         </Text>
       )}
       <Text size="xs" className="text-j2n-ink-500! m-0!">

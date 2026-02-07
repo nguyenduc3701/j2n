@@ -1,3 +1,295 @@
 {
-    "hello": "Xin Chào"
+  "About me": "Về tôi",
+  "username": "Tên đăng nhập",
+  "password": "Mật khẩu",
+  "login": "Đăng nhập",
+  "register": "Đăng ký",
+  "confirm_password": "Xác nhận mật khẩu",
+  "role": "Vai trò",
+  "recruiter": "Nhà tuyển dụng",
+  "renter": "Người thuê",
+  "visiter": "Khách",
+  "back_to_login": "Quay lại đăng nhập",
+  "System": "Hệ thống",
+  "Room": "Phòng",
+  "Store": "Cửa hàng",
+  "Travel": "Du lịch",
+  "Management": "Quản lý",
+  "short_intro": "“Tôi là lập trình viên Fullstack với khoảng 6 năm kinh nghiệm, chuyên về JavaScript, TypeScript, ReactJS và Java... “",
+  "career_title": "Về hành trình sự nghiệp của tôi",
+  "career_desc": "Xin chào, tôi là một lập trình viên Front-end với 6 năm kinh nghiệm, chuyên môn về JavaScript, TypeScript và ReactJS. Hành trình của tôi trong ngành công nghệ đã cho phép tôi làm việc trong nhiều dựa án quan trọng của công ty, nơi tôi không chỉ trau dồi kỹ năng Front-end mà còn thu được nhiều kiến thức quý giá về phát triển Backend với Java Spring Boot. Trong khi phát triển Front-end là trọng tâm chính, tôi mang đến một cách tiếp cận toàn diện cho công việc của mình, đảm bảo rằng các dự án của tôi mạnh mẽ và tích hợp liền mạch với hệ thống Backend. Hiện tại, tôi đang tích cực mở rộng phạm vi kỹ thuật của mình bằng cách tìm hiểu sâu hơn về kiến trúc phía máy chủ và quản lý cơ sở dữ liệu để chuyển sang trở thành một nhà phát triển Full-stack đa năng. Sự phát triển này cho phép tôi hoàn toàn làm chủ vòng đời phát triển, từ việc tạo ra các giao diện người dùng trực quan đến việc kiến trúc các dịch vụ vi mô có thể mở rộng. Bằng cách kết hợp chuyên môn Frontend sâu rộng của mình với sự thành thạo ngày càng tăng về Backend, tôi đặt mục tiêu xây dựng các giải pháp toàn diện, đầu cuối thúc đẩy giá trị kinh doanh thực sự.",
+  "download_cv": "Tải CV",
+  "skills_tech": "Kỹ năng & Công nghệ",
+  "other_tech": "Công nghệ & Công cụ khác",
+  "career_timeline": "Hành trình sự nghiệp",
+  "personal_info": "Thông tin cá nhân",
+  "contact_info": "Thông tin liên hệ",
+  "contact_desc": "Đừng ngần ngại liên hệ để hợp tác hoặc chỉ để chào hỏi một cách thân thiện!",
+  "Technologies": "Công nghệ:",
+  "years": "năm",
+  "personal_projects": "Dự án cá nhân",
+  "avatar": "Ảnh đại diện",
+  "footer_text": "Cảm ơn bạn đã quan tâm, và tôi rất mong được hợp tác khi có cơ hội.",
+  "skills": {
+    "reactjs": "Chuyên môn cốt lõi để xây dựng các giao diện đa dạng, từ nền tảng du lịch đến ví điện tử phức tạp.",
+    "javascript": "Nền tảng của sự nghiệp, ứng dụng trong phát triển các cổng thông tin web và API hiệu suất cao.",
+    "typescript": "Nắm bắt nhanh trong tuần đầu tiên tại Add-on để đảm bảo an toàn kiểu dữ liệu cho các hệ thống tích hợp Microsoft.",
+    "java_spring": "Tự học và áp dụng chính thức tại Ascend để xây dựng các dịch vụ mạnh mẽ cho hệ thống ví điện tử.",
+    "nextjs": "Tận dụng để xây dựng và tối ưu hóa các cổng thông tin doanh nghiệp, nâng cao cả SEO và hiệu suất.",
+    "html": "Xây dựng các nền tảng ngữ nghĩa & dễ truy cập cho các ứng dụng doanh nghiệp đa dạng.",
+    "css": "Tạo ra các giao diện hoàn hảo từng pixel và responsive kể từ khi bắt đầu sự nghiệp.",
+    "ant_design": "Phát triển các giao diện phức tạp cho cổng thông tin Ví điện tử và dự án Du lịch.",
+    "redux": "Quản lý trạng thái toàn cục phức tạp cho các ứng dụng tài chính quy mô lớn.",
+    "sass": "Cấu trúc style theo mô-đun cho các dự án quy mô lớn tại Add-on và Ascend.",
+    "tailwind": "Framework tiện ích chính được sử dụng để tăng tốc phát triển UI trong các ứng dụng hiện đại.",
+    "docker": "Tiêu chuẩn hóa môi trường phát triển và triển khai microservices.",
+    "kubernetes": "Duy trì và mở rộng các dịch vụ container hóa để đảm bảo ổn định trong môi trường production.",
+    "mysql": "Thiết kế schema cơ sở dữ liệu và viết các script tối ưu cho dịch vụ Ví điện tử.",
+    "rabbitmq": "Tách biệt microservices và quản lý các tác vụ nền cho dịch vụ ví.",
+    "redis": "Tăng cường hiệu suất hệ thống thông qua các lớp caching hiệu quả trong production.",
+    "fluent_ui": "Tùy chỉnh thư viện UI cho hệ thống đặt chỗ Microsoft Add-on với vai trò Trưởng nhóm.",
+    "keycloak": "Triển khai như một dịch vụ xác thực và ủy quyền đáng tin cậy cho backend hiệu suất cao.",
+    "mantine_ui": "Được chọn cho phát triển cổng thông tin hiện đại yêu cầu các thành phần linh hoạt cao.",
+    "firebase": "Cấu trúc cơ sở dữ liệu và tính năng thời gian thực cho các dự án liên quan đến du lịch.",
+    "postgresql": "Triển khai như một cơ sở dữ liệu quan hệ đáng tin cậy cho backend hiệu suất cao.",
+    "nodejs": "Xây dựng API mở rộng và tiện ích backend trong thời gian đầu sự nghiệp tại Travel Connect.",
+    "flowable": "Tự động hóa các quy trình nghiệp vụ phức tạp cho luồng công việc cấp doanh nghiệp.",
+    "zustand": "Tối ưu hóa quản lý trạng thái trong các cổng thông tin Next.js và React mới hơn.",
+    "react_native": "Dự án cá nhân: Khám phá phát triển di động và UX/UI đa nền tảng.",
+    "graphql": "Dự án cá nhân: Tìm hiểu về lấy dữ liệu hiệu quả và schema API linh hoạt."
+  },
+  "timeline": {
+    "uni": {
+      "title": "Đại học Kinh tế - Kỹ thuật Công nghiệp",
+      "desc": "Chuyên ngành Công nghệ thông tin"
+    },
+    "travel_connect": {
+      "title": "Travel Connect",
+      "subtitle": "( Lập trình viên Frontend )",
+      "desc": "Thiết kế, phản hồi về UX/UI và cấu trúc cơ sở dữ liệu. Trong thời gian làm việc tại đây, tham gia xây dựng API bằng NodeJS trong thời gian ngắn.",
+      "tooltip": "Travel Connect là startup cung cấp giải pháp gói du lịch cho khách hàng B2B và B2C, cung cấp các lựa chọn tour linh hoạt, minh bạch và tối ưu chi phí.",
+      "tech": "Sử dụng JavaScript, ReactJS, Ant Design và Firebase để xây dựng giao diện cho dự án du lịch."
+    },
+    "add_on_fe": {
+      "title": "Add-on Development",
+      "subtitle": "( Lập trình viên Frontend )",
+      "desc": "Làm việc với tư cách là lập trình viên frontend chịu trách nhiệm UI dự án mới. Tùy chỉnh thư viện UI dựa trên Fluent UI để đáp ứng chức năng yêu cầu, thiết kế giao diện UX/UI",
+      "tooltip": "Công ty phát triển phần mềm chuyên về tiện ích mở rộng hệ sinh thái Microsoft và giải pháp đặt chỗ doanh nghiệp tùy chỉnh.",
+      "tech": "Tận dụng TypeScript, ReactJS, Figma và Fluent UI để xây dựng giao diện đặt chỗ phức tạp tích hợp với Microsoft."
+    },
+    "cafe_review": {
+      "title": "Cafe Review",
+      "subtitle": "( Lập trình viên Fullstack )",
+      "desc": "Công cụ truyền thông chuyên dụng cho các trang tổng hợp nội dung để tự động thu thập tin tức và quản lý quy trình biên tập.",
+      "tooltip": "Cafe Review là dự án ngắn hạn cung cấp nền tảng tin tức trực tuyến có khả năng tự động thu thập bài viết từ các nguồn được chọn đồng thời hỗ trợ tạo nội dung thủ công.",
+      "tech": "Sử dụng Javascript, Typescript, Bootstrap, ReactJS để xây dựng giao diện UI. Sử dụng Java Spring Boot và MySQL để viết API và dịch vụ, tạo script thiết kế bảng trong cơ sở dữ liệu."
+    },
+    "add_on_lead": {
+      "title": "Add-on Development",
+      "subtitle": "( Trưởng nhóm Frontend )",
+      "desc": "Làm việc như lập trình viên, sau đó trở thành trưởng nhóm của nhóm 5 thành viên fresher và junior, thiết kế giao diện UX/UI, review code, thuyết trình và nhận yêu cầu trực tiếp từ PO.",
+      "tooltip": "Công ty phát triển phần mềm chuyên về tiện ích mở rộng hệ sinh thái Microsoft và giải pháp đặt chỗ doanh nghiệp tùy chỉnh.",
+      "tech": "Sử dụng Figma cho prototyping UI/UX, cùng với Advanced TypeScript, Git-flow và các framework UI doanh nghiệp tùy chỉnh."
+    },
+    "ascend": {
+      "title": "Ascend Technology",
+      "subtitle": "( Lập trình viên Fullstack )",
+      "desc": "Duy trì sự ổn định và phát triển tính năng mới dựa trên yêu cầu, nâng cao bảo mật và hiệu suất dự án. Chịu trách nhiệm duy trì và phát triển 4 cổng thông tin và 3 dịch vụ.",
+      "tooltip": "Ascend Technology, thành lập năm 2017 thuộc Ascend Group, phát triển nền tảng thanh toán điện tử cốt lõi vận hành các dịch vụ TrueMoney. Công ty hỗ trợ các sản phẩm chính bao gồm TrueMoney Wallet, WeCard, CashCard, kiosk, cổng thanh toán và giải pháp chuyển tiền.",
+      "tech": "Sử dụng Javascript, Typescript, ReactJS, NextJS, Tailwind, Ant Design để xây dựng giao diện UI. Sử dụng Java Spring Boot và MySQL để viết API và dịch vụ, tạo script thiết kế bảng trong cơ sở dữ liệu."
+    }
+  },
+  "personal": {
+    "hobbies": {
+      "title": "Sở thích",
+      "desc": " Manchester United, Bóng đá, Games, Xem phim, Bánh mì, Du lịch,..."
+    },
+    "hometown": {
+      "title": "Quê quán",
+      "desc": "Ngõ Chợ Khâm Thiên, Văn Miếu - Quốc Tử Giám, Hà Nội, Việt Nam"
+    },
+    "personality": {
+      "title": "Tính cách",
+      "desc": "Có khả năng làm việc độc lập và hợp tác, với kỹ năng tự học mạnh mẽ và tư duy cởi mở với những ý tưởng mới."
+    }
+  },
+  "system": {
+    "overview": {
+      "title": "Dự án J2N",
+      "desc": "Dự án J2N là dự án full-stack được thiết kế với kiến trúc micro-frontend sử dụng Turborepo cho phát triển UI theo mô-đun. Backend được cấu trúc như một hệ sinh thái microservices để đảm bảo khả năng mở rộng và cô lập dịch vụ, với MySQL đóng vai trò là cơ sở dữ liệu chính để lưu trữ và quản lý dữ liệu."
+    },
+    "frontend": {
+      "title": "Tầng Frontend",
+      "subtitle": "(Micro Frontends sử dụng Next.js)",
+      "desc": "Tầng UI được chia thành nhiều ứng dụng Next.js độc lập, trong đó mỗi ứng dụng chịu trách nhiệm cho một miền nghiệp vụ cụ thể:",
+      "key_char": "Đặc điểm chính:",
+      "list": {
+        "0": "Mỗi frontend được triển khai độc lập.",
+        "1": "Lỗi trong một mô-đun không ảnh hưởng đến các mô-đun khác.",
+        "2": "Tất cả frontend giao tiếp với backend độc quyền thông qua Dịch vụ BFF, đảm bảo tính nhất quán của dữ liệu và che chắn UI khỏi sự phức tạp của backend."
+      },
+      "ui_design": "Thiết kế UI:"
+    },
+    "backend": {
+      "title": "Tầng Backend",
+      "subtitle": "(Microservices sử dụng Java Spring Boot)",
+      "desc": "Backend bao gồm hai phần chính: BFF, API Gateway và một tập hợp các microservices theo hướng tên miền.",
+      "bff": {
+        "title": "(a) Dịch vụ BFF (Backend for Frontend)",
+        "desc": "BFF không chứa logic nghiệp vụ; nó chủ yếu chuyển tiếp các yêu cầu đến API Gateway.",
+        "list": {
+          "0": "Đóng vai trò như một bộ chuyển đổi giữa tất cả các ứng dụng frontend và hệ thống backend nội bộ.",
+          "1": "Trách nhiệm:"
+        },
+        "sublist": {
+          "0": "Chuẩn hóa các yêu cầu và phản hồi",
+          "1": "Thực hiện xác thực nhẹ",
+          "2": "Tổng hợp dữ liệu từ nhiều dịch vụ (hỗ trợ trong tương lai)",
+          "3": "Ngăn chặn FE gọi trực tiếp đến các dịch vụ nội bộ"
+        }
+      },
+      "gateway": {
+        "title": "(b) Dịch vụ API Gateway",
+        "desc": "API Gateway là điểm vào duy nhất được kiểm soát đến backend.",
+        "key_resp": "Trách nhiệm chính:",
+        "list": {
+          "0": "Xác minh token JWT",
+          "1": "Định tuyến yêu cầu đến đúng micro-service",
+          "2": "Áp dụng giới hạn tốc độ, kiểm soát lưu lượng và ghi log (có thể mở rộng)",
+          "3": "Ẩn các micro-services nội bộ khỏi client"
+        }
+      },
+      "microservices": {
+        "title": "(c) Tầng Microservices (Java Spring Boot)",
+        "desc": "Mỗi dịch vụ là một ứng dụng Spring Boot độc lập tuân theo cách tiếp cận “một dịch vụ, một tên miền”:"
+      }
+    },
+    "database": {
+      "title": "Tầng Cơ sở dữ liệu",
+      "subtitle": "(MySQL cho mỗi Dịch vụ)",
+      "desc": "Mỗi microservice có cơ sở dữ liệu MySQL chuyên dụng riêng.",
+      "advantages": "Ưu điểm",
+      "list": {
+        "0": "Không chia sẻ schema → liên kết lỏng lẻo",
+        "1": "Mỗi dịch vụ quản lý schema riêng của mình (ranh giới tên miền rõ ràng)",
+        "2": "Dễ dàng di chuyển hoặc mở rộng chỉ các dịch vụ cần thiết",
+        "3": "Tính ổn định của hệ thống được cải thiện (lỗi trong một DB không ảnh hưởng đến các DB khác)"
+      }
+    },
+    "message": {
+      "title": "Tầng Thông điệp",
+      "subtitle": "(RabbitMQ)",
+      "desc": "RabbitMQ được sử dụng cho giao tiếp bất đồng bộ giữa các dịch vụ.",
+      "use_cases": "Trường hợp sử dụng",
+      "list": {
+        "0": "Gửi thông báo hoặc email",
+        "1": "Đồng bộ hóa dữ liệu giữa các dịch vụ",
+        "2": "Các tác vụ nền/chạy lâu",
+        "3": "Xử lý sự kiện tải cao"
+      },
+      "desc_bottom": "Mỗi loại sự kiện có hàng đợi riêng để duy trì sự cô lập và độ tin cậy."
+    },
+    "flow": {
+      "title": "Luồng Yêu cầu & Luồng Sự kiện",
+      "request": {
+        "title": "I. Luồng Yêu cầu (Frontend → Backend)",
+        "list": {
+          "0": "Frontend gửi yêu cầu đến Dịch vụ BFF.",
+          "1": "BFF chuẩn hóa và chuyển tiếp yêu cầu đến API Gateway.",
+          "2": "API Gateway:",
+          "sublist": {
+            "0": "Xác thực JWT",
+            "1": "Định tuyến yêu cầu đến microservice thích hợp"
+          },
+          "3": "Microservice xử lý logic nghiệp vụ và tương tác với cơ sở dữ liệu MySQL của nó.",
+          "4": "Phản hồi trả về qua cùng một chuỗi: Dịch vụ → Gateway → BFF → Frontend"
+        }
+      },
+      "event": {
+        "title": "II. Luồng Sự kiện (Xử lý Bất đồng bộ)",
+        "list": {
+          "0": "Một microservice kích hoạt một sự kiện (ví dụ: người dùng được tạo, đơn hàng mới, hình ảnh được tải lên).",
+          "1": "Dịch vụ xuất bản sự kiện đến một hàng đợi RabbitMQ cụ thể.",
+          "2": "Các dịch vụ đã đăng ký khác nhận và xử lý sự kiện.",
+          "3": "Các tác vụ chạy trong nền mà không làm chậm phản hồi cho người dùng."
+        }
+      },
+      "desc": "Điều này đảm bảo hiệu suất mượt mà hơn và khả năng mở rộng tốt hơn."
+    },
+    "security": {
+      "title": "Bảo mật & Xác thực",
+      "jwt": {
+        "title": "I. Xác thực JWT",
+        "list": {
+          "0": "Người dùng đăng nhập từ frontend → BFF → Dịch vụ Auth.",
+          "1": "Dịch vụ Auth trả về token JWT.",
+          "2": "Frontend lưu trữ token một cách an toàn.",
+          "3": "Tất cả các yêu cầu trong tương lai bao gồm token này qua BFF → Gateway."
+        }
+      },
+      "gateway": {
+        "title": "II. Bảo mật API Gateway",
+        "list": {
+          "0": "Điểm duy nhất chịu trách nhiệm xác minh token.",
+          "1": "Các dịch vụ nội bộ không bao giờ nhận các yêu cầu trực tiếp không được xác thực.",
+          "2": "Danh sách trắng IP tùy chọn cho giao tiếp giữa các dịch vụ."
+        }
+      },
+      "isolation": {
+        "title": "III. Cô lập Microservice",
+        "list": {
+          "0": "Mỗi dịch vụ chỉ truy cập vào cơ sở dữ liệu riêng của nó.",
+          "1": "Ngăn chặn rò rỉ dữ liệu giữa các dịch vụ hoặc liên kết ngẫu nhiên."
+        }
+      },
+      "rabbitmq": {
+        "title": "IV. Bảo mật RabbitMQ",
+        "list": {
+          "0": "Chỉ các dịch vụ được ủy quyền mới có thể xuất bản hoặc tiêu thụ sự kiện.",
+          "1": "Đảm bảo giao tiếp bất đồng bộ an toàn."
+        }
+      }
+    },
+    "data": {
+      "columns": {
+        "application": "Ứng dụng",
+        "render": "Chế độ Render",
+        "purpose": "Mục đích",
+        "service": "Dịch vụ",
+        "responsibility": "Trách nhiệm"
+      },
+      "apps": {
+        "about": "Giới thiệu/Hệ thống",
+        "management": "Quản lý",
+        "room": "Phòng",
+        "store": "Cửa hàng",
+        "travel": "Du lịch"
+      },
+      "render": {
+        "ssr": "Render phía máy chủ",
+        "csr": "Render phía máy khách"
+      },
+      "purpose": {
+        "system": "Giới thiệu hệ thống và các trang thông tin công cộng",
+        "management": "Bảng điều khiển quản lý nội bộ",
+        "room": "Các tính năng quản lý phòng",
+        "store": "Xử lý cửa hàng, sản phẩm và đơn hàng",
+        "travel": "Đặt chỗ và quản lý du lịch"
+      },
+      "services": {
+        "auth": "Dịch vụ Xác thực",
+        "image": "Dịch vụ Hình ảnh",
+        "room": "Dịch vụ Phòng",
+        "store": "Dịch vụ Cửa hàng",
+        "travel": "Dịch vụ Du lịch"
+      },
+      "responsibility": {
+        "auth": "Xác thực, đăng ký, đăng nhập, tạo token và quản lý người dùng",
+        "image": "Tải lên hình ảnh, xử lý, siêu dữ liệu",
+        "room": "Quản lý thông tin phòng, trạng thái, đặt phòng và tính toán hóa đơn",
+        "store": "Quản lý Sản phẩm, đơn hàng, kho hàng",
+        "travel": "Quản lý đặt chỗ, chuyến bay, khách sạn, tour du lịch"
+      }
+    }
+  }
 }

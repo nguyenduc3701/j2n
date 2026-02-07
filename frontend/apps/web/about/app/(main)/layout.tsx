@@ -7,7 +7,11 @@ export default function MainLayout({
 }) {
   return (
     <>
-      <J2NHeader title="Jadon Nguyen" className="bg-j2n-sand-100!" />
+      <J2NHeader
+        title="Jadon Nguyen"
+        className="bg-j2n-sand-100!"
+        redirectUrl="/about-me"
+      />
       <main className="bg-j2n-sand-100">{children}</main>
     </>
   );

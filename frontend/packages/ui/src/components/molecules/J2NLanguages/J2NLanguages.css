@@ -1,0 +1,16 @@
+.j2n-language-select .mantine-Select-input {
+  /* Ensure text is hidden but flag remains visible via leftSection */
+  color: transparent !important;
+  caret-color: transparent;
+  cursor: pointer;
+}
+
+.j2n-language-select .mantine-Select-input::placeholder {
+  color: transparent !important;
+}
+
+/* Custom styling for options to handle width */
+.j2n-language-select .mantine-Select-dropdown {
+  width: max-content !important;
+  min-width: fit-content !important;
+}

@@ -2,25 +2,46 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Flex } from "@mantine/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { IHeaderProps, IMenuItem, Target } from "./J2NHeader.type";
 import J2NMotionFade from "../../atoms/J2NMotionTransition/J2NMotionFade";
-import { IconHelp, IconMenu2, IconX } from "@tabler/icons-react";
+import { IconMenu2, IconX } from "@tabler/icons-react";
 import J2NLogo from "./J2N-logo.svg";
+import J2NLanguages from "../J2NLanguages";
+import { ILanguage } from "../J2NLanguages/J2NLanguages.type";
 
-const mockMenuItems: IMenuItem[] = [
-  { name: "Room", href: "/room", target: Target.NEW_TAB },
-  { name: "Store", href: "/store", target: Target.NEW_TAB },
-  { name: "Travel", href: "/travel", target: Target.NEW_TAB },
-  { name: "Management", href: "/management", target: Target.CURRENT_TAB },
-  { name: "System", href: "/system", target: Target.CURRENT_TAB },
-  { name: "About me", href: "/about-me", target: Target.CURRENT_TAB },
+const supportedLanguages: ILanguage[] = [
+  { code: "en", name: "English", flagCode: "us" },
+  { code: "vi", name: "Vietnam", flagCode: "vn" },
+  { code: "jp", name: "Japan", flagCode: "jp" },
+  { code: "kr", name: "Korea", flagCode: "kr" },
 ];
 
 const J2NHeader = (props: IHeaderProps) => {
-  const { logoSrc, title, className } = props;
+  const { logoSrc, title, className, redirectUrl, hideMenu } = props;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { i18n, t } = useTranslation();
+
+  const handleChangeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
+
+  const menuItems: IMenuItem[] = hideMenu
+    ? []
+    : [
+        { name: t("About me"), href: "/about-me", target: Target.CURRENT_TAB },
+        { name: t("System"), href: "/system", target: Target.CURRENT_TAB },
+        { name: t("Room"), href: "/room", target: Target.NEW_TAB },
+        { name: t("Store"), href: "/store", target: Target.NEW_TAB },
+        { name: t("Travel"), href: "/travel", target: Target.NEW_TAB },
+        {
+          name: t("Management"),
+          href: "/management",
+          target: Target.CURRENT_TAB,
+        },
+      ];
 
   let finalLogoSrc = logoSrc;
   if (!finalLogoSrc) {
@@ -31,14 +52,10 @@ const J2NHeader = (props: IHeaderProps) => {
     }
   }
 
-  const handleHelpClick = () => {
-    console.log("Help clicked");
-  };
-
   return (
     <header
       id="j2n-header"
-      className={`header-wrapper bg-transparent w-full h-auto relative ${className}`}
+      className={`header-wrapper bg-transparent w-full h-auto absolute z-50 pl-3 ${className}`}
     >
       <J2NMotionFade>
         <Flex
@@ -47,7 +64,7 @@ const J2NHeader = (props: IHeaderProps) => {
           className="header-content w-full"
         >
           <Link
-            href="/"
+            href={redirectUrl || "/"}
             className="header-branch flex items-center cursor-pointer"
           >
             <div className="branch-logo max-w-[80px] max-h-[80px]">
@@ -64,7 +81,7 @@ const J2NHeader = (props: IHeaderProps) => {
             </h1>
           </Link>
           <div className="header-menu mx-5 hidden lg:flex items-center gap-2 flex-row">
-            {mockMenuItems?.map((item, index) => (
+            {menuItems?.map((item, index) => (
               <Link
                 id={`menu-item-${index}`}
                 className="menu-item text-md text-j2n-ink-500 opacity-70 font-secondary-500 mx-3 hover:opacity-100"
@@ -75,11 +92,10 @@ const J2NHeader = (props: IHeaderProps) => {
                 {item.name}
               </Link>
             ))}
-            <IconHelp
-              className="cursor-pointer opacity-80 hover:opacity-100 text-j2n-ink-500"
-              title="Help"
-              id="help-ico"
-              onClick={handleHelpClick}
+            <J2NLanguages
+              languages={supportedLanguages}
+              defaultLanguage={i18n.language}
+              onChange={handleChangeLanguage}
             />
           </div>
 
@@ -107,7 +123,7 @@ const J2NHeader = (props: IHeaderProps) => {
                 direction="column"
                 className="bg-j2n-sand-light-300 backdrop-blur-sm p-4 w-full"
               >
-                {mockMenuItems?.map((item, index) => (
+                {menuItems?.map((item, index) => (
                   <Link
                     key={index}
                     href={item.href}
@@ -118,12 +134,13 @@ const J2NHeader = (props: IHeaderProps) => {
                     {item.name}
                   </Link>
                 ))}
-                <div
-                  className="py-3 flex items-center gap-2 cursor-pointer text-j2n-ink-500 hover:text-j2n-grape-deep-500"
-                  onClick={handleHelpClick}
-                >
-                  <IconHelp title="Help" id="help-ico" size={24} />
-                  <span className="text-xl font-secondary-500">Help</span>
+                <div className="py-3 flex items-center gap-2">
+                  <span className="text-xl font-secondary-500">Language: </span>
+                  <J2NLanguages
+                    languages={supportedLanguages}
+                    defaultLanguage={i18n.language}
+                    onChange={handleChangeLanguage}
+                  />
                 </div>
               </Flex>
             </motion.div>

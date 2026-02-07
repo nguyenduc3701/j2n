@@ -1,4 +1,4 @@
-import { I18nProvider } from "@/lib/i18n/provider";
+import { J2NI18nProvider } from "@repo/ui/src/providers";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
@@ -51,7 +51,7 @@ export default function RootLayout({
         className={`${saira.variable} ${notoKR.variable} ${notoJP.variable} ${merienda.variable} antialiased`}
       >
         <MantineProvider>
-          <I18nProvider>{children}</I18nProvider>
+          <J2NI18nProvider>{children}</J2NI18nProvider>
         </MantineProvider>
       </body>
     </html>

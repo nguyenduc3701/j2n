@@ -77,6 +77,8 @@ const J2NTableInteractive = <T extends Record<string, any>>({
     ? Math.ceil((total || renderedRows.length) / pageSize)
     : 0;
 
+  const { fontSize, ...rest } = props;
+
   return (
     <Flex direction="column" gap="md">
       <TableScrollContainer minWidth={minWidth || "100%"}>
@@ -86,15 +88,17 @@ const J2NTableInteractive = <T extends Record<string, any>>({
           horizontalSpacing={horizontalSpacing}
           withTableBorder={withTableBorder}
           withColumnBorders={withColumnBorders}
-          {...props}
+          {...rest}
           className={`j2n-table border-j2n-sand-medium-400 ${className || ""}`}
           styles={{
             table: { backgroundColor: "transparent" },
             thead: { backgroundColor: "transparent" },
+            td: { fontSize: fontSize },
             th: {
               color: "#0f080f",
               fontWeight: 600,
               fontFamily: "var(--font-secondary)",
+              fontSize: fontSize,
             },
             ...props.styles,
           }}

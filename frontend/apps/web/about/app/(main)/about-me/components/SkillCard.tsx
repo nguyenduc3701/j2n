@@ -1,5 +1,6 @@
 import { Flex, Paper, Text, Tooltip } from "@mantine/core";
 import J2NMotionFade from "@repo/components/atoms/J2NMotionTransition/J2NMotionFade";
+import J2NTransText from "@repo/components/atoms/J2NTransText";
 import React from "react";
 
 export interface SkillCardProps {
@@ -22,9 +23,9 @@ const SkillCard: React.FC<SkillCardProps> = ({
   const isLarge = size === "lg";
 
   return (
-    <J2NMotionFade delay={index * 0.2} duration={0.4}>
+    <J2NMotionFade delay={index * 0.05} duration={0.1}>
       <Tooltip
-        label={description}
+        label={<J2NTransText tKey={description} />}
         withArrow
         multiline
         w={200}
@@ -49,16 +50,20 @@ const SkillCard: React.FC<SkillCardProps> = ({
           >
             <div className="shrink-0 pb-2">{icon}</div>
             <Text
-              size={name.length > 12 && isLarge ? "sm" : isLarge ? "lg" : "md"}
+              size={name.length > 12 && isLarge ? "md" : isLarge ? "xl" : "lg"}
               className="text-j2n-ink-300 text-center"
               lh={1.1}
             >
               {name}
             </Text>
             <Text size="xs" className="text-j2n-ink-200 opacity-60">
-              {typeof experience === "number"
-                ? `~ ${experience} years`
-                : experience}
+              {typeof experience === "number" ? (
+                <>
+                  ~ {experience} <J2NTransText span tKey="years" />
+                </>
+              ) : (
+                <J2NTransText span tKey={experience} />
+              )}
             </Text>
           </Flex>
         </Paper>

@@ -2,6 +2,8 @@ export interface IHeaderProps {
   logoSrc?: string;
   className?: string;
   title?: string;
+  redirectUrl?: string;
+  hideMenu?: boolean;
 }
 
 export interface IMenuItem {

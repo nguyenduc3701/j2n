@@ -11,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.push("/about-me");
-    }, 8000);
+    }, 300);
     return () => clearTimeout(timer);
   }, [router]);
 

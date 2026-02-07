@@ -3,7 +3,7 @@ import React from "react";
 
 export interface IColumn<T> {
   key: string;
-  title: string;
+  title: React.ReactNode;
   render?: (record: T, index: number) => React.ReactNode;
 }
 
@@ -21,6 +21,7 @@ export interface IJ2NTableProps<T = any> extends Omit<TableProps, "data"> {
   pageSize?: number;
   total?: number;
   onPageChange?: (page: number) => void;
+  fontSize?: string | number;
 }
 
 export interface IRenderedRow<T> {
@@ -31,6 +32,6 @@ export interface IRenderedRow<T> {
 
 export interface IJ2NTableInteractiveProps<T>
   extends Omit<IJ2NTableProps<T>, "columns"> {
-  headers: string[];
+  headers: React.ReactNode[];
   renderedRows: IRenderedRow<T>[];
 }

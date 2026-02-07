@@ -19,7 +19,7 @@ const GithubDivider = ({ url, className }: GithubDividerProps) => {
         <Link
           href={url}
           target="_blank"
-          className="text-j2n-plum-dark-500! italic absolute bottom-full right-8 mb-1"
+          className="text-j2n-plum-dark-500! italic absolute bottom-full right-8 mb-1 text-xl"
         >
           {url}
         </Link>

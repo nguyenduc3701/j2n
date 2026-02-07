@@ -21,6 +21,7 @@ import {
   GraphQL,
   Microsoft,
   Firebase,
+  Keycloak,
 } from "@ridemountainpig/svgl-react";
 import {
   IconDatabase,
@@ -37,42 +38,37 @@ export const mainSkills: (SkillCardProps & { icon: React.ReactNode })[] = [
   {
     name: "ReactJS",
     experience: 6,
-    description:
-      "Core expertise used to build diverse interfaces, from travel platforms to complex digital wallets.",
+    description: "skills.reactjs",
     size: "lg",
-    icon: <ReactDark width={80} />,
+    icon: <ReactDark width={100} />,
   },
   {
     name: "Javascript",
     experience: 6,
-    description:
-      "The foundation of my career, applied in developing high-performance web portals and APIs.",
+    description: "skills.javascript",
     size: "lg",
-    icon: <JavaScript width={80} />,
+    icon: <JavaScript width={100} />,
   },
   {
     name: "Typescript",
     experience: 6,
-    description:
-      "Quickly mastered during my first week at Add-on to ensure type-safety for Microsoft-integrated systems.",
+    description: "skills.typescript",
     size: "lg",
-    icon: <TypeScript width={80} />,
+    icon: <TypeScript width={100} />,
   },
   {
     name: "Java Spring Boot",
     experience: 4,
-    description:
-      "Self-taught and officially applied at Ascend to build robust services for digital wallet systems.",
+    description: "skills.java_spring",
     size: "lg",
-    icon: <Spring width={80} />,
+    icon: <Spring width={100} />,
   },
   {
     name: "NextJS",
     experience: 4,
-    description:
-      "Leveraged to build and optimize various enterprise portals, enhancing both SEO and performance.",
+    description: "skills.nextjs",
     size: "lg",
-    icon: <Nextjs width={80} />,
+    icon: <Nextjs width={100} />,
   },
 ];
 
@@ -80,224 +76,214 @@ export const otherSkills: (SkillCardProps & { icon: React.ReactNode })[] = [
   {
     name: "HTML",
     experience: 6,
-    description:
-      "Built semantic & accessible foundations for diverse enterprise applications.",
+    description: "skills.html",
     icon: <HTML5 width={50} />,
   },
   {
     name: "CSS",
     experience: 6,
-    description:
-      "Crafting pixel-perfect and responsive interfaces since the start of my career.",
+    description: "skills.css",
     icon: <CSS width={50} />,
   },
   {
     name: "Ant Design",
     experience: 6,
-    description:
-      "Developed complex interfaces for Digital Wallet portals and Travel projects.",
+    description: "skills.ant_design",
     icon: <AntDesign width={50} />,
   },
   {
     name: "Redux",
     experience: 6,
-    description:
-      "Managed sophisticated global states for heavy-duty financial applications.",
+    description: "skills.redux",
     icon: <Redux width={50} />,
   },
   {
     name: "Sass",
     experience: 5,
-    description:
-      "Structured modular styles for large-scale projects at Add-on and Ascend.",
+    description: "skills.sass",
     icon: <Sass width={50} />,
   },
   {
     name: "Tailwind",
     experience: 4,
-    description:
-      "Main utility-first framework used to speed up UI development in modern apps.",
+    description: "skills.tailwind",
     icon: <TailwindCSS width={50} />,
   },
   {
     name: "Docker",
     experience: 4,
-    description:
-      "Standardizing development environments and microservices deployment.",
+    description: "skills.docker",
     icon: <Docker width={50} />,
   },
   {
     name: "Kubernetes",
     experience: 4,
-    description:
-      "Maintaining and scaling containerized services for production stability.",
+    description: "skills.kubernetes",
     icon: <Kubernetes width={50} />,
   },
   {
     name: "MySQL",
     experience: 4,
-    description:
-      "Designing database schemas and writing optimized scripts for Digital Wallet services.",
+    description: "skills.mysql",
     icon: <MySQLDark width={50} />,
   },
   {
     name: "RabbitMQ",
     experience: 4,
-    description:
-      "Decoupling microservices and managing background tasks for wallet services.",
+    description: "skills.rabbitmq",
     icon: <IconMessage size={50} />,
   },
   {
     name: "Redis",
     experience: 4,
-    description:
-      "Boosting system performance through efficient caching layers in production.",
+    description: "skills.redis",
     icon: <Redis width={50} />,
   },
   {
     name: "Fluent UI",
     experience: 2,
-    description:
-      "Customized UI libraries for Microsoft Add-on booking systems as a Team Lead.",
+    description: "skills.fluent_ui",
     icon: <Microsoft width={50} />,
+  },
+  {
+    name: "Keycloak",
+    experience: 2,
+    description: "skills.keycloak",
+    icon: <Keycloak width={50} />,
   },
   {
     name: "Mantine UI",
     experience: 1,
-    description:
-      "Selected for modern portal developments requiring highly flexible components.",
+    description: "skills.mantine_ui",
     icon: <Mantine width={50} />,
   },
   {
     name: "Firebase",
     experience: 1,
-    description:
-      "Structured databases and real-time features for travel-related projects.",
+    description: "skills.firebase",
     icon: <Firebase width={50} />,
   },
   {
     name: "PostgreSQL",
     experience: 1,
-    description:
-      "Implemented as a reliable relational database for high-performance backends.",
+    description: "skills.postgresql",
     icon: <PostgreSQL width={50} />,
   },
   {
     name: "NodeJS",
     experience: 1,
-    description:
-      "Built scalable APIs and backend utilities during my early career at Travel Connect.",
+    description: "skills.nodejs",
     icon: <Nodejs width={50} />,
   },
   {
     name: "Flowable",
     experience: 1,
-    description:
-      "Automating complex business processes for enterprise-level workflows.",
+    description: "skills.flowable",
     icon: <IconGitMerge size={50} />,
   },
   {
     name: "Zustand",
-    experience: "Personal Projects",
-    description:
-      "Optimizing state management in newer Next.js and React portals.",
+    experience: "personal_projects",
+    description: "skills.zustand",
     icon: <IconDatabase size={50} />,
   },
   {
     name: "React Native",
-    experience: "Personal Projects",
-    description:
-      "Personal projects: Exploring mobile development and cross-platform UX/UI.",
+    experience: "personal_projects",
+    description: "skills.react_native",
     icon: <IconDeviceMobile size={50} />,
   },
   {
     name: "GraphQL",
-    experience: "Personal Projects",
-    description:
-      "Personal projects: Investigating efficient data fetching and flexible API schemas.",
+    experience: "personal_projects",
+    description: "skills.graphql",
     icon: <GraphQL width={50} />,
   },
 ];
 
 export const timelineData = [
   {
-    title: "University Of Economics - Technology For Industries",
+    title: "timeline.uni.title",
     time: "2014 - 2019",
-    description: "Major in Information Technology",
+    description: "timeline.uni.desc",
   },
   {
-    title: "Travel Connect",
-    subTitle: "( Frontend Developer )",
+    title: "timeline.travel_connect.title",
+    subTitle: "timeline.travel_connect.subtitle",
     time: "12/2019 - 05/2020",
-    description:
-      "Designed, provided feedback on UX/UI, and structured the database. During my time working here, I participated in building APIs by NodeJS within a short period.",
-    tooltip:
-      "Travel Connect is a startup providing travel package solutions for both B2B and B2C clients, offering flexible, transparent, and cost-optimized tour options.",
-    technologies:
-      "Used JavaScript, ReactJS, Ant Design, and Firebase to build the interface for a travel project.",
+    description: "timeline.travel_connect.desc",
+    tooltip: "timeline.travel_connect.tooltip",
+    technologies: "timeline.travel_connect.tech",
   },
   {
-    title: "Add-on Development",
-    subTitle: "( Frontend Developer )",
+    title: "timeline.add_on_fe.title",
+    subTitle: "timeline.add_on_fe.subtitle",
     time: "06/2020 - 12/2021",
-    description:
-      "Worked as a frontend developer responsible for the UI of a new project. Custom a UI library based on Fluent UI to meet the required functionalities, designed UX/UI interfaces",
-    tooltip:
-      "A software development company specializing in Microsoft ecosystem extensions and custom enterprise booking solutions.",
-    technologies:
-      "Leveraged TypeScript, ReactJS, Figma, and Fluent UI to build complex booking interfaces integrated with Microsoft 365.",
+    description: "timeline.add_on_fe.desc",
+    tooltip: "timeline.add_on_fe.tooltip",
+    technologies: "timeline.add_on_fe.tech",
   },
   {
-    title: "Cafe Review",
-    subTitle: "( Fullstack Developer )",
+    title: "timeline.cafe_review.title",
+    subTitle: "timeline.cafe_review.subtitle",
     time: "11/2020 - 06/2021",
-    description:
-      "Cafe Review is a short-term outsourced project that provides an online news platform capable of automatically crawling articles from selected sources while also supporting manual content creation.",
-    tooltip:
-      "A specialized media tool for content aggregators to automate news collection and manage editorial workflows.",
-    technologies:
-      "Implemented using ReactJS, NodeJS, and MySQL for the web crawling engine and backend services.",
+    description: "timeline.cafe_review.desc",
+    tooltip: "timeline.cafe_review.tooltip",
+    technologies: "timeline.cafe_review.tech",
   },
   {
-    title: "Add-on Development",
-    subTitle: "( Leader Frontend Team )",
+    title: "timeline.add_on_lead.title",
+    subTitle: "timeline.add_on_lead.subtitle",
     time: "01/2021 - 08/2022",
-    description:
-      "Worked as a developer, then became the team leader of a group of 5 fresher and junior members, designed UX/UI interfaces, reviewed code, presented, and received requirements directly from the PO.",
-    tooltip:
-      "A software development company specializing in Microsoft ecosystem extensions and custom enterprise booking solutions.",
-    technologies:
-      "Utilized Figma for UI/UX prototyping, alongside Advanced TypeScript, Git-flow, and customized enterprise UI frameworks.",
+    description: "timeline.add_on_lead.desc",
+    tooltip: "timeline.add_on_lead.tooltip",
+    technologies: "timeline.add_on_lead.tech",
   },
   {
-    title: "Ascend Technology",
-    subTitle: "( Fullstack Developer )",
+    title: "timeline.ascend.title",
+    subTitle: "timeline.ascend.subtitle",
     time: "08/2022 - Present",
-    description:
-      "Maintained stability and developed new features based on requirements, enhancing the project's security and performance. Responsible for maintaining and developing 4 portals and 3 services.",
-    tooltip:
-      "A Fintech-focused technology firm providing secure and scalable digital payment and wallet infrastructure.",
-    technologies:
-      "Utilizing Java Spring Boot, MySQL for backend services, and ReactJS/NextJS with Ant Design for secure financial management portals.",
+    description: "timeline.ascend.desc",
+    tooltip: "timeline.ascend.tooltip",
+    technologies: "timeline.ascend.tech",
   },
 ];
 
 export const personalData = [
   {
-    title: "Hobbies",
-    description:
-      " Manchester United, Football, Games, Movies, Banh Mi, Travel,...",
+    title: "personal.hobbies.title",
+    description: "personal.hobbies.desc",
     icon: <IconTrekking size={60} className="text-j2n-plum-dark-500!" />,
   },
   {
-    title: "Hometown",
-    description: "Ngo Cho Kham Thien, Van Mieu - Quoc Tu Giam, Hanoi, Vietnam",
+    title: "personal.hometown.title",
+    description: "personal.hometown.desc",
     icon: <IconBuilding size={60} className="text-j2n-plum-dark-500!" />,
   },
   {
-    title: "Personality",
-    description:
-      "Capable of working independently and collaboratively, with strong self-learning skills and an open-minded approach to new ideas.",
+    title: "personal.personality.title",
+    description: "personal.personality.desc",
     icon: <IconUserCheck size={60} className="text-j2n-plum-dark-500!" />,
+  },
+];
+
+export const personalPhotos = [
+  {
+    src: "https://picsum.photos/id/237/200/300",
+    alt: "Avatar",
+    width: 1000,
+    height: 1000,
+  },
+  {
+    src: "https://picsum.photos/id/237/200/300",
+    alt: "Avatar",
+    width: 1000,
+    height: 1000,
+  },
+  {
+    src: "https://picsum.photos/id/237/200/300",
+    alt: "Avatar",
+    width: 1000,
+    height: 1000,
   },
 ];

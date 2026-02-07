@@ -11,8 +11,10 @@ import J2NFooter from "@repo/components/molecules/J2NFooter";
 import J2NTitle from "@repo/components/molecules/J2NTitle";
 import { TileSize } from "@repo/components/molecules/J2NTitle/J2NTitle.type";
 import { IconDownload } from "@tabler/icons-react";
-import ProjectsTable from "./ProjectsTable";
+import J2NLanguages from "@repo/components/molecules/J2NLanguages";
+
 import GithubDivider from "../about-me/components/GithubDivider";
+import ProjectsTable from "./ProjectsTable";
 
 const mockProjects = [
   {
@@ -89,6 +91,17 @@ const ComponentsPage = () => {
         </J2NTimeline.Item>
       </J2NTimeline>
       <GithubDivider url="https://github.com/nguyenduc3701" />
+      <J2NLanguages
+        defaultLanguage="en"
+        onChange={(lang) => console.log(lang)}
+      />
+      <J2NImage
+        src="https://picsum.photos/id/237/200/300"
+        alt="Avatar"
+        width="250px"
+        height="300px"
+        classNames="m-2 p-2 shadow-lg rounded-md"
+      />
     </J2NSection>
   );
 };

@@ -7,7 +7,7 @@ function J2NAvatar({ isRounded = true, className, ...props }: J2NAvatarProps) {
   }
   return (
     <div
-      className={`avatar-wrapper w-fit p-1.5 border-2 border-j2n-sand-medium-300 bg-transparent rounded-full ${className}`}
+      className={`avatar-wrapper w-fit p-1.5 border-3 border-j2n-mauve-500 bg-transparent rounded-full ${className}`}
     >
       <Avatar {...props} />
     </div>
