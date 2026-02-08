@@ -7,6 +7,9 @@ module.exports = {
       .join(__dirname, "../../apps/web/about/app/**/*.{js,ts,jsx,tsx}")
       .replace(/\\/g, "/"),
     path
+      .join(__dirname, "../../apps/web/management/app/**/*.{js,ts,jsx,tsx}")
+      .replace(/\\/g, "/"),
+    path
       .join(__dirname, "../ui/src/components/**/*.{ts,tsx,js,jsx}")
       .replace(/\\/g, "/"),
   ],

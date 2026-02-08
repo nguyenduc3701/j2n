@@ -3,9 +3,8 @@ export interface IJ2NAccountProps {
   userName: string;
   roleName?: string;
   size?: number;
-  menuItems?: IDropdownMenuItem[];
+  baseUrl?: string;
   logoutAction?: () => void;
-  helpAction?: () => void;
 }
 
 export interface IDropdownMenuItem {

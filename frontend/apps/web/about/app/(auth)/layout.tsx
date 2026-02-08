@@ -1,5 +1,3 @@
-import J2NDivider from "@repo/components/atoms/J2NDivider";
-import J2NFooter from "@repo/components/molecules/J2NFooter";
 import J2NHeader from "@repo/components/molecules/J2NHeader";
 
 export default function MainLayout({

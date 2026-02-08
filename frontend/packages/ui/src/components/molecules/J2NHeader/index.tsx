@@ -10,6 +10,7 @@ import J2NMotionFade from "../../atoms/J2NMotionTransition/J2NMotionFade";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import J2NLogo from "./J2N-logo.svg";
 import J2NLanguages from "../J2NLanguages";
+import J2NAccount from "../J2NAccount";
 import { ILanguage } from "../J2NLanguages/J2NLanguages.type";
 
 const supportedLanguages: ILanguage[] = [
@@ -20,7 +21,15 @@ const supportedLanguages: ILanguage[] = [
 ];
 
 const J2NHeader = (props: IHeaderProps) => {
-  const { logoSrc, title, className, redirectUrl, hideMenu } = props;
+  const {
+    logoSrc,
+    title,
+    className,
+    redirectUrl,
+    hideMenu,
+    hideAccount = true,
+    accountProps,
+  } = props;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { i18n, t } = useTranslation();
 
@@ -38,8 +47,8 @@ const J2NHeader = (props: IHeaderProps) => {
         { name: t("Travel"), href: "/travel", target: Target.NEW_TAB },
         {
           name: t("Management"),
-          href: "/management",
-          target: Target.CURRENT_TAB,
+          href: "http://localhost:3101/",
+          target: Target.NEW_TAB,
         },
       ];
 
@@ -92,6 +101,9 @@ const J2NHeader = (props: IHeaderProps) => {
                 {item.name}
               </Link>
             ))}
+            {hideMenu && !hideAccount && accountProps && (
+              <J2NAccount {...accountProps} />
+            )}
             <J2NLanguages
               languages={supportedLanguages}
               defaultLanguage={i18n.language}

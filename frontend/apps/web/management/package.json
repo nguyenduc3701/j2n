@@ -1,9 +1,9 @@
 {
-  "name": "about",
+  "name": "management",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env PORT=3100 next dev",
+    "dev": "cross-env PORT=3101 next dev",
     "build": "next build",
     "start": "next start -p $PORT",
     "dev:local": "NEXT_PUBLIC_ENV=local next dev",
