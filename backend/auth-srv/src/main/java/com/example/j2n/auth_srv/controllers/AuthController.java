@@ -1,8 +1,6 @@
 package com.example.j2n.auth_srv.controllers;
 
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
-import com.example.j2n.auth_srv.controllers.requests.LogoutRequest;
-import com.example.j2n.auth_srv.controllers.requests.RefreshTokenRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.service.AuthService;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
@@ -41,12 +39,14 @@ public class AuthController {
     }
 
     @PostMapping(value = "/refresh-token", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<LoginResponse>> refreshToken(@RequestHeader("X-Refresh-Token") String refreshToken) {
+    public ResponseEntity<BaseResponse<LoginResponse>> refreshToken(
+            @RequestHeader("X-Refresh-Token") String refreshToken) {
         return ResponseEntity.ok(authService.refreshToken(refreshToken));
     }
 
     @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<String>> logout(@RequestHeader("Authorization") String authorization, @RequestHeader("X-Refresh-Token") String refreshToken) {
+    public ResponseEntity<BaseResponse<String>> logout(@RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Refresh-Token") String refreshToken) {
         return ResponseEntity.ok(authService.logout(authorization, refreshToken));
     }
 

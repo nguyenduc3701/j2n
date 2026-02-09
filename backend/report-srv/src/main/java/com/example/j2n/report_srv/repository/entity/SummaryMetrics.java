@@ -13,19 +13,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_distribution")
+@Table(name = "summary_metrics")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDistribution {
+public class SummaryMetrics {
 
     @Id
-    @Column(name = "user_type", length = 50)
-    private String userType;
+    @Column(name = "metric_key", length = 100)
+    private String metricKey;
 
-    @Column(name = "count")
-    private Long count;
+    @Column(name = "category", length = 50)
+    private String category;
+
+    @Column(name = "metric_value")
+    private Long metricValue;
 
     @Column(name = "updated_at")
     @UpdateTimestamp

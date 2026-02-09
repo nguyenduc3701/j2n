@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 public enum MessageEnum implements BaseMessage {
-    IMAGE_NOT_FOUND("400401", HttpStatusCode.BAD_REQUEST, "Image not found");
+    UPDATE_USER_REPORT_SUCCESS("200201", HttpStatusCode.OK, "User report updated successfully");
 
     private final String code;
     private final HttpStatusCode httpStatus;

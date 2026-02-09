@@ -2,12 +2,12 @@ package com.example.j2n.auth_srv.service;
 
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
 import com.example.j2n.auth_srv.controllers.requests.LoginRequest;
-import com.example.j2n.auth_srv.controllers.requests.LogoutRequest;
-import com.example.j2n.auth_srv.controllers.requests.RefreshTokenRequest;
 import com.example.j2n.auth_srv.controllers.requests.RegisterRequest;
 import com.example.j2n.auth_srv.exception.FieldExistedException;
 import com.example.j2n.auth_srv.exception.InvalidCredentialException;
 import com.example.j2n.auth_srv.exception.InvalidRefreshTokenException;
+import com.example.j2n.auth_srv.messaging.user.event.UserRegisteredEvent;
+import com.example.j2n.auth_srv.messaging.user.publisher.UserEventPublisher;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
@@ -41,7 +41,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private static final long ACCESS_TOKEN_EXPIRE_SECONDS = 300; //14400;
+    private static final long ACCESS_TOKEN_EXPIRE_SECONDS = 300; // 14400;
     private static final long REFRESH_TOKEN_EXPIRE_DAYS = 7;
 
     public static final String USER_ID_KEY = "user_id";
@@ -57,6 +57,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PermissionService permissionService;
     private final RedisUtil redisUtil;
+    private final UserEventPublisher userEventPublisher;
 
     public BaseResponse<LoginResponse> login(LoginRequest request) {
         log.info("[AUTH-SRV] Start Login attempt for user: {}", request.getUserName());
@@ -73,13 +74,14 @@ public class AuthService {
         validateUsernameAndEmailDoesNotExist(request.getUserName(), request.getEmail());
         UserEntity user = createUserFromRequest(request);
         userRepository.save(user);
+        publishUserRegisteredEvent(user);
         log.info("[AUTH-SRV] End Registration attempt for user: {}", request.getUserName());
         return ResponseFactory.success(buildUserItemResponse(user));
     }
 
     public BaseResponse<String> logout(String accessToken, String refreshToken) {
         log.info("[AUTH-SRV] Start Logout attempt");
-        validateLogoutRequest(accessToken,refreshToken);
+        validateLogoutRequest(accessToken, refreshToken);
         String token = accessToken.substring(7);
         Claims claims = jwtUtil.validate(token);
         String sessionId = claims.get(SESSION_ID_KEY, String.class);
@@ -281,5 +283,42 @@ public class AuthService {
                     log.error("[AUTH-SRV] User not found");
                     return new DataNotFoundException(MessageEnum.USER_NOT_FOUND);
                 });
+    }
+
+    private String mapRoleIdToText(Long roleId) {
+        if (roleId == null) {
+            return "VISITOR";
+        }
+        if (roleId.equals(CommonConst.ROLE_ADMIN_ID)) {
+            return "ADMIN";
+        }
+        if (roleId.equals(CommonConst.ROLE_RECRUITER_ID)) {
+            return "RECRUITER";
+        }
+        if (roleId.equals(CommonConst.ROLE_RENTER_ID)) {
+            return "RENTER";
+        }
+        return "VISITOR";
+    }
+
+    private UserRegisteredEvent buildUserRegisteredEvent(UserEntity user) {
+        return new UserRegisteredEvent(
+                user.getId().toString(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getPhoneNumber(),
+                mapRoleIdToText(user.getRoleId()),
+                user.getStatus().name(),
+                user.getCreatedAt().toString());
+    }
+
+    private void publishUserRegisteredEvent(UserEntity user) {
+        if (user.getId() == null) {
+            log.error("[AUTH-SRV] User id is null");
+            return;
+        }
+        log.info("[AUTH-SRV] Publishing user registered event for user: {}", user.getUsername());
+        UserRegisteredEvent event = buildUserRegisteredEvent(user);
+        userEventPublisher.publishUserRegistered(event);
     }
 }

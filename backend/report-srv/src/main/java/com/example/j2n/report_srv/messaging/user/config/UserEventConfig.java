@@ -17,15 +17,15 @@ public class UserEventConfig {
     }
 
     @Bean
-    public Queue avatarQueue() {
-        return QueueBuilder.durable(UserEventConstants.QUEUE_AUTH_AVATAR).build();
+    public Queue registeredQueue() {
+        return QueueBuilder.durable(UserEventConstants.QUEUE_AUTH_REGISTERED).build();
     }
 
     @Bean
-    public Binding avatarBinding() {
+    public Binding registeredBinding() {
         return BindingBuilder
-                .bind(avatarQueue())
+                .bind(registeredQueue())
                 .to(userExchange())
-                .with(UserEventConstants.RK_AVATAR_UPLOADED);
+                .with(UserEventConstants.RK_USER_REGISTERED);
     }
 }

@@ -14,24 +14,22 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "global_statistics")
+@Table(name = "room_utility_reports")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GlobalStatistics {
+public class RoomUtilityReport {
 
     @Id
-    private Integer id = 1;
+    @Column(name = "month_year", length = 7)
+    private String monthYear;
 
-    @Column(name = "total_users")
-    private Long totalUsers;
+    @Column(name = "total_electricity")
+    private BigDecimal totalElectricity;
 
-    @Column(name = "total_rooms")
-    private Long totalRooms;
-
-    @Column(name = "total_revenue_all_time")
-    private BigDecimal totalRevenueAllTime;
+    @Column(name = "total_water")
+    private BigDecimal totalWater;
 
     @Column(name = "updated_at")
     @UpdateTimestamp
