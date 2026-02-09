@@ -22,14 +22,13 @@ const SystemPage = () => {
   return (
     <J2NMotionFade>
       <div className="about-me-wrapper px-62">
-        <J2NSection name="overview" className="py-10">
+        <J2NSection name="overview" className="pb-10 pt-35">
           <Stack align="center" className="mb-10">
             <TransTitle
-              className="text-center"
+              className="text-center w-fit mx-auto"
               tKey="system.overview.title"
               size={TileSize.xl}
-              underlineStyle={{ width: "100%" }}
-              underline={false}
+              fullUnderline
             />
             <J2NTransText
               tKey="system.overview.desc"

@@ -7,6 +7,7 @@ import enCommon from "../public/locales/en/common.json";
 import viCommon from "../public/locales/vi/common.json";
 import krCommon from "../public/locales/kr/common.json";
 import jpCommon from "../public/locales/jp/common.json";
+import cnCommon from "../public/locales/cn/common.json";
 import { ReactNode, useEffect, useState } from "react";
 import { I18nextProvider } from "react-i18next";
 
@@ -23,9 +24,10 @@ i18n
       vi: { common: viCommon },
       kr: { common: krCommon },
       jp: { common: jpCommon },
+      cn: { common: cnCommon },
     },
     fallbackLng: "en",
-    supportedLngs: ["en", "vi", "kr", "jp"],
+    supportedLngs: ["en", "vi", "kr", "jp", "cn"],
     ns: ["common"],
     defaultNS: "common",
     interpolation: { escapeValue: false },
@@ -33,6 +35,7 @@ i18n
     detection: {
       order: ["localStorage", "navigator"],
       caches: ["localStorage"],
+      lookupLocalStorage: "language",
     },
   });
 

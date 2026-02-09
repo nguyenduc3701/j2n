@@ -1,0 +1,313 @@
+{
+  "validation": {
+    "username_length": "用户名必须至少包含 3 个字符",
+    "password_length": "密码必须至少包含 6 个字符",
+    "password_match": "密码不匹配",
+    "email_invalid": "无效的电子邮件",
+    "role_required": "角色为必填项",
+    "room_required": "房间为必填项",
+    "company_required": "公司为必填项"
+  },
+  "username": "用户名",
+  "password": "密码",
+  "login": "登录",
+  "register": "注册",
+  "fullname": "姓名",
+  "email": "电子邮件",
+  "phone_number": "电话号码",
+  "address": "地址",
+  "dob": "出生日期",
+  "select_room": "选择房间",
+  "company": "公司",
+  "room_1": "101室",
+  "room_2": "102室",
+  "room_3": "103室",
+  "confirm_password": "确认密码",
+  "role": "角色",
+  "recruiter": "招聘者",
+  "renter": "租户",
+  "visiter": "访客",
+  "back_to_login": "返回登录",
+  "System": "系统",
+  "Room": "房间",
+  "Store": "商店",
+  "Travel": "旅行",
+  "Management": "管理",
+  "short_intro": "“我是一名全栈开发人员，拥有约 6 年的经验，专注于 JavaScript、TypeScript、ReactJS 和 Java……”",
+  "career_title": "关于我的职业旅程",
+  "career_desc": "您好，我是一名拥有约 6 年经验的前端开发人员，专注于 JavaScript、TypeScript 和 ReactJS。在这个科技行业的旅程中，我有机会参与了多个具有影响力的公司项目。在这些项目中，我不仅磨练了前端技能，还通过 Java Spring Boot 获得了后端开发的宝贵经验。虽然前端开发是我的主要关注点，但我会在工作中采取全面的方法，确保我的项目稳健并能与后端系统无缝集成。目前，我正在通过深入研究服务器端架构和数据库管理来积极扩展我的技术范围，转型为一名多功能的全栈开发人员。这种演变使我能够完全掌控从构建直观的用户界面到架构可扩展的微服务的整个开发生命周期。通过将我在前端的丰富专业知识与日益精进的后端能力相结合，我致力于构建全面的端到端解决方案，从而推动真正的商业价值。",
+  "download_cv": "下载简历",
+  "skills_tech": "技能与技术",
+  "other_tech": "其他技术与工具",
+  "career_timeline": "职业时间轴",
+  "personal_info": "个人信息",
+  "contact_info": "联系信息",
+  "contact_desc": "欢迎随时联系我进行合作，或者只是打个招呼！",
+  "Technologies": "技术栈：",
+  "years": "年",
+  "personal_projects": "个人项目",
+  "avatar": "头像",
+  "footer_text": "感谢您的关注，期待在时机成熟时与您合作。",
+  "skills": {
+    "reactjs": "核心专长，用于构建多样化的界面，从旅游平台到复杂的数字钱包。",
+    "javascript": "我的职业生涯基石，应用于开发高性能的门户网站和 API。",
+    "typescript": "在 Add-on 的第一周迅速掌握，以确保与微软集成系统的类型安全。",
+    "java_spring": "自学并在 Ascend 正式应用，为数字钱包系统构建稳健的服务。",
+    "nextjs": "用于构建和优化各种企业门户，增强 SEO 和性能。",
+    "html": "为各种企业应用程序构建语义化和可访问的基础。",
+    "css": "从职业生涯开始就致力于打造像素完美和响应式的界面。",
+    "ant_design": "为数字钱包门户和旅游项目开发复杂的界面。",
+    "redux": "管理重型金融应用程序的复杂全局状态。",
+    "sass": "为 Add-on 和 Ascend 的大型项目构建模块化样式。",
+    "tailwind": "主要使用的实用优先框架，用于加速现代应用程序的 UI 开发。",
+    "docker": "标准化开发环境和微服务部署。",
+    "kubernetes": "维护和扩展容器化服务以确保生产稳定性。",
+    "mysql": "设计数据库架构并编写用于数字钱包服务的优化脚本。",
+    "rabbitmq": "解耦微服务并管理钱包服务的后台任务。",
+    "redis": "通过生产中的高效缓存层提升系统性能。",
+    "fluent_ui": "作为团队负责人为 Microsoft Add-on 预订系统定制 UI 库。",
+    "keycloak": "作为可靠的身份验证和授权服务实施，用于支持高性能后端。",
+    "mantine_ui": "被选用于需要高度灵活组件的现代门户开发。",
+    "firebase": "为旅游相关项目构建结构化数据库和实时功能。",
+    "postgresql": "作为高性能后端的可靠关系数据库实施。",
+    "nodejs": "在 Travel Connect 的早期职业生涯中构建可扩展的 API 和后端实用程序。",
+    "flowable": "自动化企业级工作流的复杂业务流程。",
+    "zustand": "优化较新的 Next.js 和 React 门户中的状态管理。",
+    "react_native": "个人项目：探索移动开发和跨平台 UX/UI。",
+    "graphql": "个人项目：研究高效的数据获取和灵活的 API schema。"
+  },
+  "timeline": {
+    "uni": {
+      "title": "工业系统技术 - 经济大学",
+      "desc": "信息技术专业"
+    },
+    "travel_connect": {
+      "title": "Travel Connect",
+      "subtitle": "( 前端开发人员 )",
+      "desc": "设计并反馈 UX/UI，构建数据库结构。在此期间，通过 NodeJS 参与了短期 API 构建。",
+      "tooltip": "Travel Connect 是一家初创公司，为 B2B 和 B2C 客户提供旅游套餐解决方案，提供灵活、透明和成本优化的旅游选项。",
+      "tech": "使用 JavaScript, ReactJS, Ant Design 和 Firebase 构建旅游项目界面。"
+    },
+    "add_on_fe": {
+      "title": "Add-on Development",
+      "subtitle": "( 前端开发人员 )",
+      "desc": "作为前端开发人员负责新项目的 UI。基于 Fluent UI 定制 UI 库以满足功能需求，设计 UX/UI 界面。",
+      "tooltip": "一家专注于微软生态系统扩展和定制企业预订解决方案的软件开发公司。",
+      "tech": "利用 TypeScript, ReactJS, Figma 和 Fluent UI 构建与 Microsoft 集成的复杂预订界面。"
+    },
+    "cafe_review": {
+      "title": "Cafe Review",
+      "subtitle": "( 全栈开发人员 )",
+      "desc": "一个专门为内容聚合者打造的媒体工具，用于自动化新闻收集并管理编辑工作流。",
+      "tooltip": "Cafe Review 是一个短期外包项目，提供通过自动抓取选定来源文章并支持手动内容创建的在线新闻平台。",
+      "tech": "使用 Javascript, Typescript, Bootstrap, ReactJS 构建 UI 界面。使用 Java Spring Boot 和 MySQL 编写 API 和服务，并编写脚本设计数据库表。"
+    },
+    "add_on_lead": {
+      "title": "Add-on Development",
+      "subtitle": "( 前端团队负责人 )",
+      "desc": "从开发人员晋升为带领 5 名新手和初级成员的团队负责人，设计 UX/UI 界面，审查代码，演示并直接从 PO 接收需求。",
+      "tooltip": "一家专注于微软生态系统扩展和定制企业预订解决方案的软件开发公司。",
+      "tech": "利用 Figma 进行 UI/UX 原型设计，结合高级 TypeScript, Git-flow 和定制的企业 UI 框架。"
+    },
+    "ascend": {
+      "title": "Ascend Technology",
+      "subtitle": "( 全栈开发人员 )",
+      "desc": "根据需求维护稳定性并开发新功能，增强项目的安全性和性能。负责维护和开发 4 个门户网站和 3 个服务。",
+      "tooltip": "Ascend Technology 成立于 2017 年，隶属于 Ascend Group，开发支持 TrueMoney 服务的核心电子支付平台。该公司支持包括 TrueMoney Wallet, WeCard, CashCard, 自助终端, 支付网关和汇款解决方案在内的关键产品。",
+      "tech": "使用 Javascript, Typescript, ReactJS, NextJS, Tailwind, Ant Design 构建 UI 界面。使用 Java Spring Boot 和 MySQL 编写 API 和服务，并编写脚本设计数据库表。"
+    }
+  },
+  "personal": {
+    "hobbies": {
+      "title": "爱好",
+      "desc": "曼联, 足球, 游戏, 电影, 越式法包, 旅游..."
+    },
+    "hometown": {
+      "title": "家乡",
+      "desc": "越南 河内 钦天市场巷 文庙-国子监"
+    },
+    "personality": {
+      "title": "个性",
+      "desc": "能够独立工作也能团队协作，具有很强的自学能力和对新想法的开放态度。"
+    }
+  },
+  "system": {
+    "overview": {
+      "title": "J2N 项目",
+      "desc": "J2N 项目是一个全栈项目，采用使用 Turborepo 的微前端架构进行模块化 UI 开发。后端构建为微服务生态系统以确保可扩展性和服务隔离，MySQL 作为主要数据库用于数据存储和管理。"
+    },
+    "frontend": {
+      "title": "前端层",
+      "subtitle": "(使用 Next.js 的微前端)",
+      "desc": "UI 层被拆分为多个独立的 Next.js 应用程序，每个应用程序负责特定的业务领域：",
+      "key_char": "关键特性：",
+      "list": {
+        "0": "每个前端独立部署。",
+        "1": "一个模块的故障不会影响其他模块。",
+        "2": "所有前端仅通过 BFF 服务与后端通信，确保数据形状一致并屏蔽后端的复杂性。"
+      },
+      "ui_design": "UI 设计："
+    },
+    "backend": {
+      "title": "后端层",
+      "subtitle": "(使用 Java Spring Boot 的微服务)",
+      "desc": "后端由两个主要部分组成：BFF、API 网关以及一组领域驱动的微服务。",
+      "bff": {
+        "title": "(a) BFF 服务 (Backend for Frontend)",
+        "desc": "BFF 不包含业务逻辑；它主要将请求转发到 API 网关。",
+        "list": {
+          "0": "充当所有前端应用程序与内部后端系统之间的适配器。",
+          "1": "职责："
+        },
+        "sublist": {
+          "0": "规范化请求和响应",
+          "1": "执行轻量级验证",
+          "2": "聚合来自多个服务的数据（未来支持）",
+          "3": "防止前端直接调用内部服务"
+        }
+      },
+      "gateway": {
+        "title": "(b) API 网关服务",
+        "desc": "API 网关是后端唯一的受控入口点。",
+        "key_resp": "关键职责：",
+        "list": {
+          "0": "验证 JWT 令牌",
+          "1": "将请求路由到正确的微服务",
+          "2": "应用速率限制、节流和日志记录（可扩展）",
+          "3": "向客户端隐藏内部微服务"
+        }
+      },
+      "microservices": {
+        "title": "(c) 微服务层 (Java Spring Boot)",
+        "desc": "每个服务都是一个遵循“一个服务，一个领域”方法的独立 Spring Boot 应用程序："
+      }
+    },
+    "database": {
+      "title": "数据库层",
+      "subtitle": "(每个服务一个 MySQL)",
+      "desc": "每个微服务都有自己的专用 MySQL 数据库。",
+      "advantages": "优势",
+      "list": {
+        "0": "无共享架构 → 松耦合",
+        "1": "每个服务管理自己的架构（清晰的领域边界）",
+        "2": "易于仅迁移或扩展需要的服务",
+        "3": "系统稳定性提高（一个数据库的故障不会影响其他数据库）"
+      }
+    },
+    "message": {
+      "title": "消息层",
+      "subtitle": "(RabbitMQ)",
+      "desc": "RabbitMQ 用于服务之间的异步通信。",
+      "use_cases": "用例",
+      "list": {
+        "0": "发送通知或电子邮件",
+        "1": "跨服务数据同步",
+        "2": "后台/长时间运行的任务",
+        "3": "高负载事件处理"
+      },
+      "desc_bottom": "每种类型的事件都有自己的队列，以保持隔离性和可靠性。"
+    },
+    "flow": {
+      "title": "请求流与事件流",
+      "request": {
+        "title": "I. 请求流 (前端 → 后端)",
+        "list": {
+          "0": "前端向 BFF 服务发送请求。",
+          "1": "BFF 规范化并将请求转发到 API 网关。",
+          "2": "API 网关：",
+          "sublist": {
+            "0": "验证 JWT",
+            "1": "将请求路由到适当的微服务"
+          },
+          "3": "微服务处理业务逻辑并与其 MySQL 数据库交互。",
+          "4": "响应通过相同的链返回：服务 → 网关 → BFF → 前端"
+        }
+      },
+      "event": {
+        "title": "II. 事件流 (异步处理)",
+        "list": {
+          "0": "微服务触发事件（例如，用户创建、新订单、图像上传）。",
+          "1": "服务将事件发布到特定的 RabbitMQ 队列。",
+          "2": "其他订阅的服务接收并处理该事件。",
+          "3": "任务在后台运行，不会延迟面向用户的响应。"
+        }
+      },
+      "desc": "这确保了更流畅的性能和更好的可扩展性。"
+    },
+    "security": {
+      "title": "安全与认证",
+      "jwt": {
+        "title": "I. JWT 认证",
+        "list": {
+          "0": "用户从前端登录 → BFF → 认证服务。",
+          "1": "认证服务返回 JWT 令牌。",
+          "2": "前端安全地存储令牌。",
+          "3": "所有未来的请求都通过 BFF → 网关包含此令牌。"
+        }
+      },
+      "gateway": {
+        "title": "II. API 网关安全",
+        "list": {
+          "0": "负责令牌验证的单点。",
+          "1": "内部服务从不接收未经身份验证的直接请求。",
+          "2": "可选的 IP 白名单用于服务间通信。"
+        }
+      },
+      "isolation": {
+        "title": "III. 微服务隔离",
+        "list": {
+          "0": "每个服务仅访问其自己的数据库。",
+          "1": "防止跨服务数据泄漏或意外耦合。"
+        }
+      },
+      "rabbitmq": {
+        "title": "IV. RabbitMQ 安全",
+        "list": {
+          "0": "只有授权的服务可以发布或消费事件。",
+          "1": "确保安全的异步通信。"
+        }
+      }
+    },
+    "data": {
+      "columns": {
+        "application": "应用程序",
+        "render": "渲染模式",
+        "purpose": "用途",
+        "service": "服务",
+        "responsibility": "职责"
+      },
+      "apps": {
+        "about": "关于/系统",
+        "management": "管理",
+        "room": "房间",
+        "store": "商店",
+        "travel": "旅行"
+      },
+      "render": {
+        "ssr": "服务端渲染 (SSR)",
+        "csr": "客户端渲染 (CSR)"
+      },
+      "purpose": {
+        "system": "系统介绍和公共信息页面",
+        "management": "内部管理仪表盘",
+        "room": "房间管理功能",
+        "store": "商店、产品和订单处理",
+        "travel": "旅行预订和管理"
+      },
+      "services": {
+        "auth": "认证服务",
+        "image": "图像服务",
+        "room": "房间服务",
+        "store": "商店服务",
+        "travel": "旅行服务"
+      },
+      "responsibility": {
+        "auth": "认证、注册、登录、令牌生成和用户管理",
+        "image": "图像上传、处理、元数据",
+        "room": "管理房间信息、状态、预订和计算账单",
+        "store": "管理产品、订单、库存",
+        "travel": "管理预订、航班、酒店、旅游"
+      }
+    }
+  }
+}

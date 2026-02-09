@@ -9,6 +9,9 @@ import "./J2NLanguages.css";
 const DEFAULT_LANGUAGES: ILanguage[] = [
   { code: "en", name: "English", flagCode: "us" },
   { code: "vi", name: "Tiếng Việt", flagCode: "vn" },
+  { code: "kr", name: "Korean", flagCode: "kr" },
+  { code: "jp", name: "Japanese", flagCode: "jp" },
+  { code: "cn", name: "Chinese", flagCode: "cn" },
 ];
 
 const J2NLanguages: React.FC<IJ2NLanguagesProps> = ({

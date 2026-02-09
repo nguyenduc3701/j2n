@@ -14,6 +14,7 @@ const J2N_BUTTON_CLASSES: Record<J2NButtonTypes, string> = {
 
 export interface J2NButtonProps extends ButtonProps {
   j2nType?: J2NButtonTypes;
+  type?: "submit" | "reset" | "button";
 }
 
 const J2NButton: React.FC<J2NButtonProps> = ({

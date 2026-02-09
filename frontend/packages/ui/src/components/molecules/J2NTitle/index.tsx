@@ -10,6 +10,7 @@ const J2NTitle: React.FC<IJ2NTitleProps> = ({
   underline = true,
   underlineStyle,
   reverseSubTitle = false,
+  fullUnderline = false,
 }) => {
   const titleSizeClasses = {
     [TileSize.xl]: "text-3xl",
@@ -34,7 +35,9 @@ const J2NTitle: React.FC<IJ2NTitleProps> = ({
           <span
             className={`relative inline-block w-full ${
               underline
-                ? "pb-1 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[3px] after:w-[70%] after:bg-j2n-mauve-500"
+                ? `pb-1 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[3px] ${
+                    fullUnderline ? "after:w-full" : "after:w-[70%]"
+                  } after:bg-j2n-mauve-500`
                 : ""
             } whitespace-break-spaces text-j2n-plum-dark-600 pb-3`}
             style={underlineStyle}

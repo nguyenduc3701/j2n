@@ -11,14 +11,6 @@ import { IconMenu2, IconX } from "@tabler/icons-react";
 import J2NLogo from "./J2N-logo.svg";
 import J2NLanguages from "../J2NLanguages";
 import J2NAccount from "../J2NAccount";
-import { ILanguage } from "../J2NLanguages/J2NLanguages.type";
-
-const supportedLanguages: ILanguage[] = [
-  { code: "en", name: "English", flagCode: "us" },
-  { code: "vi", name: "Vietnam", flagCode: "vn" },
-  { code: "jp", name: "Japan", flagCode: "jp" },
-  { code: "kr", name: "Korea", flagCode: "kr" },
-];
 
 const J2NHeader = (props: IHeaderProps) => {
   const {
@@ -28,6 +20,7 @@ const J2NHeader = (props: IHeaderProps) => {
     redirectUrl,
     hideMenu,
     hideAccount = true,
+    hideLogo = false,
     accountProps,
   } = props;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -68,27 +61,29 @@ const J2NHeader = (props: IHeaderProps) => {
     >
       <J2NMotionFade>
         <Flex
-          justify="space-between"
+          justify={hideLogo ? "flex-end" : "space-between"}
           align="center"
           className="header-content w-full"
         >
-          <Link
-            href={redirectUrl || "/"}
-            className="header-branch flex items-center cursor-pointer"
-          >
-            <div className="branch-logo max-w-[80px] max-h-[80px]">
-              <img
-                className="j2n-logo object-contain scale-[2]"
-                src={finalLogoSrc}
-                alt={title}
-                width={"100%"}
-                height={"100%"}
-              />
-            </div>
-            <h1 className="branch-title text-xl font-secondary-700 text-j2n-grape-deep-500">
-              {title}
-            </h1>
-          </Link>
+          {!hideLogo && (
+            <Link
+              href={redirectUrl || "/"}
+              className="header-branch flex items-center cursor-pointer"
+            >
+              <div className="branch-logo max-w-[80px] max-h-[80px]">
+                <img
+                  className="j2n-logo object-contain scale-[2]"
+                  src={finalLogoSrc}
+                  alt={title}
+                  width={"100%"}
+                  height={"100%"}
+                />
+              </div>
+              <h1 className="branch-title text-xl font-secondary-700 text-j2n-grape-deep-500">
+                {title}
+              </h1>
+            </Link>
+          )}
           <div className="header-menu mx-5 hidden lg:flex items-center gap-2 flex-row">
             {menuItems?.map((item, index) => (
               <Link
@@ -105,7 +100,6 @@ const J2NHeader = (props: IHeaderProps) => {
               <J2NAccount {...accountProps} />
             )}
             <J2NLanguages
-              languages={supportedLanguages}
               defaultLanguage={i18n.language}
               onChange={handleChangeLanguage}
             />
@@ -149,7 +143,6 @@ const J2NHeader = (props: IHeaderProps) => {
                 <div className="py-3 flex items-center gap-2">
                   <span className="text-xl font-secondary-500">Language: </span>
                   <J2NLanguages
-                    languages={supportedLanguages}
                     defaultLanguage={i18n.language}
                     onChange={handleChangeLanguage}
                   />

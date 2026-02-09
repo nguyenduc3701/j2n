@@ -21,9 +21,9 @@ const LoginPage = () => {
 
     validate: {
       username: (value) =>
-        value.length < 3 ? "Username must include at least 3 characters" : null,
+        value.length < 3 ? t("validation.username_length") : null,
       password: (value) =>
-        value.length < 6 ? "Password must include at least 6 characters" : null,
+        value.length < 6 ? t("validation.password_length") : null,
     },
   });
 

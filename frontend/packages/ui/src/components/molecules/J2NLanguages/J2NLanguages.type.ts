@@ -1,6 +1,3 @@
-import { ActionIcon, Menu, Select, Group, Text } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
 import "flag-icons/css/flag-icons.min.css";
 
 // Interface for language object

@@ -7,6 +7,7 @@ export interface IHeaderProps {
   redirectUrl?: string;
   hideMenu?: boolean;
   hideAccount?: boolean;
+  hideLogo?: boolean;
   accountProps?: IJ2NAccountProps;
 }
 

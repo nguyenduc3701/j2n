@@ -1,0 +1,15 @@
+# Maven/Gradle build files
+target
+build
+
+# IDE files
+.vscode
+.idea
+*.iml
+
+# Logs
+*.log
+
+# Git
+.git
+.gitignore

@@ -12,6 +12,7 @@ export default function MainLayout({
         className="bg-transparent!"
         redirectUrl="/login"
         hideMenu
+        hideLogo
       />
       <main className="bg-j2n-sand-100 min-h-screen">{children}</main>
     </>

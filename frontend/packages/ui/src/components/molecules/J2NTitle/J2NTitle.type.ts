@@ -16,4 +16,5 @@ export interface IJ2NTitleProps {
   underline?: boolean;
   underlineStyle?: CSSProperties;
   reverseSubTitle?: boolean;
+  fullUnderline?: boolean;
 }

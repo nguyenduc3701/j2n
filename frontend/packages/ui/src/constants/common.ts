@@ -7,3 +7,10 @@ export enum HTTP_METHODS {
 }
 
 export const ACCESS_TOKEN = "ACCESS_TOKEN";
+
+export enum USER_ROLES {
+  RECRUITER = "recruiter",
+  RENTER = "renter",
+  VISITER = "visiter",
+  ADMIN = "admin",
+}

@@ -30,9 +30,9 @@ const AutoCarousel = ({ photos }: AutoCarouselProps) => {
   return (
     <Carousel
       withIndicators
-      height={900}
+      height={800}
       slideSize="50%"
-      slideGap={50}
+      slideGap={15}
       emblaOptions={{ loop: true, align: "start" }}
       getEmblaApi={setEmbla}
     >

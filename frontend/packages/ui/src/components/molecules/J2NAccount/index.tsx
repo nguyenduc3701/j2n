@@ -45,8 +45,8 @@ const J2NAccount: React.FC<IJ2NAccountProps> = ({
           <Menu.Target>
             <Flex className="cursor-pointer" gap="xs" align="center">
               <IconCaretDownFilled size={iconSize} />
-              <Flex align="end" gap={3}>
-                <Text size="xl" className="text-j2n-ink-500 font-secondary-500">
+              <Flex align="end" gap={4}>
+                <Text size="md" className="text-j2n-ink-500 font-secondary-500">
                   {userName}
                 </Text>
                 {roleName ? (
