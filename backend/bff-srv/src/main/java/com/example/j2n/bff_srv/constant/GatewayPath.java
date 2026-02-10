@@ -22,4 +22,6 @@ public class GatewayPath {
     public static final String IMAGE_UPLOAD_PATH = "/api/image/upload";
     public static final String IMAGE_GET_IMAGE_PATH = "/api/image/%s/%s";
     public static final String IMAGE_DOWNLOAD_FILE_PATH = "/api/image/file/curriculum-vitae/%s";
+    // report-srv
+    public static final String REPORT_MANAGEMENT_DASHBOARD_PATH = "/api/report/management/dashboard";
 }

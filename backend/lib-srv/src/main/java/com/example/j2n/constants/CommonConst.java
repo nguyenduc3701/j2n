@@ -11,4 +11,8 @@ public class CommonConst {
     public static final String AUTH_SESSION_PREFIX = "auth:session:";
     public static final String AUTH_REFRESH_PREFIX = "auth:refresh:";
     public static final String AUTH_USER_SESSIONS_PREFIX = "auth:user_sessions:";
+
+    // Cache key
+    public static final String DASHBOARD_CACHE_KEY = "dashboardCache";
+    public static final String MAIN_REPORT_KEY = "'main_report'";
 }

@@ -10,7 +10,7 @@ import lombok.Getter;
 public enum MessageEnum implements BaseMessage {
     SUCCESS("200", HttpStatusCode.OK, "Success"),
     FILE_NOT_FOUND("404", HttpStatusCode.NOT_FOUND, "File not found"),
-    GATEWAY_REQUEST_FAILED("500", HttpStatusCode.INTERNAL_SERVER_ERROR, "Request [%s] to gateway failed"),
+    GATEWAY_REQUEST_FAILED("500", HttpStatusCode.INTERNAL_SERVER_ERROR, "Request to gateway failed"),
     INTERNAL_ERROR("500", HttpStatusCode.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final String code;

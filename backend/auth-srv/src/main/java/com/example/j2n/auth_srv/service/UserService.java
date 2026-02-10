@@ -83,6 +83,7 @@ public class UserService {
         validateAllowRoleInRequest(request.getRoleId());
         UserEntity user = buildUserFromCreateRequest(request);
         userRepository.save(user);
+        authService.publishUserRegisteredEvent(user);
         log.info("[AUTH-SRV] End creating user. User created successfully");
         return ResponseFactory.of(MessageEnum.CREATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }

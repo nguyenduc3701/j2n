@@ -27,14 +27,14 @@ public class UserEventListener {
             Message message) throws IOException {
 
         try {
-            log.info("[EVENT] user.avatar.uploaded userId={}, imageUrl={}",
+            log.info("[AUTH-SRV][EVENT] user.avatar.uploaded userId={}, imageUrl={}",
                     event.getUserId(), event.getImageUrl());
             userService.updateUserImageUrl(event.getUserId(), event.getImageId());
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-            log.info("[EVENT] user.avatar.uploaded userId={}, imageUrl={}",
+            log.info("[AUTH-SRV][EVENT] user.avatar.uploaded userId={}, imageUrl={}",
                     event.getUserId(), event.getImageUrl());
         } catch (Exception e) {
-            log.error("Failed to process avatar upload", e);
+            log.error("[AUTH-SRV][EVENT] Failed to process avatar upload", e);
             channel.basicNack(
                     message.getMessageProperties().getDeliveryTag(),
                     false,

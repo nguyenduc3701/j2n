@@ -312,7 +312,7 @@ public class AuthService {
                 user.getCreatedAt().toString());
     }
 
-    private void publishUserRegisteredEvent(UserEntity user) {
+    public void publishUserRegisteredEvent(UserEntity user) {
         if (user.getId() == null) {
             log.error("[AUTH-SRV] User id is null");
             return;

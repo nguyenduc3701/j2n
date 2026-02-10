@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.j2n.bff_srv.controller.request.LoginRequest;
-import com.example.j2n.bff_srv.controller.request.RefreshTokenRequest;
 import com.example.j2n.bff_srv.controller.request.RegisterRequest;
 import com.example.j2n.bff_srv.service.AuthService;
 import com.example.j2n.bff_srv.service.response.ClientLoginResponse;
