@@ -55,7 +55,22 @@ services:
     volumes:
       - redis-data:/data
 
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: vault
+    restart: unless-stopped
+    ports:
+      - "9195:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "j2n-root-token"
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/file
+
 volumes:
   minio-data:
   rabbitmq-data:
   redis-data:
+  vault-data:

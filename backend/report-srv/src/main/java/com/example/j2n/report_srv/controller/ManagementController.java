@@ -8,6 +8,7 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.report_srv.service.ManagementService;
 import com.example.j2n.report_srv.service.response.DashboardReportResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -18,6 +19,7 @@ public class ManagementController {
     private final ManagementService managementService;
 
     @GetMapping("/dashboard")
+    @Operation(summary = "Get dashboard report", description = "Get dashboard report")
     public BaseResponse<DashboardReportResponse> getDashboardReport() {
         return managementService.getDashboardReport();
     }

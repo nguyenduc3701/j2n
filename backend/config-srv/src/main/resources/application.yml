@@ -1,0 +1,43 @@
+server:
+  port: 8185
+
+spring:
+  application:
+    name: config-srv
+
+  profiles:
+    active: composite
+
+  cloud:
+    vault:
+      uri: http://localhost:9195
+      token: ${VAULT_TOKEN:j2n-root-token}
+      kv:
+        enabled: true
+
+    config:
+      server:
+        composite:
+          - type: vault
+            order: 1
+            host: localhost
+            port: 9195
+            scheme: http
+            kv-version: 2
+            backend: secret
+
+          - type: jdbc
+            order: 2
+            sql: SELECT config_key, config_value FROM configuration WHERE service_id=? AND environment=?
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/j2n_config?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: Welcome1
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
