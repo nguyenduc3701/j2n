@@ -25,7 +25,8 @@ export default function MainLayout({
           setUser(response.data.data);
         }
       } catch (error) {
-        router.push("http://localhost:3100/login?redirectUrl=/dashboard");
+        window.location.href =
+          "http://localhost:3100/login?redirectUrl=/dashboard";
       } finally {
         setIsLoading(false);
       }

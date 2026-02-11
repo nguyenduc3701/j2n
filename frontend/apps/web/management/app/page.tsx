@@ -14,7 +14,8 @@ export default function Home() {
     if (token) {
       router.push("/dashboard");
     } else {
-      router.push("http://localhost:3100/login?redirectUrl=/dashboard");
+      window.location.href =
+        "http://localhost:3100/login?redirectUrl=/dashboard";
     }
   }, [router]);
 

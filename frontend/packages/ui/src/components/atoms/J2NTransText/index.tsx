@@ -10,7 +10,7 @@ export interface ITransTextProps extends TextProps {
 
 const J2NTransText: React.FC<ITransTextProps> = ({ tKey, ...props }) => {
   const { t } = useTranslation();
-  return <Text {...props}>{t(tKey)}</Text>;
+  return <Text {...props}>{tKey.trim() !== "" ? t(tKey) : tKey}</Text>;
 };
 
 export default J2NTransText;
