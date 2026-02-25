@@ -29,7 +29,7 @@ public class ConfigurationEntity {
     @Column(name = "`key`", nullable = false, unique = true)
     private String key;
 
-    @Column(name = "value", nullable = false)
+    @Column(name = "`value`", nullable = false)
     private String value;
 
     @Column(name = "description")
