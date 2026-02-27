@@ -50,7 +50,7 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
                 key-resolver: "#{@userKeyResolver}"
         - id: report-srv
-          uri: ${api-gateway.report.base-url}
+          uri: noop://report-srv
           predicates:
             - Path=/api/report/**
           filters:
@@ -60,13 +60,19 @@ spring:
                 redis-rate-limiter.replenishRate: 2
                 redis-rate-limiter.burstCapacity: 5
                 key-resolver: "#{@userKeyResolver}"
+            - name: JsonToGRPC
+              args:
+                service: report-srv
+
+grpc:
+  client:
+    report-srv:
+      address: "static://${api-gateway.report.host:localhost}:9094"
+      negotiation-type: plaintext
 
 jwt:
-  secret: ${jwt.secret}
   expiration-ms: ${application.jwt.expiration-ms}
   clock-skew-seconds: ${application.jwt.clock-skew-seconds}
-internal:
-  token: ${internal.token}
 server:
   port: 8181
 

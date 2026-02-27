@@ -1,7 +1,5 @@
 package com.example.j2n.api_gateway_srv.exception;
 
-import org.springframework.lang.NonNull;
-
 import com.example.j2n.api_gateway_srv.constant.MessageEnum;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.BaseServiceException;

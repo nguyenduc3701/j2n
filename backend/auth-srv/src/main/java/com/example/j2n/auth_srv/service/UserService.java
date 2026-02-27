@@ -92,7 +92,7 @@ public class UserService {
         log.info("[AUTH-SRV] Start updating user ID: {}", userId);
         validateUserRoleCanAction();
         if (!currentUser.getId().equals(userId)
-                || !currentUser.getRoleId().equals(CommonConst.ROLE_ADMIN_ID.toString())) {
+                && !currentUser.getRoleId().equals(CommonConst.ROLE_ADMIN_ID.toString())) {
             log.error(
                     "[AUTH-SRV] User lacks permission to update another user. Current User ID: {}, Target User ID: {}",
                     currentUser.getId(), userId);

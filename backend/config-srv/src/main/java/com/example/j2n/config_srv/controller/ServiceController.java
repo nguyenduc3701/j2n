@@ -1,7 +1,7 @@
 package com.example.j2n.config_srv.controller;
 
 import com.example.j2n.config_srv.service.ServiceService;
-import com.example.j2n.config_srv.service.reponse.ServiceItemResponse;
+import com.example.j2n.config_srv.service.response.ServiceItemResponse;
 import com.example.j2n.dto.BaseResponse;
 
 import lombok.RequiredArgsConstructor;

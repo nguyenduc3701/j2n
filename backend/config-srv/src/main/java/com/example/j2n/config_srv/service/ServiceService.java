@@ -3,7 +3,7 @@ package com.example.j2n.config_srv.service;
 import com.example.j2n.config_srv.constant.MessageEnum;
 import com.example.j2n.config_srv.repository.ServiceRepository;
 import com.example.j2n.config_srv.repository.entity.ServiceEntity;
-import com.example.j2n.config_srv.service.reponse.ServiceItemResponse;
+import com.example.j2n.config_srv.service.response.ServiceItemResponse;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;

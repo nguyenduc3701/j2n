@@ -437,13 +437,12 @@ class UserServiceTest {
     }
 
     @Test
-    void updateUser_ShouldThrowException_WhenUserUpdatesOwnProfileButNotAdmin() {
+    void updateUser_ShouldThrowException_WhenUserIsVisitor() {
         // Arrange
         String userId = "1";
         UpdateUserRequest request = new UpdateUserRequest();
 
-        when(currentUser.getId()).thenReturn("1"); // Same user
-        when(currentUser.getRoleId()).thenReturn("2"); // RECRUITER (Not Admin)
+        when(currentUser.getRoleId()).thenReturn(CommonConst.ROLE_VISITOR_ID.toString());
 
         // Act & Assert
         assertThrows(AccessDeniedException.class, () -> userService.updateUser(userId, request));
@@ -921,5 +920,197 @@ class UserServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals(1, response.getData().getUsers().size());
+    }
+
+    @Test
+    void validateUserRoleCanAction_ShouldAllowRecruiter() {
+        // Arrange
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUserName("newuser");
+        request.setPassword("password");
+        request.setEmail("test@example.com");
+        request.setFullName("Test User");
+        request.setPhoneNumber("123");
+        request.setAddress("Addr");
+        request.setCompany("Comp");
+        request.setRoleId(3L);
+
+        UserEntity savedUser = new UserEntity();
+        savedUser.setId(1L);
+        savedUser.setUsername("newuser");
+
+        when(currentUser.getRoleId()).thenReturn(CommonConst.ROLE_RECRUITER_ID.toString());
+        when(passwordUtil.encode(anyString())).thenReturn("enc");
+        when(userRepository.save(any())).thenReturn(savedUser);
+        when(authService.buildUserItemResponse(any())).thenReturn(new UserItemResponse());
+
+        // Act
+        BaseResponse<UserItemResponse> response = userService.createUser(request);
+
+        // Assert
+        assertNotNull(response);
+        verify(userRepository).save(any());
+    }
+
+    @Test
+    void updateUser_ShouldAllowOwnUpdate_WhenNotAdminButRecruiter() {
+        // Arrange
+        String userId = "2";
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setFullName("New Name");
+
+        when(currentUser.getId()).thenReturn(userId);
+        when(currentUser.getRoleId()).thenReturn(CommonConst.ROLE_RECRUITER_ID.toString());
+
+        UserEntity user = new UserEntity();
+        user.setId(2L);
+        user.setFullName("Old Name");
+        user.setStatus(UserEntity.Status.ACTIVE);
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(authService.buildUserItemResponse(any())).thenReturn(new UserItemResponse());
+
+        // Act
+        BaseResponse<UserItemResponse> response = userService.updateUser(userId, request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("New Name", user.getFullName());
+    }
+
+    @Test
+    void searchUsers_ShouldBuildCorrectSpecification_ForMissingFilters() {
+        // Arrange
+        SearchUsersRequest request = new SearchUsersRequest();
+        request.setId(Optional.empty());
+        request.setFullName(Optional.empty());
+        request.setEmail(Optional.empty());
+        request.setPhoneNumber(Optional.empty());
+        request.setUserName(Optional.empty());
+        request.setRoleId(Optional.empty());
+        request.setStatus(Optional.empty());
+        request.setStartDate(Optional.empty());
+        request.setEndDate(Optional.empty());
+
+        Page<UserEntity> page = new PageImpl<>(List.of(new UserEntity()));
+        org.mockito.ArgumentCaptor<Specification<UserEntity>> specCaptor = org.mockito.ArgumentCaptor
+                .forClass(Specification.class);
+        when(userRepository.findAll(specCaptor.capture(), any(PageRequest.class))).thenReturn(page);
+
+        // Mock Criteria API
+        Path pathIsDeleted = org.mockito.Mockito.mock(Path.class);
+        lenient().when(root.get("isDeleted")).thenReturn(pathIsDeleted);
+        lenient().when(cb.equal(any(), any())).thenReturn(predicate);
+        lenient().when(cb.and(any())).thenReturn(predicate);
+
+        // Act
+        userService.searchUsers(request);
+
+        // Assert
+        Specification<UserEntity> capturedSpec = specCaptor.getValue();
+        capturedSpec.toPredicate(root, query, cb);
+        verify(cb).equal(pathIsDeleted, false);
+        // Verify no other filters were added
+        verify(cb, org.mockito.Mockito.atMostOnce()).equal(any(), any());
+    }
+
+    @Test
+    void updateUser_ShouldUpdateAllPossibleFields() {
+        // Arrange
+        String userId = "1";
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setFullName("New Full Name");
+        request.setPhoneNumber("0987654321");
+        request.setAddress("New Address");
+        request.setCompany("New Company");
+        request.setBirth(java.time.LocalDate.of(1995, 5, 5));
+        request.setStatus(UserEntity.Status.ACTIVE);
+        request.setRoleId(2L);
+        request.setImageUrl("http://new-image.com/img.jpg");
+
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+
+        when(currentUser.getId()).thenReturn("1");
+        when(currentUser.getRoleId()).thenReturn("1"); // Admin
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(authService.buildUserItemResponse(any())).thenReturn(new UserItemResponse());
+
+        // Act
+        userService.updateUser(userId, request);
+
+        // Assert
+        assertEquals("New Full Name", user.getFullName());
+        assertEquals("0987654321", user.getPhoneNumber());
+        assertEquals("New Address", user.getAddress());
+        assertEquals("New Company", user.getCompany());
+        assertEquals(java.time.LocalDate.of(1995, 5, 5), user.getBirth());
+        assertEquals(UserEntity.Status.ACTIVE, user.getStatus());
+        assertEquals(2L, user.getRoleId());
+        assertEquals("http://new-image.com/img.jpg", user.getImageUrl());
+    }
+
+    @Test
+    void searchUsers_ShouldHandleAllEmptyStringFilters() {
+        // Arrange
+        SearchUsersRequest request = new SearchUsersRequest();
+        request.setFullName(Optional.of(""));
+        request.setEmail(Optional.of(""));
+        request.setPhoneNumber(Optional.of(""));
+        request.setUserName(Optional.of(""));
+        request.setStatus(Optional.of(""));
+
+        Page<UserEntity> page = new PageImpl<>(List.of(new UserEntity()));
+        when(userRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
+
+        // Mock Criteria API
+        Path pathIsDeleted = org.mockito.Mockito.mock(Path.class);
+        lenient().when(root.get("isDeleted")).thenReturn(pathIsDeleted);
+        lenient().when(cb.equal(any(), any())).thenReturn(predicate);
+        lenient().when(cb.and(any())).thenReturn(predicate);
+
+        // Act
+        userService.searchUsers(request);
+
+        // Assert
+        verify(userRepository).findAll(any(Specification.class), any(PageRequest.class));
+    }
+
+    @Test
+    void searchUsers_ShouldHandleEachEmptyStringFilterIndividually() {
+        String[] fields = { "fullName", "email", "phoneNumber", "userName", "status" };
+        for (String field : fields) {
+            SearchUsersRequest request = new SearchUsersRequest();
+            switch (field) {
+                case "fullName":
+                    request.setFullName(Optional.of(""));
+                    break;
+                case "email":
+                    request.setEmail(Optional.of(""));
+                    break;
+                case "phoneNumber":
+                    request.setPhoneNumber(Optional.of(""));
+                    break;
+                case "userName":
+                    request.setUserName(Optional.of(""));
+                    break;
+                case "status":
+                    request.setStatus(Optional.of(""));
+                    break;
+            }
+
+            Page<UserEntity> page = new PageImpl<>(List.of(new UserEntity()));
+            when(userRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
+
+            // Mock Criteria API
+            Path pathIsDeleted = org.mockito.Mockito.mock(Path.class);
+            lenient().when(root.get("isDeleted")).thenReturn(pathIsDeleted);
+            lenient().when(cb.equal(any(), any())).thenReturn(predicate);
+            lenient().when(cb.and(any())).thenReturn(predicate);
+
+            userService.searchUsers(request);
+        }
     }
 }

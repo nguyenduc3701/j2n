@@ -11,14 +11,28 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
 public class PageUtil {
 
-    private static final int DEFAULT_PAGE_SIZE = 10;
-    private static final int DEFAULT_PAGE_NO = 0;
+    private static int defaultPageSize = 10;
+    private static int defaultPageNo = 0;
+
+    @Value("${application.page.default-size:10}")
+    public void setDefaultPageSize(int size) {
+        PageUtil.defaultPageSize = size;
+    }
+
+    @Value("${application.page.default-no:0}")
+    public void setDefaultPageNo(int no) {
+        PageUtil.defaultPageNo = no;
+    }
 
     public static PageRequest buildPageRequest(int page, int size, String sortField, String sortDirection) {
-        int pageNo = Math.max(page, DEFAULT_PAGE_NO);
-        int pageSize = (size <= 0) ? DEFAULT_PAGE_SIZE : size;
+        int pageNo = Math.max(page, defaultPageNo);
+        int pageSize = (size <= 0) ? defaultPageSize : size;
         if (!StringUtils.hasText(sortField)) {
             return PageRequest.of(pageNo, pageSize);
         }
@@ -37,8 +51,8 @@ public class PageUtil {
         PagingResponse meta = new PagingResponse();
         if (pageData == null) {
             meta.setTotal(0);
-            meta.setCurrent(DEFAULT_PAGE_NO);
-            meta.setSize(DEFAULT_PAGE_SIZE);
+            meta.setCurrent(defaultPageNo);
+            meta.setSize(defaultPageSize);
             return meta;
         }
         meta.setTotal((int) pageData.getTotalElements());

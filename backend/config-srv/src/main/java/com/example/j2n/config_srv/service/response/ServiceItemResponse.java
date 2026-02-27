@@ -1,4 +1,4 @@
-package com.example.j2n.config_srv.service.reponse;
+package com.example.j2n.config_srv.service.response;
 
 import lombok.Data;
 

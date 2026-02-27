@@ -62,6 +62,9 @@ class AuthServiceTest {
     @Mock
     private RedisUtil redisUtil;
 
+    @Mock
+    private com.example.j2n.auth_srv.messaging.user.publisher.UserEventPublisher userEventPublisher;
+
     @InjectMocks
     private AuthService authService;
 
@@ -378,7 +381,7 @@ class AuthServiceTest {
         when(claims.get(AuthService.USER_ID_KEY, String.class)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(com.example.j2n.exception.UnauthorizedException.class, 
+        assertThrows(com.example.j2n.exception.UnauthorizedException.class,
                 () -> authService.logout(accessToken, refreshToken));
     }
 
@@ -395,7 +398,7 @@ class AuthServiceTest {
         when(claims.get(AuthService.USER_ID_KEY, String.class)).thenReturn(userId);
 
         // Act & Assert
-        assertThrows(com.example.j2n.exception.UnauthorizedException.class, 
+        assertThrows(com.example.j2n.exception.UnauthorizedException.class,
                 () -> authService.logout(accessToken, refreshToken));
     }
 
@@ -444,7 +447,7 @@ class AuthServiceTest {
         when(redisUtil.hasKey(refreshKey)).thenReturn(false);
 
         // Act & Assert
-        assertThrows(com.example.j2n.auth_srv.exception.InvalidRefreshTokenException.class, 
+        assertThrows(com.example.j2n.auth_srv.exception.InvalidRefreshTokenException.class,
                 () -> authService.refreshToken(refreshToken));
     }
 
@@ -458,7 +461,7 @@ class AuthServiceTest {
         when(redisUtil.getValue(refreshKey)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(com.example.j2n.auth_srv.exception.InvalidRefreshTokenException.class, 
+        assertThrows(com.example.j2n.auth_srv.exception.InvalidRefreshTokenException.class,
                 () -> authService.refreshToken(refreshToken));
     }
 
@@ -519,5 +522,100 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals("Logout All Devices Success", response.getData());
         verify(redisUtil).deleteKey(userSessionsKey);
+    }
+
+    @Test
+    void mapRoleIdToText_ShouldReturnAdmin_WhenRoleIdIsAdmin() {
+        // Use reflection to access private method or just call a method that uses it
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setRoleId(CommonConst.ROLE_ADMIN_ID);
+        user.setEmail("admin@test.com");
+        user.setFullName("Admin User");
+        user.setPhoneNumber("123");
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUsername("admin");
+
+        authService.publishUserRegisteredEvent(user);
+        verify(userEventPublisher).publishUserRegistered(org.mockito.ArgumentMatchers.argThat(
+                event -> "ADMIN".equals(event.getRole())));
+    }
+
+    @Test
+    void mapRoleIdToText_ShouldReturnRecruiter_WhenRoleIdIsRecruiter() {
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setRoleId(CommonConst.ROLE_RECRUITER_ID);
+        user.setEmail("recruiter@test.com");
+        user.setFullName("Recruiter User");
+        user.setPhoneNumber("123");
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUsername("recruiter");
+
+        authService.publishUserRegisteredEvent(user);
+        verify(userEventPublisher).publishUserRegistered(org.mockito.ArgumentMatchers.argThat(
+                event -> "RECRUITER".equals(event.getRole())));
+    }
+
+    @Test
+    void mapRoleIdToText_ShouldReturnRenter_WhenRoleIdIsRenter() {
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setRoleId(CommonConst.ROLE_RENTER_ID);
+        user.setEmail("renter@test.com");
+        user.setFullName("Renter User");
+        user.setPhoneNumber("123");
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUsername("renter");
+
+        authService.publishUserRegisteredEvent(user);
+        verify(userEventPublisher).publishUserRegistered(org.mockito.ArgumentMatchers.argThat(
+                event -> "RENTER".equals(event.getRole())));
+    }
+
+    @Test
+    void mapRoleIdToText_ShouldReturnVisitor_WhenRoleIdIsUnknown() {
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setRoleId(999L);
+        user.setEmail("visitor@test.com");
+        user.setFullName("Visitor User");
+        user.setPhoneNumber("123");
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUsername("visitor");
+
+        authService.publishUserRegisteredEvent(user);
+        verify(userEventPublisher).publishUserRegistered(org.mockito.ArgumentMatchers.argThat(
+                event -> "VISITOR".equals(event.getRole())));
+    }
+
+    @Test
+    void publishUserRegisteredEvent_ShouldReturnEarly_WhenUserIdIsNull() {
+        UserEntity user = new UserEntity();
+        user.setId(null);
+
+        authService.publishUserRegisteredEvent(user);
+        verify(userEventPublisher, org.mockito.Mockito.never()).publishUserRegistered(any());
+    }
+
+    @Test
+    void mapRoleIdToText_ShouldReturnVisitor_WhenRoleIdIsNull() {
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setRoleId(null);
+        user.setEmail("visitor@test.com");
+        user.setFullName("Visitor User");
+        user.setPhoneNumber("123");
+        user.setStatus(UserEntity.Status.ACTIVE);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUsername("visitor");
+
+        authService.publishUserRegisteredEvent(user);
+        verify(userEventPublisher).publishUserRegistered(org.mockito.ArgumentMatchers.argThat(
+                event -> "VISITOR".equals(event.getRole())));
     }
 }

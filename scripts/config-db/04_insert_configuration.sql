@@ -12,6 +12,8 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('application.redis.port', '9194', 'application', 'dev'),
 ('application.redis.password', 'yourpassword123', 'application', 'dev'),
 ('application.redis.timeout', '10000', 'application', 'dev'),
+('application.page.default-size', '10', 'application', 'dev'),
+('application.page.default-no', '0', 'application', 'dev'),
 ('application.jwt.expiration-ms', '14400000', 'application', 'dev'),
 ('application.jwt.clock-skew-seconds', '60', 'application', 'dev'),
 ('application.multipart.max-file-size', '50MB', 'application', 'dev'),

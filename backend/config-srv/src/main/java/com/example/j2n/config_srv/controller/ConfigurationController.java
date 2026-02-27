@@ -2,7 +2,7 @@ package com.example.j2n.config_srv.controller;
 
 import com.example.j2n.config_srv.controller.request.UpdateConfigurationRequest;
 import com.example.j2n.config_srv.service.ConfigurationService;
-import com.example.j2n.config_srv.service.reponse.ConfigItemResponse;
+import com.example.j2n.config_srv.service.response.ConfigItemResponse;
 import com.example.j2n.dto.BaseResponse;
 
 import lombok.RequiredArgsConstructor;

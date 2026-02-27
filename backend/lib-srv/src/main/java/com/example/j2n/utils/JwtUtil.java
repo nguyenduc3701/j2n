@@ -10,17 +10,21 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class JwtUtil {
 
     private final Key signingKey;
-    private final long clockSkewSeconds;
+
+    @Value("${application.jwt.clock-skew-seconds:60}")
+    private long clockSkewSeconds;
 
     public JwtUtil(String secret) {
         this(secret, 60); // Default 60 seconds clock skew
     }
 
     public JwtUtil(String secret, long clockSkewSeconds) {
-        this.signingKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
+        this.signingKey = Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(secret.trim()));
         this.clockSkewSeconds = clockSkewSeconds;
     }
 

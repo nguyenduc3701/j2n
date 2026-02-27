@@ -5,7 +5,7 @@ import com.example.j2n.config_srv.constant.MessageEnum;
 import com.example.j2n.config_srv.controller.request.UpdateConfigurationRequest;
 import com.example.j2n.config_srv.repository.ConfigurationRepository;
 import com.example.j2n.config_srv.repository.entity.ConfigurationEntity;
-import com.example.j2n.config_srv.service.reponse.ConfigItemResponse;
+import com.example.j2n.config_srv.service.response.ConfigItemResponse;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
