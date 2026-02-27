@@ -1,28 +1,34 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: api-gateway-srv
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
   codec:
-    max-in-memory-size: 50MB
+    max-in-memory-size: ${api-gateway.max-in-memory-size}
   webflux:
     base-path: /
     multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
+      max-file-size: ${application.multipart.max-file-size}
+      max-request-size: ${application.multipart.max-request-size}
   data:
     redis:
-      host: localhost
-      port: 9194
-      password: yourpassword123
+      host: ${application.redis.host}
+      port: ${application.redis.port}
+      password: ${application.redis.password}
+  config:
+    import: optional:configserver:${VAULT_URL:http://localhost:8185}
   cloud:
+    config:
+      token: ${VAULT_TOKEN}
     gateway:
       discovery:
         locator:
           enabled: false
       routes:
         - id: auth-srv
-          uri: http://localhost:8182
+          uri: ${api-gateway.auth.base-url}
           predicates:
             - Path=/api/auth/**
           filters:
@@ -33,7 +39,7 @@ spring:
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
         - id: image-srv
-          uri: http://localhost:8183
+          uri: ${api-gateway.image.base-url}
           predicates:
             - Path=/api/image/**
           filters:
@@ -44,7 +50,7 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
                 key-resolver: "#{@userKeyResolver}"
         - id: report-srv
-          uri: http://localhost:8184
+          uri: ${api-gateway.report.base-url}
           predicates:
             - Path=/api/report/**
           filters:
@@ -56,13 +62,11 @@ spring:
                 key-resolver: "#{@userKeyResolver}"
 
 jwt:
-  secret: ${JWT_SECRET:J2N-X9mN2bV4cL7pQ1rS8tY6hJ3kD5fW0eGhKiPoLmNzRqStUvWxYApiGatewaySrv}
-  expiration-ms: ${JWT_EXPIRATION_MS:172800000}
-  clock-skew-seconds: ${JWT_CLOCK_SKEW_SECONDS:60}
-
+  secret: ${jwt.secret}
+  expiration-ms: ${application.jwt.expiration-ms}
+  clock-skew-seconds: ${application.jwt.clock-skew-seconds}
 internal:
-  token: ${INTERNAL_TOKEN:J2N-i9n1ofG7kL2mP9qRtVxZ4sB8nC1yHjDdUwAeIoPkLmQrStUvWxYzAbCImageSrv}
-
+  token: ${internal.token}
 server:
   port: 8181
 

@@ -25,6 +25,7 @@ import com.example.j2n.utils.RedisUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.j2n.auth_srv.constant.MessageEnum;
 
@@ -41,8 +42,11 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private static final long ACCESS_TOKEN_EXPIRE_SECONDS = 300; // 14400;
-    private static final long REFRESH_TOKEN_EXPIRE_DAYS = 7;
+    @Value("${application.access-token.expired-time-seconds:14400}")
+    private long accessTokenExpireSeconds;
+
+    @Value("${application.refresh-token.expired-time-days:7}")
+    private long refreshTokenExpireDays;
 
     public static final String USER_ID_KEY = "user_id";
     public static final String USER_NAME_KEY = "user_name";
@@ -162,7 +166,7 @@ public class AuthService {
 
     private String generateAuthToken(UserEntity user, String sessionId) {
         Map<String, Object> claims = buildTokenClaims(user, sessionId);
-        return jwtUtil.generate(claims, user.getUsername(), sessionId, ACCESS_TOKEN_EXPIRE_SECONDS);
+        return jwtUtil.generate(claims, user.getUsername(), sessionId, accessTokenExpireSeconds);
     }
 
     private LoginResponse buildLoginResponse(UserEntity user, String sessionId) {
@@ -247,19 +251,19 @@ public class AuthService {
         sessionValue.put(USER_ID_KEY, user.getId().toString());
         sessionValue.put(USER_NAME_KEY, user.getUsername());
         sessionValue.put(ROLE_ID_KEY, user.getRoleId().toString());
-        redisUtil.setValue(sessionKey, sessionValue, ACCESS_TOKEN_EXPIRE_SECONDS, TimeUnit.SECONDS);
+        redisUtil.setValue(sessionKey, sessionValue, accessTokenExpireSeconds, TimeUnit.SECONDS);
 
         // refresh token value
         String refreshTokenKey = CommonConst.AUTH_REFRESH_PREFIX + refreshToken;
         Map<String, Object> refreshTokenValue = new HashMap<>();
         refreshTokenValue.put(USER_ID_KEY, user.getId().toString());
         refreshTokenValue.put(SESSION_ID_KEY, sessionId);
-        redisUtil.setValue(refreshTokenKey, refreshTokenValue, REFRESH_TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
+        redisUtil.setValue(refreshTokenKey, refreshTokenValue, refreshTokenExpireDays, TimeUnit.DAYS);
 
         // add session id to user sessions set
         String userSessionsKey = CommonConst.AUTH_USER_SESSIONS_PREFIX + user.getId().toString();
         redisUtil.addSet(userSessionsKey, sessionId);
-        redisUtil.expire(userSessionsKey, REFRESH_TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
+        redisUtil.expire(userSessionsKey, refreshTokenExpireDays, TimeUnit.DAYS);
         log.info("[AUTH-SRV] Inserted record to Redis for user: {}", user.getUsername());
     }
 

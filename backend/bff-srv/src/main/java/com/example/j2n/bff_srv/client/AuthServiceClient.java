@@ -10,6 +10,7 @@ import com.example.j2n.exception.RetryableException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -25,8 +26,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthServiceClient {
-    private static final int ACCESS_TOKEN_EXPIRE_SECONDS = 300;
-    private static final int REFRESH_TOKEN_EXPIRE_DAYS = 7;
+    @Value("${application.access-token.expired-time-seconds}")
+    private int accessTokenExpireSeconds;
+    @Value("${application.refresh-token.expired-time-days}")
+    private int refreshTokenExpireDays;
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
 
@@ -87,7 +90,7 @@ public class AuthServiceClient {
                     .httpOnly(true)
                     .secure(false) // Để true nếu dùng HTTPS, false nếu test localhost
                     .path("/")
-                    .maxAge(ACCESS_TOKEN_EXPIRE_SECONDS)
+                    .maxAge(accessTokenExpireSeconds)
                     .sameSite("Lax")
                     .build();
 
@@ -95,7 +98,7 @@ public class AuthServiceClient {
                     .httpOnly(true)
                     .secure(false)
                     .path("/") // Khớp với path cũ
-                    .maxAge(REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600)
+                    .maxAge(refreshTokenExpireDays * 24 * 3600)
                     .sameSite("Lax")
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());

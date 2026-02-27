@@ -11,12 +11,15 @@ spring:
   cloud:
     vault:
       uri: http://localhost:9195
-      token: ${VAULT_TOKEN:j2n-root-token}
+      token: ${VAULT_TOKEN}
       kv:
         enabled: true
 
     config:
       server:
+        vault:
+          token: ${VAULT_TOKEN}
+          default-key: application
         composite:
           - type: vault
             order: 1
@@ -25,10 +28,11 @@ spring:
             scheme: http
             kv-version: 2
             backend: secret
+            token: ${VAULT_TOKEN}
 
           - type: jdbc
             order: 2
-            sql: SELECT config_key, config_value FROM configuration WHERE service_id=? AND environment=?
+            sql: SELECT config_key, config_value FROM configuration WHERE service_id=? AND environment=? AND COALESCE(?, '') != 'dummy_label'
 
   datasource:
     url: jdbc:mysql://localhost:3306/j2n_config?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC

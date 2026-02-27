@@ -25,4 +25,22 @@ public class GlobalExceptionHandler {
                 .status(msg.getHttpStatus().getCode())
                 .body(ResponseFactory.error(msg));
     }
+
+    @ExceptionHandler(org.springframework.security.authorization.AuthorizationDeniedException.class)
+    public ResponseEntity<BaseResponse<Object>> handleAuthorizationDeniedException(
+            org.springframework.security.authorization.AuthorizationDeniedException e) {
+        log.error("[IMAGE-SRV] Access Denied: {}", e.getMessage());
+        return ResponseEntity
+                .status(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
+                .body(ResponseFactory.error(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED));
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<BaseResponse<Object>> handleAccessDeniedException(
+            org.springframework.security.access.AccessDeniedException e) {
+        log.error("[IMAGE-SRV] Access Denied: {}", e.getMessage());
+        return ResponseEntity
+                .status(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
+                .body(ResponseFactory.error(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED));
+    }
 }

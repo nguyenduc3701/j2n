@@ -33,4 +33,5 @@ public class ConfigurationEntity {
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
 }

@@ -20,7 +20,7 @@ public class JwtUtil {
     }
 
     public JwtUtil(String secret, long clockSkewSeconds) {
-        this.signingKey = Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(secret));
+        this.signingKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
         this.clockSkewSeconds = clockSkewSeconds;
     }
 
