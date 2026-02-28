@@ -23,6 +23,10 @@ spring:
     config:
       token: ${VAULT_TOKEN}
     gateway:
+      grpc:
+        enabled: false
+      json-to-grpc:
+        enabled: false
       discovery:
         locator:
           enabled: false
@@ -50,7 +54,7 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
                 key-resolver: "#{@userKeyResolver}"
         - id: report-srv
-          uri: noop://report-srv
+          uri: ${api-gateway.report.base-url:http://localhost:8184}
           predicates:
             - Path=/api/report/**
           filters:
@@ -60,15 +64,6 @@ spring:
                 redis-rate-limiter.replenishRate: 2
                 redis-rate-limiter.burstCapacity: 5
                 key-resolver: "#{@userKeyResolver}"
-            - name: JsonToGRPC
-              args:
-                service: report-srv
-
-grpc:
-  client:
-    report-srv:
-      address: "static://${api-gateway.report.host:localhost}:9094"
-      negotiation-type: plaintext
 
 jwt:
   expiration-ms: ${application.jwt.expiration-ms}

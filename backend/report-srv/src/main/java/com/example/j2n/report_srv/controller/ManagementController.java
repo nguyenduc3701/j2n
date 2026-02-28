@@ -11,17 +11,16 @@ import com.example.j2n.report_srv.service.response.DashboardReportResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-// @RestController
-// @RequestMapping("/report/management")
-// @RequiredArgsConstructor
+@RestController
+@RequestMapping("/report/management")
+@RequiredArgsConstructor
 public class ManagementController {
 
-    // private final ManagementService managementService;
+    private final ManagementService managementService;
 
-    // @GetMapping("/dashboard")
-    // @Operation(summary = "Get dashboard report", description =
-    // "Get dashboard report")
-    // public BaseResponse<DashboardReportResponse> getDashboardReport() {
-    // return managementService.getDashboardReport();
-    // }
+    @GetMapping("/dashboard")
+    @Operation(summary = "Get dashboard report", description = "Get dashboard report")
+    public BaseResponse<DashboardReportResponse> getDashboardReport() {
+        return managementService.getDashboardReport();
+    }
 }

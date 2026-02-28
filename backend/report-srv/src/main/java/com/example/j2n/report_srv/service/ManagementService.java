@@ -25,8 +25,6 @@ import com.example.j2n.report_srv.repository.entity.MonthlyFinancials;
 import com.example.j2n.report_srv.repository.entity.RoomUtilityReport;
 import com.example.j2n.report_srv.service.response.DashboardReportResponse;
 import com.example.j2n.utils.ResponseFactory;
-import com.example.j2n.lib.grpc.report.*;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,75 +63,6 @@ public class ManagementService {
                 .build();
         log.info("[REPORT-SRV] Finished to get dashboard report");
         return ResponseFactory.of(BaseMessageEnum.SUCCESS, response);
-    }
-
-    public DashboardReportGrpcResponse getDashboardGrpcReport() {
-        log.info("[REPORT-SRV] Starting to get dashboard gRPC report");
-
-        CompletableFuture<List<SummaryMetrics>> summaryTask = getSummaryMetricsAsync();
-        CompletableFuture<List<DistributionChart>> distributionTask = getDistributionChartsAsync();
-        CompletableFuture<List<MonthlyFinancials>> monthlyTask = getMonthlyFinancialsAsync();
-        CompletableFuture<List<RoomUtilityReport>> utilityTask = getRoomUtilityReportsAsync();
-        CompletableFuture<List<ActivePromotion>> promotionTask = getActivePromotionsAsync();
-
-        CompletableFuture.allOf(summaryTask, distributionTask, monthlyTask, utilityTask, promotionTask).join();
-
-        DashboardReportGrpcResponse grpcResponse = DashboardReportGrpcResponse.newBuilder()
-                .addAllSummaryMetrics(summaryTask.join() == null ? java.util.Collections.emptyList()
-                        : summaryTask.join().stream()
-                                .map(m -> com.example.j2n.lib.grpc.report.SummaryMetrics.newBuilder()
-                                        .setMetricKey(m.getMetricKey() != null ? m.getMetricKey() : "")
-                                        .setCategory(m.getCategory() != null ? m.getCategory() : "")
-                                        .setMetricValue(m.getMetricValue() != null ? m.getMetricValue() : 0)
-                                        .setUpdatedAt(m.getUpdatedAt() != null ? m.getUpdatedAt().toString() : "")
-                                        .build())
-                                .collect(Collectors.toList()))
-                .addAllMonthlyFinancials(monthlyTask.join() == null ? java.util.Collections.emptyList()
-                        : monthlyTask.join().stream()
-                                .map(m -> com.example.j2n.lib.grpc.report.MonthlyFinancials.newBuilder()
-                                        .setId(m.getId() != null ? m.getId() : 0)
-                                        .setMonthYear(m.getMonthYear() != null ? m.getMonthYear() : "")
-                                        .setDomain(m.getDomain() != null ? m.getDomain() : "")
-                                        .setTotalIncome(
-                                                m.getTotalIncome() != null ? m.getTotalIncome().toString() : "0")
-                                        .setTotalOrders(m.getTotalOrders() != null ? m.getTotalOrders() : 0)
-                                        .setRemainingAmount(
-                                                m.getRemainingAmount() != null ? m.getRemainingAmount().toString()
-                                                        : "0")
-                                        .build())
-                                .collect(Collectors.toList()))
-                .addAllRoomUtilityReports(utilityTask.join() == null ? java.util.Collections.emptyList()
-                        : utilityTask.join().stream()
-                                .map(m -> com.example.j2n.lib.grpc.report.RoomUtilityReport.newBuilder()
-                                        .setMonthYear(m.getMonthYear() != null ? m.getMonthYear() : "")
-                                        .setTotalElectricity(
-                                                m.getTotalElectricity() != null ? m.getTotalElectricity().toString()
-                                                        : "0")
-                                        .setTotalWater(m.getTotalWater() != null ? m.getTotalWater().toString() : "0")
-                                        .setUpdatedAt(m.getUpdatedAt() != null ? m.getUpdatedAt().toString() : "")
-                                        .build())
-                                .collect(Collectors.toList()))
-                .addAllDistributionCharts(distributionTask.join() == null ? java.util.Collections.emptyList()
-                        : distributionTask.join().stream()
-                                .map(m -> com.example.j2n.lib.grpc.report.DistributionChart.newBuilder()
-                                        .setChartType(m.getChartType() != null ? m.getChartType() : "")
-                                        .setItemLabel(m.getItemLabel() != null ? m.getItemLabel() : "")
-                                        .setItemValue(m.getItemValue() != null ? m.getItemValue() : 0)
-                                        .build())
-                                .collect(Collectors.toList()))
-                .addAllActivePromotions(promotionTask.join() == null ? java.util.Collections.emptyList()
-                        : promotionTask.join().stream()
-                                .map(m -> com.example.j2n.lib.grpc.report.ActivePromotion.newBuilder()
-                                        .setPromoId(m.getPromoId() != null ? m.getPromoId() : "")
-                                        .setDomain(m.getDomain() != null ? m.getDomain() : "")
-                                        .setPromoName(m.getPromoName() != null ? m.getPromoName() : "")
-                                        .setEndDate(m.getEndDate() != null ? m.getEndDate().toString() : "")
-                                        .build())
-                                .collect(Collectors.toList()))
-                .build();
-
-        log.info("[REPORT-SRV] Finished to get dashboard gRPC report");
-        return grpcResponse;
     }
 
     private CompletableFuture<List<SummaryMetrics>> getSummaryMetricsAsync() {
