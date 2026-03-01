@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package com.example.j2n.lib.proto;
+
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_multiple_files = true;
+option java_package = "com.example.j2n.lib.proto";
+option java_outer_classname = "ReportProto";
+
+service ReportService {
+  // RPC lấy Dashboard Report với HTTP mapping chuẩn Google
+  rpc GetDashboardReport(GetDashboardRequest) returns (ReportResponse) {
+    option (google.api.http) = {
+      get: "/v1/reports/dashboard"
+    };
+  }
+
+  // RPC tạo báo cáo
+  rpc GenerateReport(GenerateReportRequest) returns (ReportResponse) {
+    option (google.api.http) = {
+      post: "/v1/reports/generate"
+      body: "*"
+    };
+  }
+}
+
+message GetDashboardRequest {
+  google.protobuf.StringValue user_id = 1;
+}
+
+message GenerateReportRequest {
+  google.protobuf.StringValue report_id = 1;
+  google.protobuf.StringValue type = 2;
+}
+
+message ReportResponse {
+  google.protobuf.Int32Value status = 1;
+  google.protobuf.StringValue message = 2;
+  google.protobuf.StringValue data = 3;
+}

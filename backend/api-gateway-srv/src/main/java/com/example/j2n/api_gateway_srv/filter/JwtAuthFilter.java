@@ -46,7 +46,8 @@ public class JwtAuthFilter implements WebFilter {
     private final String KEY_USER_NAME = "user_name";
     private final String KEY_ROLE_ID = "role_id";
 
-    private final List<String> BY_PASS_AUTH_LIST = List.of("/api/auth/login", "/api/auth/register","/api/auth/refresh-token","/api/auth/logout");
+    private final List<String> BY_PASS_AUTH_LIST = List.of("/api/auth/login", "/api/auth/register",
+            "/api/auth/refresh-token", "/api/auth/logout");
 
     @Override
     @SneakyThrows
@@ -114,6 +115,7 @@ public class JwtAuthFilter implements WebFilter {
         exchange.getAttributes().put(X_USER_ID, userId);
         exchange.getAttributes().put(X_USER_NAME, userName);
         exchange.getAttributes().put(X_ROLE_ID, roleId);
+        log.debug("[GATEWAY] Set exchange attributes: userId={}, userName={}", userId, userName);
 
         // 8. Tạo đối tượng Authentication để tích hợp với Spring Security Context
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, null,

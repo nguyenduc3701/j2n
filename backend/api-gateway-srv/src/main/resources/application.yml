@@ -24,9 +24,9 @@ spring:
       token: ${VAULT_TOKEN}
     gateway:
       grpc:
-        enabled: false
+        enabled: true
       json-to-grpc:
-        enabled: false
+        enabled: true
       discovery:
         locator:
           enabled: false
@@ -54,31 +54,57 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
                 key-resolver: "#{@userKeyResolver}"
         - id: report-srv
-          uri: ${api-gateway.report.base-url:http://localhost:8184}
+          uri: grpc://localhost:18184
           predicates:
             - Path=/api/report/**
           filters:
+            - name: JsonToGrpc
+              args:
+                protoDescriptor: classpath:descriptor_set.bin
+                service: com.example.j2n.lib.proto.ReportService
+                method: GetDashboardReport
             - StripPrefix=1
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 2
                 redis-rate-limiter.burstCapacity: 5
                 key-resolver: "#{@userKeyResolver}"
-
+            - name: CircuitBreaker
+              args:
+                name: reportCircuitBreaker
+                fallbackUri: forward:/fallback/report
 jwt:
   expiration-ms: ${application.jwt.expiration-ms}
   clock-skew-seconds: ${application.jwt.clock-skew-seconds}
 server:
   port: 8181
-
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
-
+    com.example.j2n: DEBUG
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+  instances:
+    reportCircuitBreaker:
+      baseConfig: default
+resilience4j.timelimiter:
+  configs:
+    default:
+      timeoutDuration: 3s
+      cancelRunningFuture: true

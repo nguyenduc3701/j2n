@@ -22,7 +22,9 @@ public class SecurityConfig {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh-token", "/api/auth/logout").permitAll()
+                        .pathMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh-token",
+                                "/api/auth/logout")
+                        .permitAll()
                         .anyExchange().authenticated())
                 .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION);
         return http.build();

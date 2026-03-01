@@ -7,6 +7,7 @@ import com.example.j2n.impl.BaseMessage;
 import com.example.j2n.utils.ResponseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 @Component
 @Order(-2)
 @RequiredArgsConstructor
+@Slf4j
 public class GlobalErrorHandler implements ErrorWebExceptionHandler {
 
     private final ObjectMapper objectMapper;
@@ -40,7 +42,30 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
             BaseResponse<Object> response = ResponseFactory.error(MessageEnum.TOO_MANY_REQUEST);
             return write(exchange, response);
         }
+
+        // Handle gRPC exception (StatusRuntimeException usually wrapped by Gateway as
+        // ResponseStatusException or downstream exceptions)
+        if (ex.getCause() != null && ex.getCause().getClass().getName().contains("StatusRuntimeException")) {
+            String exMsg = ex.getCause().getMessage();
+            HttpStatus mappedStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+
+            if (exMsg != null) {
+                if (exMsg.contains("NOT_FOUND")) {
+                    mappedStatus = HttpStatus.NOT_FOUND;
+                } else if (exMsg.contains("UNAUTHENTICATED") || exMsg.contains("PERMISSION_DENIED")) {
+                    mappedStatus = HttpStatus.FORBIDDEN;
+                } else if (exMsg.contains("INVALID_ARGUMENT")) {
+                    mappedStatus = HttpStatus.BAD_REQUEST;
+                } else if (exMsg.contains("UNAVAILABLE")) {
+                    mappedStatus = HttpStatus.SERVICE_UNAVAILABLE;
+                }
+            }
+            exchange.getResponse().setStatusCode(mappedStatus);
+            return write(exchange, ResponseFactory.error(MessageEnum.INTERNAL_SERVER_ERROR));
+        }
+
         // fallback
+        log.error("[GATEWAY-ERROR] Unhandled exception: ", ex);
         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         return write(exchange, ResponseFactory.error(MessageEnum.INTERNAL_SERVER_ERROR));
     }
