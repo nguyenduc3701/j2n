@@ -1,5 +1,6 @@
 package com.example.j2n.api_gateway_srv.config;
 
+import com.example.j2n.constants.CommonConst;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,7 @@ public class RateLimitConfig {
         return exchange -> {
             String userId = exchange.getRequest()
                     .getHeaders()
-                    .getFirst("X-User-Id");
+                    .getFirst(CommonConst.X_USER_ID);
 
             if (userId != null && !userId.isBlank()) {
                 return Mono.just("user:" + userId);

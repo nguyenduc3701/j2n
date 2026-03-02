@@ -7,24 +7,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.example.j2n.report_srv.filter.InternalAuthFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, InternalAuthFilter internalAuthFilter)
-            throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated())
-                .addFilterBefore(internalAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http)
+                        throws Exception {
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                                .anyRequest().permitAll()); // REST is mostly used for Swagger now
+                return http.build();
+        }
 }

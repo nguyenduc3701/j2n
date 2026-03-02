@@ -1,5 +1,6 @@
 package com.example.j2n.image_srv.filter;
 
+import com.example.j2n.constants.CommonConst;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,10 +42,10 @@ class InternalAuthFilterTest {
 
     @Test
     void doFilterInternal_Success() throws ServletException, IOException {
-        when(request.getHeader("X-Internal-Token")).thenReturn(INTERNAL_TOKEN);
-        when(request.getHeader("X-User-Id")).thenReturn("user123");
-        when(request.getHeader("X-User-Name")).thenReturn("testuser");
-        when(request.getHeader("X-Role-Id")).thenReturn("role1");
+        when(request.getHeader(CommonConst.X_INTERNAL_TOKEN)).thenReturn(INTERNAL_TOKEN);
+        when(request.getHeader(CommonConst.X_USER_ID)).thenReturn("user123");
+        when(request.getHeader(CommonConst.X_USER_NAME)).thenReturn("testuser");
+        when(request.getHeader(CommonConst.X_ROLE_ID)).thenReturn("role1");
 
         internalAuthFilter.doFilterInternal(request, response, filterChain);
 
@@ -53,7 +54,7 @@ class InternalAuthFilterTest {
 
     @Test
     void doFilterInternal_InvalidToken_ReturnsForbidden() throws ServletException, IOException {
-        when(request.getHeader("X-Internal-Token")).thenReturn("wrong-token");
+        when(request.getHeader(CommonConst.X_INTERNAL_TOKEN)).thenReturn("wrong-token");
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         when(response.getWriter()).thenReturn(printWriter);
@@ -66,8 +67,8 @@ class InternalAuthFilterTest {
 
     @Test
     void doFilterInternal_NullUserId_ReturnsUnauthorized() throws ServletException, IOException {
-        when(request.getHeader("X-Internal-Token")).thenReturn(INTERNAL_TOKEN);
-        when(request.getHeader("X-User-Id")).thenReturn(null);
+        when(request.getHeader(CommonConst.X_INTERNAL_TOKEN)).thenReturn(INTERNAL_TOKEN);
+        when(request.getHeader(CommonConst.X_USER_ID)).thenReturn(null);
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         when(response.getWriter()).thenReturn(printWriter);
@@ -80,8 +81,8 @@ class InternalAuthFilterTest {
 
     @Test
     void doFilterInternal_BlankUserId_ReturnsUnauthorized() throws ServletException, IOException {
-        when(request.getHeader("X-Internal-Token")).thenReturn(INTERNAL_TOKEN);
-        when(request.getHeader("X-User-Id")).thenReturn("");
+        when(request.getHeader(CommonConst.X_INTERNAL_TOKEN)).thenReturn(INTERNAL_TOKEN);
+        when(request.getHeader(CommonConst.X_USER_ID)).thenReturn("");
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         when(response.getWriter()).thenReturn(printWriter);

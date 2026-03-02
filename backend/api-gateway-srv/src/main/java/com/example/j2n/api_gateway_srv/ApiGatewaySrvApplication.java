@@ -3,11 +3,13 @@ package com.example.j2n.api_gateway_srv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.example.j2n.config.BaseRedisConfig;
 import com.example.j2n.utils.RedisUtil;
 
 @SpringBootApplication
+@EnableScheduling
 @Import({ BaseRedisConfig.class, RedisUtil.class })
 public class ApiGatewaySrvApplication {
 

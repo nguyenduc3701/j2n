@@ -3,6 +3,7 @@ package com.example.j2n.image_srv.filter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.j2n.constants.CommonConst;
 import com.example.j2n.image_srv.dto.InternalUserAuthentication;
 
 import lombok.RequiredArgsConstructor;
@@ -24,10 +25,6 @@ import java.util.List;
 @Component
 public class InternalAuthFilter extends OncePerRequestFilter {
 
-    private static final String X_INTERNAL_TOKEN = "X-Internal-Token";
-    private static final String X_USER_ID = "X-User-Id";
-    private static final String X_USER_NAME = "X-User-Name";
-    private static final String X_ROLE_ID = "X-Role-Id";
     private static final List<String> NOT_FILTER_LIST = List.of("/swagger-ui", "/v3/api-docs");
 
     @Value("${internal.token}")
@@ -37,10 +34,10 @@ public class InternalAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = request.getHeader(X_INTERNAL_TOKEN);
-        String userId = request.getHeader(X_USER_ID);
-        String userName = request.getHeader(X_USER_NAME);
-        String roleId = request.getHeader(X_ROLE_ID);
+        String token = request.getHeader(CommonConst.X_INTERNAL_TOKEN);
+        String userId = request.getHeader(CommonConst.X_USER_ID);
+        String userName = request.getHeader(CommonConst.X_USER_NAME);
+        String roleId = request.getHeader(CommonConst.X_ROLE_ID);
 
         if (!internalToken.equals(token)) {
             log.error("[IMAGE-SRV] Invalid internal token");

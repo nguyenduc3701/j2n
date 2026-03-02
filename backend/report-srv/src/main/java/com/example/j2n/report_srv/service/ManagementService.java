@@ -2,16 +2,17 @@ package com.example.j2n.report_srv.service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.lib.proto.*;
 import com.example.j2n.report_srv.constant.MessageEnum;
+import com.example.j2n.report_srv.constant.ReportApiMapping;
+import com.example.j2n.report_srv.interceptor.GrpcServerAuthInterceptor;
 import com.example.j2n.report_srv.messaging.user.event.UserRegisteredEvent;
 import com.example.j2n.report_srv.repository.DistributionChartRepository;
 import com.example.j2n.report_srv.repository.SummaryMetricsRepository;
@@ -25,13 +26,18 @@ import com.example.j2n.report_srv.repository.entity.MonthlyFinancials;
 import com.example.j2n.report_srv.repository.entity.RoomUtilityReport;
 import com.example.j2n.report_srv.service.response.DashboardReportResponse;
 import com.example.j2n.utils.ResponseFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.Empty;
+import com.example.j2n.report_srv.utils.GrpcResponseFactory;
+import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.server.service.GrpcService;
 
 @Slf4j
-@Service
+@GrpcService
 @RequiredArgsConstructor
-public class ManagementService {
+public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     private final static String TOTAL_USERS_METRIC_KEY = "total_users";
     private final static String ACCOUNT_CATEGORY = "ACCOUNT";
     private final static String USER_TYPE_CHART = "USER_TYPE";
@@ -41,9 +47,28 @@ public class ManagementService {
     private final MonthlyFinancialsRepository monthlyFinancialsRepository;
     private final RoomUtilityReportRepository roomUtilityReportRepository;
     private final ActivePromotionRepository activePromotionRepository;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public void getDashboardReport(GetDashboardRequest request, StreamObserver<BaseProtoResponse> responseObserver) {
+        String userId = GrpcServerAuthInterceptor.USER_ID_CTX.get();
+        log.info("[GRPC] Requesting dashboard report for user: {}", userId);
+        BaseResponse<DashboardReportResponse> baseResponse = this.getDashboardReportResponse();
+        GrpcResponseFactory.of(responseObserver, baseResponse, objectMapper);
+    }
+
+    @Override
+    public void getApiCatalog(Empty request, StreamObserver<ApiCatalogResponse> responseObserver) {
+        log.info("[GRPC] Requesting API catalog");
+        ApiCatalogResponse response = ApiCatalogResponse.newBuilder()
+                .putAllMappings(ReportApiMapping.API_MAP)
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 
     @Cacheable(value = CommonConst.DASHBOARD_CACHE_KEY, key = CommonConst.MAIN_REPORT_KEY)
-    public BaseResponse<DashboardReportResponse> getDashboardReport() {
+    public BaseResponse<DashboardReportResponse> getDashboardReportResponse() {
         log.info("[REPORT-SRV] Starting to get dashboard report");
 
         CompletableFuture<List<SummaryMetrics>> summaryTask = getSummaryMetricsAsync();

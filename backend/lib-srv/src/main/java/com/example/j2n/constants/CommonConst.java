@@ -1,6 +1,11 @@
 package com.example.j2n.constants;
 
 public class CommonConst {
+    public static final String X_INTERNAL_TOKEN = "X-Internal-Token";
+    public static final String X_USER_ID = "X-User-Id";
+    public static final String X_USER_NAME = "X-User-Name";
+    public static final String X_ROLE_ID = "X-Role-Id";
+
     public static final Long ROLE_VISITOR_ID = 4L;
     public static final Long ROLE_RENTER_ID = 3L;
     public static final Long ROLE_RECRUITER_ID = 2L;

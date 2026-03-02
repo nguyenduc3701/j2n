@@ -6,6 +6,9 @@ import com.example.j2n.exception.BaseServiceException;
 import com.example.j2n.impl.BaseMessage;
 import com.example.j2n.utils.ResponseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.StatusException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
@@ -43,23 +46,20 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
             return write(exchange, response);
         }
 
-        // Handle gRPC exception (StatusRuntimeException usually wrapped by Gateway as
-        // ResponseStatusException or downstream exceptions)
-        if (ex.getCause() != null && ex.getCause().getClass().getName().contains("StatusRuntimeException")) {
-            String exMsg = ex.getCause().getMessage();
-            HttpStatus mappedStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        // Handle gRPC exception
+        Throwable cause = ex;
+        if (ex.getCause() != null
+                && (ex.getCause() instanceof StatusRuntimeException || ex.getCause() instanceof StatusException)) {
+            cause = ex.getCause();
+        }
 
-            if (exMsg != null) {
-                if (exMsg.contains("NOT_FOUND")) {
-                    mappedStatus = HttpStatus.NOT_FOUND;
-                } else if (exMsg.contains("UNAUTHENTICATED") || exMsg.contains("PERMISSION_DENIED")) {
-                    mappedStatus = HttpStatus.FORBIDDEN;
-                } else if (exMsg.contains("INVALID_ARGUMENT")) {
-                    mappedStatus = HttpStatus.BAD_REQUEST;
-                } else if (exMsg.contains("UNAVAILABLE")) {
-                    mappedStatus = HttpStatus.SERVICE_UNAVAILABLE;
-                }
-            }
+        if (cause instanceof StatusRuntimeException || cause instanceof StatusException) {
+            Status status = (cause instanceof StatusRuntimeException) ? ((StatusRuntimeException) cause).getStatus()
+                    : ((StatusException) cause).getStatus();
+
+            HttpStatus mappedStatus = mapGrpcStatusToHttp(status);
+            log.error("[GATEWAY-ERROR] gRPC error: {} -> {}", status.getCode(), mappedStatus);
+
             exchange.getResponse().setStatusCode(mappedStatus);
             return write(exchange, ResponseFactory.error(MessageEnum.INTERNAL_SERVER_ERROR));
         }
@@ -68,6 +68,22 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
         log.error("[GATEWAY-ERROR] Unhandled exception: ", ex);
         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         return write(exchange, ResponseFactory.error(MessageEnum.INTERNAL_SERVER_ERROR));
+    }
+
+    private HttpStatus mapGrpcStatusToHttp(Status status) {
+        return switch (status.getCode()) {
+            case OK -> HttpStatus.OK;
+            case INVALID_ARGUMENT, FAILED_PRECONDITION, OUT_OF_RANGE -> HttpStatus.BAD_REQUEST;
+            case UNAUTHENTICATED -> HttpStatus.UNAUTHORIZED;
+            case PERMISSION_DENIED -> HttpStatus.FORBIDDEN;
+            case NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case ALREADY_EXISTS, ABORTED -> HttpStatus.CONFLICT;
+            case RESOURCE_EXHAUSTED -> HttpStatus.TOO_MANY_REQUESTS;
+            case UNIMPLEMENTED -> HttpStatus.NOT_IMPLEMENTED;
+            case UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
+            case DEADLINE_EXCEEDED -> HttpStatus.GATEWAY_TIMEOUT;
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
     }
 
     private Mono<Void> write(ServerWebExchange exchange, BaseResponse<?> body) {

@@ -35,12 +35,6 @@ public class JwtAuthFilter implements WebFilter {
     private RedisUtil redisUtil;
     private final JwtGeneralUtil jwtGeneralUtil;
 
-    // Các hằng số định nghĩa tên Header sẽ gửi xuống Microservices phía sau
-    private final String X_INTERNAL_TOKEN = "X-Internal-Token";
-    private final String X_USER_ID = "X-User-Id";
-    private final String X_USER_NAME = "X-User-Name";
-    private final String X_ROLE_ID = "X-Role-Id";
-
     // Các key tương ứng để lấy dữ liệu từ nội dung (Claims) của JWT
     private final String KEY_USER_ID = "user_id";
     private final String KEY_USER_NAME = "user_name";
@@ -112,9 +106,9 @@ public class JwtAuthFilter implements WebFilter {
 
         // 7. Lưu thông tin vào Attributes của exchange (có thể dùng để xử lý nội bộ
         // trong Gateway)
-        exchange.getAttributes().put(X_USER_ID, userId);
-        exchange.getAttributes().put(X_USER_NAME, userName);
-        exchange.getAttributes().put(X_ROLE_ID, roleId);
+        exchange.getAttributes().put(CommonConst.X_USER_ID, userId);
+        exchange.getAttributes().put(CommonConst.X_USER_NAME, userName);
+        exchange.getAttributes().put(CommonConst.X_ROLE_ID, roleId);
         log.debug("[GATEWAY] Set exchange attributes: userId={}, userName={}", userId, userName);
 
         // 8. Tạo đối tượng Authentication để tích hợp với Spring Security Context
@@ -126,10 +120,10 @@ public class JwtAuthFilter implements WebFilter {
         // lại JWT
         var requestBuilder = exchange.getRequest().mutate()
                 // .headers(headers -> headers.remove(HttpHeaders.AUTHORIZATION))
-                .header(X_USER_ID, userId)
-                .header(X_USER_NAME, userName)
-                .header(X_INTERNAL_TOKEN, jwtGeneralUtil.getInternalToken())
-                .header(X_ROLE_ID, roleId);
+                .header(CommonConst.X_USER_ID, userId)
+                .header(CommonConst.X_USER_NAME, userName)
+                .header(CommonConst.X_INTERNAL_TOKEN, jwtGeneralUtil.getInternalToken())
+                .header(CommonConst.X_ROLE_ID, roleId);
 
         // 10. Tạo exchange mới với request đã được cập nhật Header
         ServerWebExchange mutatedExchange = exchange.mutate()

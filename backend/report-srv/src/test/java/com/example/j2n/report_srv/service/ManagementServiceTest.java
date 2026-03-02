@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,7 +76,7 @@ class ManagementServiceTest {
         when(roomUtilityReportRepository.findAll()).thenReturn(List.of(roomUtilityReport));
         when(activePromotionRepository.findAll()).thenReturn(List.of(activePromotion));
 
-        BaseResponse<DashboardReportResponse> response = managementService.getDashboardReport();
+        BaseResponse<DashboardReportResponse> response = managementService.getDashboardReportResponse();
 
         assertNotNull(response);
         assertEquals(String.valueOf(BaseMessageEnum.SUCCESS.getHttpStatus().getCode()), response.getCode());
@@ -97,7 +96,7 @@ class ManagementServiceTest {
         when(roomUtilityReportRepository.findAll()).thenThrow(new RuntimeException("DB Error"));
         when(activePromotionRepository.findAll()).thenThrow(new RuntimeException("DB Error"));
 
-        BaseResponse<DashboardReportResponse> response = managementService.getDashboardReport();
+        BaseResponse<DashboardReportResponse> response = managementService.getDashboardReportResponse();
 
         assertNotNull(response);
         assertEquals(String.valueOf(BaseMessageEnum.SUCCESS.getHttpStatus().getCode()), response.getCode());
