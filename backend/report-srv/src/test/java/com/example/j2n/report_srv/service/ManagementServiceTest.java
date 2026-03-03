@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,13 +17,16 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.lib.proto.*;
 import com.example.j2n.report_srv.constant.MessageEnum;
+import com.example.j2n.report_srv.interceptor.GrpcServerAuthInterceptor;
 import com.example.j2n.report_srv.messaging.user.event.UserRegisteredEvent;
 import com.example.j2n.report_srv.repository.ActivePromotionRepository;
 import com.example.j2n.report_srv.repository.DistributionChartRepository;
@@ -35,6 +39,11 @@ import com.example.j2n.report_srv.repository.entity.MonthlyFinancials;
 import com.example.j2n.report_srv.repository.entity.RoomUtilityReport;
 import com.example.j2n.report_srv.repository.entity.SummaryMetrics;
 import com.example.j2n.report_srv.service.response.DashboardReportResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.Empty;
+
+import io.grpc.Context;
+import io.grpc.stub.StreamObserver;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementServiceTest {
@@ -49,6 +58,8 @@ class ManagementServiceTest {
     private RoomUtilityReportRepository roomUtilityReportRepository;
     @Mock
     private ActivePromotionRepository activePromotionRepository;
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private ManagementService managementService;
@@ -63,7 +74,43 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testGetDashboardReport_Success() {
+    void testGetApiCatalog() {
+        StreamObserver<ApiCatalogResponse> observer = mock(StreamObserver.class);
+        managementService.getApiCatalog(Empty.getDefaultInstance(), observer);
+
+        ArgumentCaptor<ApiCatalogResponse> captor = ArgumentCaptor.forClass(ApiCatalogResponse.class);
+        verify(observer).onNext(captor.capture());
+        verify(observer).onCompleted();
+
+        ApiCatalogResponse response = captor.getValue();
+        assertNotNull(response);
+    }
+
+    @Test
+    void testGetDashboardReport() throws Exception {
+        StreamObserver<BaseProtoResponse> observer = mock(StreamObserver.class);
+
+        when(summaryMetricsRepository.findAll()).thenReturn(List.of(new SummaryMetrics()));
+        when(distributionChartRepository.findAll()).thenReturn(List.of(new DistributionChart()));
+        when(monthlyFinancialsRepository.findAll()).thenReturn(List.of(new MonthlyFinancials()));
+        when(roomUtilityReportRepository.findAll()).thenReturn(List.of(new RoomUtilityReport()));
+        when(activePromotionRepository.findAll()).thenReturn(List.of(new ActivePromotion()));
+
+        Context ctx = Context.current().withValue(GrpcServerAuthInterceptor.USER_ID_CTX, "user-id-123");
+        Context previous = ctx.attach();
+
+        try {
+            managementService.getDashboardReport(GetDashboardRequest.getDefaultInstance(), observer);
+        } finally {
+            ctx.detach(previous);
+        }
+
+        verify(observer).onNext(any(BaseProtoResponse.class));
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    void testGetDashboardReportResponse_Success() {
         SummaryMetrics summaryMetrics = new SummaryMetrics();
         DistributionChart distributionChart = new DistributionChart();
         MonthlyFinancials monthlyFinancials = new MonthlyFinancials();
@@ -89,7 +136,7 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testGetDashboardReport_WithExceptions() {
+    void testGetDashboardReportResponse_WithExceptions() {
         when(summaryMetricsRepository.findAll()).thenThrow(new RuntimeException("DB Error"));
         when(distributionChartRepository.findAll()).thenThrow(new RuntimeException("DB Error"));
         when(monthlyFinancialsRepository.findAll()).thenThrow(new RuntimeException("DB Error"));

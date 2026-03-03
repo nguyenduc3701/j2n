@@ -30,6 +30,7 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('api-gateway.report.base-url', 'http://localhost:18184', 'api-gateway-srv', 'dev'),
 ('api-gateway.report.discovery.retry-ms', '60000', 'api-gateway-srv', 'dev'),
 ('api-gateway.image.base-url', 'http://localhost:8183', 'api-gateway-srv', 'dev'),
+('api-gateway.bff.base-url', 'http://localhost:8180', 'api-gateway-srv', 'dev'),
 
 -- Auth Service Configuration
 -- Report Service Configuration
