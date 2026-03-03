@@ -5,6 +5,7 @@
 *.ear
 target/
 build/
+backend/production/
 
 # IntelliJ IDEA
 *.iml
