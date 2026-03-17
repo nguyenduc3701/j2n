@@ -1,8 +1,11 @@
 package com.example.j2n.auth_srv.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import com.example.j2n.auth_srv.swagger.*;
 import com.example.j2n.auth_srv.service.RoleService;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.BaseMessageEnum;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,11 @@ public class RoleController {
     private final RoleService roleService;
 
     @Operation(summary = "Get all roles", description = "Get all roles")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = "Success", examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<List<RoleResponse>>> getRoles() {
         return ResponseEntity.ok(roleService.getRoles());

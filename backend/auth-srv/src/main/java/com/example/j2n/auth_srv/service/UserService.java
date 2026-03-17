@@ -5,6 +5,7 @@ import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
+import com.example.j2n.auth_srv.service.response.DeleteUserReponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.service.response.UserResponse;
 import com.example.j2n.auth_srv.utils.PasswordUtil;
@@ -108,7 +109,7 @@ public class UserService {
         return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
-    public BaseResponse<Object> deleteUser(String userId) {
+    public BaseResponse<DeleteUserReponse> deleteUser(String userId) {
         log.info("[AUTH-SRV] Start deleting user ID: {}", userId);
         validateUserRoleCanAction();
         UserEntity user = findUserByIdOrThrow(userId);
@@ -116,7 +117,7 @@ public class UserService {
         user.setIsDeleted(true);
         userRepository.save(user);
         log.info("[AUTH-SRV] End deleting user. User deleted successfully");
-        return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, null);
+        return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, new DeleteUserReponse(userId));
     }
 
     public BaseResponse<UserItemResponse> updateUserImageUrl(String userId, String imageId) {

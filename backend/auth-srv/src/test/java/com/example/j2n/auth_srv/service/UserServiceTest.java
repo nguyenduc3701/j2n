@@ -780,7 +780,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Act
-        BaseResponse<Object> response = userService.deleteUser(userId);
+        BaseResponse<com.example.j2n.auth_srv.service.response.DeleteUserReponse> response = userService.deleteUser(userId);
 
         // Assert
         assertNotNull(response);

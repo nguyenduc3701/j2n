@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import com.example.j2n.utils.ResponseFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -170,7 +169,7 @@ class UserControllerTest {
                 // Arrange
                 String userId = "1";
                 when(userService.deleteUser(anyString()))
-                                .thenReturn(ResponseFactory.success(Map.of("id", userId)));
+                                .thenReturn(ResponseFactory.success(new com.example.j2n.auth_srv.service.response.DeleteUserReponse(userId)));
 
                 // Act & Assert
                 mockMvc.perform(delete("/auth/users/{id}", userId)

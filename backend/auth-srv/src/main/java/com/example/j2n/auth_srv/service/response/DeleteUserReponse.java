@@ -2,8 +2,8 @@ package com.example.j2n.auth_srv.service.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.swagger.v3.oas.annotations.media.Schema;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +12,7 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @AllArgsConstructor
-public class LoginResponse {
-    @Schema(description = "JWT Access Token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
-    private String accessToken;
-
-    @Schema(description = "JWT Refresh Token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
-    private String refreshToken;
+public class DeleteUserReponse {
+    @Schema(example = "1")
+    private String id;
 }
