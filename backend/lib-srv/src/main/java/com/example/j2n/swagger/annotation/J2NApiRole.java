@@ -1,4 +1,4 @@
-package com.example.j2n.auth_srv.swagger;
+package com.example.j2n.swagger.annotation;
 
 import org.springframework.core.annotation.AliasFor;
 
@@ -16,16 +16,12 @@ import java.lang.annotation.Target;
 public @interface J2NApiRole {
     /**
      * Alias for {@link #value()}.
-     * 
-     * @return required permissions or roles
      */
     @AliasFor("value")
     String[] roles() default {};
 
     /**
      * Required permissions or roles.
-     * 
-     * @return array of permission strings (usually from PermissionConst)
      */
     @AliasFor("roles")
     String[] value() default {};

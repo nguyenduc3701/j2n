@@ -6,7 +6,7 @@ import com.example.j2n.auth_srv.service.AuthService;
 import com.example.j2n.auth_srv.service.response.LoginResponse;
 import com.example.j2n.auth_srv.service.response.UserItemResponse;
 import com.example.j2n.auth_srv.controllers.requests.ForgotPasswordRequest;
-import com.example.j2n.auth_srv.swagger.*;
+import com.example.j2n.swagger.annotation.*;
 import com.example.j2n.auth_srv.constant.MessageEnum;
 
 import com.example.j2n.dto.BaseResponse;
@@ -35,8 +35,8 @@ public class AuthController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 400, description = "Bad Request", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.USER_NOT_FOUND),
-                    @J2NApiExample(responseStatus = MessageEnum.INVALID_CREDENTIALS)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.USER_NOT_FOUND),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.INVALID_CREDENTIALS)
             })
     })
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,9 +50,9 @@ public class AuthController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 400, description = "Bad Request", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.FIELD_REQUIRED, statusMessageArgs = {
+                    @J2NApiExample(status = MessageEnum.MessageConstants.FIELD_REQUIRED, args = {
                             "Username" }),
-                    @J2NApiExample(responseStatus = MessageEnum.FIELD_EXISTED, statusMessageArgs = {
+                    @J2NApiExample(status = MessageEnum.MessageConstants.FIELD_EXISTED, args = {
                             "Email" })
             })
     })
@@ -67,8 +67,8 @@ public class AuthController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID),
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_EXPIRED)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_EXPIRED)
             })
     })
     @PostMapping(value = "/refresh-token", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -83,7 +83,7 @@ public class AuthController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID)
             })
     })
     @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)

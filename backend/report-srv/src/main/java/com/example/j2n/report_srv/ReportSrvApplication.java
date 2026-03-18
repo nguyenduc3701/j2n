@@ -3,7 +3,12 @@ package com.example.j2n.report_srv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = "com.example.j2n")
+import org.springframework.context.annotation.Import;
+import com.example.j2n.swagger.J2NOpenApiCustomizer;
+import com.example.j2n.config.BaseRedisConfig;
+
+@SpringBootApplication
+@Import({ J2NOpenApiCustomizer.class, BaseRedisConfig.class })
 public class ReportSrvApplication {
 
 	public static void main(String[] args) {
