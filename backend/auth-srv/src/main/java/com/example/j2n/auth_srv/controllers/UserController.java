@@ -11,6 +11,7 @@ import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -95,7 +96,7 @@ public class UserController {
     })
     @Operation(summary = "Create user", description = "Create user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<UserItemResponse>> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<BaseResponse<UserItemResponse>> createUser(@RequestBody @Valid CreateUserRequest request) {
         return ResponseEntity.ok(userService.createUser(request));
     }
 
@@ -117,7 +118,7 @@ public class UserController {
     @Operation(summary = "Update user", description = "Update user")
     @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<UserItemResponse>> updateUser(@PathVariable String id,
-            @RequestBody UpdateUserRequest request) {
+            @RequestBody @Valid UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 

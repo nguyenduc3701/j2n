@@ -1,8 +1,8 @@
-package com.example.j2n.auth_srv.utils;
+package com.example.j2n.utils;
 
-import com.example.j2n.auth_srv.utils.SearchPredicateBuilder.SearchOperation;
 import com.example.j2n.dto.PagingRequest;
-import com.example.j2n.utils.PageUtil;
+import com.example.j2n.utils.SearchPredicateBuilder.SearchCriteria;
+import com.example.j2n.utils.SearchPredicateBuilder.SearchOperation;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class SearchFactory {
      * Builds a JPA Specification based on a list of search criteria.
      * Each criterion is converted to a Predicate and combined with AND.
      */
-    public <T> Specification<T> buildSpecification(List<SearchPredicateBuilder.SearchCriteria> searchCriteriaList) {
+    public <T> Specification<T> buildSpecification(List<SearchCriteria> searchCriteriaList) {
         return (root, query, criteriaBuilder) -> {
             log.info("Start to build search specification");
             if (CollectionUtils.isEmpty(searchCriteriaList)) {
@@ -35,7 +35,7 @@ public class SearchFactory {
             }
 
             Predicate predicates = criteriaBuilder.conjunction();
-            for (SearchPredicateBuilder.SearchCriteria searchCriteria : searchCriteriaList) {
+            for (SearchCriteria searchCriteria : searchCriteriaList) {
                 if (!StringUtils.hasText(searchCriteria.getFieldName())
                         || searchCriteria.getOptionalValue().isEmpty()) {
                     log.debug("Ignore search criteria field name [{}] or empty value", searchCriteria.getFieldName());
@@ -59,7 +59,7 @@ public class SearchFactory {
      * Maps results from entity to DTO using the provided mapper function.
      */
     public <E, R> Page<R> searchAndMap(JpaSpecificationExecutor<E> repository,
-            List<SearchPredicateBuilder.SearchCriteria> predicates,
+            List<SearchCriteria> predicates,
             PagingRequest pagingRequest,
             Function<E, R> mapper) {
         Page<E> entities = search(repository, predicates, pagingRequest);
@@ -71,7 +71,7 @@ public class SearchFactory {
      * Returns the Page of entities.
      */
     public <E> Page<E> search(JpaSpecificationExecutor<E> repository,
-            List<SearchPredicateBuilder.SearchCriteria> predicates,
+            List<SearchCriteria> predicates,
             PagingRequest pagingRequest) {
         Specification<E> spec = buildSpecification(predicates);
         PageRequest pageRequest = PageUtil.buildPageRequest(

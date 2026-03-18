@@ -1,4 +1,4 @@
-package com.example.j2n.auth_srv.utils;
+package com.example.j2n.utils;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
-import static com.example.j2n.auth_srv.utils.SearchPredicateBuilder.SearchOperation.*;
+import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j

@@ -66,7 +66,6 @@ public class AuthService {
 
     @LogAround(message = "Login attempt")
     public BaseResponse<LoginResponse> login(LoginRequest request) {
-        validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         UserEntity user = findUserByUsername(request.getUserName());
         validateMatchedPassword(request.getPassword(), user.getPassword());
         return ResponseFactory.success(buildLoginResponse(user, generateRandomUUID()));
@@ -74,7 +73,6 @@ public class AuthService {
 
     @LogAround(message = "Registration attempt")
     public BaseResponse<UserItemResponse> register(RegisterRequest request) {
-        validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         validateUsernameAndEmailDoesNotExist(request.getUserName(), request.getEmail());
         UserEntity user = createUserFromRequest(request);
         userRepository.save(user);
@@ -84,7 +82,6 @@ public class AuthService {
 
     @LogAround(message = "Logout attempt")
     public BaseResponse<String> logout(String accessToken, String refreshToken) {
-        validateLogoutRequest(accessToken, refreshToken);
         String token = accessToken.substring(7);
         Claims claims = jwtUtil.validate(token);
         String sessionId = claims.get(SESSION_ID_KEY, String.class);
@@ -103,7 +100,6 @@ public class AuthService {
 
     @LogAround(message = "Refresh token attempt")
     public BaseResponse<LoginResponse> refreshToken(String token) {
-        validateRefreshTokenRequest(token);
         String refreshKey = CommonConst.AUTH_REFRESH_PREFIX + token;
         if (!redisUtil.hasKey(refreshKey)) {
             throw new InvalidRefreshTokenException();
@@ -260,20 +256,6 @@ public class AuthService {
         redisUtil.addSet(userSessionsKey, sessionId);
         redisUtil.expire(userSessionsKey, refreshTokenExpireDays, TimeUnit.DAYS);
         log.info("[AUTH-SRV] Inserted record to Redis for user: {}", user.getUsername());
-    }
-
-    private void validateLogoutRequest(String accessToken, String refreshToken) {
-        if (accessToken == null || refreshToken == null) {
-            log.error("[AUTH-SRV] Token is required");
-            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Token"));
-        }
-    }
-
-    private void validateRefreshTokenRequest(String token) {
-        if (token == null) {
-            log.error("[AUTH-SRV] Refresh token is required");
-            throw new InvalidInputException(BaseMessageEnum.FIELD_REQUIRED.withArgs("Token"));
-        }
     }
 
     private UserEntity findUserById(Long id) {

@@ -9,8 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.example.j2n.dto.SimpleBaseMessage;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.enums.HttpStatusCode;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.FieldError;
+import org.springframework.http.HttpStatus;
 
 @RestControllerAdvice
 @Slf4j
@@ -41,5 +47,21 @@ public class GlobalDefaultExceptionHandler {
                 return ResponseEntity
                                 .status(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
                                 .body(ResponseFactory.error(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED));
+        }
+
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<BaseResponse<Object>> handleValidationExceptions(
+                        MethodArgumentNotValidException ex) {
+                String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                                .map(FieldError::getDefaultMessage)
+                                .findFirst()
+                                .orElse("Invalid input");
+                log.error("[AUTH-SRV] Validation failed: {}", errorMessage);
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(ResponseFactory.error(new SimpleBaseMessage(
+                                                BaseMessageEnum.BAD_REQUEST.getCode(),
+                                                BaseMessageEnum.BAD_REQUEST.getHttpStatus(),
+                                                errorMessage)));
         }
 }

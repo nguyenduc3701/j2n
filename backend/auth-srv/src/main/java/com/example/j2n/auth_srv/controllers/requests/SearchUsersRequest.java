@@ -44,4 +44,7 @@ public class SearchUsersRequest extends PagingRequest {
 
     @Schema(description = "Filter by image URL", example = "http://example.com/avatar.png")
     private Optional<String> imageUrl = Optional.empty();
+
+    @Schema(description = "Filter by room ID", example = "101")
+    private Optional<Long> roomId = Optional.empty();
 }

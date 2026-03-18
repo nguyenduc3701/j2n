@@ -24,17 +24,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.ArrayList;
 
-import com.example.j2n.auth_srv.utils.SearchFactory;
-import com.example.j2n.auth_srv.utils.SearchPredicateBuilder.SearchCriteria;
-import static com.example.j2n.auth_srv.utils.SearchPredicateBuilder.SearchOperation.*;
-
+import com.example.j2n.utils.SearchFactory;
+import com.example.j2n.utils.SearchPredicateBuilder.SearchCriteria;
+import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -82,7 +80,6 @@ public class UserService {
     @LogAround(message = "Creating user")
     public BaseResponse<UserItemResponse> createUser(CreateUserRequest request) {
         validateUserRoleCanAction();
-        authService.validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         authService.validateUsernameAndEmailDoesNotExist(request.getUserName(), request.getEmail());
         validateAllowRoleInRequest(request.getRoleId());
         UserEntity user = buildUserFromCreateRequest(request);
@@ -182,6 +179,9 @@ public class UserService {
         }
         if (request.getImageUrl() != null) {
             user.setImageUrl(request.getImageUrl());
+        }
+        if (request.getRoomId() != null) {
+            user.setRoomId(request.getRoomId());
         }
     }
 
@@ -288,6 +288,11 @@ public class UserService {
                 .fieldName("createdAt")
                 .value(end)
                 .operation(LESS_THAN_EQUAL)
+                .build()));
+        request.getRoomId().ifPresent(roomId -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("roomId")
+                .value(roomId)
+                .operation(EQUAL)
                 .build()));
 
         return criteriaList;
