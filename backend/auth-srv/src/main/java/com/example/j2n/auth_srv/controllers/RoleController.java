@@ -1,7 +1,7 @@
 package com.example.j2n.auth_srv.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import com.example.j2n.auth_srv.swagger.*;
+import com.example.j2n.swagger.annotation.*;
 import com.example.j2n.auth_srv.service.RoleService;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;

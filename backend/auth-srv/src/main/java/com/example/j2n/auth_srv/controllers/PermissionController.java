@@ -1,7 +1,7 @@
 package com.example.j2n.auth_srv.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import com.example.j2n.auth_srv.swagger.*;
+import com.example.j2n.swagger.annotation.*;
 import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.service.PermissionService;
 import com.example.j2n.dto.BaseResponse;
@@ -38,7 +38,7 @@ public class PermissionController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 400, description = "Bad Request", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.ROLE_NOT_FOUND)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.ROLE_NOT_FOUND)
             })
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

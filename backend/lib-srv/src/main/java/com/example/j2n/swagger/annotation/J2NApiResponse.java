@@ -1,4 +1,4 @@
-package com.example.j2n.auth_srv.swagger;
+package com.example.j2n.swagger.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

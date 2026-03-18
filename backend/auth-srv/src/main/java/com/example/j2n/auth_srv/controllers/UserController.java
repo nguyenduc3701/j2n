@@ -1,6 +1,6 @@
 package com.example.j2n.auth_srv.controllers;
 
-import com.example.j2n.auth_srv.swagger.*;
+import com.example.j2n.swagger.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import com.example.j2n.auth_srv.service.UserService;
 import com.example.j2n.auth_srv.service.response.DeleteUserReponse;
@@ -33,8 +33,8 @@ public class UserController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID),
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_EXPIRED)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_EXPIRED)
             })
     })
     @Operation(summary = "List users", description = "List users")
@@ -49,8 +49,8 @@ public class UserController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID),
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_EXPIRED)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_EXPIRED)
             })
     })
     @Operation(summary = "Get current user", description = "Get current user")
@@ -65,11 +65,11 @@ public class UserController {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             }),
             @J2NApiResponse(httpCode = 400, description = "Bad Request", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.USER_NOT_FOUND)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.USER_NOT_FOUND)
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID),
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_EXPIRED)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_EXPIRED)
             })
     })
     @Operation(summary = "Get user by id", description = "Get user by id")
@@ -82,15 +82,15 @@ public class UserController {
     @J2NApiRole(PermissionConst.CAN_CREATE_USER)
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = "Success", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.CREATE_USER_SUCCESS)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.CREATE_USER_SUCCESS)
             }),
             @J2NApiResponse(httpCode = 400, description = "Bad Request", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.FIELD_REQUIRED, statusMessageArgs = { "username" }),
-                    @J2NApiExample(responseStatus = MessageEnum.FIELD_EXISTED, statusMessageArgs = { "email" })
+                    @J2NApiExample(status = MessageEnum.MessageConstants.FIELD_REQUIRED, args = { "username" }),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.FIELD_EXISTED, args = { "email" })
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID),
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_EXPIRED)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_EXPIRED)
             })
     })
     @Operation(summary = "Create user", description = "Create user")
@@ -103,15 +103,15 @@ public class UserController {
     @J2NApiRole(PermissionConst.CAN_UPDATE_USER)
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = "Success", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.UPDATE_USER_SUCCESS)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.UPDATE_USER_SUCCESS)
             }),
             @J2NApiResponse(httpCode = 400, description = "Bad Request", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.USER_NOT_FOUND),
-                    @J2NApiExample(responseStatus = MessageEnum.ROLE_NOT_ALLOW_ACTION)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.USER_NOT_FOUND),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.ROLE_NOT_ALLOW_ACTION)
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID),
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_EXPIRED)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_EXPIRED)
             })
     })
     @Operation(summary = "Update user", description = "Update user")
@@ -125,15 +125,15 @@ public class UserController {
     @J2NApiRole(PermissionConst.CAN_DELETE_USER)
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = "Success", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.DELETE_USER_SUCCESS)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.DELETE_USER_SUCCESS)
             }),
             @J2NApiResponse(httpCode = 400, description = "Bad Request", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.USER_NOT_FOUND),
-                    @J2NApiExample(responseStatus = MessageEnum.ROLE_NOT_ALLOW_ACTION)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.USER_NOT_FOUND),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.ROLE_NOT_ALLOW_ACTION)
             }),
             @J2NApiResponse(httpCode = 401, description = "Unauthorized", examples = {
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_INVALID),
-                    @J2NApiExample(responseStatus = MessageEnum.TOKEN_EXPIRED)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_INVALID),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.TOKEN_EXPIRED)
             })
     })
     @Operation(summary = "Delete user", description = "Delete user")

@@ -21,8 +21,11 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.bff_srv.controller.request.SearchUserRequest;
 import com.example.j2n.bff_srv.controller.request.CreateUserRequest;
 import com.example.j2n.bff_srv.controller.request.UpdateUserRequest;
+import com.example.j2n.swagger.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.bff_srv.constant.MessageEnum;
 
 @RestController
 @RequestMapping("api/bff")
@@ -32,14 +35,30 @@ public class AuthController {
    private final AuthService authService;
 
    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-   @Operation(summary = "Login", description = "Login")
+   @Operation(summary = "Login", description = "Login to the system")
+   @J2NApiResponses({
+         @J2NApiResponse(httpCode = 200, description = "Success", examples = {
+               @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+         }),
+         @J2NApiResponse(httpCode = 500, description = "Internal Server Error", examples = {
+               @J2NApiExample(status = MessageEnum.MessageConstants.GATEWAY_REQUEST_FAILED)
+         })
+   })
    public ResponseEntity<BaseResponse<ClientLoginResponse>> login(@RequestBody LoginRequest request,
          HttpServletResponse response) {
       return ResponseEntity.ok(authService.login(request, response));
    }
 
    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-   @Operation(summary = "Register", description = "Register")
+   @Operation(summary = "Register", description = "Register a new user account")
+   @J2NApiResponses({
+         @J2NApiResponse(httpCode = 200, description = "Success", examples = {
+               @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+         }),
+         @J2NApiResponse(httpCode = 500, description = "Internal Server Error", examples = {
+               @J2NApiExample(status = MessageEnum.MessageConstants.GATEWAY_REQUEST_FAILED)
+         })
+   })
    public ResponseEntity<Object> register(@RequestBody RegisterRequest request) {
       return ResponseEntity.ok(authService.register(request));
    }

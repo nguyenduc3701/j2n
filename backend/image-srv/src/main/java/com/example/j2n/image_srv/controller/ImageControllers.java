@@ -3,13 +3,20 @@ package com.example.j2n.image_srv.controller;
 import com.example.j2n.image_srv.controller.request.UploadImageRequest;
 import com.example.j2n.image_srv.service.ImageService;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
+import com.example.j2n.image_srv.constant.MessageEnum;
+import com.example.j2n.swagger.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.j2n.dto.BaseResponse;
 import java.util.List;
 
 @RestController
@@ -20,12 +27,25 @@ public class ImageControllers {
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload image", description = "Upload image")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            }),
+            @J2NApiResponse(httpCode = 400, description = BaseMessageEnum.BaseMessageConstants.BAD_REQUEST, examples = {
+                    @J2NApiExample(status = MessageEnum.MessageConstants.FILE_SIZE_TOO_LARGE),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.INVALID_FILE_TYPE)
+            })
+    })
     public BaseResponse<List<ImageItemResponse>> uploadImage(UploadImageRequest request) {
         return imageService.uploadImage(request);
     }
 
     @GetMapping("{ownerType}/{id}")
     @Operation(summary = "Get image by id", description = "Get image by id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = BaseMessageEnum.BaseMessageConstants.SUCCESS, content = @Content(mediaType = "image/*", schema = @Schema(type = "string", format = "binary"))),
+            @ApiResponse(responseCode = "400", description = BaseMessageEnum.BaseMessageConstants.BAD_REQUEST)
+    })
     public ResponseEntity<InputStreamResource> getImageById(@PathVariable String ownerType, @PathVariable Long id) {
         return imageService.getImageResource(ownerType, id);
     }

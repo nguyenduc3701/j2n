@@ -1,6 +1,5 @@
-package com.example.j2n.auth_srv.swagger;
+package com.example.j2n.swagger.annotation;
 
-import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.enums.BaseMessageEnum;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,15 +7,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for a specific response scenario based on MessageEnum.
+ * Shared annotation for API examples.
+ * Uses a String 'status' to refer to service-specific MessageEnum constants.
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface J2NApiExample {
     /**
-     * The business status enum from auth-srv.
+     * The name of the Enum constant in the service's MessageEnum.
+     * If not provided, it will fallback to baseResponseStatus.
      */
-    MessageEnum responseStatus() default MessageEnum.NOT_SET;
+    String status() default "";
 
     /**
      * The general business status enum from lib-srv.
@@ -24,9 +25,9 @@ public @interface J2NApiExample {
     BaseMessageEnum baseResponseStatus() default BaseMessageEnum.SUCCESS;
 
     /**
-     * Arguments to format the message from responseStatus.
+     * Arguments to format the message.
      */
-    String[] statusMessageArgs() default {};
+    String[] args() default {};
 
     /**
      * A short summary for this example.
@@ -37,5 +38,4 @@ public @interface J2NApiExample {
      * Raw JSON value if you want to override the default response body.
      */
     String value() default "";
-
 }
