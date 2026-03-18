@@ -1,5 +1,6 @@
 package com.example.j2n.image_srv.service;
 
+import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.InvalidInputException;
@@ -46,10 +47,10 @@ public class ImageService {
     private final MinioFactory minioFactory;
     private final UserEventPublisher avatarEventPublisher;
 
+    @LogAround(message = "[ImageSrv] Uploading images")
     public BaseResponse<List<ImageItemResponse>> uploadImage(UploadImageRequest request) {
         validateUploadImageRequest(request);
         validateOwnerType(request.getOwnerType().orElse(null));
-        log.info("[ImageSrv] Start uploading images");
         List<ImageItemResponse> result = new ArrayList<>();
         for (MultipartFile file : request.getFiles()) {
             validateFileTypeSize(file);
@@ -60,16 +61,14 @@ public class ImageService {
         }
         publishAvatarUploadedEvent(request.getFiles(), request.getOwnerId().toString(), result.get(0).getFilePath(),
                 request.getOwnerType().orElse(OwnerType.DEFAULT), result.get(0).getId().toString());
-        log.info("[ImageSrv] End uploading images");
         return ResponseFactory.success(result);
     }
 
+    @LogAround(message = "[ImageSrv] Getting image resource")
     public ResponseEntity<InputStreamResource> getImageResource(String ownerType, Long id) {
-        log.info("[ImageSrv] Start getting image resource by id: {}", id);
         validateOwnerType(ownerType);
         ImageEntity imageEntity = validateImageId(id);
         InputStream stream = minioFactory.getObject(imageEntity.getFilePath(), mapOwnerTypeToBucketName(ownerType));
-        log.info("[ImageSrv] End getting image resource by id: {}", id);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(imageEntity.getContentType()))
                 .body(new InputStreamResource(stream));
@@ -126,6 +125,7 @@ public class ImageService {
         }
     }
 
+    @LogAround(message = "[ImageSrv] Getting static file")
     public ResponseEntity<InputStreamResource> getStaticFile(String year) {
         try {
             String downloadYear = year;

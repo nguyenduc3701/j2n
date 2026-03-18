@@ -1,7 +1,9 @@
 package com.example.j2n.auth_srv.service;
 
+import com.example.j2n.aspect.LogAround;
 import com.example.j2n.auth_srv.constant.MessageEnum;
 import com.example.j2n.auth_srv.controllers.requests.CreateUserRequest;
+import com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest;
 import com.example.j2n.auth_srv.controllers.requests.UpdateUserRequest;
 import com.example.j2n.auth_srv.repository.UserRepository;
 import com.example.j2n.auth_srv.repository.entity.UserEntity;
@@ -29,10 +31,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ArrayList;
 
-import java.time.LocalDate;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
-import com.example.j2n.auth_srv.controllers.requests.SearchUsersRequest;
+import com.example.j2n.auth_srv.utils.SearchFactory;
+import com.example.j2n.auth_srv.utils.SearchPredicateBuilder.SearchCriteria;
+import static com.example.j2n.auth_srv.utils.SearchPredicateBuilder.SearchOperation.*;
 
 @Slf4j
 @Service
@@ -43,41 +44,43 @@ public class UserService {
     private final AuthService authService;
     private final PasswordUtil passwordUtil;
     private final CurrentUser currentUser;
+    private final SearchFactory searchFactory;
 
+    @LogAround(message = "Fetching user list")
     public BaseResponse<UserResponse> searchUsers(SearchUsersRequest request) {
-        log.info("[AUTH-SRV] Start fetching user list with filter: {}", request);
         validateUnknownFields(request);
-        PageRequest pageRequest = PageUtil.buildPageRequest(request.getPage(), request.getSize());
-        Specification<UserEntity> spec = buildSpecification(request);
-        Page<UserEntity> pageData = userRepository.findAll(spec, pageRequest);
+        List<SearchCriteria> criteriaList = buildSearchCriteria(request);
+        Page<UserResponse.UserItem> pageData = searchFactory.searchAndMap(
+                userRepository,
+                criteriaList,
+                request,
+                this::buildUserItemFromEntity);
+
         UserResponse response = new UserResponse();
-        response.setUsers(mapUserEntitiesToUserItems(pageData.getContent()));
+        response.setUsers(pageData.getContent());
         response.setPage(PageUtil.buildPagingMeta(pageData));
-        log.info("[AUTH-SRV] End fetching user list. Retrieved {} users", pageData.getTotalElements());
         return ResponseFactory.success(response);
     }
 
+    @LogAround(message = "Fetching current user details")
     public BaseResponse<UserResponse.UserItem> getMe() {
-        log.info("[AUTH-SRV] Start fetching current user details");
         UserEntity userItem = findUserByIdOrThrow(currentUser.getId());
         List<String> permissions = permissionService
                 .getPermissionsByRoleId(userItem.getRoleId().toString())
                 .getData();
         UserResponse.UserItem response = buildUserItemFromEntity(userItem);
         response.setPermissions(permissions);
-        log.info("[AUTH-SRV] End fetching current user details. Current user retrieved: {}", response.getUserName());
         return ResponseFactory.success(response);
     }
 
+    @LogAround(message = "Fetching user by ID")
     public BaseResponse<UserResponse.UserItem> getUserById(String userId) {
-        log.info("[AUTH-SRV] Start fetching user by ID: {}", userId);
         UserResponse.UserItem user = getUserItemById(userId);
-        log.info("[AUTH-SRV] End fetching user by ID. User retrieved: {}", user.getUserName());
         return ResponseFactory.success(user);
     }
 
+    @LogAround(message = "Creating user")
     public BaseResponse<UserItemResponse> createUser(CreateUserRequest request) {
-        log.info("[AUTH-SRV] Start creating user: {}", request.getUserName());
         validateUserRoleCanAction();
         authService.validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         authService.validateUsernameAndEmailDoesNotExist(request.getUserName(), request.getEmail());
@@ -85,12 +88,11 @@ public class UserService {
         UserEntity user = buildUserFromCreateRequest(request);
         userRepository.save(user);
         authService.publishUserRegisteredEvent(user);
-        log.info("[AUTH-SRV] End creating user. User created successfully");
         return ResponseFactory.of(MessageEnum.CREATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
+    @LogAround(message = "Updating user")
     public BaseResponse<UserItemResponse> updateUser(String userId, UpdateUserRequest request) {
-        log.info("[AUTH-SRV] Start updating user ID: {}", userId);
         validateUserRoleCanAction();
         if (!currentUser.getId().equals(userId)
                 && !currentUser.getRoleId().equals(CommonConst.ROLE_ADMIN_ID.toString())) {
@@ -105,28 +107,25 @@ public class UserService {
         UserEntity user = findUserByIdOrThrow(userId);
         applyUpdateFields(user, request);
         userRepository.save(user);
-        log.info("[AUTH-SRV] End updating user. User updated successfully");
         return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
+    @LogAround(message = "Deleting user")
     public BaseResponse<DeleteUserReponse> deleteUser(String userId) {
-        log.info("[AUTH-SRV] Start deleting user ID: {}", userId);
         validateUserRoleCanAction();
         UserEntity user = findUserByIdOrThrow(userId);
         user.setStatus(UserEntity.Status.INACTIVE);
         user.setIsDeleted(true);
         userRepository.save(user);
-        log.info("[AUTH-SRV] End deleting user. User deleted successfully");
         return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, new DeleteUserReponse(userId));
     }
 
+    @LogAround(message = "Updating user image URL")
     public BaseResponse<UserItemResponse> updateUserImageUrl(String userId, String imageId) {
-        log.info("[AUTH-SRV] Start updating user image URL ID: {}", userId);
         UserEntity user = findUserByIdOrThrow(userId);
         String imageFinalUrl = String.format("/api/bff/image/user/%s", imageId);
         user.setImageUrl(imageFinalUrl);
         userRepository.save(user);
-        log.info("[AUTH-SRV] End updating user image URL. User updated successfully");
         return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
@@ -229,53 +228,69 @@ public class UserService {
         return "VISITOR";
     }
 
-    private Specification<UserEntity> buildSpecification(SearchUsersRequest request) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("isDeleted"), false));
+    private List<SearchCriteria> buildSearchCriteria(SearchUsersRequest request) {
+        List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(SearchCriteria.builder()
+                .fieldName("isDeleted")
+                .value(false)
+                .operation(EQUAL)
+                .build());
 
-            if (request.getId().isPresent()) {
-                predicates.add(cb.equal(root.get("id"), request.getId().get()));
-            }
-            if (request.getFullName().isPresent() && !request.getFullName().get().isEmpty()) {
-                predicates
-                        .add(cb.like(cb.lower(root.get("fullName")),
-                                "%" + request.getFullName().get().toLowerCase() + "%"));
-            }
-            if (request.getEmail().isPresent() && !request.getEmail().get().isEmpty()) {
-                predicates
-                        .add(cb.like(cb.lower(root.get("email")), "%" + request.getEmail().get().toLowerCase() + "%"));
-            }
-            if (request.getPhoneNumber().isPresent() && !request.getPhoneNumber().get().isEmpty()) {
-                predicates.add(cb.like(root.get("phoneNumber"), "%" + request.getPhoneNumber().get() + "%"));
-            }
-            if (request.getUserName().isPresent() && !request.getUserName().get().isEmpty()) {
-                predicates
-                        .add(cb.like(cb.lower(root.get("username")),
-                                "%" + request.getUserName().get().toLowerCase() + "%"));
-            }
-            if (request.getRoleId().isPresent()) {
-                predicates.add(cb.equal(root.get("roleId"), request.getRoleId().get()));
-            }
-            if (request.getStatus().isPresent() && !request.getStatus().get().isEmpty()) {
-                try {
-                    predicates.add(cb.equal(root.get("status"), UserEntity.Status.valueOf(request.getStatus().get())));
-                } catch (IllegalArgumentException e) {
-                    log.warn("Invalid status filter: {}", request.getStatus().get());
-                }
-            }
-            if (request.getStartDate().isPresent()) {
-                predicates.add(
-                        cb.greaterThanOrEqualTo(root.get("createdAt").as(LocalDate.class),
-                                request.getStartDate().get()));
-            }
-            if (request.getEndDate().isPresent()) {
-                predicates.add(
-                        cb.lessThanOrEqualTo(root.get("createdAt").as(LocalDate.class), request.getEndDate().get()));
-            }
+        request.getId().ifPresent(id -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("id")
+                .value(id)
+                .operation(EQUAL)
+                .build()));
+        request.getFullName().ifPresent(name -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("fullName")
+                .value(name)
+                .operation(LIKE)
+                .build()));
+        request.getEmail().ifPresent(email -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("email")
+                .value(email)
+                .operation(LIKE)
+                .build()));
+        request.getPhoneNumber().ifPresent(phone -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("phoneNumber")
+                .value(phone)
+                .operation(LIKE)
+                .build()));
+        request.getUserName().ifPresent(username -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("username")
+                .value(username)
+                .operation(LIKE)
+                .build()));
+        request.getRoleId().ifPresent(roleId -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("roleId")
+                .value(roleId)
+                .operation(EQUAL)
+                .build()));
 
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        request.getStatus().ifPresent(status -> {
+            try {
+                criteriaList.add(SearchCriteria.builder()
+                        .fieldName("status")
+                        .value(UserEntity.Status.valueOf(status))
+                        .operation(EQUAL)
+                        .build());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid status filter: {}", status);
+            }
+        });
+
+        request.getStartDate().ifPresent(start -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("createdAt")
+                .value(start)
+                .operation(GREATER_THAN_EQUAL)
+                .build()));
+        request.getEndDate().ifPresent(end -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("createdAt")
+                .value(end)
+                .operation(LESS_THAN_EQUAL)
+                .build()));
+
+        return criteriaList;
     }
 
     // ==================== Validation Methods ====================

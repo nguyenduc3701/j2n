@@ -6,13 +6,13 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.j2n.aspect.LogAround;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.lib.proto.*;
 import com.example.j2n.report_srv.constant.MessageEnum;
 import com.example.j2n.report_srv.constant.ReportApiMapping;
-import com.example.j2n.report_srv.interceptor.GrpcServerAuthInterceptor;
 import com.example.j2n.report_srv.messaging.user.event.UserRegisteredEvent;
 import com.example.j2n.report_srv.repository.DistributionChartRepository;
 import com.example.j2n.report_srv.repository.SummaryMetricsRepository;
@@ -50,16 +50,15 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     private final ObjectMapper objectMapper;
 
     @Override
+    @LogAround(message = "[GRPC] Requesting dashboard report")
     public void getDashboardReport(GetDashboardRequest request, StreamObserver<BaseProtoResponse> responseObserver) {
-        String userId = GrpcServerAuthInterceptor.USER_ID_CTX.get();
-        log.info("[GRPC] Requesting dashboard report for user: {}", userId);
         BaseResponse<DashboardReportResponse> baseResponse = this.getDashboardReportResponse();
         GrpcResponseFactory.of(responseObserver, baseResponse, objectMapper);
     }
 
     @Override
+    @LogAround(message = "[GRPC] Requesting API catalog")
     public void getApiCatalog(Empty request, StreamObserver<ApiCatalogResponse> responseObserver) {
-        log.info("[GRPC] Requesting API catalog");
         ApiCatalogResponse response = ApiCatalogResponse.newBuilder()
                 .putAllMappings(ReportApiMapping.API_MAP)
                 .build();
@@ -68,9 +67,8 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     }
 
     @Cacheable(value = CommonConst.DASHBOARD_CACHE_KEY, key = CommonConst.MAIN_REPORT_KEY)
+    @LogAround(message = "[REPORT-SRV] Get dashboard report")
     public BaseResponse<DashboardReportResponse> getDashboardReportResponse() {
-        log.info("[REPORT-SRV] Starting to get dashboard report");
-
         CompletableFuture<List<SummaryMetrics>> summaryTask = getSummaryMetricsAsync();
         CompletableFuture<List<DistributionChart>> distributionTask = getDistributionChartsAsync();
         CompletableFuture<List<MonthlyFinancials>> monthlyTask = getMonthlyFinancialsAsync();
@@ -86,7 +84,6 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
                 .roomUtilityReports(utilityTask.join())
                 .activePromotions(promotionTask.join())
                 .build();
-        log.info("[REPORT-SRV] Finished to get dashboard report");
         return ResponseFactory.of(BaseMessageEnum.SUCCESS, response);
     }
 
@@ -131,39 +128,34 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     }
 
     @Transactional
+    @LogAround(message = "[REPORT-SRV] Processing registration report")
     public BaseResponse<Object> handleUserRegistrationReport(UserRegisteredEvent event) {
-        log.info("[REPORT-SRV] Processing registration report for user: {}", event.getUserId());
         try {
             updateSummaryMetrics(event);
             updateDistributionChart(event);
-            log.info("[REPORT-SRV] Successfully updated all report tables for user: {}", event.getUserId());
             return ResponseFactory.of(MessageEnum.UPDATE_USER_REPORT_SUCCESS, null);
         } catch (Exception e) {
-            log.error("[REPORT-SRV] Failed to update report for user: {}. Error: {}", event.getUserId(),
-                    e.getMessage());
             throw e;
         }
     }
 
+    @LogAround(message = "[REPORT-SRV] Updating summary metrics")
     private void updateSummaryMetrics(UserRegisteredEvent event) {
         SummaryMetrics summary = findOrCreateSummaryMetricsById(TOTAL_USERS_METRIC_KEY);
         if (summary == null) {
-            log.info("[REPORT-SRV] Creating summary metrics for user: {}", event.getUserId());
             summary = buildSummaryMetricsEntity(event);
         } else {
-            log.info("[REPORT-SRV] Updating summary metrics for user: {}", event.getUserId());
             summary.setMetricValue(summary.getMetricValue() + 1);
         }
         summaryMetricsRepository.save(summary);
     }
 
+    @LogAround(message = "[REPORT-SRV] Updating distribution chart")
     private void updateDistributionChart(UserRegisteredEvent event) {
         DistributionChart chart = findOrCreateDistributionChart(USER_TYPE_CHART, event.getRole());
         if (chart == null) {
-            log.info("[REPORT-SRV] Creating distribution chart for user: {}", event.getUserId());
             chart = buildDistributionChartEntity(event);
         } else {
-            log.info("[REPORT-SRV] Updating distribution chart for user: {}", event.getUserId());
             chart.setItemValue(chart.getItemValue() + 1);
         }
         distributionChartRepository.save(chart);

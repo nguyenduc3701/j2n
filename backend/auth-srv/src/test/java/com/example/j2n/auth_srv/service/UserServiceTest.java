@@ -1113,4 +1113,72 @@ class UserServiceTest {
             userService.searchUsers(request);
         }
     }
+    @Test
+    void updateUser_ShouldAllowAdminToUpdateAnotherUser() {
+        // Arrange
+        String userId = "2"; // Target user
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setFullName("Updated Name");
+
+        UserEntity user = new UserEntity();
+        user.setId(2L);
+        user.setUsername("targetuser");
+        user.setRoleId(3L);
+        user.setStatus(UserEntity.Status.ACTIVE);
+
+        UserItemResponse itemResponse = new UserItemResponse();
+        itemResponse.setId("2");
+
+        when(currentUser.getId()).thenReturn("1"); // Admin ID
+        when(currentUser.getRoleId()).thenReturn(CommonConst.ROLE_ADMIN_ID.toString());
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(UserEntity.class))).thenReturn(user);
+        when(authService.buildUserItemResponse(any(UserEntity.class))).thenReturn(itemResponse);
+
+        // Act
+        BaseResponse<UserItemResponse> response = userService.updateUser(userId, request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("Updated Name", user.getFullName());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void searchUsers_ShouldIgnoreEmptyStringFiltersInSpecification() {
+        // Arrange
+        SearchUsersRequest request = new SearchUsersRequest();
+        request.setFullName(Optional.of(""));
+        request.setEmail(Optional.of(""));
+        request.setPhoneNumber(Optional.of(""));
+        request.setUserName(Optional.of(""));
+        request.setStatus(Optional.of(""));
+
+        Page<UserEntity> page = new PageImpl<>(List.of(new UserEntity()));
+        org.mockito.ArgumentCaptor<Specification<UserEntity>> specCaptor = org.mockito.ArgumentCaptor
+                .forClass(Specification.class);
+        when(userRepository.findAll(specCaptor.capture(), any(PageRequest.class))).thenReturn(page);
+
+        // Mock Criteria API
+        Path pathIsDeleted = org.mockito.Mockito.mock(Path.class);
+        Path pathStatus = org.mockito.Mockito.mock(Path.class);
+        lenient().when(root.get("isDeleted")).thenReturn(pathIsDeleted);
+        lenient().when(root.get("status")).thenReturn(pathStatus);
+        lenient().when(cb.equal(any(), any())).thenReturn(predicate);
+        lenient().when(cb.and(any())).thenReturn(predicate);
+
+        // Act
+        userService.searchUsers(request);
+
+        // Assert
+        Specification<UserEntity> capturedSpec = specCaptor.getValue();
+        capturedSpec.toPredicate(root, query, cb);
+        
+        // Verify only isDeleted was added
+        verify(cb).equal(pathIsDeleted, false);
+        // Verify no LIKE predicates were added for empty strings
+        verify(cb, org.mockito.Mockito.never()).like(any(), anyString());
+        // Verify no Status.valueOf check (which happens inside the if !isEmpty)
+        verify(cb, org.mockito.Mockito.never()).equal(eq(pathStatus), any());
+    }
 }

@@ -2,14 +2,13 @@ package com.example.j2n.auth_srv.service;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.utils.ResponseFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.example.j2n.auth_srv.repository.entity.PermissionEntity;
 import com.example.j2n.auth_srv.repository.entity.RoleEntity;
 import com.example.j2n.auth_srv.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import com.example.j2n.auth_srv.constant.MessageEnum;
+import com.example.j2n.aspect.LogAround;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,35 +19,30 @@ import com.example.j2n.auth_srv.service.response.PermissionResponse;
 @Service
 @RequiredArgsConstructor
 public class PermissionService {
-    private static final Logger log = LoggerFactory.getLogger(RoleService.class);
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
 
+    @LogAround(message = "Getting permissions by role ID")
     public BaseResponse<List<String>> getPermissionsByRoleId(String roleId) {
-        log.info("[AUTH-SRV] Start get permissions by role id: {}", roleId);
         RoleEntity role = getRoleById(roleId);
-        log.info("[AUTH-SRV] End get permissions by role id");
         List<String> permissionNames = role.getPermissions().stream()
                 .map(PermissionEntity::getName)
                 .toList();
-        log.info("[AUTH-SRV] End get permissions by role id");
         return ResponseFactory.success(permissionNames);
     }
 
+    @LogAround(message = "Getting role by ID")
     public RoleEntity getRoleById(String roleId) {
-        log.info("[AUTH-SRV] Start get role by id: {}", roleId);
         Optional<RoleEntity> role = roleRepository.findById(Long.parseLong(roleId));
         if (role.isEmpty()) {
             throw new IllegalArgumentException(MessageEnum.ROLE_NOT_FOUND.getMessage());
         }
-        log.info("[AUTH-SRV] End get role by id");
         return role.get();
     }
 
+    @LogAround(message = "Getting all permissions")
     public BaseResponse<List<PermissionResponse>> getPermissions() {
-        log.info("[AUTH-SRV] Start get permissions");
         List<PermissionEntity> permissions = permissionRepository.findAll();
-        log.info("[AUTH-SRV] End get permissions");
         return ResponseFactory.success(mapPermissionEntityListToPermissionResponseList(permissions));
     }
 

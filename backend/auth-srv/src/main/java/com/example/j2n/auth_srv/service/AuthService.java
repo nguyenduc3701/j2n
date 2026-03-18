@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.j2n.auth_srv.constant.MessageEnum;
+import com.example.j2n.aspect.LogAround;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,28 +64,26 @@ public class AuthService {
     private final RedisUtil redisUtil;
     private final UserEventPublisher userEventPublisher;
 
+    @LogAround(message = "Login attempt")
     public BaseResponse<LoginResponse> login(LoginRequest request) {
-        log.info("[AUTH-SRV] Start Login attempt for user: {}", request.getUserName());
         validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         UserEntity user = findUserByUsername(request.getUserName());
         validateMatchedPassword(request.getPassword(), user.getPassword());
-        log.info("[AUTH-SRV] End Login successful for user: {}", user.getUsername());
         return ResponseFactory.success(buildLoginResponse(user, generateRandomUUID()));
     }
 
+    @LogAround(message = "Registration attempt")
     public BaseResponse<UserItemResponse> register(RegisterRequest request) {
-        log.info("[AUTH-SRV] Start Registration attempt for user: {}", request.getUserName());
         validateUserNameAndPasswordRequest(request.getUserName(), request.getPassword());
         validateUsernameAndEmailDoesNotExist(request.getUserName(), request.getEmail());
         UserEntity user = createUserFromRequest(request);
         userRepository.save(user);
         publishUserRegisteredEvent(user);
-        log.info("[AUTH-SRV] End Registration attempt for user: {}", request.getUserName());
         return ResponseFactory.success(buildUserItemResponse(user));
     }
 
+    @LogAround(message = "Logout attempt")
     public BaseResponse<String> logout(String accessToken, String refreshToken) {
-        log.info("[AUTH-SRV] Start Logout attempt");
         validateLogoutRequest(accessToken, refreshToken);
         String token = accessToken.substring(7);
         Claims claims = jwtUtil.validate(token);
@@ -99,12 +98,11 @@ public class AuthService {
         redisUtil.deleteKey(refreshKey);
         String userSessionsKey = CommonConst.AUTH_USER_SESSIONS_PREFIX + userId;
         redisUtil.removeSet(userSessionsKey, sessionId);
-        log.info("[AUTH-SRV] End Logout success for userId={}", userId);
         return ResponseFactory.success("Logout Success");
     }
 
+    @LogAround(message = "Refresh token attempt")
     public BaseResponse<LoginResponse> refreshToken(String token) {
-        log.info("[AUTH-SRV] Start Refresh token attempt");
         validateRefreshTokenRequest(token);
         String refreshKey = CommonConst.AUTH_REFRESH_PREFIX + token;
         if (!redisUtil.hasKey(refreshKey)) {
@@ -118,20 +116,18 @@ public class AuthService {
         String sessionId = (String) refreshValue.get(SESSION_ID_KEY);
         redisUtil.deleteKey(refreshKey);
         UserEntity user = findUserById(Long.valueOf(userId));
-        log.info("[AUTH-SRV] End Refresh token success userId={}", userId);
         return ResponseFactory.success(buildLoginResponse(user, sessionId));
     }
 
+    @LogAround(message = "Forgot password request")
     public BaseResponse<String> forgotPassword(ForgotPasswordRequest request) {
-        log.info("[AUTH-SRV] Start Forgot password request for email: {}", request.getEmail());
         // TODO: Implement forgot password logic (send email, generate reset token,
         // etc.)
-        log.info("[AUTH-SRV] End Forgot password request for email: {}", request.getEmail());
         return ResponseFactory.success("Forgot Password Success");
     }
 
+    @LogAround(message = "Logout all devices request")
     public BaseResponse<String> logoutAllDevices(String userId) {
-        log.info("[AUTH-SRV] Start Logout all devices request for user: {}", userId);
         String userSessionsKey = CommonConst.AUTH_USER_SESSIONS_PREFIX + userId;
         Set<Object> sessions = redisUtil.getSet(userSessionsKey);
         if (sessions != null && !sessions.isEmpty()) {
@@ -143,7 +139,6 @@ public class AuthService {
             redisUtil.deleteKeys(keysToDelete);
         }
         redisUtil.deleteKey(userSessionsKey);
-        log.info("[AUTH-SRV] End Logout all devices request for user: {}", userId);
         return ResponseFactory.success("Logout All Devices Success");
     }
 
