@@ -21,7 +21,7 @@ public class ReportController {
     @GetMapping("/dashboard")
     @Operation(summary = "Get dashboard report", description = "Fetch statistical report for the dashboard")
     @J2NApiResponses({
-            @J2NApiResponse(httpCode = 200, description = "Success", examples = {
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             })
     })

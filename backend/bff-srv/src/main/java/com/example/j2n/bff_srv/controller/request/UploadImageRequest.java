@@ -1,5 +1,6 @@
 package com.example.j2n.bff_srv.controller.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,13 @@ import java.util.Optional;
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UploadImageRequest {
-    private Optional<String> ownerType;
+    @Builder.Default
+    @Schema(description = "Owner type (e.g., USER)", example = "USER")
+    private Optional<String> ownerType = Optional.empty();
+
+    @Schema(description = "Owner ID", example = "1")
     private Long ownerId;
+
+    @Schema(description = "List of image files to upload")
     private List<MultipartFile> files;
 }

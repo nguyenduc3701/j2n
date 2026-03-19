@@ -39,4 +39,19 @@ public class GlobalDefaultExceptionHandler {
                 .status(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
                 .body(ResponseFactory.error(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED));
     }
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseResponse<Object>> handleValidationExceptions(
+            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(org.springframework.validation.FieldError::getDefaultMessage)
+                .findFirst()
+                .orElse("Invalid input");
+        log.error("[BFF-SRV] Validation failed: {}", errorMessage);
+        return ResponseEntity
+                .status(org.springframework.http.HttpStatus.BAD_REQUEST)
+                .body(ResponseFactory.error(new com.example.j2n.dto.SimpleBaseMessage(
+                        com.example.j2n.enums.BaseMessageEnum.BAD_REQUEST.getCode(),
+                        com.example.j2n.enums.BaseMessageEnum.BAD_REQUEST.getHttpStatus(),
+                        errorMessage)));
+    }
 }

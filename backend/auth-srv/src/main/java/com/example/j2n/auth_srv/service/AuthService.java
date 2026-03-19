@@ -234,8 +234,8 @@ public class AuthService {
         return UUID.randomUUID().toString();
     }
 
+    @LogAround(message = "Inserting record to Redis")
     private void insertToRedis(UserEntity user, String sessionId, String refreshToken) {
-        log.info("[AUTH-SRV] Inserting record to Redis for user: {}", user.getUsername());
         // session value
         String sessionKey = CommonConst.AUTH_SESSION_PREFIX + sessionId;
         Map<String, Object> sessionValue = new HashMap<>();
@@ -255,7 +255,6 @@ public class AuthService {
         String userSessionsKey = CommonConst.AUTH_USER_SESSIONS_PREFIX + user.getId().toString();
         redisUtil.addSet(userSessionsKey, sessionId);
         redisUtil.expire(userSessionsKey, refreshTokenExpireDays, TimeUnit.DAYS);
-        log.info("[AUTH-SRV] Inserted record to Redis for user: {}", user.getUsername());
     }
 
     private UserEntity findUserById(Long id) {

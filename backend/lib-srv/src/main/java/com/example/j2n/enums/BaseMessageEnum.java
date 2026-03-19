@@ -49,11 +49,13 @@ public enum BaseMessageEnum implements BaseMessage {
         public static final String INVALID_REQUEST = "Invalid request";
         public static final String FIELD_REQUIRED = "Field %s is required";
         public static final String NOT_FOUND = "%s not found";
+        public static final String NOT_FOUND_GENERIC = "Not found";
         public static final String UNAUTHORIZED = "Unauthorized";
         public static final String TIMEOUT = "Timeout";
         public static final String EXTERNAL_SERVICE_ERROR = "External service error";
         public static final String CONFIGURATION_ERROR = "Configuration error";
         public static final String BAD_REQUEST = "Bad request";
+        public static final String BAD_REQUEST_GENERIC = "Bad request";
         public static final String SERIALIZATION_ERROR = "Serialization error";
     }
 }

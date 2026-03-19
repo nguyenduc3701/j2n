@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.j2n.dto.SimpleBaseMessage;
 import com.example.j2n.enums.BaseMessageEnum;
-import com.example.j2n.enums.HttpStatusCode;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;

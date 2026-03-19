@@ -19,7 +19,6 @@ public class SecurityConfig {
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                                 .anyRequest().permitAll()); // REST is mostly used for Swagger now
                 return http.build();
         }

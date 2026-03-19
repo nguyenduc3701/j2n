@@ -161,8 +161,7 @@ class AuthControllerTest {
                 // Arrange
                 String userId = "123";
                 com.example.j2n.bff_srv.controller.request.UpdateUserRequest request = new com.example.j2n.bff_srv.controller.request.UpdateUserRequest();
-                request.setFirstName("Updated");
-                request.setLastName("User");
+                request.setFullName("Updated User");
                 Map<String, String> expectedResponse = Collections.singletonMap("user", "updated");
                 when(authService.updateUser(userId, request)).thenReturn(expectedResponse);
 

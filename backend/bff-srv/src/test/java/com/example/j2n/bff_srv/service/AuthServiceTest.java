@@ -169,8 +169,7 @@ class AuthServiceTest {
                 // Arrange
                 String userId = "123";
                 com.example.j2n.bff_srv.controller.request.UpdateUserRequest request = new com.example.j2n.bff_srv.controller.request.UpdateUserRequest();
-                request.setFirstName("Updated");
-                request.setLastName("User");
+                request.setFullName("Updated User");
                 Object expectedResponse = new Object();
                 String expectedPath = String.format(GatewayPath.AUTH_UPDATE_USER_PATH, userId);
 

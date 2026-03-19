@@ -22,29 +22,29 @@ import com.example.j2n.enums.BaseMessageEnum;
 @RequiredArgsConstructor
 public class ConfigurationController {
 
-    private final ConfigurationService configurationService;
+        private final ConfigurationService configurationService;
 
-    @GetMapping(value = "/portfolio", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get portfolio configurations", description = "Fetch all configuration settings related to the portfolio")
-    @J2NApiResponses({
-            @J2NApiResponse(httpCode = 200, description = "Success", examples = {
-                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
-            })
-    })
-    public ResponseEntity<BaseResponse<List<ConfigurationEntity>>> getPortfolioConfigurations() {
-        BaseResponse<List<ConfigurationEntity>> response = configurationService.getPortfolioConfigurations();
-        return ResponseEntity.ok(response);
-    }
+        @GetMapping(value = "/portfolio", produces = MediaType.APPLICATION_JSON_VALUE)
+        @Operation(summary = "Get portfolio configurations", description = "Fetch all configuration settings related to the portfolio")
+        @J2NApiResponses({
+                        @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                                        @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+                        })
+        })
+        public ResponseEntity<BaseResponse<List<ConfigurationEntity>>> getPortfolioConfigurations() {
+                BaseResponse<List<ConfigurationEntity>> response = configurationService.getPortfolioConfigurations();
+                return ResponseEntity.ok(response);
+        }
 
-    @GetMapping(value = "/global", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get global configurations", description = "Fetch all global configuration settings")
-    @J2NApiResponses({
-            @J2NApiResponse(httpCode = 200, description = "Success", examples = {
-                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
-            })
-    })
-    public ResponseEntity<BaseResponse<List<ConfigurationEntity>>> getGlobalConfigurations() {
-        BaseResponse<List<ConfigurationEntity>> response = configurationService.getGlobalConfigurations();
-        return ResponseEntity.ok(response);
-    }
+        @GetMapping(value = "/global", produces = MediaType.APPLICATION_JSON_VALUE)
+        @Operation(summary = "Get global configurations", description = "Fetch all global configuration settings")
+        @J2NApiResponses({
+                        @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                                        @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+                        })
+        })
+        public ResponseEntity<BaseResponse<List<ConfigurationEntity>>> getGlobalConfigurations() {
+                BaseResponse<List<ConfigurationEntity>> response = configurationService.getGlobalConfigurations();
+                return ResponseEntity.ok(response);
+        }
 }

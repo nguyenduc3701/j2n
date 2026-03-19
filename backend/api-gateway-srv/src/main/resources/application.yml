@@ -3,8 +3,6 @@ spring:
     active: dev
   application:
     name: api-gateway-srv
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
   codec:
     max-in-memory-size: ${api-gateway.max-in-memory-size}
   webflux:
