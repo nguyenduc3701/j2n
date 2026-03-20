@@ -34,7 +34,7 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 
 -- Auth Service Configuration
 -- Report Service Configuration
-('report.cache.time-minutes', '5', 'report-srv', 'dev'),
+('report.cache.time-minutes', '1', 'report-srv', 'dev'),
 -- Image Service Configuration
 ('image.minio.url', 'http://localhost:9190', 'image-srv', 'dev'),
 ('image.minio.access-key', 'minio', 'image-srv', 'dev'),

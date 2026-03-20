@@ -3,7 +3,9 @@ package com.example.j2n.report_srv.service;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.j2n.aspect.LogAround;
@@ -42,6 +44,10 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     private final static String ACCOUNT_CATEGORY = "ACCOUNT";
     private final static String USER_TYPE_CHART = "USER_TYPE";
 
+    @Lazy
+    @Autowired
+    private ManagementService self;
+ 
     private final SummaryMetricsRepository summaryMetricsRepository;
     private final DistributionChartRepository distributionChartRepository;
     private final MonthlyFinancialsRepository monthlyFinancialsRepository;
@@ -52,7 +58,7 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     @Override
     @LogAround(message = "[GRPC] Requesting dashboard report")
     public void getDashboardReport(GetDashboardRequest request, StreamObserver<BaseProtoResponse> responseObserver) {
-        BaseResponse<DashboardReportResponse> baseResponse = this.getDashboardReportResponse();
+        BaseResponse<DashboardReportResponse> baseResponse = self.getDashboardReportResponse();
         GrpcResponseFactory.of(responseObserver, baseResponse, objectMapper);
     }
 
