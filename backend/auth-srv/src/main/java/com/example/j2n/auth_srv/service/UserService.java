@@ -187,11 +187,7 @@ public class UserService {
 
     // ==================== Mapping Methods ====================
 
-    private List<UserResponse.UserItem> mapUserEntitiesToUserItems(List<UserEntity> users) {
-        return users.stream()
-                .map(this::buildUserItemFromEntity)
-                .toList();
-    }
+
 
     private UserResponse.UserItem buildUserItemFromEntity(UserEntity user) {
         UserResponse.UserItem userItem = new UserResponse.UserItem();

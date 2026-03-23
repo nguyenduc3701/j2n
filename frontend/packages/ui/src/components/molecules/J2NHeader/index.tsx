@@ -19,9 +19,9 @@ const J2NHeader = (props: IHeaderProps) => {
     className,
     redirectUrl,
     hideMenu,
-    hideAccount = true,
     hideLogo = false,
     accountProps,
+    menuItems: propMenuItems,
   } = props;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { i18n, t } = useTranslation();
@@ -32,7 +32,7 @@ const J2NHeader = (props: IHeaderProps) => {
 
   const menuItems: IMenuItem[] = hideMenu
     ? []
-    : [
+    : propMenuItems || [
         { name: t("About me"), href: "/about-me", target: Target.CURRENT_TAB },
         { name: t("System"), href: "/system", target: Target.CURRENT_TAB },
         { name: t("Room"), href: "/room", target: Target.NEW_TAB },
@@ -96,9 +96,7 @@ const J2NHeader = (props: IHeaderProps) => {
                 {item.name}
               </Link>
             ))}
-            {hideMenu && !hideAccount && accountProps && (
-              <J2NAccount {...accountProps} />
-            )}
+            {accountProps && <J2NAccount {...accountProps} />}
             <J2NLanguages
               defaultLanguage={i18n.language}
               onChange={handleChangeLanguage}
@@ -133,13 +131,18 @@ const J2NHeader = (props: IHeaderProps) => {
                   <Link
                     key={index}
                     href={item.href}
-                    target={item.target}
+                    target={item.target || Target.CURRENT_TAB}
                     className="py-3 text-xl font-secondary-500 text-j2n-grape-deep-500 border-b border-gray-100 last:border-0"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}
                   </Link>
                 ))}
+                {accountProps && (
+                  <div className="py-2 border-b border-gray-100">
+                    <J2NAccount {...accountProps} />
+                  </div>
+                )}
                 <div className="py-3 flex items-center gap-2">
                   <span className="text-xl font-secondary-500">Language: </span>
                   <J2NLanguages

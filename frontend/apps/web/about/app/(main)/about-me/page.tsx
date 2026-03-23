@@ -32,7 +32,8 @@ import SkillCard from "./components/SkillCard";
 import TimelineCard from "./components/TimelineCard";
 import {
   mainSkills,
-  otherSkills,
+  otherTechnologies,
+  toolsData,
   personalData,
   personalPhotos,
   timelineData,
@@ -109,12 +110,22 @@ const AboutMePage = () => {
             ))}
           </SimpleGrid>
           <J2NTransText
-            tKey="other_tech"
+            tKey="others_technology"
+            size="xl"
+            className="font-secondary-700 text-j2n-plum-dark-500! pb-5!"
+          />
+          <SimpleGrid cols={6} spacing={40} verticalSpacing="xl" className="pb-10!">
+            {otherTechnologies.map((skill, index) => (
+              <SkillCard key={index} size="md" index={index} {...skill} />
+            ))}
+          </SimpleGrid>
+          <J2NTransText
+            tKey="tools"
             size="xl"
             className="font-secondary-700 text-j2n-plum-dark-500! pb-5!"
           />
           <SimpleGrid cols={6} spacing={40} verticalSpacing="xl">
-            {otherSkills.map((skill, index) => (
+            {toolsData.map((skill, index) => (
               <SkillCard key={index} size="md" index={index} {...skill} />
             ))}
           </SimpleGrid>

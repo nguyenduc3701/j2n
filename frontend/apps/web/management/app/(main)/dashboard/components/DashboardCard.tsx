@@ -27,19 +27,23 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
     return <IconDots size={20} className="text-gray-500 cursor-pointer" />;
   };
 
+    const iconNode = renderIcon();
+
   return (
     <Paper radius="md" bg="#F8F4F4" p="lg" className={className} {...props}>
-      <Group justify="space-between" mb="md" align="center" wrap="nowrap">
-        {title && (
-          <J2NTransText
-            fw={600}
-            size="lg"
-            className="truncate text-j2n-plum-dark-500 opacity-70 font-secondary"
-            tKey={title}
-          />
-        )}
-        {renderIcon()}
-      </Group>
+      {(title || iconNode) && (
+        <Group justify="space-between" mb="md" align="center" wrap="nowrap">
+          {title && (
+            <J2NTransText
+              fw={600}
+              size="lg"
+              className="truncate text-j2n-plum-dark-500 opacity-70 font-secondary"
+              tKey={title}
+            />
+          )}
+          {iconNode}
+        </Group>
+      )}
       {children}
     </Paper>
   );

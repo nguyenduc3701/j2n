@@ -6,9 +6,9 @@ export interface IHeaderProps {
   title?: string;
   redirectUrl?: string;
   hideMenu?: boolean;
-  hideAccount?: boolean;
   hideLogo?: boolean;
   accountProps?: IJ2NAccountProps;
+  menuItems?: IMenuItem[];
 }
 
 export interface IMenuItem {

@@ -31,6 +31,7 @@ import {
   IconTrekking,
   IconBuilding,
   IconUserCheck,
+  IconLock,
 } from "@tabler/icons-react";
 import { SkillCardProps } from "./SkillCard";
 
@@ -72,7 +73,7 @@ export const mainSkills: (SkillCardProps & { icon: React.ReactNode })[] = [
   },
 ];
 
-export const otherSkills: (SkillCardProps & { icon: React.ReactNode })[] = [
+export const otherTechnologies: (SkillCardProps & { icon: React.ReactNode })[] = [
   {
     name: "HTML",
     experience: 6,
@@ -110,46 +111,16 @@ export const otherSkills: (SkillCardProps & { icon: React.ReactNode })[] = [
     icon: <TailwindCSS width={50} />,
   },
   {
-    name: "Docker",
-    experience: 4,
-    description: "skills.docker",
-    icon: <Docker width={50} />,
-  },
-  {
-    name: "Kubernetes",
-    experience: 4,
-    description: "skills.kubernetes",
-    icon: <Kubernetes width={50} />,
-  },
-  {
     name: "MySQL",
     experience: 4,
     description: "skills.mysql",
     icon: <MySQLDark width={50} />,
   },
   {
-    name: "RabbitMQ",
-    experience: 4,
-    description: "skills.rabbitmq",
-    icon: <IconMessage size={50} />,
-  },
-  {
-    name: "Redis",
-    experience: 4,
-    description: "skills.redis",
-    icon: <Redis width={50} />,
-  },
-  {
     name: "Fluent UI",
     experience: 2,
     description: "skills.fluent_ui",
     icon: <Microsoft width={50} />,
-  },
-  {
-    name: "Keycloak",
-    experience: 2,
-    description: "skills.keycloak",
-    icon: <Keycloak width={50} />,
   },
   {
     name: "Mantine UI",
@@ -176,12 +147,6 @@ export const otherSkills: (SkillCardProps & { icon: React.ReactNode })[] = [
     icon: <Nodejs width={50} />,
   },
   {
-    name: "Flowable",
-    experience: 1,
-    description: "skills.flowable",
-    icon: <IconGitMerge size={50} />,
-  },
-  {
     name: "Zustand",
     experience: "personal_projects",
     description: "skills.zustand",
@@ -198,6 +163,51 @@ export const otherSkills: (SkillCardProps & { icon: React.ReactNode })[] = [
     experience: "personal_projects",
     description: "skills.graphql",
     icon: <GraphQL width={50} />,
+  },
+];
+
+export const toolsData: (SkillCardProps & { icon: React.ReactNode })[] = [
+  {
+    name: "Redis",
+    experience: 4,
+    description: "skills.redis",
+    icon: <Redis width={50} />,
+  },
+  {
+    name: "Docker",
+    experience: 4,
+    description: "skills.docker",
+    icon: <Docker width={50} />,
+  },
+  {
+    name: "Kubernetes",
+    experience: 4,
+    description: "skills.kubernetes",
+    icon: <Kubernetes width={50} />,
+  },
+  {
+    name: "Keycloak",
+    experience: 2,
+    description: "skills.keycloak",
+    icon: <Keycloak width={50} />,
+  },
+  {
+    name: "Flowable",
+    experience: 1,
+    description: "skills.flowable",
+    icon: <IconGitMerge size={50} />,
+  },
+  {
+    name: "RabbitMQ",
+    experience: 4,
+    description: "skills.rabbitmq",
+    icon: <IconMessage size={50} />,
+  },
+  {
+    name: "Vault",
+    experience: 1,
+    description: "skills.vault",
+    icon: <IconLock size={50} />,
   },
 ];
 

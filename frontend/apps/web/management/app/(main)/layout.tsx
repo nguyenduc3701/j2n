@@ -4,6 +4,7 @@ import J2NHeader from "@repo/components/molecules/J2NHeader";
 import { useEffect, useState } from "react";
 import { userService } from "@/services/userServices";
 import { IUser } from "@/types/user";
+import { useTranslation } from "react-i18next";
 import { Loader, Center } from "@mantine/core";
 import J2NMotionScale from "@repo/components/atoms/J2NMotionTransition/J2NMotionScale";
 import { useRouter } from "next/navigation";
@@ -16,6 +17,14 @@ export default function MainLayout({
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const menuItems = [
+    { name: t("Users"), href: "/users" },
+    { name: t("Rooms"), href: "/rooms" },
+    { name: t("Stores"), href: "/stores" },
+    { name: t("Travel"), href: "/travel" },
+  ];
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -51,13 +60,12 @@ export default function MainLayout({
         title="Jadon Nguyen"
         className="bg-j2n-sand-100!"
         redirectUrl="/dashboard"
-        hideMenu
-        hideAccount={false}
+        menuItems={menuItems}
         accountProps={{
           isLogin: !!user,
           userName: user?.full_name || "User",
           roleName: user?.role_id,
-          baseUrl: "http://localhost:3100",
+          baseUrl: "http://localhost:3101",
         }}
       />
       <main className="bg-j2n-sand-100 min-h-screen">{children}</main>

@@ -2,6 +2,7 @@ import { J2NI18nProvider } from "@repo/ui/src/providers";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
+import "@mantine/charts/styles.css";
 import "@repo/ui/src/styles/globals.css";
 import type { Metadata } from "next";
 import {
