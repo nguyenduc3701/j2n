@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ACCESS_TOKEN } from "@repo/ui/src/constants";
 
 // Ensure this file is processed by Next.js or a bundler that supports env vars replacement
 // or that these are available in the runtime environment.
@@ -12,7 +13,23 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: false,
+  withCredentials: true,
 });
+
+// Response interceptor to handle silent refresh and update local storage
+axiosInstance.interceptors.response.use(
+  (response) => {
+    // Check if BFF returned a new token in headers
+    const newAccessToken = response.headers["x-new-access-token"];
+    if (newAccessToken && typeof window !== "undefined") {
+      localStorage.setItem(ACCESS_TOKEN, newAccessToken);
+      console.log("[Network] Access token synced from silent refresh");
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 export default axiosInstance;
