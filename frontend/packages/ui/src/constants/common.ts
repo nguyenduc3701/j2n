@@ -11,6 +11,6 @@ export const ACCESS_TOKEN = "ACCESS_TOKEN";
 export enum USER_ROLES {
   RECRUITER = "recruiter",
   RENTER = "renter",
-  VISITER = "visiter",
+  VISITOR = "visitor",
   ADMIN = "admin",
 }

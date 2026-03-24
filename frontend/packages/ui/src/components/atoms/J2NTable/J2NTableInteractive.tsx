@@ -11,6 +11,7 @@ import {
   TableTh,
   TableThead,
   TableTr,
+  LoadingOverlay,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { IJ2NTableInteractiveProps } from "./J2NTable.type";
@@ -31,10 +32,20 @@ const J2NTableInteractive = <T extends Record<string, any>>({
   pageSize,
   total,
   onPageChange,
+  loading,
+  activePage: externalPage,
   ...props
 }: IJ2NTableInteractiveProps<T>) => {
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
-  const [activePage, setPage] = useState(1);
+  const [internalPage, setInternalPage] = useState(1);
+
+  const activePage = externalPage ?? internalPage;
+
+  useEffect(() => {
+    if (externalPage !== undefined) {
+      setInternalPage(externalPage);
+    }
+  }, [externalPage]);
 
   const toggleAll = () => {
     if (selectedIds.length === renderedRows.length) {
@@ -62,14 +73,14 @@ const J2NTableInteractive = <T extends Record<string, any>>({
 
   // Handle page change
   const handlePageChange = (page: number) => {
-    setPage(page);
+    setInternalPage(page);
     if (onPageChange) {
       onPageChange(page);
     }
   };
 
-  // Paginate rows if pageSize is provided
-  const paginatedRows = pageSize
+  // Paginate rows locally only if pagination is not handled externally (server-side)
+  const paginatedRows = (pageSize && !onPageChange)
     ? renderedRows.slice((activePage - 1) * pageSize, activePage * pageSize)
     : renderedRows;
 
@@ -80,7 +91,8 @@ const J2NTableInteractive = <T extends Record<string, any>>({
   const { fontSize, ...rest } = props;
 
   return (
-    <Flex direction="column" gap="md">
+    <Flex direction="column" gap="md" style={{ position: "relative" }}>
+      <LoadingOverlay visible={loading} zIndex={100} overlayProps={{ radius: "sm", blur: 1, backgroundOpacity: 0 }} />
       <TableScrollContainer minWidth={minWidth || "100%"}>
         <Table
           highlightOnHover={highlightOnHover}

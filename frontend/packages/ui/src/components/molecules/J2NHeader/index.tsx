@@ -35,8 +35,8 @@ const J2NHeader = (props: IHeaderProps) => {
     : propMenuItems || [
         { name: t("About me"), href: "/about-me", target: Target.CURRENT_TAB },
         { name: t("System"), href: "/system", target: Target.CURRENT_TAB },
-        { name: t("Room"), href: "/room", target: Target.NEW_TAB },
-        { name: t("Store"), href: "/store", target: Target.NEW_TAB },
+        { name: t("room"), href: "/room", target: Target.NEW_TAB },
+        { name: t("store"), href: "/store", target: Target.NEW_TAB },
         { name: t("Travel"), href: "/travel", target: Target.NEW_TAB },
         {
           name: t("Management"),

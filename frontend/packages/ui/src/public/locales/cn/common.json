@@ -6,7 +6,9 @@
     "email_invalid": "无效的电子邮件",
     "role_required": "角色为必填项",
     "room_required": "房间为必填项",
-    "company_required": "公司为必填项"
+    "company_required": "公司为必填项",
+    "username_required": "用户名是必填项",
+    "fullname_required": "全名是必填项"
   },
   "username": "用户名",
   "password": "密码",
@@ -26,11 +28,16 @@
   "role": "角色",
   "recruiter": "招聘者",
   "renter": "租户",
-  "visiter": "访客",
+  "visitor": "访客",
   "back_to_login": "返回登录",
+  "common": {
+    "confirm": "确认",
+    "cancel": "取消"
+  },
   "System": "系统",
-  "Room": "房间",
-  "Store": "商店",
+  "Users": "用户",
+  "Rooms": "房间",
+  "Stores": "商店",
   "Travel": "旅行",
   "Management": "管理",
   "About me": "关于我",
@@ -51,8 +58,6 @@
   "personal_projects": "个人项目",
   "avatar": "头像",
   "footer_text": "感谢您的关注，期待在时机成熟时与您合作。",
-  "active": "活跃",
-  "inactive": "不活跃",
   "warning-content": "警告：请检查系统警报。",
   "account_and_users": "账户与用户",
   "user_distribution": "用户分布",
@@ -341,6 +346,57 @@
         "store": "管理产品、订单、库存",
         "travel": "管理预订、航班、酒店、旅游"
       }
+    }
+  },
+  "users": {
+    "title": "用户管理",
+    "create": "创建用户",
+    "search_placeholder": "按用户名、姓名或电子邮件搜索...",
+    "buttons": {
+      "search": "搜索",
+      "clear": "清除"
+    },
+    "search": "搜索",
+    "clear": "清除",
+    "table": {
+      "username": "用户名",
+      "fullname": "全名",
+      "email": "电子邮件",
+      "role": "角色",
+      "status": "状态",
+      "actions": "操作"
+    },
+    "modal": {
+      "view": "查看用户",
+      "edit": "编辑用户",
+      "create": "创建用户",
+      "username": "用户名",
+      "fullname": "全名",
+      "email": "电子邮件",
+      "phone": "电话号码",
+      "birth": "出生日期",
+      "address": "地址",
+      "company": "公司",
+      "role": "角色",
+      "status": "状态",
+      "room": "房间",
+      "image_url": "图片网址",
+      "save": "保存",
+      "cancel": "取消"
+    },
+    "status": {
+      "active": "活跃",
+      "inactive": "不活跃"
+    },
+    "actions": {
+      "view": "查看",
+      "edit": "编辑",
+      "suspend": "暂停",
+      "reactivate": "重新激活"
+    },
+    "messages": {
+      "confirm_suspend": "您确定要暂停用户 {{name}} 吗？",
+      "confirm_reactivate": "您确定要重新激活用户 {{name}} 吗？"
     }
   }
 }

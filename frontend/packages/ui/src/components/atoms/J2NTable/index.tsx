@@ -10,11 +10,12 @@ import J2NTableInteractive from "./J2NTableInteractive";
 const J2NTable = <T extends Record<string, any>>({
   columns,
   data,
+  activePage,
   ...props
 }: IJ2NTableProps<T>) => {
   // Logic render cột và dòng (có thể chạy ở Server)
   const headers = columns.map((col) => col.title);
-
+ 
   const renderedRows: IRenderedRow<T>[] = data.map((record, index) => ({
     id: record.id || index,
     record,
@@ -22,12 +23,13 @@ const J2NTable = <T extends Record<string, any>>({
       col.render ? col.render(record, index) : record[col.key],
     ),
   }));
-
+ 
   return (
     <J2NTableInteractive
       headers={headers}
       renderedRows={renderedRows}
       data={data}
+      activePage={activePage}
       {...props}
     />
   );

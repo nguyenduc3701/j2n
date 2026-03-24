@@ -8,6 +8,7 @@ import {
   IconXboxX,
 } from "@tabler/icons-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { MotionFade } from "../J2NMotionTransition";
 import { J2NAlertProps, J2NAlertType } from "./J2NAlert.type";
 
@@ -25,9 +26,12 @@ const J2NAlert: React.FC<J2NAlertProps> = ({
   children,
   type = "info",
   className,
+  title,
   ...props
 }) => {
+  const { t } = useTranslation();
   const { color, icon } = ALERT_CONFIG[type];
+  const translatedTitle = typeof title === "string" ? t(title) : title;
 
   return (
     <MotionFade className="w-full">
@@ -37,6 +41,7 @@ const J2NAlert: React.FC<J2NAlertProps> = ({
         color={color}
         icon={icon}
         w="100%"
+        title={translatedTitle}
         {...props}
       >
         {children}

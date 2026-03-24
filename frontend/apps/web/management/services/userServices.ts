@@ -1,42 +1,173 @@
 import { request } from "@repo/network";
 import { HTTP_METHODS } from "@repo/ui/src/constants";
 import { IUser } from "@/types/user";
-
-interface BaseResponse<T> {
-  data: T;
-  message: string;
-  status: number;
-}
+import { BaseResponse, IUserResponse } from "@/types/services";
 
 export const userService = {
   async getMe() {
-    // const options = {
-    //   method: HTTP_METHODS.GET,
-    // };
-    // return await request<BaseResponse<IUser>>("/auth/users/me", options);
-
+    const options = {
+      method: HTTP_METHODS.GET,
+    };
+    const response = await request<BaseResponse<IUser>>(
+      "/api/bff/users/me",
+      options,
+    );
     return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async getUsers(params: {
+    page?: number;
+    size?: number;
+    user_name?: string;
+    email?: string;
+    full_name?: string;
+    role_id?: string;
+    status?: string;
+    start_date?: string;
+    end_date?: string;
+  }) {
+    const {
+      page = 1,
+      size = 10,
+      user_name,
+      email,
+      full_name,
+      role_id,
+      status,
+      start_date,
+      end_date,
+    } = params;
+
+    const options = {
+      method: HTTP_METHODS.POST,
       data: {
-        data: {
-          id: 1,
-          user_name: "admin",
-          full_name: "Jadon Nguyen",
-          email: "jadon.nguyen@example.com",
-          phone_number: null,
-          birth: null,
-          image_url: null,
-          room_id: null,
-          address: null,
-          company: null,
-          role_id: "Admin",
-          status: "active",
-          created_at: "2023-01-01T00:00:00Z",
-          updated_at: "2023-01-01T00:00:00Z",
-          permissions: ["CAN_VIEW_MANAGEMENT_PAGE"],
-        },
-        message: "success",
-        status: 200,
+        page,
+        size,
+        user_name,
+        email,
+        full_name,
+        role_id,
+        status,
+        start_date,
+        end_date,
       },
-    } as any;
+    };
+
+    const response = await request<BaseResponse<IUserResponse>>(
+      "/api/bff/users/list",
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async getUserById(id: string) {
+    const options = {
+      method: HTTP_METHODS.GET,
+    };
+    const response = await request<BaseResponse<IUser>>(
+      `/api/bff/users/${id}`,
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async createUser(data: Partial<IUser>) {
+    const options = {
+      method: HTTP_METHODS.POST,
+      data,
+    };
+    const response = await request<BaseResponse<IUser>>(
+      "/api/bff/users",
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async updateUser(id: string, data: Partial<IUser>) {
+    const options = {
+      method: HTTP_METHODS.PUT,
+      data,
+    };
+    const response = await request<BaseResponse<IUser>>(
+      `/api/bff/users/${id}`,
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async deleteUser(id: string) {
+    const options = {
+      method: HTTP_METHODS.DELETE,
+    };
+    const response = await request<BaseResponse<void>>(
+      `/api/bff/users/${id}`,
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async toggleStatus(id: string, currentStatus?: string) {
+    const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    return this.updateUser(id, { status: newStatus });
+  },
+
+  async getRoles() {
+    const options = {
+      method: HTTP_METHODS.GET,
+    };
+    const response = await request<BaseResponse<any[]>>(
+      "/api/bff/roles",
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async getPermissions() {
+    const options = {
+      method: HTTP_METHODS.GET,
+    };
+    const response = await request<BaseResponse<any[]>>(
+      "/api/bff/permissions",
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async getPermissionsByRoleId(roleId: string) {
+    const options = {
+      method: HTTP_METHODS.GET,
+    };
+    const response = await request<BaseResponse<any[]>>(
+      `/api/bff/roles/${roleId}/permissions`,
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
   },
 };

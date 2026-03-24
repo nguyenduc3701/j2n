@@ -6,7 +6,9 @@
     "email_invalid": "Email không hợp lệ",
     "role_required": "Vui lòng chọn vai trò",
     "room_required": "Vui lòng chọn phòng",
-    "company_required": "Vui lòng nhập tên công ty"
+    "company_required": "Vui lòng nhập tên công ty",
+    "username_required": "Vui lòng nhập tên đăng nhập",
+    "fullname_required": "Vui lòng nhập họ và tên"
   },
   "username": "Tên đăng nhập",
   "password": "Mật khẩu",
@@ -26,11 +28,16 @@
   "role": "Vai trò",
   "recruiter": "Nhà tuyển dụng",
   "renter": "Người thuê",
-  "visiter": "Khách",
+  "visitor": "Khách",
   "back_to_login": "Quay lại đăng nhập",
+  "common": {
+    "confirm": "Xác nhận",
+    "cancel": "Hủy"
+  },
   "System": "Hệ thống",
-  "Room": "Phòng",
-  "Store": "Cửa hàng",
+  "Users": "Người dùng",
+  "Rooms": "Phòng",
+  "Stores": "Cửa hàng",
   "Travel": "Du lịch",
   "Management": "Quản lý",
   "About me": "Giới thiệu",
@@ -51,8 +58,6 @@
   "personal_projects": "Dự án cá nhân",
   "avatar": "Ảnh đại diện",
   "footer_text": "Cảm ơn bạn đã quan tâm, và tôi rất mong được hợp tác khi có cơ hội.",
-  "active": "Hoạt động",
-  "inactive": "Không hoạt động",
   "warning-content": "Cảnh báo: Vui lòng kiểm tra các cảnh báo hệ thống.",
   "account_and_users": "Tài khoản & Người dùng",
   "user_distribution": "Phân bổ người dùng",
@@ -341,6 +346,57 @@
         "store": "Quản lý Sản phẩm, đơn hàng, kho hàng",
         "travel": "Quản lý đặt chỗ, chuyến bay, khách sạn, tour du lịch"
       }
+    }
+  },
+  "users": {
+    "title": "Quản lý người dùng",
+    "create": "Tạo người dùng",
+    "search_placeholder": "Tìm kiếm theo tên đăng nhập, họ tên hoặc email...",
+    "buttons": {
+      "search": "Tìm kiếm",
+      "clear": "Xóa"
+    },
+    "search": "Tìm kiếm",
+    "clear": "Xóa",
+    "table": {
+      "username": "Tên đăng nhập",
+      "fullname": "Họ tên",
+      "email": "Email",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "actions": "Hành động"
+    },
+    "modal": {
+      "view": "Xem thông tin",
+      "edit": "Chỉnh sửa",
+      "create": "Tạo mới",
+      "username": "Tên đăng nhập",
+      "fullname": "Họ tên",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "birth": "Ngày sinh",
+      "address": "Địa chỉ",
+      "company": "Công ty",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "room": "Phòng",
+      "image_url": "Đường dẫn ảnh",
+      "save": "Lưu",
+      "cancel": "Hủy"
+    },
+    "status": {
+      "active": "Đang hoạt động",
+      "inactive": "Ngừng hoạt động"
+    },
+    "actions": {
+      "view": "Xem",
+      "edit": "Sửa",
+      "suspend": "Tạm dừng",
+      "reactivate": "Kích hoạt lại"
+    },
+    "messages": {
+      "confirm_suspend": "Bạn có chắc chắn muốn tạm dừng người dùng {{name}}?",
+      "confirm_reactivate": "Bạn có chắc chắn muốn kích hoạt lại người dùng {{name}}?"
     }
   }
 }

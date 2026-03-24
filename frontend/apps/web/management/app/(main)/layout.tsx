@@ -4,7 +4,7 @@ import J2NHeader from "@repo/components/molecules/J2NHeader";
 import { useEffect, useState } from "react";
 import { userService } from "@/services/userServices";
 import { IUser } from "@/types/user";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@repo/ui/src/providers";
 import { Loader, Center } from "@mantine/core";
 import J2NMotionScale from "@repo/components/atoms/J2NMotionTransition/J2NMotionScale";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ export default function MainLayout({
       try {
         const response = await userService.getMe();
         if (response && response.data) {
-          setUser(response.data.data);
+          setUser(response.data);
         }
       } catch (error) {
         window.location.href =

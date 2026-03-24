@@ -18,21 +18,18 @@ import org.springframework.stereotype.Component;
 public class PageUtil {
 
     private static int defaultPageSize = 10;
-    private static int defaultPageNo = 0;
+    private static final int defaultPageNo = 1;
 
     @Value("${application.page.default-size:10}")
     public void setDefaultPageSize(int size) {
         PageUtil.defaultPageSize = size;
     }
 
-    @Value("${application.page.default-no:0}")
-    public void setDefaultPageNo(int no) {
-        PageUtil.defaultPageNo = no;
-    }
-
-    public static PageRequest buildPageRequest(int page, int size, String sortField, String sortDirection) {
-        int pageNo = Math.max(page, defaultPageNo);
-        int pageSize = (size <= 0) ? defaultPageSize : size;
+    public static PageRequest buildPageRequest(Integer page, Integer size, String sortField, String sortDirection) {
+        int p = (page == null) ? defaultPageNo : page;
+        int s = (size == null || size <= 0) ? defaultPageSize : size;
+        int pageNo = Math.max(p - defaultPageNo, 0);
+        int pageSize = s;
         if (!StringUtils.hasText(sortField)) {
             return PageRequest.of(pageNo, pageSize);
         }
@@ -43,7 +40,7 @@ public class PageUtil {
         return PageRequest.of(pageNo, pageSize, Sort.by(direction, sortField));
     }
 
-    public static PageRequest buildPageRequest(int page, int size) {
+    public static PageRequest buildPageRequest(Integer page, Integer size) {
         return buildPageRequest(page, size, null, null);
     }
 
@@ -56,7 +53,7 @@ public class PageUtil {
             return meta;
         }
         meta.setTotal((int) pageData.getTotalElements());
-        meta.setCurrent(pageData.getNumber());
+        meta.setCurrent(pageData.getNumber() + defaultPageNo);
         meta.setSize(pageData.getSize());
         return meta;
     }

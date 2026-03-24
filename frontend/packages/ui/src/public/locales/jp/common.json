@@ -6,7 +6,9 @@
     "email_invalid": "無効なメールアドレス",
     "role_required": "役割は必須です",
     "room_required": "部屋は必須です",
-    "company_required": "会社名は必須です"
+    "company_required": "会社名は必須です",
+    "username_required": "ユーザー名は必須です",
+    "fullname_required": "フルネームは必須です"
   },
   "username": "ユーザー名",
   "password": "パスワード",
@@ -26,11 +28,16 @@
   "role": "役割",
   "recruiter": "採用担当者",
   "renter": "借主",
-  "visiter": "訪問者",
+  "visitor": "訪問者",
   "back_to_login": "ログインに戻る",
+  "common": {
+    "confirm": "確認",
+    "cancel": "キャンセル"
+  },
   "System": "システム",
-  "Room": "部屋",
-  "Store": "ショップ",
+  "Users": "ユーザー",
+  "Rooms": "部屋",
+  "Stores": "ショップ",
   "Travel": "旅行",
   "Management": "管理",
   "About me": "自己紹介",
@@ -51,8 +58,6 @@
   "personal_projects": "個人プロジェクト",
   "avatar": "アバター",
   "footer_text": "ご覧いただきありがとうございます。機会があればぜひ協力させていただきたいと思います。",
-  "active": "アクティブ",
-  "inactive": "非アクティブ",
   "warning-content": "警告：システムアラートを確認してください。",
   "account_and_users": "アカウントとユーザー",
   "user_distribution": "ユーザー分布",
@@ -341,6 +346,57 @@
         "store": "製品、注文、在庫の管理",
         "travel": "予約、フライト、ホテル、ツアーの管理"
       }
+    }
+  },
+  "users": {
+    "title": "ユーザー管理",
+    "create": "ユーザー作成",
+    "search_placeholder": "ユーザー名、フルネーム、またはメールで検索...",
+    "buttons": {
+      "search": "検索",
+      "clear": "クリア"
+    },
+    "search": "検索",
+    "clear": "クリア",
+    "table": {
+      "username": "ユーザー名",
+      "fullname": "フルネーム",
+      "email": "メール",
+      "role": "役割",
+      "status": "ステータス",
+      "actions": "アクション"
+    },
+    "modal": {
+      "view": "ユーザーを表示",
+      "edit": "ユーザーを編集",
+      "create": "ユーザー作成",
+      "username": "ユーザー名",
+      "fullname": "フルネーム",
+      "email": "メール",
+      "phone": "電話番号",
+      "birth": "生年月日",
+      "address": "住所",
+      "company": "会社",
+      "role": "役割",
+      "status": "ステータス",
+      "room": "部屋",
+      "image_url": "画像URL",
+      "save": "保存",
+      "cancel": "キャンセル"
+    },
+    "status": {
+      "active": "アクティブ",
+      "inactive": "非アクティブ"
+    },
+    "actions": {
+      "view": "表示",
+      "edit": "編集",
+      "suspend": "停止",
+      "reactivate": "再開"
+    },
+    "messages": {
+      "confirm_suspend": "ユーザー {{name}} を停止してもよろしいですか？",
+      "confirm_reactivate": "ユーザー {{name}} を再開してもよろしいですか？"
     }
   }
 }

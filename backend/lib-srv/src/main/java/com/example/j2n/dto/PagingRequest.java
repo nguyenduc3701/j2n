@@ -12,13 +12,13 @@ import lombok.EqualsAndHashCode;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Schema(description = "Standard paging request")
 public class PagingRequest extends BaseRequest {
-    @Schema(description = "Page number (starting from 0)", example = "0")
-    @Min(value = 0, message = "Page must be greater than or equal to 0")
-    private Integer page = 0;
+    @Schema(description = "Page number (starting from 1)", example = "1")
+    @Min(value = 1, message = "Page must be greater than or equal to 1")
+    private Integer page = 1;
 
     @Schema(description = "Number of items per page", example = "50")
     @Min(value = 1, message = "Size must be greater than or equal to 1")
-    private Integer size = 50;
+    private Integer size;
 
     @Schema(description = "Whether to enable paging", example = "true")
     private Boolean paging = true;

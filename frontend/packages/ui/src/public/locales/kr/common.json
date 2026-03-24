@@ -6,7 +6,9 @@
     "email_invalid": "유효하지 않은 이메일입니다.",
     "role_required": "역할은 필수입니다.",
     "room_required": "방은 필수입니다.",
-    "company_required": "회사는 필수입니다."
+    "company_required": "회사는 필수입니다.",
+    "username_required": "사용자 이름은 필수입니다.",
+    "fullname_required": "성명은 필수입니다."
   },
   "username": "사용자 이름",
   "password": "비밀번호",
@@ -26,11 +28,16 @@
   "role": "역할",
   "recruiter": "채용 담당자",
   "renter": "임차인",
-  "visiter": "방문자",
+  "visitor": "방문자",
   "back_to_login": "로그인으로 돌아가기",
+  "common": {
+    "confirm": "확인",
+    "cancel": "취소"
+  },
   "System": "시스템",
-  "Room": "방",
-  "Store": "상점",
+  "Users": "사용자",
+  "Rooms": "방",
+  "Stores": "상점",
   "Travel": "여행",
   "Management": "관리",
   "About me": "자기소개",
@@ -51,8 +58,6 @@
   "personal_projects": "개인 프로젝트",
   "avatar": "아바타",
   "footer_text": "시간 내주셔서 감사합니다. 기회가 된다면 함께 협력하고 싶습니다.",
-  "active": "활성",
-  "inactive": "비활성",
   "warning-content": "경고: 시스템 알림을 확인하십시오.",
   "account_and_users": "계정 및 사용자",
   "user_distribution": "사용자 분포",
@@ -341,6 +346,57 @@
         "store": "제품, 주문, 재고 관리",
         "travel": "예약, 항공편, 호텔, 투어 관리"
       }
+    }
+  },
+  "users": {
+    "title": "사용자 관리",
+    "create": "사용자 생성",
+    "search_placeholder": "사용자 이름, 전체 이름 또는 이메일로 검색...",
+    "buttons": {
+      "search": "검색",
+      "clear": "지우기"
+    },
+    "search": "검색",
+    "clear": "지우기",
+    "table": {
+      "username": "사용자 이름",
+      "fullname": "전체 이름",
+      "email": "이메일",
+      "role": "역할",
+      "status": "상태",
+      "actions": "작업"
+    },
+    "modal": {
+      "view": "사용자 보기",
+      "edit": "사용자 편집",
+      "create": "사용자 생성",
+      "username": "사용자 이름",
+      "fullname": "전체 이름",
+      "email": "이메일",
+      "phone": "전화번호",
+      "birth": "생년월일",
+      "address": "주소",
+      "company": "회사",
+      "role": "역할",
+      "status": "상태",
+      "room": "방",
+      "image_url": "이미지 URL",
+      "save": "저장",
+      "cancel": "취소"
+    },
+    "status": {
+      "active": "활성",
+      "inactive": "비활성"
+    },
+    "actions": {
+      "view": "보기",
+      "edit": "편집",
+      "suspend": "일시 중지",
+      "reactivate": "재활성화"
+    },
+    "messages": {
+      "confirm_suspend": "정말로 {{name}} 사용자를 일시 중지하시겠습니까?",
+      "confirm_reactivate": "정말로 {{name}} 사용자를 재활성화하시겠습니까?"
     }
   }
 }

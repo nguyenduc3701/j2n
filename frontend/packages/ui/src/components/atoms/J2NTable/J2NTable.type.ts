@@ -21,7 +21,9 @@ export interface IJ2NTableProps<T = any> extends Omit<TableProps, "data"> {
   pageSize?: number;
   total?: number;
   onPageChange?: (page: number) => void;
+  activePage?: number;
   fontSize?: string | number;
+  loading?: boolean;
 }
 
 export interface IRenderedRow<T> {
