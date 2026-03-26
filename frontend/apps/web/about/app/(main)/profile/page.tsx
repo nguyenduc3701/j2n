@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { Center, Text } from "@mantine/core";
+import { Center, Text, Loader, Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import J2NMotionFade from "@repo/components/atoms/J2NMotionTransition/J2NMotionFade";
 import J2NDivider from "@repo/components/atoms/J2NDivider";
+import J2NTransText from "@repo/components/atoms/J2NTransText";
 import J2NFooter from "@repo/components/molecules/J2NFooter";
 import { useAppStore } from "@repo/store";
 import { userService } from "@/services/userServices";
@@ -163,9 +164,14 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <Center className="min-h-screen">
-        <Text size="xl" className="text-j2n-plum-dark-500 animate-pulse">
-          Loading profile...
-        </Text>
+        <Stack align="center" gap="md">
+          <Loader size="xl" color="var(--color-j2n-grape-deep-500)" />
+          <J2NTransText
+            tKey="loading_profile"
+            size="xl"
+            className="text-j2n-plum-dark-500 animate-pulse font-secondary-700"
+          />
+        </Stack>
       </Center>
     );
   }
@@ -173,9 +179,11 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <Center className="min-h-screen">
-        <Text size="xl" className="text-red-500">
-          Failed to load profile information.
-        </Text>
+        <J2NTransText
+          tKey="failed_to_load_profile"
+          size="xl"
+          className="text-red-500 font-secondary-700"
+        />
       </Center>
     );
   }

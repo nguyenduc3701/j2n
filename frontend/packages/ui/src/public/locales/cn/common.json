@@ -406,5 +406,7 @@
   "joined_at": "加入时间",
   "no": "序号",
   "permission_name": "权限名称",
-  "description": "描述"
+  "description": "描述",
+  "failed_to_load_profile": "无法加载个人资料信息。",
+  "loading_profile": "正在加载个人资料..."
 }

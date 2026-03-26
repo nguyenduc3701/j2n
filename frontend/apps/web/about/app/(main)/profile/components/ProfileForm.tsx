@@ -84,9 +84,8 @@ const ProfileForm = ({
               label="users.modal.address"
               value={user.address || t("not_updated")}
               isEditing={isEditing}
-              span={12}
             >
-              <Textarea
+              <TextInput
                 placeholder={t("users.modal.address")}
                 {...form.getInputProps("address")}
               />

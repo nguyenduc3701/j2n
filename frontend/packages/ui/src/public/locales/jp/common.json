@@ -406,5 +406,7 @@
   "joined_at": "参加日",
   "no": "番号",
   "permission_name": "権限名",
-  "description": "説明"
+  "description": "説明",
+  "failed_to_load_profile": "プロファイル情報の読み込みに失敗しました。",
+  "loading_profile": "プロファイルを読み込んでいます..."
 }

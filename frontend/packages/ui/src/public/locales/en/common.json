@@ -406,5 +406,7 @@
   "joined_at": "Joined At",
   "no": "No.",
   "permission_name": "Permission Name",
-  "description": "Description"
+  "description": "Description",
+  "failed_to_load_profile": "Failed to load profile information.",
+  "loading_profile": "Loading profile..."
 }

@@ -406,5 +406,7 @@
   "joined_at": "Ngày tham gia",
   "no": "STT.",
   "permission_name": "Tên quyền",
-  "description": "Mô tả"
+  "description": "Mô tả",
+  "failed_to_load_profile": "Không thể tải thông tin hồ sơ.",
+  "loading_profile": "Đang tải hồ sơ..."
 }
