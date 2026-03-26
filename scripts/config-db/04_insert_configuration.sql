@@ -39,4 +39,10 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('image.minio.access-key', 'minio', 'image-srv', 'dev'),
 ('image.minio.secret-key', 'minio123', 'image-srv', 'dev'),
 -- BFF Service Configuration
-('bff.base-url', 'http://localhost:8180', 'bff-srv', 'dev');
+('bff.base-url', 'http://localhost:8180', 'bff-srv', 'dev'),
+-- Frontend Configuration
+('travel-portal.base-url', 'http://localhost:3104', 'frontend', 'dev'),
+('store-portal.base-url', 'http://localhost:3103', 'frontend', 'dev'),
+('room-portal.base-url', 'http://localhost:3102', 'frontend', 'dev'),
+('management-portal.base-url', 'http://localhost:3101', 'frontend', 'dev'),
+('about-portal.base-url', 'http://localhost:3100', 'frontend', 'dev');

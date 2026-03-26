@@ -225,7 +225,7 @@ public class AuthController {
       return ResponseEntity.ok(authService.getPermissionsByRoleId(roleId));
    }
 
-   @PostMapping(value = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+   @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
    @Operation(summary = "Logout", description = "Logout")
    @J2NApiResponses({
          @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {

@@ -14,9 +14,11 @@ import { authApi } from "@/services/authServices";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useAppStore } from "@repo/store";
 
 const LoginPage = () => {
   const { t, i18n } = useTranslation();
+  const { setLanguage, setAccessToken, configurations } = useAppStore();
   const [loading, setLoading] = useState(false);
   const form = useForm({
     initialValues: {
@@ -45,9 +47,14 @@ const LoginPage = () => {
         const { access_token } = response.data;
         if (access_token) {
           localStorage.setItem(ACCESS_TOKEN, access_token);
-          // Redirect to management app (3101) with the token and lang in the URL
+          setAccessToken(access_token);
           const currentLang = i18n.language || "en";
-          window.location.href = `http://localhost:3101/?token=${access_token}&lang=${currentLang}`;
+          setLanguage(currentLang);
+
+          // Redirect to management app (3101) without passing anything in URL!
+          window.location.href =
+            configurations?.["management-portal.base-url"] ||
+            "http://localhost:3101/";
         }
       } else {
         console.error("Login failed:", response.message);
@@ -55,7 +62,7 @@ const LoginPage = () => {
     } catch (error) {
       console.error("Login error:", error);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

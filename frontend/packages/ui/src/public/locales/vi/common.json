@@ -28,7 +28,6 @@
   "role": "Vai trò",
   "recruiter": "Nhà tuyển dụng",
   "renter": "Người thuê",
-  "visitor": "Khách",
   "back_to_login": "Quay lại đăng nhập",
   "common": {
     "confirm": "Xác nhận",
@@ -381,6 +380,7 @@
       "status": "Trạng thái",
       "room": "Phòng",
       "image_url": "Đường dẫn ảnh",
+      "password": "Mật khẩu",
       "save": "Lưu",
       "cancel": "Hủy"
     },
@@ -392,11 +392,19 @@
       "view": "Xem",
       "edit": "Sửa",
       "suspend": "Tạm dừng",
-      "reactivate": "Kích hoạt lại"
+      "reactivate": "Kích hoạt lại",
+      "delete": "Xóa"
     },
     "messages": {
       "confirm_suspend": "Bạn có chắc chắn muốn tạm dừng người dùng {{name}}?",
-      "confirm_reactivate": "Bạn có chắc chắn muốn kích hoạt lại người dùng {{name}}?"
+      "confirm_reactivate": "Bạn có chắc chắn muốn kích hoạt lại người dùng {{name}}?",
+      "confirm_delete": "Bạn có chắc chắn muốn xóa người dùng {{name}}?"
     }
-  }
+  },
+  "not_updated": "Chưa cập nhật",
+  "permissions": "Quyền",
+  "joined_at": "Ngày tham gia",
+  "no": "STT.",
+  "permission_name": "Tên quyền",
+  "description": "Mô tả"
 }

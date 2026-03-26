@@ -2,6 +2,7 @@ package com.example.j2n.config_srv.service;
 
 import com.example.j2n.config_srv.constant.ConfigConstants;
 import com.example.j2n.config_srv.constant.MessageEnum;
+import com.example.j2n.config_srv.controller.request.GetConfigurationsRequest;
 import com.example.j2n.config_srv.controller.request.UpdateConfigurationRequest;
 import com.example.j2n.config_srv.repository.ConfigurationRepository;
 import com.example.j2n.config_srv.repository.entity.ConfigurationEntity;
@@ -40,6 +41,19 @@ public class ConfigurationService {
         ConfigItemResponse configItemResponse = buildConfigItemResponse(response);
         log.info("[CONFIG-SRV] End fetching configuration by ID. Retrieved configuration: {}", response.getConfigKey());
         return ResponseFactory.success(configItemResponse);
+    }
+
+    public BaseResponse<List<ConfigItemResponse>> getConfigurationsByKeys(GetConfigurationsRequest request) {
+        log.info("[CONFIG-SRV] Start fetching configurations for keys: {}", request.getKeys());
+        if (request == null || request.getKeys() == null || request.getKeys().isEmpty()) {
+            log.error("[CONFIG-SRV] Invalid request: request or keys is null/empty");
+            throw new InvalidInputException(MessageEnum.INVALID_REQUEST);
+        }
+        List<ConfigurationEntity> response = configurationRepository.findByConfigKeyIn(request.getKeys());
+        List<ConfigItemResponse> configItemResponses = response.stream().map(this::buildConfigItemResponse).toList();
+        log.info("[CONFIG-SRV] End fetching configurations by keys. Retrieved {} configurations",
+                configItemResponses.size());
+        return ResponseFactory.success(configItemResponses);
     }
 
     public BaseResponse<ConfigItemResponse> updateConfigurationById(String configKey,

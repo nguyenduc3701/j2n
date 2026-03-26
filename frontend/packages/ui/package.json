@@ -1,6 +1,7 @@
 {
   "name": "@repo/ui",
   "version": "0.0.0",
+  "type": "module",
   "private": true,
   "exports": {
     "./src/*": "./src/*"
@@ -21,6 +22,8 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
+    "@repo/store": "*",
+    "@repo/network": "*",
     "@mantine/carousel": "^8.3.9",
     "@mantine/charts": "^8.3.9",
     "@mantine/code-highlight": "^8.3.9",

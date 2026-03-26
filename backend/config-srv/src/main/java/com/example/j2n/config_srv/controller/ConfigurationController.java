@@ -1,5 +1,6 @@
 package com.example.j2n.config_srv.controller;
 
+import com.example.j2n.config_srv.controller.request.GetConfigurationsRequest;
 import com.example.j2n.config_srv.controller.request.UpdateConfigurationRequest;
 import com.example.j2n.config_srv.service.ConfigurationService;
 import com.example.j2n.config_srv.service.response.ConfigItemResponse;
@@ -26,6 +27,12 @@ public class ConfigurationController {
     @GetMapping("/{configKey}")
     public ResponseEntity<BaseResponse<ConfigItemResponse>> getConfigurationById(@PathVariable String configKey) {
         return ResponseEntity.ok(configurationService.getConfigurationById(configKey));
+    }
+
+    @PostMapping("/keys")
+    public ResponseEntity<BaseResponse<List<ConfigItemResponse>>> getConfigurationsByKeys(
+            @RequestBody GetConfigurationsRequest request) {
+        return ResponseEntity.ok(configurationService.getConfigurationsByKeys(request));
     }
 
     @PutMapping("/{configKey}")

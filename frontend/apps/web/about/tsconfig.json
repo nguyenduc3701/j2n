@@ -23,7 +23,8 @@
       "@repo/constants": ["../../../packages/ui/src/constants/index.ts"],
       "@repo/locales/*": ["../../../packages/ui/src/public/locales/*"],
       "@repo/components/*": ["../../../packages/ui/src/components/*"],
-      "@repo/ui/*": ["../../../packages/ui/*"]
+      "@repo/ui/*": ["../../../packages/ui/*"],
+      "@repo/store": ["../../../packages/store/src/index.ts"]
     }
   },
   "include": [

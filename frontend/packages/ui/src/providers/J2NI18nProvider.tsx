@@ -1,19 +1,20 @@
 "use client";
 
-import i18next from "i18next";
+import i18next, { i18n as I18nInstance } from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import enCommon from "../public/locales/en/common.json";
-import viCommon from "../public/locales/vi/common.json";
-import krCommon from "../public/locales/kr/common.json";
-import jpCommon from "../public/locales/jp/common.json";
-import cnCommon from "../public/locales/cn/common.json";
+import enCommon from "../public/locales/en/common.json" with { type: "json" };
+import viCommon from "../public/locales/vi/common.json" with { type: "json" };
+import krCommon from "../public/locales/kr/common.json" with { type: "json" };
+import jpCommon from "../public/locales/jp/common.json" with { type: "json" };
+import cnCommon from "../public/locales/cn/common.json" with { type: "json" };
 import { ReactNode, useEffect, useState } from "react";
 import { I18nextProvider } from "react-i18next";
+import { useAppStore } from "@repo/store";
 
 // Initialize i18next
 // Re-initializing to load new locales
-const i18n = i18next.createInstance();
+const i18n: I18nInstance = i18next.createInstance();
 
 i18n
   .use(LanguageDetector)
@@ -44,15 +45,22 @@ export interface I18nProviderProps {
 }
 
 export function J2NI18nProvider({ children }: I18nProviderProps) {
+  const { language } = useAppStore();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     if (i18n.isInitialized) {
+      if (language && i18n.language !== language) {
+        i18n.changeLanguage(language);
+      }
       setIsReady(true);
     } else {
-      i18n.on("initialized", () => setIsReady(true));
+      i18n.on("initialized", () => {
+        if (language) i18n.changeLanguage(language);
+        setIsReady(true);
+      });
     }
-  }, []);
+  }, [language]);
 
   if (!isReady) {
     return null; // or a loader

@@ -26,7 +26,8 @@ import com.example.j2n.auth_srv.dto.JwtUserPrincipal;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtGeneralUtil jwtUtil;
-    private static final List<String> NOT_FILTER_LIST = List.of("/swagger-ui", "/v3/api-docs");
+    private static final List<String> NOT_FILTER_LIST = List.of("/swagger-ui", "/v3/api-docs", "/auth/register",
+            "/auth/login", "/auth/logout", "/auth/refresh-token");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

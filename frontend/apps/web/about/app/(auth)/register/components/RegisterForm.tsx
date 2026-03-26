@@ -61,10 +61,10 @@ const RegisterForm = () => {
     try {
       // Simple mapping from name to roleId (ensure these match your DB)
       const roleIdMapping: Record<string, number> = {
-        [USER_ROLES.RECRUITER]: 1,
-        [USER_ROLES.RENTER]: 2,
-        [USER_ROLES.VISITOR]: 3,
-        [USER_ROLES.ADMIN]: 4,
+        [USER_ROLES.RECRUITER]: 2,
+        [USER_ROLES.RENTER]: 3,
+        [USER_ROLES.VISITOR]: 4,
+        [USER_ROLES.ADMIN]: 1,
       };
 
       const payload = {

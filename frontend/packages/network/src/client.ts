@@ -1,4 +1,4 @@
-import { ACCESS_TOKEN } from "@repo/ui/src/constants";
+import { ACCESS_TOKEN } from "./constants";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import axiosInstance from "./axiosInstance";
 

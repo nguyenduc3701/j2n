@@ -28,7 +28,6 @@
   "role": "役割",
   "recruiter": "採用担当者",
   "renter": "借主",
-  "visitor": "訪問者",
   "back_to_login": "ログインに戻る",
   "common": {
     "confirm": "確認",
@@ -381,6 +380,7 @@
       "status": "ステータス",
       "room": "部屋",
       "image_url": "画像URL",
+      "password": "パスワード",
       "save": "保存",
       "cancel": "キャンセル"
     },
@@ -392,11 +392,19 @@
       "view": "表示",
       "edit": "編集",
       "suspend": "停止",
-      "reactivate": "再開"
+      "reactivate": "再開",
+      "delete": "削除"
     },
     "messages": {
       "confirm_suspend": "ユーザー {{name}} を停止してもよろしいですか？",
-      "confirm_reactivate": "ユーザー {{name}} を再開してもよろしいですか？"
+      "confirm_reactivate": "ユーザー {{name}} を再開してもよろしいですか？",
+      "confirm_delete": "ユーザー {{name}} を削除してもよろしいですか？"
     }
-  }
+  },
+  "not_updated": "未更新",
+  "permissions": "権限",
+  "joined_at": "参加日",
+  "no": "番号",
+  "permission_name": "権限名",
+  "description": "説明"
 }

@@ -1,4 +1,4 @@
-import { J2NI18nProvider } from "@repo/ui/src/providers";
+import { J2NI18nProvider, J2NConfigProvider } from "@repo/ui/src/providers";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import "@mantine/core/styles.css";
@@ -54,7 +54,9 @@ export default function RootLayout({
       >
         <MantineProvider>
           <ModalsProvider>
-            <J2NI18nProvider>{children}</J2NI18nProvider>
+            <J2NI18nProvider>
+              <J2NConfigProvider>{children}</J2NConfigProvider>
+            </J2NI18nProvider>
           </ModalsProvider>
         </MantineProvider>
       </body>

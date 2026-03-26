@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ACCESS_TOKEN } from "@repo/ui/src/constants";
+import { ACCESS_TOKEN } from "./constants";
 
 // Ensure this file is processed by Next.js or a bundler that supports env vars replacement
 // or that these are available in the runtime environment.

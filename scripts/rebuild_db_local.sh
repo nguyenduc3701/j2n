@@ -11,7 +11,7 @@ MYSQL_PORT="3306"
 
 echo "🚀 Starting Master Database Rebuild..."
 
-DB_DIRS=("auth-db" "bff-db" "image-db" "report-db" "config-db")
+DB_DIRS=("auth-db" "image-db" "report-db" "config-db")
 
 for dir in "${DB_DIRS[@]}"; do
     TARGET_DIR="$SCRIPT_DIR/$dir"
@@ -19,7 +19,6 @@ for dir in "${DB_DIRS[@]}"; do
         # Map directory to database name
         case "$dir" in
             "auth-db") DB_NAME="j2n_auth" ;;
-            "bff-db")  DB_NAME="j2n_bff" ;;
             "image-db") DB_NAME="j2n_image" ;;
             "report-db") DB_NAME="j2n_report" ;;
             "config-db") DB_NAME="j2n_config" ;;

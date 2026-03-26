@@ -28,7 +28,6 @@
   "role": "角色",
   "recruiter": "招聘者",
   "renter": "租户",
-  "visitor": "访客",
   "back_to_login": "返回登录",
   "common": {
     "confirm": "确认",
@@ -381,6 +380,7 @@
       "status": "状态",
       "room": "房间",
       "image_url": "图片网址",
+      "password": "密码",
       "save": "保存",
       "cancel": "取消"
     },
@@ -392,11 +392,19 @@
       "view": "查看",
       "edit": "编辑",
       "suspend": "暂停",
-      "reactivate": "重新激活"
+      "reactivate": "重新激活",
+      "delete": "删除"
     },
     "messages": {
       "confirm_suspend": "您确定要暂停用户 {{name}} 吗？",
-      "confirm_reactivate": "您确定要重新激活用户 {{name}} 吗？"
+      "confirm_reactivate": "您确定要重新激活用户 {{name}} 吗？",
+      "confirm_delete": "您确定要删除用户 {{name}} 吗？"
     }
-  }
+  },
+  "not_updated": "未更新",
+  "permissions": "权限",
+  "joined_at": "加入时间",
+  "no": "序号",
+  "permission_name": "权限名称",
+  "description": "描述"
 }

@@ -28,7 +28,6 @@
   "role": "역할",
   "recruiter": "채용 담당자",
   "renter": "임차인",
-  "visitor": "방문자",
   "back_to_login": "로그인으로 돌아가기",
   "common": {
     "confirm": "확인",
@@ -381,6 +380,7 @@
       "status": "상태",
       "room": "방",
       "image_url": "이미지 URL",
+      "password": "비밀번호",
       "save": "저장",
       "cancel": "취소"
     },
@@ -392,11 +392,19 @@
       "view": "보기",
       "edit": "편집",
       "suspend": "일시 중지",
-      "reactivate": "재활성화"
+      "reactivate": "재활성화",
+      "delete": "삭제"
     },
     "messages": {
       "confirm_suspend": "정말로 {{name}} 사용자를 일시 중지하시겠습니까?",
-      "confirm_reactivate": "정말로 {{name}} 사용자를 재활성화하시겠습니까?"
+      "confirm_reactivate": "정말로 {{name}} 사용자를 재활성화하시겠습니까?",
+      "confirm_delete": "정말로 {{name}} 사용자를 삭제하시겠습니까?"
     }
-  }
+  },
+  "not_updated": "업데이트되지 않음",
+  "permissions": "권한",
+  "joined_at": "가입일",
+  "no": "번호",
+  "permission_name": "권한 이름",
+  "description": "설명"
 }

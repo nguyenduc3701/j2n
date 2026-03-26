@@ -2,22 +2,21 @@
 
 import J2NHeader from "@repo/components/molecules/J2NHeader";
 import { useEffect, useState } from "react";
-import { userService } from "@/services/userServices";
-import { IUser } from "@/types/user";
 import { useTranslation } from "@repo/ui/src/providers";
 import { Loader, Center } from "@mantine/core";
 import J2NMotionScale from "@repo/components/atoms/J2NMotionTransition/J2NMotionScale";
 import { useRouter } from "next/navigation";
+import { useAppStore } from "@repo/store";
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { t } = useTranslation();
+  const { configurations, user, fetchMe } = useAppStore();
 
   const menuItems = [
     { name: t("Users"), href: "/users" },
@@ -27,22 +26,27 @@ export default function MainLayout({
   ];
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const initUser = async () => {
       try {
-        const response = await userService.getMe();
-        if (response && response.data) {
-          setUser(response.data);
+        const fetchedUser = await fetchMe();
+        if (!fetchedUser) {
+          throw new Error("Unauthorized");
         }
       } catch (error) {
-        window.location.href =
-          "http://localhost:3100/login?redirectUrl=/dashboard";
+        const aboutUrl =
+          configurations?.["about-portal.base-url"] || "http://localhost:3100";
+        window.location.href = `${aboutUrl}/login?redirectUrl=/dashboard`;
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUser();
-  }, [router]);
+    if (!user) {
+      initUser();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user, fetchMe, configurations]);
 
   if (isLoading) {
     return (
@@ -65,7 +69,7 @@ export default function MainLayout({
           isLogin: !!user,
           userName: user?.full_name || "User",
           roleName: user?.role_id,
-          baseUrl: "http://localhost:3101",
+          baseUrl: configurations?.["management-portal.base-url"] || "http://localhost:3101",
         }}
       />
       <main className="bg-j2n-sand-100 min-h-screen">{children}</main>

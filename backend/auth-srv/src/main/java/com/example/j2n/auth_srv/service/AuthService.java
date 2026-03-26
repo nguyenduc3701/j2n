@@ -23,6 +23,7 @@ import com.example.j2n.exception.UnauthorizedException;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.RedisUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,7 +84,13 @@ public class AuthService {
     @LogAround(message = "Logout attempt")
     public BaseResponse<String> logout(String accessToken, String refreshToken) {
         String token = accessToken.substring(7);
-        Claims claims = jwtUtil.validate(token);
+        Claims claims;
+        try {
+            claims = jwtUtil.validate(token);
+        } catch (ExpiredJwtException e) {
+            claims = e.getClaims();
+        }
+
         String sessionId = claims.get(SESSION_ID_KEY, String.class);
         String userId = claims.get(USER_ID_KEY, String.class);
         if (userId == null || sessionId == null) {
@@ -157,7 +164,7 @@ public class AuthService {
 
     private String generateAuthToken(UserEntity user, String sessionId) {
         Map<String, Object> claims = buildTokenClaims(user, sessionId);
-        return jwtUtil.generate(claims, user.getUsername(), sessionId, accessTokenExpireSeconds);
+        return jwtUtil.generate(claims, user.getUsername(), sessionId, accessTokenExpireSeconds * 1000);
     }
 
     private LoginResponse buildLoginResponse(UserEntity user, String sessionId) {

@@ -20,7 +20,7 @@ export interface UserTableProps {
   activePage?: number;
   onView: (user: IUser) => void;
   onEdit: (user: IUser) => void;
-  onToggleStatus: (user: IUser) => void;
+  onDelete: (user: IUser) => void;
 }
 
 export interface UserModalProps {

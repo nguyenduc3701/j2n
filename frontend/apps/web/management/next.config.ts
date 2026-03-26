@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  transpilePackages: ["@repo/ui", "@repo/assets"],
+  transpilePackages: ["@repo/ui", "@repo/assets", "@repo/store"],
   experimental: {
     externalDir: true,
   },

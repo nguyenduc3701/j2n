@@ -380,6 +380,7 @@
       "status": "Status",
       "room": "Room",
       "image_url": "Image URL",
+      "password": "Password",
       "save": "Save",
       "cancel": "Cancel"
     },
@@ -391,11 +392,19 @@
       "view": "View",
       "edit": "Edit",
       "suspend": "Suspend",
-      "reactivate": "Reactivate"
+      "reactivate": "Reactivate",
+      "delete": "Delete"
     },
     "messages": {
       "confirm_suspend": "Are you sure you want to suspend user {{name}}?",
-      "confirm_reactivate": "Are you sure you want to reactivate user {{name}}?"
+      "confirm_reactivate": "Are you sure you want to reactivate user {{name}}?",
+      "confirm_delete": "Are you sure you want to delete user {{name}}?"
     }
-  }
+  },
+  "not_updated": "Not updated",
+  "permissions": "Permissions",
+  "joined_at": "Joined At",
+  "no": "No.",
+  "permission_name": "Permission Name",
+  "description": "Description"
 }

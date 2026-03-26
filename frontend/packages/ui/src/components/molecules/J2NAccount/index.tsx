@@ -10,6 +10,9 @@ import {
   IconCaretDownFilled,
   IconSettings,
 } from "@tabler/icons-react";
+import { request } from "@repo/network";
+import { HTTP_METHODS, ACCESS_TOKEN } from "../../../constants";
+import { useAppStore } from "@repo/store";
 
 const J2NAccount: React.FC<IJ2NAccountProps> = ({
   isLogin,
@@ -18,9 +21,32 @@ const J2NAccount: React.FC<IJ2NAccountProps> = ({
   size,
   logoutAction,
 }) => {
-  const handleLogout = () => {
-    if (!logoutAction) return;
-    logoutAction();
+  const { setAccessToken, configurations } = useAppStore();
+
+  const handleRedirectToAboutPortal = (path: string) => {
+    const aboutUrl =
+      configurations?.["about-portal.base-url"] || "http://localhost:3100";
+    window.location.href = `${aboutUrl}${path}`;
+  };
+
+  const handleLogout = async () => {
+    try {
+      if (logoutAction) {
+        logoutAction();
+      } else {
+        await request("/api/bff/logout", {
+          method: HTTP_METHODS.POST,
+        });
+
+        if (typeof window !== "undefined") {
+          setAccessToken(null);
+          localStorage.removeItem(ACCESS_TOKEN);
+          handleRedirectToAboutPortal("/login");
+        }
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const iconSize = size || 14;
@@ -29,12 +55,7 @@ const J2NAccount: React.FC<IJ2NAccountProps> = ({
     {
       label: "Profile",
       icon: <IconUser size={16} />,
-      href: "/profile",
-    },
-    {
-      label: "Settings",
-      icon: <IconSettings size={16} />,
-      href: "/settings",
+      onClick: () => handleRedirectToAboutPortal("/profile"),
     },
   ];
 

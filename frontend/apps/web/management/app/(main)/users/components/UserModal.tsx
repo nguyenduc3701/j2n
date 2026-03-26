@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Grid, Group, Select, TextInput, Textarea } from "@mantine/core";
+import {
+  Grid,
+  Group,
+  Select,
+  TextInput,
+  Textarea,
+  PasswordInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useTranslation } from "@repo/ui/src/providers";
 import { IUser } from "@/types/user";
@@ -42,7 +49,7 @@ const UserModal = ({
       role_id: undefined,
       status: "INACTIVE",
       room_id: null,
-      image_url: null,
+      password: "",
     },
     validate: {
       user_name: (value) =>
@@ -53,6 +60,18 @@ const UserModal = ({
       email: (value) =>
         mode === ModalMode.CREATE && (!value || !/^\S+@\S+$/.test(value))
           ? t("validation.email_invalid")
+          : null,
+      password: (value) =>
+        mode === ModalMode.CREATE && (!value || (value?.length || 0) < 6)
+          ? t("validation.password_length")
+          : null,
+      room_id: (value, { role_id }) =>
+        role_id === ROLE_MAPPING.RENTER && !value
+          ? t("validation.room_required")
+          : null,
+      company: (value, { role_id }) =>
+        role_id === ROLE_MAPPING.RECRUITER && !value
+          ? t("validation.company_required")
           : null,
     },
   });
@@ -67,7 +86,6 @@ const UserModal = ({
         address: user.address || null,
         company: user.company || null,
         room_id: user.room_id || null,
-        image_url: user.image_url || null,
         role_id:
           ROLE_MAPPING[user.role_id?.toUpperCase() || ""] ||
           user.role_id?.toString(),
@@ -114,6 +132,16 @@ const UserModal = ({
               required
             />
           </Grid.Col>
+          {mode === ModalMode.CREATE && (
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <PasswordInput
+                label={t("password")}
+                placeholder={t("password")}
+                {...form.getInputProps("password")}
+                required
+              />
+            </Grid.Col>
+          )}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
               label={t("users.modal.fullname")}
@@ -152,14 +180,6 @@ const UserModal = ({
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
-            <TextInput
-              label={t("users.modal.room")}
-              placeholder={t("users.modal.room")}
-              readOnly={isView}
-              {...form.getInputProps("room_id")}
-            />
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 6 }}>
             <Select
               label={t("users.modal.status")}
               placeholder={t("users.modal.status")}
@@ -171,30 +191,36 @@ const UserModal = ({
               {...form.getInputProps("status")}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
-              label={t("users.modal.company")}
-              placeholder={t("users.modal.company")}
-              readOnly={isView}
-              {...form.getInputProps("company")}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <Textarea
               label={t("users.modal.address")}
               placeholder={t("users.modal.address")}
               readOnly={isView}
               {...form.getInputProps("address")}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
-            <TextInput
-              label={t("users.modal.image_url")}
-              placeholder={t("users.modal.image_url")}
-              readOnly={isView}
-              {...form.getInputProps("image_url")}
-            />
-          </Grid.Col>
+          {form.values.role_id === ROLE_MAPPING.RENTER && (
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <TextInput
+                label={t("users.modal.room")}
+                placeholder={t("users.modal.room")}
+                readOnly={isView}
+                {...form.getInputProps("room_id")}
+                required
+              />
+            </Grid.Col>
+          )}
+          {form.values.role_id === ROLE_MAPPING.RECRUITER && (
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <TextInput
+                label={t("users.modal.company")}
+                placeholder={t("users.modal.company")}
+                readOnly={isView}
+                {...form.getInputProps("company")}
+                required
+              />
+            </Grid.Col>
+          )}
         </Grid>
 
         <Group justify="flex-end" mt="xl">

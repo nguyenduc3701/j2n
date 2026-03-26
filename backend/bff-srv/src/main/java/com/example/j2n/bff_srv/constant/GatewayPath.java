@@ -24,4 +24,8 @@ public class GatewayPath {
     public static final String IMAGE_DOWNLOAD_FILE_PATH = "/api/image/file/curriculum-vitae/%s";
     // report-srv
     public static final String REPORT_MANAGEMENT_DASHBOARD_PATH = "/api/report/management/dashboard";
+    // config-srv
+    public static final String CONFIGURATION_BASE_PATH = "/api/centralize/configurations";
+    public static final String CONFIGURATION_BY_KEY_PATH = "/api/centralize/configurations/%s";
+    public static final String CONFIGURATION_BY_KEYS_PATH = "/api/centralize/configurations/keys";
 }

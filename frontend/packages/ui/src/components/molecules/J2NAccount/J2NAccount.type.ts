@@ -10,6 +10,6 @@ export interface IJ2NAccountProps {
 export interface IDropdownMenuItem {
   label: string;
   icon: React.ReactNode;
-  href: string;
+  href?: string;
   onClick?: () => void;
 }

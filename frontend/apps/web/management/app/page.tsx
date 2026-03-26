@@ -5,50 +5,32 @@ import { useRouter } from "next/navigation";
 import { Loader, Center } from "@mantine/core";
 import { ACCESS_TOKEN } from "@repo/constants";
 import { useTranslation } from "@repo/ui/src/providers";
+import { useAppStore } from "@repo/store";
 import J2NMotionScale from "@repo/components/atoms/J2NMotionTransition/J2NMotionScale";
 
 export default function Home() {
   const router = useRouter();
   const { i18n } = useTranslation();
-  const handleUrlAuth = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get("token");
-    const urlLang = urlParams.get("lang");
-
-    if (urlToken || urlLang) {
-      if (urlToken) {
-        localStorage.setItem(ACCESS_TOKEN, urlToken);
-      }
-      if (urlLang) {
-        i18n.changeLanguage(urlLang);
-        localStorage.setItem("language", urlLang);
-      }
-      // Clean the URL (remove token and lang from address bar)
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, "", newUrl);
-      router.push("/dashboard");
-      return true;
-    }
-    return false;
-  };
+  const { accessToken, setAccessToken, configurations } = useAppStore();
 
   const checkLocalAuth = () => {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (token) {
+    const localToken = localStorage.getItem(ACCESS_TOKEN);
+    const currentToken = accessToken || localToken;
+
+    if (currentToken) {
+      if (!accessToken && localToken) {
+        setAccessToken(localToken);
+      }
       router.push("/dashboard");
     } else {
-      // No token found, redirect to login page
-      window.location.href =
-        "http://localhost:3100/login?redirectUrl=/dashboard";
+      const aboutUrl = configurations?.["about-portal.base-url"] || "http://localhost:3100";
+      window.location.href = `${aboutUrl}/login?redirectUrl=/dashboard`;
     }
   };
 
   useEffect(() => {
-    const handled = handleUrlAuth();
-    if (!handled) {
-      checkLocalAuth();
-    }
-  }, [router, i18n]);
+    checkLocalAuth();
+  }, [router, i18n, accessToken]);
 
   return (
     <Center h="100vh" className="bg-j2n-sand-500">

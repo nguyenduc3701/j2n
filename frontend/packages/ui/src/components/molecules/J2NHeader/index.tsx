@@ -11,6 +11,7 @@ import { IconMenu2, IconX } from "@tabler/icons-react";
 import J2NLogo from "./J2N-logo.svg";
 import J2NLanguages from "../J2NLanguages";
 import J2NAccount from "../J2NAccount";
+import { useAppStore } from "@repo/store";
 
 const J2NHeader = (props: IHeaderProps) => {
   const {
@@ -25,6 +26,7 @@ const J2NHeader = (props: IHeaderProps) => {
   } = props;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { i18n, t } = useTranslation();
+  const { configurations } = useAppStore();
 
   const handleChangeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -40,7 +42,7 @@ const J2NHeader = (props: IHeaderProps) => {
         { name: t("Travel"), href: "/travel", target: Target.NEW_TAB },
         {
           name: t("Management"),
-          href: "http://localhost:3101/",
+          href: configurations?.["management-portal.base-url"] || "http://localhost:3101/",
           target: Target.NEW_TAB,
         },
       ];

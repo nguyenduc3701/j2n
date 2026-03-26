@@ -2,7 +2,11 @@
 
 import React from "react";
 import { ActionIcon, Badge, Group, Tooltip } from "@mantine/core";
-import { IconEdit, IconEye, IconLock, IconLockOpen } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconEye,
+  IconTrash,
+} from "@tabler/icons-react";
 import J2NTable from "@repo/ui/src/components/atoms/J2NTable";
 import { IUser } from "@/types/user";
 import { useTranslation } from "@repo/ui/src/providers";
@@ -19,7 +23,7 @@ const UserTable = ({
   onPageChange,
   onView,
   onEdit,
-  onToggleStatus,
+  onDelete,
 }: UserTableProps) => {
   const { t } = useTranslation();
 
@@ -98,23 +102,13 @@ const UserTable = ({
               <IconEdit size={18} />
             </ActionIcon>
           </Tooltip>
-          <Tooltip
-            label={
-              record.status === "ACTIVE"
-                ? t("users.actions.suspend")
-                : t("users.actions.reactivate")
-            }
-          >
+          <Tooltip label={t("users.actions.delete")}>
             <ActionIcon
               variant="subtle"
               style={{ color: ICON_COLOR }}
-              onClick={() => onToggleStatus(record)}
+              onClick={() => onDelete(record)}
             >
-              {record.status === "ACTIVE" ? (
-                <IconLock size={18} />
-              ) : (
-                <IconLockOpen size={18} />
-              )}
+              <IconTrash size={18} />
             </ActionIcon>
           </Tooltip>
         </Group>

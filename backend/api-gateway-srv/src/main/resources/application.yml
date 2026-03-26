@@ -58,6 +58,17 @@ spring:
                 redis-rate-limiter.replenishRate: 2
                 redis-rate-limiter.burstCapacity: 5
                 key-resolver: "#{@userKeyResolver}"
+        - id: config-srv
+          uri: ${VAULT_URL}
+          predicates:
+            - Path=/api/centralize/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
       filter:
         request-rate-limiter:
           redis-rate-limiter:

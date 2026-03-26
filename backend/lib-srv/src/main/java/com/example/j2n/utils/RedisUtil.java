@@ -31,8 +31,9 @@ public class RedisUtil {
     }
 
     public void deleteKey(String key) {
-        validateRedisKey(key);
-        redisTemplate.delete(key);
+        if (key != null) {
+            redisTemplate.delete(key);
+        }
     }
 
     public void deleteKeys(List<String> keys) {
@@ -53,8 +54,9 @@ public class RedisUtil {
     }
 
     public void removeSet(String key, Object value) {
-        validateRedisKey(key);
-        redisTemplate.opsForSet().remove(key, value);
+        if (key != null) {
+            redisTemplate.opsForSet().remove(key, value);
+        }
     }
 
     public boolean expire(String key, long timeout, TimeUnit unit) {

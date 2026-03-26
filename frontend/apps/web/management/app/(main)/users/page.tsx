@@ -83,33 +83,27 @@ const UsersPage = () => {
     setModalOpened(true);
   };
 
-  const handleToggleStatus = (user: IUser) => {
-    const isActive = user.status === "ACTIVE";
+
+
+  const handleDelete = (user: IUser) => {
     modals.openConfirmModal({
-      title: isActive
-        ? t("users.actions.suspend")
-        : t("users.actions.reactivate"),
+      title: t("users.actions.delete"),
       centered: true,
       children: (
         <Text size="sm">
-          {isActive
-            ? t("users.messages.confirm_suspend", { name: user.full_name })
-            : t("users.messages.confirm_reactivate", { name: user.full_name })}
+          {t("users.messages.confirm_delete", { name: user.full_name })}
         </Text>
       ),
       labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
       confirmProps: { color: "#75616a" },
       onConfirm: async () => {
         try {
-          const response = await userService.toggleStatus(
-            user.id.toString(),
-            user.status
-          );
+          const response = await userService.deleteUser(user.id.toString());
           if (response && response.status === 200) {
             fetchUsers();
           }
         } catch (error) {
-          console.error("Failed to toggle user status:", error);
+          console.error("Failed to delete user:", error);
         }
       },
     });
@@ -171,7 +165,7 @@ const UsersPage = () => {
               onPageChange={setPage}
               onView={handleView}
               onEdit={handleEdit}
-              onToggleStatus={handleToggleStatus}
+              onDelete={handleDelete}
             />
           </Box>
         </Stack>

@@ -1,15 +1,17 @@
-import { create } from 'zustand'
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 
 interface AppState {
-  theme: 'light' | 'dark'
-  language: string
-  setTheme: (theme: 'light' | 'dark') => void
-  setLanguage: (lang: string) => void
+  theme: "light" | "dark";
+  setTheme: (theme: "light" | "dark") => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
-  theme: 'light',
-  language: 'kr',
-  setTheme: (theme) => set({ theme }),
-  setLanguage: (language) => set({ language }),
-}))
+export const useAppStore = create<AppState>()(
+  devtools(
+    (set) => ({
+      theme: "light",
+      setTheme: (theme) => set({ theme }),
+    }),
+    { name: "AboutAppStore" },
+  ),
+);

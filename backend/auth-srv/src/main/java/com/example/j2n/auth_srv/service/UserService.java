@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import com.example.j2n.utils.SearchFactory;
 import com.example.j2n.utils.SearchPredicateBuilder.SearchCriteria;
 import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -98,10 +99,10 @@ public class UserService {
                     currentUser.getId(), userId);
             throw new AccessDeniedException(MessageEnum.ROLE_NOT_ALLOW_ACTION);
         }
-        if (request.getRoleId() != null) {
+        UserEntity user = findUserByIdOrThrow(userId);
+        if (request.getRoleId() != null && !CommonConst.ROLE_ADMIN_ID.equals(user.getRoleId())) {
             validateAllowRoleInRequest(request.getRoleId());
         }
-        UserEntity user = findUserByIdOrThrow(userId);
         applyUpdateFields(user, request);
         userRepository.save(user);
         return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
@@ -186,8 +187,6 @@ public class UserService {
     }
 
     // ==================== Mapping Methods ====================
-
-
 
     private UserResponse.UserItem buildUserItemFromEntity(UserEntity user) {
         UserResponse.UserItem userItem = new UserResponse.UserItem();
