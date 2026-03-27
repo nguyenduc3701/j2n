@@ -12,6 +12,13 @@ import org.springframework.stereotype.Component;
 import com.example.j2n.bff_srv.client.AuthServiceClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,19 +40,27 @@ public class RestTemplateRefreshInterceptor implements ClientHttpRequestIntercep
             @NonNull byte[] body,
             @NonNull ClientHttpRequestExecution execution) throws IOException {
 
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest servletRequest = null;
+        HttpServletResponse servletResponse = null;
+        if (attrs instanceof ServletRequestAttributes sra) {
+            servletRequest = sra.getRequest();
+            servletResponse = sra.getResponse();
+        }
+
         ClientHttpResponse response = execution.execute(request, body);
         String path = request.getURI().getPath();
         if (response.getStatusCode() == HttpStatus.UNAUTHORIZED && !path.contains("/auth/refresh-token")) {
             log.info("[BFF-SRV] Token expired, attempting silent refresh...");
             String expiredToken = getBearerToken(request);
             synchronized (this) {
-                String currentToken = authServiceClientProvider.getObject().getTokenFromCookie(ACCESS_TOKEN);
+                String currentToken = authServiceClientProvider.getObject().getTokenFromCookie(servletRequest, ACCESS_TOKEN);
                 if (currentToken != null && !currentToken.equals(expiredToken)) {
                     log.info("[BFF-SRV] Token was already refreshed by another thread, retrying...");
                     request.getHeaders().set(HttpHeaders.AUTHORIZATION, BEARER + currentToken);
                     return execution.execute(request, body);
                 }
-                String newAccessToken = authServiceClientProvider.getObject().refresh();
+                String newAccessToken = authServiceClientProvider.getObject().refresh(servletRequest, servletResponse);
                 if (newAccessToken != null) {
                     HttpHeaders headers = request.getHeaders();
                     headers.set(HttpHeaders.AUTHORIZATION, BEARER + newAccessToken);

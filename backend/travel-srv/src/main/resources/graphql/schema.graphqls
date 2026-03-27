@@ -1,0 +1,90 @@
+type Query {
+    # Categories
+    getAllCategories: [Category]
+    getCategoryById(id: ID!): Category
+    getCategoryBySlug(slug: String!): Category
+
+    # Tours
+    getAllTours: [Tour]
+    getTourById(id: ID!): Tour
+    getToursByCategory(categoryId: ID!): [Tour]
+
+    # Hello world (existing)
+    hello: HelloResponse
+}
+
+type Mutation {
+    # Categories
+    createCategory(input: CategoryInput!): Category
+    updateCategory(id: ID!, input: CategoryInput!): Category
+    deleteCategory(id: ID!): Boolean
+
+    # Tours
+    createTour(input: TourInput!): Tour
+    updateTour(id: ID!, input: TourInput!): Tour
+    deleteTour(id: ID!): Boolean
+}
+
+type Category {
+    id: ID
+    name: String
+    slug: String
+    createdAt: String
+    updatedAt: String
+    isDeleted: Boolean
+    tours: [Tour]
+}
+
+type Tour {
+    id: ID
+    title: String
+    description: String
+    price: Float
+    thumbnail: String
+    duration: String
+    startLocation: String
+    createdAt: String
+    updatedAt: String
+    isDeleted: Boolean
+    category: Category
+    schedules: [TourSchedule]
+    images: [TourImage]
+}
+
+type TourSchedule {
+    id: ID
+    dayNumber: Int
+    title: String
+    content: String
+    createdAt: String
+    updatedAt: String
+}
+
+type TourImage {
+    id: ID
+    imageUrl: String
+    isPrimary: Boolean
+    createdAt: String
+    updatedAt: String
+}
+
+input CategoryInput {
+    name: String!
+    slug: String!
+}
+
+input TourInput {
+    categoryId: ID!
+    title: String!
+    description: String
+    price: Float!
+    thumbnail: String
+    duration: String
+    startLocation: String
+}
+
+type HelloResponse {
+    code: String
+    message: String
+    data: String
+}

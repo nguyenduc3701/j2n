@@ -8,6 +8,7 @@ import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.RetryableException;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -35,10 +36,10 @@ public class AuthServiceClient {
 
     private final RestClientUtil restClientUtil;
 
-    public String refresh() {
+    public String refresh(HttpServletRequest request, HttpServletResponse response) {
         try {
             log.info("[BFF-SRV] Calling Auth-Srv to refresh token...");
-            String oldRefreshToken = getTokenFromCookie(REFRESH_TOKEN);
+            String oldRefreshToken = getTokenFromCookie(request, REFRESH_TOKEN);
             if (oldRefreshToken == null) {
                 log.warn("[BFF-SRV] No refresh token found in cookies, skipping refresh");
                 return null;
@@ -46,7 +47,7 @@ public class AuthServiceClient {
             Map<String, String> authHeaders = Map.of(
                     "FROM-BFF", "true",
                     "X-Refresh-Token", oldRefreshToken);
-            BaseResponse<LoginResponse> response = restClientUtil.requestAuth(
+            BaseResponse<LoginResponse> responseObj = restClientUtil.requestAuth(
                     GatewayPath.AUTH_REFRESH_TOKEN_PATH,
                     HttpMethod.POST,
                     null,
@@ -54,9 +55,9 @@ public class AuthServiceClient {
                     new ParameterizedTypeReference<BaseResponse<LoginResponse>>() {
                     });
 
-            if (response != null && response.getData() != null) {
-                LoginResponse data = response.getData();
-                updateResponseCredentials(data.getAccessToken(), data.getRefreshToken());
+            if (responseObj != null && responseObj.getData() != null) {
+                LoginResponse data = responseObj.getData();
+                updateResponseCredentials(response, data.getAccessToken(), data.getRefreshToken());
                 return data.getAccessToken();
             }
         } catch (Exception e) {
@@ -66,12 +67,16 @@ public class AuthServiceClient {
         return null;
     }
 
-    public String getTokenFromCookie(String type) {
+    public String refresh() {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attr == null)
+        return refresh(attr != null ? attr.getRequest() : null, attr != null ? attr.getResponse() : null);
+    }
+
+    public String getTokenFromCookie(HttpServletRequest request, String type) {
+        if (request == null)
             return null;
 
-        Cookie[] cookies = attr.getRequest().getCookies();
+        Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (type.equals(cookie.getName()))
@@ -81,10 +86,13 @@ public class AuthServiceClient {
         return null;
     }
 
-    public void updateResponseCredentials(String newAccess, String newRefresh) {
+    public String getTokenFromCookie(String type) {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attr != null && attr.getResponse() != null) {
-            HttpServletResponse response = attr.getResponse();
+        return getTokenFromCookie(attr != null ? attr.getRequest() : null, type);
+    }
+
+    public void updateResponseCredentials(HttpServletResponse response, String newAccess, String newRefresh) {
+        if (response != null) {
             response.addHeader("X-New-Access-Token", newAccess);
             ResponseCookie accessCookie = ResponseCookie.from(ACCESS_TOKEN, newAccess)
                     .httpOnly(true)
@@ -105,5 +113,10 @@ public class AuthServiceClient {
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
             log.info("[BFF-SRV] Credentials updated in Current Response Context");
         }
+    }
+
+    public void updateResponseCredentials(String newAccess, String newRefresh) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        updateResponseCredentials(attr != null ? attr.getResponse() : null, newAccess, newRefresh);
     }
 }

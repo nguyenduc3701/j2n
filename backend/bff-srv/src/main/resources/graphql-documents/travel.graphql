@@ -1,0 +1,7 @@
+query getHelloMessage {
+  hello {
+    code
+    message
+    data
+  }
+}

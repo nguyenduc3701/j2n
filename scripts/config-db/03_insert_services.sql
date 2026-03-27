@@ -5,5 +5,6 @@ INSERT INTO service (id, name) VALUES
 ('bff-srv', 'BFF Service'),
 ('config-srv', 'Configuration Service'),
 ('image-srv', 'Image Service'),
-('report-srv', 'Report Service')
+('report-srv', 'Report Service'),
+('travel-srv', 'Travel Service')
 ON DUPLICATE KEY UPDATE name = VALUES(name);

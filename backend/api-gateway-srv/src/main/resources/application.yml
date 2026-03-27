@@ -69,6 +69,17 @@ spring:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
+        - id: travel-srv
+          uri: ${api-gateway.travel.base-url}
+          predicates:
+            - Path=/api/travel/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@userKeyResolver}"
       filter:
         request-rate-limiter:
           redis-rate-limiter:
