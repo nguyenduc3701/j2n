@@ -1,11 +1,18 @@
 package com.example.j2n.bff_srv.exception;
 
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.dto.SimpleBaseMessage;
+import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.BaseServiceException;
 import com.example.j2n.impl.BaseMessage;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -22,36 +29,37 @@ public class GlobalDefaultExceptionHandler {
                 .body(ResponseFactory.base(msg));
     }
 
-    @ExceptionHandler(org.springframework.security.authorization.AuthorizationDeniedException.class)
+    @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<BaseResponse<Object>> handleAuthorizationDeniedException(
-            org.springframework.security.authorization.AuthorizationDeniedException e) {
+            AuthorizationDeniedException e) {
         log.error("[BFF-SRV] Access Denied: {}", e.getMessage());
         return ResponseEntity
-                .status(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
-                .body(ResponseFactory.error(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED));
+                .status(BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
+                .body(ResponseFactory.error(BaseMessageEnum.ACCESS_DENIED));
     }
 
-    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<BaseResponse<Object>> handleAccessDeniedException(
-            org.springframework.security.access.AccessDeniedException e) {
+            AccessDeniedException e) {
         log.error("[BFF-SRV] Access Denied: {}", e.getMessage());
         return ResponseEntity
-                .status(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
-                .body(ResponseFactory.error(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED));
+                .status(BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
+                .body(ResponseFactory.error(BaseMessageEnum.ACCESS_DENIED));
     }
-    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<BaseResponse<Object>> handleValidationExceptions(
-            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+            MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(org.springframework.validation.FieldError::getDefaultMessage)
                 .findFirst()
                 .orElse("Invalid input");
         log.error("[BFF-SRV] Validation failed: {}", errorMessage);
         return ResponseEntity
-                .status(org.springframework.http.HttpStatus.BAD_REQUEST)
-                .body(ResponseFactory.error(new com.example.j2n.dto.SimpleBaseMessage(
-                        com.example.j2n.enums.BaseMessageEnum.BAD_REQUEST.getCode(),
-                        com.example.j2n.enums.BaseMessageEnum.BAD_REQUEST.getHttpStatus(),
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ResponseFactory.error(new SimpleBaseMessage(
+                        BaseMessageEnum.BAD_REQUEST.getCode(),
+                        BaseMessageEnum.BAD_REQUEST.getHttpStatus(),
                         errorMessage)));
     }
 }
