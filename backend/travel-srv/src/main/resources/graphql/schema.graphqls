@@ -1,13 +1,14 @@
 type Query {
     # Categories
-    getAllCategories: [Category]
-    getCategoryById(id: ID!): Category
-    getCategoryBySlug(slug: String!): Category
+    getAllCategories: CategoryListResponse
+    getCategoryById(id: ID!): CategoryResponse
+    getCategoryBySlug(slug: String!): CategoryResponse
+    getCategoryByName(name: String!): CategoryResponse
 
     # Tours
-    getAllTours: [Tour]
-    getTourById(id: ID!): Tour
-    getToursByCategory(categoryId: ID!): [Tour]
+    getAllTours: TourListResponse
+    getTourById(id: ID!): TourResponse
+    getToursByCategory(categoryId: ID!): TourListResponse
 
     # Hello world (existing)
     hello: HelloResponse
@@ -15,14 +16,14 @@ type Query {
 
 type Mutation {
     # Categories
-    createCategory(input: CategoryInput!): Category
-    updateCategory(id: ID!, input: CategoryInput!): Category
-    deleteCategory(id: ID!): Boolean
+    createCategory(input: CategoryInput!): CategoryResponse
+    updateCategory(id: ID!, input: CategoryInput!): CategoryResponse
+    deleteCategory(id: ID!): BooleanResponse
 
     # Tours
-    createTour(input: TourInput!): Tour
-    updateTour(id: ID!, input: TourInput!): Tour
-    deleteTour(id: ID!): Boolean
+    createTour(input: TourInput!): TourResponse
+    updateTour(id: ID!, input: TourInput!): TourResponse
+    deleteTour(id: ID!): BooleanResponse
 }
 
 type Category {
@@ -87,4 +88,34 @@ type HelloResponse {
     code: String
     message: String
     data: String
+}
+
+type CategoryResponse {
+    code: String
+    message: String
+    data: Category
+}
+
+type CategoryListResponse {
+    code: String
+    message: String
+    data: [Category]
+}
+
+type BooleanResponse {
+    code: String
+    message: String
+    data: Boolean
+}
+
+type TourResponse {
+    code: String
+    message: String
+    data: Tour
+}
+
+type TourListResponse {
+    code: String
+    message: String
+    data: [Tour]
 }

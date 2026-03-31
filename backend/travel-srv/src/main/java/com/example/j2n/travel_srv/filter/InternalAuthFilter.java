@@ -1,16 +1,14 @@
 package com.example.j2n.travel_srv.filter;
 
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.travel_srv.dto.InternalUserAuthentication;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,7 +23,7 @@ import java.util.List;
 @Component
 public class InternalAuthFilter extends OncePerRequestFilter {
 
-    private static final List<String> NOT_FILTER_LIST = List.of("/travel/graphiql");
+    private static final List<String> NOT_FILTER_LIST = List.of("/travel/graphiql", "/error");
 
     @Value("${internal.token}")
     private String internalToken;

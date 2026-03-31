@@ -7,15 +7,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.BaseServiceException;
 import com.example.j2n.utils.ResponseFactory;
 
+import graphql.GraphQLError;
+import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
+import org.springframework.graphql.execution.ErrorType;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
-@RestControllerAdvice
+
+@ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
@@ -64,5 +67,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED.getHttpStatus().getCode())
                 .body(ResponseFactory.error(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED));
+    }
+
+    // --- GraphQL Exception Handlers ---
+
+    @GraphQlExceptionHandler
+    public GraphQLError handleBindExceptionForGraphQl(BindException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        log.error("[TRAVEL-SRV][GraphQL] Validation error: {}", errorMessage);
+        return GraphQLError.newError()
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(errorMessage)
+                .build();
+    }
+
+    @GraphQlExceptionHandler
+    public GraphQLError handleBaseServiceExceptionForGraphQl(BaseServiceException ex) {
+        log.error("[TRAVEL-SRV][GraphQL] Service error: {}", ex.getMessage());
+        return GraphQLError.newError()
+                .errorType(ErrorType.INTERNAL_ERROR)
+                .message(ex.getMessage())
+                .build();
     }
 }

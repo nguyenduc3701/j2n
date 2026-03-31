@@ -1,5 +1,103 @@
-query getHelloMessage {
+query Op_hello {
   hello {
+    code
+    message
+    data
+  }
+}
+
+query Op_getAllCategories {
+  getAllCategories {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      createdAt
+      updatedAt
+      isDeleted
+    }
+  }
+}
+
+query Op_getCategoryById($id: ID!) {
+  getCategoryById(id: $id) {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      createdAt
+      updatedAt
+      isDeleted
+    }
+  }
+}
+
+query Op_getCategoryBySlug($slug: String!) {
+  getCategoryBySlug(slug: $slug) {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      createdAt
+      updatedAt
+      isDeleted
+    }
+  }
+}
+
+query Op_getCategoryByName($name: String!) {
+  getCategoryByName(name: $name) {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      createdAt
+      updatedAt
+      isDeleted
+    }
+  }
+}
+
+mutation Op_createCategory($input: CategoryInput!) {
+  createCategory(input: $input) {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      createdAt
+      updatedAt
+      isDeleted
+    }
+  }
+}
+
+mutation Op_updateCategory($id: ID!, $input: CategoryInput!) {
+  updateCategory(id: $id, input: $input) {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      createdAt
+      updatedAt
+      isDeleted
+    }
+  }
+}
+
+mutation Op_deleteCategory($id: ID!) {
+  deleteCategory(id: $id) {
     code
     message
     data

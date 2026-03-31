@@ -11,7 +11,6 @@ import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -24,22 +23,18 @@ public class GraphQLFactory {
 
     @SuppressWarnings("unchecked")
     public <T> Mono<T> execute(String docName, String path, Map<String, Object> vars,
-            ParameterizedTypeReference<T> type) {
+                               ParameterizedTypeReference<T> type) {
 
-        // Lấy RequestContext ở thread chính trước khi chuyển sang thread bất đồng bộ
-        // của WebClient
         RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
 
-        HttpGraphQlClient.RequestSpec request = client.documentName(docName);
-        if (vars != null) {
-            request = request.variables(vars);
-        }
-        return request.retrieve(path)
+        return client.documentName(docName)
+                .operationName("Op_" + path)
+                .variables(vars != null ? vars : Map.of())
+                .retrieve(path)
                 .toEntity(type)
                 .onErrorResume(ex -> {
                     log.error("GraphQL execution error - doc: {}, path: {}", docName, path, ex);
                     try {
-                        // Assuming T is BaseResponse or compatible
                         BaseResponse<?> errorResponse = ResponseFactory.error(BaseMessageEnum.INTERNAL_ERROR);
                         return Mono.just((T) errorResponse);
                     } catch (Exception e) {
