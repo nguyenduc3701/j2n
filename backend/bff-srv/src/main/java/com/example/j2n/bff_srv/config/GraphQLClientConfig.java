@@ -18,6 +18,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GraphQLClientConfig {
 
+    private final String TRAVEL_GRAPHQL_URL = "/api/travel/graphql";
+
     @Value("${api-gateway.base-url}")
     private String gatewayBaseUrl;
 
@@ -26,7 +28,7 @@ public class GraphQLClientConfig {
     @Bean
     public HttpGraphQlClient travelGraphQlClient() {
         WebClient webClient = WebClient.builder()
-                .baseUrl(gatewayBaseUrl + "/api/travel/graphql")
+                .baseUrl(gatewayBaseUrl + TRAVEL_GRAPHQL_URL)
                 .filter(webClientRefreshInterceptor)
                 .build();
 
@@ -34,12 +36,10 @@ public class GraphQLClientConfig {
                 .interceptor(new GraphQlClientInterceptor() {
                     @Override
                     public Mono<ClientGraphQlResponse> intercept(ClientGraphQlRequest request, Chain chain) {
-                        // 1. Log thông tin request trước khi gửi
                         log.info("🚀 [GraphQL Request] Operation: {}", request.getOperationName());
                         log.info("📦 [GraphQL Variables]: {}", request.getVariables());
-                        log.debug("📜 [GraphQL Document Raw]: \n{}", request.getDocument());
+                        // log.debug("📜 [GraphQL Document Raw]: \n{}", request.getDocument());
 
-                        // 2. Cho phép request đi tiếp và hứng kết quả để log error nếu có
                         return chain.next(request).doOnNext(response -> {
                             if (response.isValid()) {
                                 log.info("✅ [GraphQL Response]: Success for operation '{}'",

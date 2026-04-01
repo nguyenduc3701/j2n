@@ -1,4 +1,4 @@
-package com.example.j2n.travel_srv.entity;
+package com.example.j2n.travel_srv.repository.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

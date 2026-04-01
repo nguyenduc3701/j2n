@@ -1,11 +1,3 @@
-query Op_hello {
-  hello {
-    code
-    message
-    data
-  }
-}
-
 query Op_getAllCategories {
   getAllCategories {
     code
@@ -14,9 +6,6 @@ query Op_getAllCategories {
       id
       name
       slug
-      createdAt
-      updatedAt
-      isDeleted
     }
   }
 }
@@ -29,9 +18,6 @@ query Op_getCategoryById($id: ID!) {
       id
       name
       slug
-      createdAt
-      updatedAt
-      isDeleted
     }
   }
 }
@@ -44,9 +30,6 @@ query Op_getCategoryBySlug($slug: String!) {
       id
       name
       slug
-      createdAt
-      updatedAt
-      isDeleted
     }
   }
 }
@@ -59,9 +42,6 @@ query Op_getCategoryByName($name: String!) {
       id
       name
       slug
-      createdAt
-      updatedAt
-      isDeleted
     }
   }
 }
@@ -74,9 +54,6 @@ mutation Op_createCategory($input: CategoryInput!) {
       id
       name
       slug
-      createdAt
-      updatedAt
-      isDeleted
     }
   }
 }
@@ -89,9 +66,6 @@ mutation Op_updateCategory($id: ID!, $input: CategoryInput!) {
       id
       name
       slug
-      createdAt
-      updatedAt
-      isDeleted
     }
   }
 }

@@ -2,7 +2,7 @@ package com.example.j2n.travel_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.travel_srv.dto.CategoryDto;
-import com.example.j2n.travel_srv.entity.CategoryEntity;
+import com.example.j2n.travel_srv.repository.entity.CategoryEntity;
 import com.example.j2n.travel_srv.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
