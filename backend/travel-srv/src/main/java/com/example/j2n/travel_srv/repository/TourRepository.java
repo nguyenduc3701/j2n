@@ -9,5 +9,9 @@ import java.util.List;
 
 @Repository
 public interface TourRepository extends JpaRepository<TourEntity, Long> {
-    List<TourEntity> findByCategoryId(Long categoryId);
+    List<TourEntity> findAllByIsDeletedFalse();
+
+    java.util.Optional<TourEntity> findByIdAndIsDeletedFalse(Long id);
+
+    List<TourEntity> findByCategoryIdAndIsDeletedFalse(Long categoryId);
 }

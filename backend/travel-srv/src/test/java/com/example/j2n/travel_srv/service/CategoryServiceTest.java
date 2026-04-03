@@ -61,18 +61,18 @@ class CategoryServiceTest {
 
     @Test
     void getCategoryById_Success() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockEntity));
+        when(categoryRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockEntity));
 
         BaseResponse<CategoryEntity> response = categoryService.getCategoryById(1L);
 
         assertNotNull(response.getData());
         assertEquals(mockEntity.getName(), response.getData().getName());
-        verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryRepository, times(1)).findByIdAndIsDeletedFalse(1L);
     }
 
     @Test
     void getCategoryById_Fail_NotFound() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+        when(categoryRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> categoryService.getCategoryById(1L));
     }
@@ -85,7 +85,7 @@ class CategoryServiceTest {
 
     @Test
     void getCategoryBySlug_Success() {
-        when(categoryRepository.findBySlug("test-category")).thenReturn(Optional.of(mockEntity));
+        when(categoryRepository.findBySlugAndIsDeletedFalse("test-category")).thenReturn(Optional.of(mockEntity));
 
         BaseResponse<CategoryEntity> response = categoryService.getCategoryBySlug("test-category");
 
@@ -95,7 +95,7 @@ class CategoryServiceTest {
 
     @Test
     void getCategoryBySlug_Fail_NotFound() {
-        when(categoryRepository.findBySlug("test-category")).thenReturn(Optional.empty());
+        when(categoryRepository.findBySlugAndIsDeletedFalse("test-category")).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> categoryService.getCategoryBySlug("test-category"));
     }
@@ -109,7 +109,7 @@ class CategoryServiceTest {
 
     @Test
     void getCategoryByName_Success() {
-        when(categoryRepository.findByName("Test Category")).thenReturn(Optional.of(mockEntity));
+        when(categoryRepository.findByNameAndIsDeletedFalse("Test Category")).thenReturn(Optional.of(mockEntity));
 
         BaseResponse<CategoryEntity> response = categoryService.getCategoryByName("Test Category");
 
@@ -119,7 +119,7 @@ class CategoryServiceTest {
 
     @Test
     void getCategoryByName_Fail_NotFound() {
-        when(categoryRepository.findByName("Test Category")).thenReturn(Optional.empty());
+        when(categoryRepository.findByNameAndIsDeletedFalse("Test Category")).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> categoryService.getCategoryByName("Test Category"));
     }
@@ -143,27 +143,27 @@ class CategoryServiceTest {
 
     @Test
     void updateCategory_Success() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockEntity));
+        when(categoryRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockEntity));
         when(categoryRepository.save(any(CategoryEntity.class))).thenReturn(mockEntity);
 
         BaseResponse<CategoryEntity> response = categoryService.updateCategory(1L, mockDto);
 
         assertNotNull(response.getData());
-        verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryRepository, times(1)).findByIdAndIsDeletedFalse(1L);
         verify(categoryRepository, times(1)).save(any(CategoryEntity.class));
     }
 
     @Test
     void updateCategory_Fail_AlreadyDeleted() {
         mockEntity.setIsDeleted(true);
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockEntity));
+        when(categoryRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> categoryService.updateCategory(1L, mockDto));
     }
 
     @Test
     void deleteCategory_Success() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockEntity));
+        when(categoryRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockEntity));
         when(categoryRepository.save(any(CategoryEntity.class))).thenReturn(mockEntity);
 
         BaseResponse<Boolean> response = categoryService.deleteCategory(1L);
@@ -177,7 +177,7 @@ class CategoryServiceTest {
     @Test
     void deleteCategory_Fail_AlreadyDeleted() {
         mockEntity.setIsDeleted(true);
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockEntity));
+        when(categoryRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> categoryService.deleteCategory(1L));
     }

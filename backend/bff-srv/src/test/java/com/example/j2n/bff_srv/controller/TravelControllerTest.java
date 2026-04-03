@@ -34,14 +34,17 @@ class TravelControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final String BASE_URL = "/api/bff/travel/categories";
+    private static final String CATEGORY_BASE_URL = "/api/bff/travel/categories";
+    private static final String TOUR_BASE_URL = "/api/bff/travel/tours";
+
+    // ===================== Category Endpoints =====================
 
     @Test
     void getAllCategories_ShouldReturnSuccess() throws Exception {
         Object expectedResponse = Collections.singletonMap("data", "list");
         when(travelService.getAllCategories()).thenReturn(Mono.just(expectedResponse));
 
-        mockMvc.perform(get(BASE_URL)
+        mockMvc.perform(get(CATEGORY_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -52,7 +55,7 @@ class TravelControllerTest {
         Object expectedResponse = Collections.singletonMap("data", "item");
         when(travelService.getCategoryById(id)).thenReturn(Mono.just(expectedResponse));
 
-        mockMvc.perform(get(BASE_URL + "/{id}", id)
+        mockMvc.perform(get(CATEGORY_BASE_URL + "/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -63,7 +66,7 @@ class TravelControllerTest {
         Object expectedResponse = Collections.singletonMap("data", "item-by-slug");
         when(travelService.getCategoryBySlug(slug)).thenReturn(Mono.just(expectedResponse));
 
-        mockMvc.perform(get(BASE_URL + "/slug/{slug}", slug)
+        mockMvc.perform(get(CATEGORY_BASE_URL + "/slug/{slug}", slug)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -74,7 +77,7 @@ class TravelControllerTest {
         Object expectedResponse = Collections.singletonMap("data", "item-by-name");
         when(travelService.getCategoryByName(name)).thenReturn(Mono.just(expectedResponse));
 
-        mockMvc.perform(get(BASE_URL + "/name/{name}", name)
+        mockMvc.perform(get(CATEGORY_BASE_URL + "/name/{name}", name)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -85,7 +88,7 @@ class TravelControllerTest {
         Object expectedResponse = Collections.singletonMap("data", "created");
         when(travelService.createCategory(any())).thenReturn(Mono.just(expectedResponse));
 
-        mockMvc.perform(post(BASE_URL)
+        mockMvc.perform(post(CATEGORY_BASE_URL)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(input)))
@@ -99,7 +102,7 @@ class TravelControllerTest {
         Object expectedResponse = Collections.singletonMap("data", "updated");
         when(travelService.updateCategory(eq(id), any())).thenReturn(Mono.just(expectedResponse));
 
-        mockMvc.perform(put(BASE_URL + "/{id}", id)
+        mockMvc.perform(put(CATEGORY_BASE_URL + "/{id}", id)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(input)))
@@ -112,7 +115,80 @@ class TravelControllerTest {
         Object expectedResponse = Collections.singletonMap("data", "deleted");
         when(travelService.deleteCategory(id)).thenReturn(Mono.just(expectedResponse));
 
-        mockMvc.perform(delete(BASE_URL + "/{id}", id)
+        mockMvc.perform(delete(CATEGORY_BASE_URL + "/{id}", id)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    // ===================== Tour Endpoints =====================
+
+    @Test
+    void getAllTours_ShouldReturnSuccess() throws Exception {
+        Object expectedResponse = Collections.singletonMap("data", "tour-list");
+        when(travelService.getAllTours()).thenReturn(Mono.just(expectedResponse));
+
+        mockMvc.perform(get(TOUR_BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getTourById_ShouldReturnSuccess() throws Exception {
+        Long id = 1L;
+        Object expectedResponse = Collections.singletonMap("data", "tour-item");
+        when(travelService.getTourById(id)).thenReturn(Mono.just(expectedResponse));
+
+        mockMvc.perform(get(TOUR_BASE_URL + "/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getToursByCategory_ShouldReturnSuccess() throws Exception {
+        Long categoryId = 2L;
+        Object expectedResponse = Collections.singletonMap("data", "tours-by-category");
+        when(travelService.getToursByCategory(categoryId)).thenReturn(Mono.just(expectedResponse));
+
+        mockMvc.perform(get(TOUR_BASE_URL + "/category/{categoryId}", categoryId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void createTour_ShouldReturnSuccess() throws Exception {
+        Object input = Map.of("title", "Tour Nha Trang", "categoryId", 1);
+        Object expectedResponse = Collections.singletonMap("data", "tour-created");
+        when(travelService.createTour(any())).thenReturn(Mono.just(expectedResponse));
+
+        mockMvc.perform(post(TOUR_BASE_URL)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updateTour_ShouldReturnSuccess() throws Exception {
+        Long id = 1L;
+        Object input = Map.of("title", "Tour Đà Nẵng Updated");
+        Object expectedResponse = Collections.singletonMap("data", "tour-updated");
+        when(travelService.updateTour(eq(id), any())).thenReturn(Mono.just(expectedResponse));
+
+        mockMvc.perform(put(TOUR_BASE_URL + "/{id}", id)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteTour_ShouldReturnSuccess() throws Exception {
+        Long id = 1L;
+        Object expectedResponse = Collections.singletonMap("data", "tour-deleted");
+        when(travelService.deleteTour(id)).thenReturn(Mono.just(expectedResponse));
+
+        mockMvc.perform(delete(TOUR_BASE_URL + "/{id}", id)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

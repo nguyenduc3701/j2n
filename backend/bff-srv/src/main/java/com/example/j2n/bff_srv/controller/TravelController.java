@@ -85,4 +85,60 @@ public class TravelController {
     public Mono<Object> deleteCategory(@PathVariable Long id) {
         return travelService.deleteCategory(id);
     }
+
+    // --- Tour Endpoints ---
+
+    @Operation(summary = "Get all tours")
+    @GetMapping(value = "/tours", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> getAllTours() {
+        return travelService.getAllTours();
+    }
+
+    @Operation(summary = "Get tour by ID")
+    @GetMapping(value = "/tours/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> getTourById(@PathVariable Long id) {
+        return travelService.getTourById(id);
+    }
+
+    @Operation(summary = "Get tours by category ID")
+    @GetMapping(value = "/tours/category/{categoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> getToursByCategory(@PathVariable Long categoryId) {
+        return travelService.getToursByCategory(categoryId);
+    }
+
+    @Operation(summary = "Create a new tour")
+    @PostMapping(value = "/tours", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 201, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> createTour(@RequestBody Object input) {
+        return travelService.createTour(input);
+    }
+
+    @Operation(summary = "Update an existing tour")
+    @PutMapping(value = "/tours/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> updateTour(@PathVariable Long id, @RequestBody Object input) {
+        return travelService.updateTour(id, input);
+    }
+
+    @Operation(summary = "Delete a tour")
+    @DeleteMapping(value = "/tours/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 204, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> deleteTour(@PathVariable Long id) {
+        return travelService.deleteTour(id);
+    }
 }

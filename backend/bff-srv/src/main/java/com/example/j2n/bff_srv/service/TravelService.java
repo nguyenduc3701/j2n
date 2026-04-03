@@ -16,10 +16,12 @@ import java.util.Map;
 @Slf4j
 public class TravelService {
   private final static String TRAVEL_CATEGORY_DOC = "travel-category";
+  private final static String TRAVEL_TOUR_DOC = "travel-tour";
   private final static String ID = "id";
   private final static String SLUG = "slug";
   private final static String NAME = "name";
   private final static String INPUT = "input";
+  private final static String CATEGORY_ID = "categoryId";
 
   private final GraphQLFactory graphQLFactory;
 
@@ -61,6 +63,44 @@ public class TravelService {
 
   public Mono<Object> deleteCategory(Long id) {
     return graphQLFactory.execute(TRAVEL_CATEGORY_DOC, "deleteCategory", Map.of(ID, id),
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
+  // --- Tour methods ---
+
+  public Mono<Object> getAllTours() {
+    return graphQLFactory.execute(TRAVEL_TOUR_DOC, "getAllTours", null,
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
+  public Mono<Object> getTourById(Long id) {
+    return graphQLFactory.execute(TRAVEL_TOUR_DOC, "getTourById", Map.of(ID, id),
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
+  public Mono<Object> getToursByCategory(Long categoryId) {
+    return graphQLFactory.execute(TRAVEL_TOUR_DOC, "getToursByCategory", Map.of(CATEGORY_ID, categoryId),
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
+  public Mono<Object> createTour(Object input) {
+    return graphQLFactory.execute(TRAVEL_TOUR_DOC, "createTour", Map.of(INPUT, input),
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
+  public Mono<Object> updateTour(Long id, Object input) {
+    return graphQLFactory.execute(TRAVEL_TOUR_DOC, "updateTour", Map.of(ID, id, INPUT, input),
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
+  public Mono<Object> deleteTour(Long id) {
+    return graphQLFactory.execute(TRAVEL_TOUR_DOC, "deleteTour", Map.of(ID, id),
         new ParameterizedTypeReference<Object>() {
         });
   }

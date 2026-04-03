@@ -26,6 +26,9 @@ class TravelServiceTest {
     private TravelService travelService;
 
     private static final String TRAVEL_CATEGORY_DOC = "travel-category";
+    private static final String TRAVEL_TOUR_DOC = "travel-tour";
+
+    // ===================== Category Methods =====================
 
     @Test
     void getAllCategories_ShouldReturnSuccess() {
@@ -137,5 +140,103 @@ class TravelServiceTest {
                 .verifyComplete();
 
         verify(graphQLFactory).execute(eq(TRAVEL_CATEGORY_DOC), eq("deleteCategory"), eq(Map.of("id", id)), any(ParameterizedTypeReference.class));
+    }
+
+    // ===================== Tour Methods =====================
+
+    @Test
+    void getAllTours_ShouldReturnSuccess() {
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("getAllTours"), isNull(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.getAllTours();
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq(TRAVEL_TOUR_DOC), eq("getAllTours"), isNull(), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void getTourById_ShouldReturnSuccess() {
+        Long id = 1L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("getTourById"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.getTourById(id);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq(TRAVEL_TOUR_DOC), eq("getTourById"), eq(Map.of("id", id)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void getToursByCategory_ShouldReturnSuccess() {
+        Long categoryId = 2L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("getToursByCategory"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.getToursByCategory(categoryId);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq(TRAVEL_TOUR_DOC), eq("getToursByCategory"), eq(Map.of("categoryId", categoryId)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void createTour_ShouldReturnSuccess() {
+        Object input = new Object();
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("createTour"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.createTour(input);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq(TRAVEL_TOUR_DOC), eq("createTour"), eq(Map.of("input", input)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void updateTour_ShouldReturnSuccess() {
+        Long id = 1L;
+        Object input = new Object();
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("updateTour"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.updateTour(id, input);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq(TRAVEL_TOUR_DOC), eq("updateTour"), eq(Map.of("id", id, "input", input)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void deleteTour_ShouldReturnSuccess() {
+        Long id = 1L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("deleteTour"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.deleteTour(id);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq(TRAVEL_TOUR_DOC), eq("deleteTour"), eq(Map.of("id", id)), any(ParameterizedTypeReference.class));
     }
 }

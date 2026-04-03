@@ -1,131 +1,212 @@
 ========================================================
-  TOUR GraphQL API - cURL Commands (Postman-ready)
-  Base URL: http://localhost:8186/graphql
+  TOUR GraphQL API - Postman & cURL Guide
+  Base URL: http://localhost:8186/travel/graphql
 ========================================================
 
-NOTE: Tất cả request đều gửi tới cùng một endpoint GraphQL:
-      POST http://localhost:8186/graphql
-      Content-Type: application/json
+CÁCH DÙNG TRONG POSTMAN:
+1. Chọn phương thức: POST
+2. URL: http://localhost:8186/travel/graphql
+3. Tab Body -> Chọn "GraphQL"
+4. Copy phần nội dung trong mục "POSTMAN GRAPHQL BODY" phía dưới dán vào.
 
 ========================================================
   QUERIES
 ========================================================
 
 --- 1. Get All Tours ---
-curl -X POST http://localhost:8186/graphql \
+[POSTMAN GRAPHQL BODY]:
+{
+  getAllTours {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      isDeleted
+      category {
+        id
+        name
+        slug
+      }
+    }
+  }
+}
+
+[cURL]:
+curl -X POST http://localhost:8186/travel/graphql \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ getAllTours { code message data { id title description price thumbnail duration startLocation createdAt updatedAt isDeleted category { id name slug } } } }"
-  }'
+  -d '{"query": "{ getAllTours { code message data { id title description price thumbnail duration startLocation createdAt updatedAt isDeleted category { id name slug } } } }"}'
 
 -----------------------------------------------------------
 
 --- 2. Get Tour By ID ---
-curl -X POST http://localhost:8186/graphql \
+[POSTMAN GRAPHQL BODY]:
+{
+  getTourById(id: 1) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      isDeleted
+      category {
+        id
+        name
+        slug
+      }
+      schedules {
+        id
+        dayNumber
+        title
+        content
+      }
+      images {
+        id
+        imageUrl
+        isPrimary
+      }
+    }
+  }
+}
+
+[cURL]:
+curl -X POST http://localhost:8186/travel/graphql \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ getTourById(id: 1) { code message data { id title description price thumbnail duration startLocation createdAt updatedAt isDeleted category { id name slug } schedules { id dayNumber title content } images { id imageUrl isPrimary } } } }"
-  }'
+  -d '{"query": "{ getTourById(id: 1) { code message data { id title description price thumbnail duration startLocation createdAt updatedAt isDeleted category { id name slug } schedules { id dayNumber title content } images { id imageUrl isPrimary } } } }"}'
 
 -----------------------------------------------------------
 
 --- 3. Get Tours By Category ---
-curl -X POST http://localhost:8186/graphql \
+[POSTMAN GRAPHQL BODY]:
+{
+  getToursByCategory(categoryId: 1) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      isDeleted
+      category {
+        id
+        name
+        slug
+      }
+    }
+  }
+}
+
+[cURL]:
+curl -X POST http://localhost:8186/travel/graphql \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "{ getToursByCategory(categoryId: 1) { code message data { id title description price thumbnail duration startLocation createdAt updatedAt isDeleted category { id name slug } } } }"
-  }'
+  -d '{"query": "{ getToursByCategory(categoryId: 1) { code message data { id title description price thumbnail duration startLocation createdAt updatedAt isDeleted category { id name slug } } } }"}'
 
 ========================================================
   MUTATIONS
 ========================================================
 
 --- 4. Create Tour ---
-curl -X POST http://localhost:8186/graphql \
+[POSTMAN GRAPHQL BODY]:
+mutation {
+  createTour(input: {
+    categoryId: 1,
+    title: "Tour Đà Nẵng 3N2D",
+    description: "Khám phá thành phố biển",
+    price: 1500000,
+    thumbnail: "https://example.com/danang.jpg",
+    duration: "3 ngày 2 đêm",
+    startLocation: "Hà Nội"
+  }) {
+    code
+    message
+    data {
+      id
+      title
+      price
+      category {
+        id
+        name
+      }
+    }
+  }
+}
+
+[cURL]:
+curl -X POST http://localhost:8186/travel/graphql \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { createTour(input: { categoryId: 1, title: \"Tour Đà Nẵng 3N2D\", description: \"Khám phá thành phố biển\", price: 1500000, thumbnail: \"https://example.com/danang.jpg\", duration: \"3 ngày 2 đêm\", startLocation: \"Hà Nội\" }) { code message data { id title description price thumbnail duration startLocation createdAt isDeleted category { id name } } } }"
-  }'
+  -d '{"query": "mutation { createTour(input: { categoryId: 1, title: \"Tour Đà Nẵng 3N2D\", description: \"Khám phá thành phố biển\", price: 1500000, thumbnail: \"https://example.com/danang.jpg\", duration: \"3 ngày 2 đêm\", startLocation: \"Hà Nội\" }) { code message data { id title price category { id name } } } }"}'
 
 -----------------------------------------------------------
 
 --- 5. Update Tour ---
-curl -X POST http://localhost:8186/graphql \
+[POSTMAN GRAPHQL BODY]:
+mutation {
+  updateTour(id: 1, input: {
+    categoryId: 1,
+    title: "Tour Đà Nẵng 4N3D (Updated)",
+    description: "Khám phá thành phố biển - cập nhật",
+    price: 2000000,
+    thumbnail: "https://example.com/danang-new.jpg",
+    duration: "4 ngày 3 đêm",
+    startLocation: "TP. Hồ Chí Minh"
+  }) {
+    code
+    message
+    data {
+      id
+      title
+      updatedAt
+    }
+  }
+}
+
+[cURL]:
+curl -X POST http://localhost:8186/travel/graphql \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { updateTour(id: 1, input: { categoryId: 1, title: \"Tour Đà Nẵng 4N3D\", description: \"Khám phá thành phố biển - cập nhật\", price: 2000000, thumbnail: \"https://example.com/danang-new.jpg\", duration: \"4 ngày 3 đêm\", startLocation: \"TP. Hồ Chí Minh\" }) { code message data { id title description price thumbnail duration startLocation updatedAt isDeleted category { id name } } } }"
-  }'
+  -d '{"query": "mutation { updateTour(id: 1, input: { categoryId: 1, title: \"Tour Đà Nẵng 4N3D (Updated)\", description: \"Khám phá thành phố biển - cập nhật\", price: 2000000, thumbnail: \"https://example.com/danang-new.jpg\", duration: \"4 ngày 3 đêm\", startLocation: \"TP. Hồ Chí Minh\" }) { code message data { id title updatedAt } } }"}'
 
 -----------------------------------------------------------
 
---- 6. Delete Tour (soft delete) ---
-curl -X POST http://localhost:8186/graphql \
+--- 6. Delete Tour (Soft Delete) ---
+[POSTMAN GRAPHQL BODY]:
+mutation {
+  deleteTour(id: 1) {
+    code
+    message
+    data
+  }
+}
+
+[cURL]:
+curl -X POST http://localhost:8186/travel/graphql \
   -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { deleteTour(id: 1) { code message data } }"
-  }'
-
-========================================================
-  VARIABLES FORMAT (khuyến nghị dùng trong Postman)
-========================================================
-
---- 4b. Create Tour - dùng variables ---
-curl -X POST http://localhost:8186/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation CreateTour($input: TourInput!) { createTour(input: $input) { code message data { id title price duration startLocation category { id name } } } }",
-    "variables": {
-      "input": {
-        "categoryId": 1,
-        "title": "Tour Hà Giang Mùa Hoa Tam Giác Mạch",
-        "description": "Chinh phục cao nguyên đá hùng vĩ",
-        "price": 3500000,
-        "thumbnail": "https://example.com/hagiang.jpg",
-        "duration": "4 ngày 3 đêm",
-        "startLocation": "Hà Nội"
-      }
-    }
-  }'
-
------------------------------------------------------------
-
---- 5b. Update Tour - dùng variables ---
-curl -X POST http://localhost:8186/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation UpdateTour($id: ID!, $input: TourInput!) { updateTour(id: $id, input: $input) { code message data { id title price duration updatedAt } } }",
-    "variables": {
-      "id": 1,
-      "input": {
-        "categoryId": 2,
-        "title": "Tour Sapa Mùa Lúa Chín",
-        "description": "Ngắm ruộng bậc thang đẹp nhất Tây Bắc",
-        "price": 2800000,
-        "thumbnail": "https://example.com/sapa.jpg",
-        "duration": "3 ngày 2 đêm",
-        "startLocation": "Hà Nội"
-      }
-    }
-  }'
-
------------------------------------------------------------
-
---- 6b. Delete Tour - dùng variables ---
-curl -X POST http://localhost:8186/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation DeleteTour($id: ID!) { deleteTour(id: $id) { code message data } }",
-    "variables": {
-      "id": 1
-    }
-  }'
+  -d '{"query": "mutation { deleteTour(id: 1) { code message data } }"}'
 
 ========================================================
   GHI CHÚ
 ========================================================
-- Base URL: http://localhost:8186/graphql
-- Nếu có JWT authentication: thêm header -H "Authorization: Bearer <token>"
-- Soft delete: deleteTour chỉ đặt isDeleted = true, không xoá DB
-- Price kiểu Float trong GraphQL tương ứng BigDecimal trong Java
-- Thay các giá trị id, categoryId cho đúng với data thực tế
+- Trong Postman tab GraphQL: KHÔNG dùng dấu gạch chéo ngược (backslash) trước dấu ngoặc kép.
+- Chỉ copy nội dung trong [POSTMAN GRAPHQL BODY] dán vào khung soạn thảo Query của Postman.
+- Nếu muốn dùng Variable, hãy tách phần input ra khung "GraphQL Variables" bên dưới trong Postman.
+- Nếu có lỗi "Field must have selections", kiểm tra xem đã liệt kê các trường muốn trả về trong dấu { } sau tên hàm chưa.
 ========================================================

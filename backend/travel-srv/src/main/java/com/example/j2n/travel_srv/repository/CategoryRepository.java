@@ -12,7 +12,9 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
     List<CategoryEntity> findAllByIsDeletedFalse();
 
-    Optional<CategoryEntity> findBySlug(String slug);
+    Optional<CategoryEntity> findByIdAndIsDeletedFalse(Long id);
 
-    Optional<CategoryEntity> findByName(String name);
+    Optional<CategoryEntity> findBySlugAndIsDeletedFalse(String slug);
+
+    Optional<CategoryEntity> findByNameAndIsDeletedFalse(String name);
 }

@@ -1,0 +1,155 @@
+query Op_getAllTours {
+  getAllTours {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+      schedules {
+        id
+        dayNumber
+        title
+        content
+      }
+      images {
+        id
+        imageUrl
+        isPrimary
+      }
+    }
+  }
+}
+
+query Op_getTourById($id: ID!) {
+  getTourById(id: $id) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+      schedules {
+        id
+        dayNumber
+        title
+        content
+      }
+      images {
+        id
+        imageUrl
+        isPrimary
+      }
+    }
+  }
+}
+
+query Op_getToursByCategory($categoryId: ID!) {
+  getToursByCategory(categoryId: $categoryId) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+      schedules {
+        id
+        dayNumber
+        title
+        content
+      }
+      images {
+        id
+        imageUrl
+        isPrimary
+      }
+    }
+  }
+}
+
+mutation Op_createTour($input: TourInput!) {
+  createTour(input: $input) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+    }
+  }
+}
+
+mutation Op_updateTour($id: ID!, $input: TourInput!) {
+  updateTour(id: $id, input: $input) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+    }
+  }
+}
+
+mutation Op_deleteTour($id: ID!) {
+  deleteTour(id: $id) {
+    code
+    message
+    data
+  }
+}

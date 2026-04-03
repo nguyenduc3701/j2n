@@ -1,0 +1,175 @@
+========================================================
+  TOUR REST API (BFF) - Postman & cURL Guide
+  Base URL: http://localhost:8080/api/bff/travel
+========================================================
+
+CÁCH DÙNG TRONG POSTMAN:
+1. Chọn phương thức tương ứng: GET / POST / PUT / DELETE
+2. URL: http://localhost:8080/api/bff/travel/tours (hoặc theo từng endpoint)
+3. Với POST / PUT: Tab Body -> raw -> JSON, dán nội dung [REQUEST BODY] vào.
+4. Header: Content-Type: application/json
+
+========================================================
+  QUERIES (GET)
+========================================================
+
+--- 1. Get All Tours ---
+[METHOD]: GET
+[URL]: http://localhost:8080/api/bff/travel/tours
+
+[cURL]:
+curl -X GET http://localhost:8080/api/bff/travel/tours \
+  -H "Content-Type: application/json"
+
+-----------------------------------------------------------
+
+--- 2. Get Tour By ID ---
+[METHOD]: GET
+[URL]: http://localhost:8080/api/bff/travel/tours/{id}
+
+[EXAMPLE - id = 1]:
+curl -X GET http://localhost:8080/api/bff/travel/tours/1 \
+  -H "Content-Type: application/json"
+
+-----------------------------------------------------------
+
+--- 3. Get Tours By Category ---
+[METHOD]: GET
+[URL]: http://localhost:8080/api/bff/travel/tours/category/{categoryId}
+
+[EXAMPLE - categoryId = 1]:
+curl -X GET http://localhost:8080/api/bff/travel/tours/category/1 \
+  -H "Content-Type: application/json"
+
+========================================================
+  MUTATIONS (POST / PUT / DELETE)
+========================================================
+
+--- 4. Create Tour ---
+[METHOD]: POST
+[URL]: http://localhost:8080/api/bff/travel/tours
+
+[REQUEST BODY]:
+{
+  "categoryId": 1,
+  "title": "Khám phá Hà Giang 3 ngày 2 đêm",
+  "description": "Tour khám phá cao nguyên đá Đồng Văn, đèo Mã Pí Lèng hùng vĩ.",
+  "price": 3500000,
+  "thumbnail": "https://example.com/images/ha-giang.jpg",
+  "duration": "3N2Đ",
+  "startLocation": "Hà Nội"
+}
+
+[cURL]:
+curl -X POST http://localhost:8080/api/bff/travel/tours \
+  -H "Content-Type: application/json" \
+  -d '{
+    "categoryId": 1,
+    "title": "Khám phá Hà Giang 3 ngày 2 đêm",
+    "description": "Tour khám phá cao nguyên đá Đồng Văn, đèo Mã Pí Lèng hùng vĩ.",
+    "price": 3500000,
+    "thumbnail": "https://example.com/images/ha-giang.jpg",
+    "duration": "3N2Đ",
+    "startLocation": "Hà Nội"
+  }'
+
+-----------------------------------------------------------
+
+--- 5. Update Tour ---
+[METHOD]: PUT
+[URL]: http://localhost:8080/api/bff/travel/tours/{id}
+
+[EXAMPLE - id = 1]:
+[REQUEST BODY]:
+{
+  "categoryId": 1,
+  "title": "Khám phá Hà Giang 4 ngày 3 đêm (Updated)",
+  "description": "Tour nâng cấp với lịch trình chi tiết hơn.",
+  "price": 4500000,
+  "thumbnail": "https://example.com/images/ha-giang-updated.jpg",
+  "duration": "4N3Đ",
+  "startLocation": "Hà Nội"
+}
+
+[cURL]:
+curl -X PUT http://localhost:8080/api/bff/travel/tours/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "categoryId": 1,
+    "title": "Khám phá Hà Giang 4 ngày 3 đêm (Updated)",
+    "description": "Tour nâng cấp với lịch trình chi tiết hơn.",
+    "price": 4500000,
+    "thumbnail": "https://example.com/images/ha-giang-updated.jpg",
+    "duration": "4N3Đ",
+    "startLocation": "Hà Nội"
+  }'
+
+-----------------------------------------------------------
+
+--- 6. Delete Tour ---
+[METHOD]: DELETE
+[URL]: http://localhost:8080/api/bff/travel/tours/{id}
+
+[EXAMPLE - id = 1]:
+curl -X DELETE http://localhost:8080/api/bff/travel/tours/1 \
+  -H "Content-Type: application/json"
+
+========================================================
+  RESPONSE FORMAT
+========================================================
+
+[SUCCESS - Single Tour]:
+{
+  "code": "200",
+  "message": "Success",
+  "data": {
+    "id": 1,
+    "title": "Khám phá Hà Giang 3 ngày 2 đêm",
+    "description": "Tour khám phá cao nguyên đá Đồng Văn...",
+    "price": 3500000.0,
+    "thumbnail": "https://example.com/images/ha-giang.jpg",
+    "duration": "3N2Đ",
+    "startLocation": "Hà Nội",
+    "createdAt": "2026-04-03T04:00:00",
+    "updatedAt": "2026-04-03T04:00:00",
+    "isDeleted": false,
+    "category": {
+      "id": 1,
+      "name": "Hà Giang",
+      "slug": "ha-giang"
+    },
+    "schedules": [],
+    "images": []
+  }
+}
+
+[SUCCESS - List Tours]:
+{
+  "code": "200",
+  "message": "Success",
+  "data": [
+    {
+      "id": 1,
+      "title": "Khám phá Hà Giang 3 ngày 2 đêm",
+      ...
+    }
+  ]
+}
+
+[SUCCESS - Delete]:
+{
+  "code": "200",
+  "message": "Success",
+  "data": true
+}
+
+========================================================
+  GHI CHÚ
+========================================================
+- Base URL bff-srv mặc định: http://localhost:8080
+- Tất cả request body đều ở dạng JSON (raw).
+- Field "categoryId" là bắt buộc khi tạo / cập nhật tour.
+- Field "title" và "price" là bắt buộc khi tạo / cập nhật tour.
+- Các field còn lại (description, thumbnail, duration, startLocation) là tuỳ chọn.
+- DELETE trả về data: true nếu xoá thành công.
+========================================================

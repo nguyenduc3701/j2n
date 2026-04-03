@@ -30,7 +30,7 @@ public class TourService {
 
     @LogAround(message = "Get all tours")
     public BaseResponse<List<TourEntity>> getAllTours() {
-        return ResponseFactory.success(tourRepository.findAll());
+        return ResponseFactory.success(tourRepository.findAllByIsDeletedFalse());
     }
 
     @LogAround(message = "Get tour by id")
@@ -41,7 +41,7 @@ public class TourService {
     @LogAround(message = "Get tours by category")
     public BaseResponse<List<TourEntity>> getToursByCategory(Long categoryId) {
         validateLong(categoryId);
-        return ResponseFactory.success(tourRepository.findByCategoryId(categoryId));
+        return ResponseFactory.success(tourRepository.findByCategoryIdAndIsDeletedFalse(categoryId));
     }
 
     @Transactional
@@ -95,24 +95,29 @@ public class TourService {
     // --- Private helpers ---
 
     private TourEntity getTourByIdOrThrow(Long id) {
+        log.info("Get tour by id: {}", id);
         validateLong(id);
-        return tourRepository.findById(id)
+        return tourRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.TOUR_NOT_FOUND));
     }
 
     private CategoryEntity getCategoryByIdOrThrow(Long categoryId) {
+        log.info("Get category by id: {}", categoryId);
         validateLong(categoryId);
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
     }
 
     private void validateTour(TourEntity entity) {
+        log.info("Validate tour: {}", entity.getId());
         if (Boolean.TRUE.equals(entity.getIsDeleted())) {
+            log.error("Invalid input: tour is deleted");
             throw new DataNotFoundException(MessageEnum.TOUR_NOT_FOUND);
         }
     }
 
     private void validateLong(Long value) {
+        log.info("Validate long: {}", value);
         if (value == null || value <= 0) {
             log.error("Invalid input: value is null or less than or equal to 0");
             throw new InvalidInputException(BaseMessageEnum.BAD_REQUEST);

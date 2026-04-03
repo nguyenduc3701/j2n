@@ -38,7 +38,7 @@ public class CategoryService {
     @LogAround(message = "Get category by slug")
     public BaseResponse<CategoryEntity> getCategoryBySlug(String slug) {
         validateString(slug);
-        CategoryEntity entity = categoryRepository.findBySlug(slug)
+        CategoryEntity entity = categoryRepository.findBySlugAndIsDeletedFalse(slug)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
         return ResponseFactory.success(entity);
     }
@@ -46,7 +46,7 @@ public class CategoryService {
     @LogAround(message = "Get category by name")
     public BaseResponse<CategoryEntity> getCategoryByName(String name) {
         validateString(name);
-        CategoryEntity entity = categoryRepository.findByName(name)
+        CategoryEntity entity = categoryRepository.findByNameAndIsDeletedFalse(name)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
         return ResponseFactory.success(entity);
     }
@@ -83,18 +83,22 @@ public class CategoryService {
     }
 
     private CategoryEntity getCategoryByIdOrThrow(Long id) {
+        log.info("Get category by id: {}", id);
         validateLong(id);
-        return categoryRepository.findById(id)
+        return categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
     }
 
     private void validateCategory(CategoryEntity entity) {
+        log.info("Validate category: {}", entity.getId());
         if (entity.getIsDeleted().equals(Boolean.TRUE)) {
+            log.error("Invalid input: category is deleted");
             throw new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND);
         }
     }
 
     private void validateString(String str) {
+        log.info("Validate string: {}", str);
         if (str == null || str.isBlank()) {
             log.error("Invalid input: string is null or blank");
             throw new InvalidInputException(BaseMessageEnum.BAD_REQUEST);
@@ -102,6 +106,7 @@ public class CategoryService {
     }
 
     private void validateLong(Long value) {
+        log.info("Validate long: {}", value);
         if (value == null || value <= 0) {
             log.error("Invalid input: value is null or less than or equal to 0");
             throw new InvalidInputException(BaseMessageEnum.BAD_REQUEST);
