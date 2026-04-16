@@ -6,8 +6,11 @@ import org.springframework.stereotype.Repository;
 import com.example.j2n.travel_srv.repository.entity.TourImageEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TourImageRepository extends JpaRepository<TourImageEntity, Long> {
-    List<TourImageEntity> findByTourId(Long tourId);
+    List<TourImageEntity> findAllByTourIdAndIsDeletedFalse(Long tourId);
+    Optional<TourImageEntity> findByIdAndIsDeletedFalse(Long id);
+    Optional<TourImageEntity> findByTourIdAndIsPrimaryTrueAndIsDeletedFalse(Long tourId);
 }

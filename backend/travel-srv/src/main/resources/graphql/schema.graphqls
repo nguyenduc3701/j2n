@@ -9,6 +9,9 @@ type Query {
   getAllTours: TourListResponse
   getTourById(id: ID!): TourResponse
   getToursByCategory(categoryId: ID!): TourListResponse
+
+  # Tour Images
+  getImagesByTourId(tourId: ID!): TourImageListResponse
 }
 
 type Mutation {
@@ -21,6 +24,11 @@ type Mutation {
   createTour(input: TourInput!): TourResponse
   updateTour(id: ID!, input: TourInput!): TourResponse
   deleteTour(id: ID!): BooleanResponse
+
+  # Tour Images
+  addImageToTour(input: TourImageInput!): TourImageResponse
+  deleteTourImage(id: ID!): BooleanResponse
+  setPrimaryImage(id: ID!): TourImageResponse
 }
 
 type Category {
@@ -79,6 +87,12 @@ input TourInput {
   startLocation: String
 }
 
+input TourImageInput {
+  tourId: ID!
+  imageUrl: String!
+  isPrimary: Boolean
+}
+
 type CategoryResponse {
   code: String
   message: String
@@ -107,4 +121,16 @@ type TourListResponse {
   code: String
   message: String
   data: [Tour]
+}
+
+type TourImageResponse {
+  code: String
+  message: String
+  data: TourImage
+}
+
+type TourImageListResponse {
+  code: String
+  message: String
+  data: [TourImage]
 }

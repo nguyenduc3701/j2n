@@ -69,6 +69,18 @@ services:
     volumes:
       - vault-data:/vault/file
 
+  vault-init:
+    image: hashicorp/vault:1.15
+    container_name: vault-init
+    depends_on:
+      - vault
+    volumes:
+      - ./vault-init.sh:/vault-init.sh
+      - ./vault-secrets.env:/vault-secrets.env
+    environment:
+      VAULT_TOKEN: "hvsCAESIExampleLocalDevToken1234567890abcdef"
+    entrypoint: /bin/sh /vault-init.sh
+
 volumes:
   minio-data:
   rabbitmq-data:
