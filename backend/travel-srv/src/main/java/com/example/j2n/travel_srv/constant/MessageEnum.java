@@ -10,7 +10,8 @@ import lombok.Getter;
 public enum MessageEnum implements BaseMessage {
     CATEGORY_NOT_FOUND("400401", HttpStatusCode.BAD_REQUEST, MessageConstants.CATEGORY_NOT_FOUND),
     TOUR_NOT_FOUND("400402", HttpStatusCode.BAD_REQUEST, MessageConstants.TOUR_NOT_FOUND),
-    TOUR_IMAGE_NOT_FOUND("400403", HttpStatusCode.BAD_REQUEST, MessageConstants.TOUR_IMAGE_NOT_FOUND);
+    TOUR_IMAGE_NOT_FOUND("400403", HttpStatusCode.BAD_REQUEST, MessageConstants.TOUR_IMAGE_NOT_FOUND),
+    TOUR_SCHEDULE_NOT_FOUND("400404", HttpStatusCode.BAD_REQUEST, MessageConstants.TOUR_SCHEDULE_NOT_FOUND);
 
     private final String code;
     private final HttpStatusCode httpStatus;
@@ -31,5 +32,6 @@ public enum MessageEnum implements BaseMessage {
         public static final String CATEGORY_NOT_FOUND = "Category not found";
         public static final String TOUR_NOT_FOUND = "Tour not found";
         public static final String TOUR_IMAGE_NOT_FOUND = "Tour image not found";
+        public static final String TOUR_SCHEDULE_NOT_FOUND = "Tour schedule not found";
     }
 }

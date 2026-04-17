@@ -12,6 +12,9 @@ type Query {
 
   # Tour Images
   getImagesByTourId(tourId: ID!): TourImageListResponse
+
+  # Tour Schedules
+  getSchedulesByTourId(tourId: ID!): TourScheduleListResponse
 }
 
 type Mutation {
@@ -29,6 +32,11 @@ type Mutation {
   addImageToTour(input: TourImageInput!): TourImageResponse
   deleteTourImage(id: ID!): BooleanResponse
   setPrimaryImage(id: ID!): TourImageResponse
+
+  # Tour Schedules
+  addScheduleToTour(input: TourScheduleInput!): TourScheduleResponse
+  updateTourSchedule(id: ID!, input: TourScheduleInput!): TourScheduleResponse
+  deleteTourSchedule(id: ID!): BooleanResponse
 }
 
 type Category {
@@ -93,6 +101,13 @@ input TourImageInput {
   isPrimary: Boolean
 }
 
+input TourScheduleInput {
+  tourId: ID!
+  dayNumber: Int!
+  title: String!
+  content: String
+}
+
 type CategoryResponse {
   code: String
   message: String
@@ -133,4 +148,16 @@ type TourImageListResponse {
   code: String
   message: String
   data: [TourImage]
+}
+
+type TourScheduleResponse {
+  code: String
+  message: String
+  data: TourSchedule
+}
+
+type TourScheduleListResponse {
+  code: String
+  message: String
+  data: [TourSchedule]
 }
