@@ -20,7 +20,7 @@ import java.util.Optional;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UploadImageRequest {
     @Builder.Default
-    @Schema(description = "Owner type (e.g., USER)", example = "USER")
+    @Schema(description = "Owner type (e.g., USER, PRODUCT, ROOM, TRAVEL)", example = "USER")
     private Optional<String> ownerType = Optional.empty();
 
     @Schema(description = "Owner ID", example = "1")
@@ -28,4 +28,8 @@ public class UploadImageRequest {
 
     @Schema(description = "List of image files to upload")
     private List<MultipartFile> files;
+
+    @Builder.Default
+    @Schema(description = "Is primary image", example = "true")
+    private Optional<Boolean> isPrimary = Optional.empty();
 }

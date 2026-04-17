@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Primary;
 
 @Slf4j
 @Configuration
-@Primary
 public class RabbitTemplateConfig {
     @Bean
+    @Primary
     public RabbitTemplate rabbitTemplate(
             ConnectionFactory connectionFactory,
             Jackson2JsonMessageConverter jacksonMessageConverter) {

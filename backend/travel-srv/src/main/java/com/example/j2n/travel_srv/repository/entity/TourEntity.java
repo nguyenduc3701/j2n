@@ -1,5 +1,6 @@
 package com.example.j2n.travel_srv.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class TourEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnore
     private CategoryEntity category;
 
     @Column(nullable = false, length = 255)
@@ -58,8 +60,10 @@ public class TourEntity {
     private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<TourScheduleEntity> schedules;
 
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<TourImageEntity> images;
 }

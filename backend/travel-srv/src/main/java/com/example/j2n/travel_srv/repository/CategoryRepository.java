@@ -11,10 +11,7 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
     List<CategoryEntity> findAllByIsDeletedFalse();
-
     Optional<CategoryEntity> findByIdAndIsDeletedFalse(Long id);
-
     Optional<CategoryEntity> findBySlugAndIsDeletedFalse(String slug);
-
     Optional<CategoryEntity> findByNameAndIsDeletedFalse(String name);
 }

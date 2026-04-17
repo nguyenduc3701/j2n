@@ -1,5 +1,6 @@
 package com.example.j2n.travel_srv.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ public class TourScheduleEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tour_id", nullable = false)
+    @JsonIgnore
     private TourEntity tour;
 
     @Column(name = "day_number", nullable = false)

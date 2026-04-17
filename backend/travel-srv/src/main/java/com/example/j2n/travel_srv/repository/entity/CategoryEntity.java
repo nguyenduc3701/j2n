@@ -1,5 +1,6 @@
 package com.example.j2n.travel_srv.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,5 +31,6 @@ public class CategoryEntity {
     private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<TourEntity> tours;
 }

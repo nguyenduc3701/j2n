@@ -29,7 +29,7 @@ public class UserEventListener {
         try {
             log.info("[AUTH-SRV][EVENT] user.avatar.uploaded userId={}, imageUrl={}",
                     event.getUserId(), event.getImageUrl());
-            userService.updateUserImageUrl(event.getUserId(), event.getImageId());
+            userService.updateUserImageUrl(event.getUserId(), event.getImageUrl());
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             log.info("[AUTH-SRV][EVENT] user.avatar.uploaded userId={}, imageUrl={}",
                     event.getUserId(), event.getImageUrl());

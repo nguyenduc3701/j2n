@@ -34,6 +34,7 @@ public class ImageService {
         }
         request.getOwnerType()
                 .ifPresent(value -> body.add("ownerType", value));
+        request.getIsPrimary().ifPresent(val -> body.add("isPrimary", String.valueOf(val)));
         log.info("[End] Upload image request: {}", request);
         return restClientUtil.requestUpload(GatewayPath.IMAGE_UPLOAD_PATH, body,
                 new ParameterizedTypeReference<Object>() {

@@ -10,6 +10,7 @@ import com.example.j2n.image_srv.exception.FileSizeException;
 import com.example.j2n.image_srv.exception.FileTypeException;
 import com.example.j2n.image_srv.exception.OwnerTypeException;
 import com.example.j2n.image_srv.exception.StaticFileReadException;
+import com.example.j2n.image_srv.messaging.travel.publisher.TravelEventPublisher;
 import com.example.j2n.image_srv.messaging.user.publisher.UserEventPublisher;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
@@ -44,6 +45,9 @@ class ImageServiceTest {
 
     @Mock
     private UserEventPublisher avatarEventPublisher;
+
+    @Mock
+    private TravelEventPublisher travelEventPublisher;
 
     @InjectMocks
     private ImageService imageService;
@@ -283,6 +287,16 @@ class ImageServiceTest {
         when(minioFactory.upload(any(), eq(BucketConstant.ROOM_BUCKET))).thenReturn("path");
         imageService.uploadImage(requestRoom);
         verify(minioFactory).upload(any(), eq(BucketConstant.ROOM_BUCKET));
+
+        // TRAVEL
+        UploadImageRequest requestTravel = UploadImageRequest.builder()
+                .files(List.of(file))
+                .ownerType(Optional.of("TRAVEL"))
+                .ownerId(1L)
+                .build();
+        when(minioFactory.upload(any(), eq(BucketConstant.TRAVEL_BUCKET))).thenReturn("path");
+        imageService.uploadImage(requestTravel);
+        verify(minioFactory).upload(any(), eq(BucketConstant.TRAVEL_BUCKET));
     }
 
     @Test
@@ -297,6 +311,29 @@ class ImageServiceTest {
         ResponseEntity<InputStreamResource> response = imageService.getStaticFile("latest");
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Test
+    void uploadImage_Travel_PublishesEvent() {
+        MockMultipartFile file1 = new MockMultipartFile("file", "test1.jpg", "image/jpeg", "content1".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("file", "test2.jpg", "image/jpeg", "content2".getBytes());
+        UploadImageRequest request = UploadImageRequest.builder()
+                .files(List.of(file1, file2))
+                .ownerType(Optional.of("TRAVEL"))
+                .ownerId(123L)
+                .isPrimary(Optional.of(true))
+                .build();
+
+        when(minioFactory.upload(any(), anyString())).thenReturn("path1", "path2");
+
+        imageService.uploadImage(request);
+
+        verify(travelEventPublisher, times(1)).publishTourImageUploaded(argThat(event -> 
+            event.getTourId().equals(123L) && 
+            event.getImages().size() == 2 && 
+            event.getImages().get(0).getImageUrl().equals("path1") &&
+            event.getImages().get(0).getIsPrimary().equals(true)
+        ));
     }
 
     @Test

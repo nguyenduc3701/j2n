@@ -119,10 +119,9 @@ public class UserService {
     }
 
     @LogAround(message = "Updating user image URL")
-    public BaseResponse<UserItemResponse> updateUserImageUrl(String userId, String imageId) {
+    public BaseResponse<UserItemResponse> updateUserImageUrl(String userId, String imageUrl) {
         UserEntity user = findUserByIdOrThrow(userId);
-        String imageFinalUrl = String.format("/api/bff/image/user/%s", imageId);
-        user.setImageUrl(imageFinalUrl);
+        user.setImageUrl(imageUrl);
         userRepository.save(user);
         return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }

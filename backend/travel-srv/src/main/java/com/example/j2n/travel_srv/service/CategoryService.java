@@ -2,10 +2,9 @@ package com.example.j2n.travel_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.DataNotFoundException;
-import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.utils.ResponseFactory;
+import com.example.j2n.utils.ValidationUtils;
 import com.example.j2n.travel_srv.constant.MessageEnum;
 import com.example.j2n.travel_srv.dto.CategoryDto;
 import com.example.j2n.travel_srv.repository.CategoryRepository;
@@ -15,6 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import com.example.j2n.constants.CommonConst;
 
 import java.util.List;
 
@@ -23,8 +27,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryService {
 
+    @Lazy
+    @Autowired
+    private CategoryService self;
+
     private final CategoryRepository categoryRepository;
 
+    @Cacheable(value = CommonConst.CATEGORY_CACHE_KEY, key = CommonConst.ALL_CATEGORIES_KEY)
     @LogAround(message = "Get all categories")
     public BaseResponse<List<CategoryEntity>> getAllCategories() {
         return ResponseFactory.success(categoryRepository.findAllByIsDeletedFalse());
@@ -37,7 +46,7 @@ public class CategoryService {
 
     @LogAround(message = "Get category by slug")
     public BaseResponse<CategoryEntity> getCategoryBySlug(String slug) {
-        validateString(slug);
+        ValidationUtils.validateString(slug);
         CategoryEntity entity = categoryRepository.findBySlugAndIsDeletedFalse(slug)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
         return ResponseFactory.success(entity);
@@ -45,13 +54,14 @@ public class CategoryService {
 
     @LogAround(message = "Get category by name")
     public BaseResponse<CategoryEntity> getCategoryByName(String name) {
-        validateString(name);
+        ValidationUtils.validateString(name);
         CategoryEntity entity = categoryRepository.findByNameAndIsDeletedFalse(name)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
         return ResponseFactory.success(entity);
     }
 
     @Transactional
+    @CacheEvict(value = CommonConst.CATEGORY_CACHE_KEY, allEntries = true)
     @LogAround(message = "Create category")
     public BaseResponse<CategoryEntity> createCategory(CategoryDto input) {
         CategoryEntity entity = CategoryEntity.builder()
@@ -63,6 +73,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = CommonConst.CATEGORY_CACHE_KEY, allEntries = true)
     @LogAround(message = "Update category")
     public BaseResponse<CategoryEntity> updateCategory(Long id, CategoryDto input) {
         CategoryEntity entity = getCategoryByIdOrThrow(id);
@@ -73,6 +84,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = CommonConst.CATEGORY_CACHE_KEY, allEntries = true)
     @LogAround(message = "Delete category")
     public BaseResponse<Boolean> deleteCategory(Long id) {
         CategoryEntity entity = getCategoryByIdOrThrow(id);
@@ -82,9 +94,9 @@ public class CategoryService {
         return ResponseFactory.success(true);
     }
 
-    private CategoryEntity getCategoryByIdOrThrow(Long id) {
+    public CategoryEntity getCategoryByIdOrThrow(Long id) {
         log.info("Get category by id: {}", id);
-        validateLong(id);
+        ValidationUtils.validateLong(id);
         return categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
     }
@@ -94,22 +106,6 @@ public class CategoryService {
         if (entity.getIsDeleted().equals(Boolean.TRUE)) {
             log.error("Invalid input: category is deleted");
             throw new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND);
-        }
-    }
-
-    private void validateString(String str) {
-        log.info("Validate string: {}", str);
-        if (str == null || str.isBlank()) {
-            log.error("Invalid input: string is null or blank");
-            throw new InvalidInputException(BaseMessageEnum.BAD_REQUEST);
-        }
-    }
-
-    private void validateLong(Long value) {
-        log.info("Validate long: {}", value);
-        if (value == null || value <= 0) {
-            log.error("Invalid input: value is null or less than or equal to 0");
-            throw new InvalidInputException(BaseMessageEnum.BAD_REQUEST);
         }
     }
 }

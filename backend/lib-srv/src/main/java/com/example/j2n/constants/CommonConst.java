@@ -19,5 +19,8 @@ public class CommonConst {
 
     // Cache key
     public static final String DASHBOARD_CACHE_KEY = "dashboardCache";
+    public static final String CATEGORY_CACHE_KEY = "categoryCache";
+
     public static final String MAIN_REPORT_KEY = "'main_report'";
+    public static final String ALL_CATEGORIES_KEY = "'all_categories'";
 }

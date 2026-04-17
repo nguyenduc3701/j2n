@@ -11,6 +11,7 @@ import com.example.j2n.exception.ExternalServiceException;
 
 import java.io.InputStream;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -20,7 +21,10 @@ public class MinioFactory {
 
     public String upload(MultipartFile file, String bucketName) {
         try {
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().replace(" ", "_");
+            int randomLength = ThreadLocalRandom.current().nextInt(5, 11);
+            String randomStr = UUID.randomUUID().toString().replace("-", "").substring(0, randomLength);
+            String fileName = System.currentTimeMillis() + "_" + randomStr + "_" + file.getOriginalFilename()
+                    .replace(" ", "_");
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)

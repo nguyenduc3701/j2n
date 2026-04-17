@@ -2,14 +2,12 @@ package com.example.j2n.travel_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.DataNotFoundException;
-import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.utils.ResponseFactory;
+import com.example.j2n.utils.ValidationUtils;
 import com.example.j2n.travel_srv.constant.MessageEnum;
 import com.example.j2n.travel_srv.dto.TourScheduleDto;
 import com.example.j2n.travel_srv.repository.TourScheduleRepository;
-import com.example.j2n.travel_srv.repository.TourRepository;
 import com.example.j2n.travel_srv.repository.entity.TourEntity;
 import com.example.j2n.travel_srv.repository.entity.TourScheduleEntity;
 import lombok.RequiredArgsConstructor;
@@ -25,18 +23,18 @@ import java.util.List;
 public class TourScheduleService {
 
     private final TourScheduleRepository tourScheduleRepository;
-    private final TourRepository tourRepository;
+    private final TourService tourService;
 
     @LogAround(message = "Get schedules by tour id")
     public BaseResponse<List<TourScheduleEntity>> getSchedulesByTourId(Long tourId) {
-        validateLong(tourId);
+        ValidationUtils.validateLong(tourId);
         return ResponseFactory.success(tourScheduleRepository.findAllByTourIdAndIsDeletedFalseOrderByDayNumberAsc(tourId));
     }
 
     @Transactional
     @LogAround(message = "Add schedule to tour")
     public BaseResponse<TourScheduleEntity> addScheduleToTour(TourScheduleDto input) {
-        TourEntity tour = getTourByIdOrThrow(input.getTourId());
+        TourEntity tour = tourService.getTourByIdOrThrow(input.getTourId());
 
         TourScheduleEntity entity = TourScheduleEntity.builder()
                 .tour(tour)
@@ -72,21 +70,9 @@ public class TourScheduleService {
 
     // --- Private helpers ---
 
-    private TourEntity getTourByIdOrThrow(Long id) {
-        validateLong(id);
-        return tourRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new DataNotFoundException(MessageEnum.TOUR_NOT_FOUND));
-    }
-
     private TourScheduleEntity getTourScheduleByIdOrThrow(Long id) {
-        validateLong(id);
+        ValidationUtils.validateLong(id);
         return tourScheduleRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.TOUR_SCHEDULE_NOT_FOUND));
-    }
-
-    private void validateLong(Long value) {
-        if (value == null || value <= 0) {
-            throw new InvalidInputException(BaseMessageEnum.BAD_REQUEST);
-        }
     }
 }

@@ -2,13 +2,11 @@ package com.example.j2n.travel_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.DataNotFoundException;
-import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.utils.ResponseFactory;
+import com.example.j2n.utils.ValidationUtils;
 import com.example.j2n.travel_srv.constant.MessageEnum;
 import com.example.j2n.travel_srv.dto.TourDto;
-import com.example.j2n.travel_srv.repository.CategoryRepository;
 import com.example.j2n.travel_srv.repository.TourRepository;
 import com.example.j2n.travel_srv.repository.entity.CategoryEntity;
 import com.example.j2n.travel_srv.repository.entity.TourEntity;
@@ -26,7 +24,7 @@ import java.util.List;
 public class TourService {
 
     private final TourRepository tourRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
     @LogAround(message = "Get all tours")
     public BaseResponse<List<TourEntity>> getAllTours() {
@@ -40,14 +38,14 @@ public class TourService {
 
     @LogAround(message = "Get tours by category")
     public BaseResponse<List<TourEntity>> getToursByCategory(Long categoryId) {
-        validateLong(categoryId);
+        ValidationUtils.validateLong(categoryId);
         return ResponseFactory.success(tourRepository.findByCategoryIdAndIsDeletedFalse(categoryId));
     }
 
     @Transactional
     @LogAround(message = "Create tour")
     public BaseResponse<TourEntity> createTour(TourDto input) {
-        CategoryEntity category = getCategoryByIdOrThrow(input.getCategoryId());
+        CategoryEntity category = categoryService.getCategoryByIdOrThrow(input.getCategoryId());
 
         TourEntity entity = TourEntity.builder()
                 .category(category)
@@ -69,7 +67,7 @@ public class TourService {
         TourEntity entity = getTourByIdOrThrow(id);
         validateTour(entity);
 
-        CategoryEntity category = getCategoryByIdOrThrow(input.getCategoryId());
+        CategoryEntity category = categoryService.getCategoryByIdOrThrow(input.getCategoryId());
 
         entity.setCategory(category);
         entity.setTitle(input.getTitle());
@@ -94,18 +92,11 @@ public class TourService {
 
     // --- Private helpers ---
 
-    private TourEntity getTourByIdOrThrow(Long id) {
+    public TourEntity getTourByIdOrThrow(Long id) {
         log.info("Get tour by id: {}", id);
-        validateLong(id);
+        ValidationUtils.validateLong(id);
         return tourRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.TOUR_NOT_FOUND));
-    }
-
-    private CategoryEntity getCategoryByIdOrThrow(Long categoryId) {
-        log.info("Get category by id: {}", categoryId);
-        validateLong(categoryId);
-        return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new DataNotFoundException(MessageEnum.CATEGORY_NOT_FOUND));
     }
 
     private void validateTour(TourEntity entity) {
@@ -113,14 +104,6 @@ public class TourService {
         if (Boolean.TRUE.equals(entity.getIsDeleted())) {
             log.error("Invalid input: tour is deleted");
             throw new DataNotFoundException(MessageEnum.TOUR_NOT_FOUND);
-        }
-    }
-
-    private void validateLong(Long value) {
-        log.info("Validate long: {}", value);
-        if (value == null || value <= 0) {
-            log.error("Invalid input: value is null or less than or equal to 0");
-            throw new InvalidInputException(BaseMessageEnum.BAD_REQUEST);
         }
     }
 }

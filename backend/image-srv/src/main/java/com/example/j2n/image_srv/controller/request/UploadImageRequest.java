@@ -22,7 +22,7 @@ import java.util.Optional;
 public class UploadImageRequest extends BaseRequest {
 
     @Builder.Default
-    @Schema(description = "Type of owner (e.g., USER, PRODUCT, ROOM)", example = "USER")
+    @Schema(description = "Type of owner (e.g., USER, PRODUCT, ROOM, TRAVEL)", example = "USER")
     private Optional<String> ownerType = Optional.empty();
 
     @Schema(description = "ID of the owner", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -32,4 +32,8 @@ public class UploadImageRequest extends BaseRequest {
     @Schema(description = "List of image files to upload", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "Files are required")
     private List<MultipartFile> files;
+
+    @Builder.Default
+    @Schema(description = "Is primary image", example = "true")
+    private Optional<Boolean> isPrimary = Optional.empty();
 }

@@ -11,6 +11,8 @@ import com.example.j2n.image_srv.exception.FileSizeException;
 import com.example.j2n.image_srv.exception.FileTypeException;
 import com.example.j2n.image_srv.exception.OwnerTypeException;
 import com.example.j2n.image_srv.exception.StaticFileReadException;
+import com.example.j2n.image_srv.messaging.travel.event.TourImageUploadEvent;
+import com.example.j2n.image_srv.messaging.travel.publisher.TravelEventPublisher;
 import com.example.j2n.image_srv.messaging.user.event.UserAvatarUploadEvent;
 import com.example.j2n.image_srv.messaging.user.publisher.UserEventPublisher;
 import com.example.j2n.image_srv.repository.ImageRepository;
@@ -46,6 +48,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final MinioFactory minioFactory;
     private final UserEventPublisher avatarEventPublisher;
+    private final TravelEventPublisher travelEventPublisher;
 
     @LogAround(message = "[ImageSrv] Uploading images")
     public BaseResponse<List<ImageItemResponse>> uploadImage(UploadImageRequest request) {
@@ -59,8 +62,7 @@ public class ImageService {
             ImageEntity imageEntity = buildAndSaveEntity(request, file, fileName);
             result.add(mapEntityToImageItemResponse(imageEntity));
         }
-        publishAvatarUploadedEvent(request.getFiles(), request.getOwnerId().toString(), result.get(0).getFilePath(),
-                request.getOwnerType().orElse(OwnerType.DEFAULT), result.get(0).getId().toString());
+        publishImageUploadedEvent(request, result);
         return ResponseFactory.success(result);
     }
 
@@ -111,6 +113,8 @@ public class ImageService {
                 return BucketConstant.PRODUCT_BUCKET;
             case OwnerType.ROOM:
                 return BucketConstant.ROOM_BUCKET;
+            case OwnerType.TRAVEL:
+                return BucketConstant.TRAVEL_BUCKET;
             default:
                 return BucketConstant.DEFAULT_BUCKET;
         }
@@ -165,14 +169,49 @@ public class ImageService {
         return imageRepository.save(imageEntity);
     }
 
-    private void publishAvatarUploadedEvent(List<MultipartFile> files, String userId, String imageUrl, String ownerType,
-            String imageId) {
-        if (files.isEmpty() || files.size() > 1 || !ownerType.equals(OwnerType.USER) || imageId == null) {
-            log.info("[ImageSrv] Skip publishing avatar uploaded event");
+    private void publishImageUploadedEvent(UploadImageRequest request, List<ImageItemResponse> result) {
+        String ownerType = request.getOwnerType().orElse(OwnerType.DEFAULT).toUpperCase();
+        if (ownerType.equals(OwnerType.USER)) {
+            publishAvatarUploadedEvent(request, result);
+        } else if (ownerType.equals(OwnerType.TRAVEL)) {
+            publishTourImageUploadedEvent(request, result);
+        }
+    }
+
+    private void publishAvatarUploadedEvent(UploadImageRequest request, List<ImageItemResponse> result) {
+        if (request.getFiles().size() != 1 || result.isEmpty()) {
+            log.info("[ImageSrv] Skip publishing avatar uploaded event: multiple files or empty result");
             return;
         }
         log.info("[ImageSrv] Publishing avatar uploaded event");
-        UserAvatarUploadEvent event = new UserAvatarUploadEvent(userId, imageId, imageUrl);
+        String finalImageUrl = buildFinalImageUrl(OwnerType.USER, result.get(0).getId());
+        UserAvatarUploadEvent event = new UserAvatarUploadEvent(
+                request.getOwnerId().toString(),
+                result.get(0).getId().toString(),
+                finalImageUrl);
         avatarEventPublisher.publishAvatarUploaded(event);
+    }
+
+    private void publishTourImageUploadedEvent(UploadImageRequest request, List<ImageItemResponse> result) {
+        log.info("[ImageSrv] Publishing tour image uploaded event for owner id: {}", request.getOwnerId());
+        
+        Boolean isPrimary = request.getIsPrimary().orElse(false);
+        List<TourImageUploadEvent.ImageInfo> images = result.stream()
+                .map(item -> {
+                    String finalImageUrl = buildFinalImageUrl(OwnerType.TRAVEL, item.getId());
+                    return new TourImageUploadEvent.ImageInfo(finalImageUrl, isPrimary);
+                })
+                .toList();
+
+        TourImageUploadEvent event = TourImageUploadEvent.builder()
+                .tourId(request.getOwnerId())
+                .images(images)
+                .build();
+        
+        travelEventPublisher.publishTourImageUploaded(event);
+    }
+
+    private String buildFinalImageUrl(String ownerType, Long id) {
+        return String.format("/api/bff/image/%s/%s", ownerType.toLowerCase(), id);
     }
 }
