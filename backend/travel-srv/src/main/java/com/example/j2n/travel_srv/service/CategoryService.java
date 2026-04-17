@@ -91,7 +91,7 @@ public class CategoryService {
         validateCategory(entity);
         entity.setIsDeleted(true);
         categoryRepository.save(entity);
-        return ResponseFactory.success(true);
+        return ResponseFactory.success(null);
     }
 
     public CategoryEntity getCategoryByIdOrThrow(Long id) {

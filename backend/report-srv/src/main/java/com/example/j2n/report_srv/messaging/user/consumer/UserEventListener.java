@@ -20,7 +20,7 @@ public class UserEventListener {
 
     private final ManagementService managementService;
 
-    @RabbitListener(queues = UserEventConstants.QUEUE_AUTH_REGISTERED)
+    @RabbitListener(queues = UserEventConstants.QUEUE_REPORT_USER)
     public void onUserRegistered(
             UserRegisteredEvent event,
             Channel channel,

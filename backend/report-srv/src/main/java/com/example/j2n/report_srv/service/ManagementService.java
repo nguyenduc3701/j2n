@@ -41,13 +41,17 @@ import net.devh.boot.grpc.server.service.GrpcService;
 @RequiredArgsConstructor
 public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     private final static String TOTAL_USERS_METRIC_KEY = "total_users";
+    private final static String ACTIVE_USERS_METRIC_KEY = "active_users";
+    private final static String INACTIVE_USERS_METRIC_KEY = "inactive_users";
+    private final static String TOTAL_TOURS_METRIC_KEY = "total_tours";
     private final static String ACCOUNT_CATEGORY = "ACCOUNT";
+    private final static String TRAVEL_CATEGORY = "TRAVEL";
     private final static String USER_TYPE_CHART = "USER_TYPE";
 
     @Lazy
     @Autowired
     private ManagementService self;
- 
+
     private final SummaryMetricsRepository summaryMetricsRepository;
     private final DistributionChartRepository distributionChartRepository;
     private final MonthlyFinancialsRepository monthlyFinancialsRepository;
@@ -137,7 +141,12 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     @LogAround(message = "[REPORT-SRV] Processing registration report")
     public BaseResponse<Object> handleUserRegistrationReport(UserRegisteredEvent event) {
         try {
-            updateSummaryMetrics(event);
+            updateSummaryMetric(TOTAL_USERS_METRIC_KEY, ACCOUNT_CATEGORY, true);
+            if ("ACTIVE".equalsIgnoreCase(event.getStatus())) {
+                updateSummaryMetric(ACTIVE_USERS_METRIC_KEY, ACCOUNT_CATEGORY, true);
+            } else {
+                updateSummaryMetric(INACTIVE_USERS_METRIC_KEY, ACCOUNT_CATEGORY, true);
+            }
             updateDistributionChart(event);
             return ResponseFactory.of(MessageEnum.UPDATE_USER_REPORT_SUCCESS, null);
         } catch (Exception e) {
@@ -145,13 +154,28 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
         }
     }
 
-    @LogAround(message = "[REPORT-SRV] Updating summary metrics")
-    private void updateSummaryMetrics(UserRegisteredEvent event) {
-        SummaryMetrics summary = findOrCreateSummaryMetricsById(TOTAL_USERS_METRIC_KEY);
+    @Transactional
+    @LogAround(message = "[REPORT-SRV] Processing tour report change")
+    public BaseResponse<Object> handleTourReport(boolean isIncrement) {
+        try {
+            updateSummaryMetric(TOTAL_TOURS_METRIC_KEY, TRAVEL_CATEGORY, isIncrement);
+            return ResponseFactory.of(BaseMessageEnum.SUCCESS, null);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @LogAround(message = "[REPORT-SRV] Updating summary metric")
+    private void updateSummaryMetric(String metricKey, String category, boolean isIncrement) {
+        SummaryMetrics summary = findOrCreateSummaryMetricsById(metricKey);
         if (summary == null) {
-            summary = buildSummaryMetricsEntity(event);
+            summary = new SummaryMetrics();
+            summary.setMetricKey(metricKey);
+            summary.setCategory(category);
+            summary.setMetricValue(isIncrement ? 1L : 0L);
         } else {
-            summary.setMetricValue(summary.getMetricValue() + 1);
+            long newValue = isIncrement ? summary.getMetricValue() + 1 : Math.max(0, summary.getMetricValue() - 1);
+            summary.setMetricValue(newValue);
         }
         summaryMetricsRepository.save(summary);
     }
@@ -175,15 +199,6 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     private DistributionChart findOrCreateDistributionChart(String chartType, String itemLabel) {
         return distributionChartRepository.findByChartTypeAndItemLabel(chartType, itemLabel)
                 .orElse(null);
-    }
-
-    private SummaryMetrics buildSummaryMetricsEntity(UserRegisteredEvent event) {
-        log.info("[REPORT-SRV] Building summary metrics for user: {}", event.getUserId());
-        SummaryMetrics summaryMetrics = new SummaryMetrics();
-        summaryMetrics.setMetricKey(TOTAL_USERS_METRIC_KEY);
-        summaryMetrics.setCategory(ACCOUNT_CATEGORY);
-        summaryMetrics.setMetricValue(1L);
-        return summaryMetrics;
     }
 
     private DistributionChart buildDistributionChartEntity(UserRegisteredEvent event) {

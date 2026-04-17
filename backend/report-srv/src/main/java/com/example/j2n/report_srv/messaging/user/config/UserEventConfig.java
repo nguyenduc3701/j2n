@@ -17,15 +17,15 @@ public class UserEventConfig {
     }
 
     @Bean
-    public Queue registeredQueue() {
-        return QueueBuilder.durable(UserEventConstants.QUEUE_AUTH_REGISTERED).build();
+    public Queue userQueue() {
+        return QueueBuilder.durable(UserEventConstants.QUEUE_REPORT_USER).build();
     }
 
     @Bean
-    public Binding registeredBinding() {
+    public Binding userBinding() {
         return BindingBuilder
-                .bind(registeredQueue())
+                .bind(userQueue())
                 .to(userExchange())
-                .with(UserEventConstants.RK_USER_REGISTERED);
+                .with(UserEventConstants.RK_USER_ALL);
     }
 }

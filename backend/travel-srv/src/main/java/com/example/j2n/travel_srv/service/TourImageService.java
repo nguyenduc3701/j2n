@@ -54,7 +54,7 @@ public class TourImageService {
         TourImageEntity entity = getTourImageByIdOrThrow(id);
         entity.setIsDeleted(true);
         tourImageRepository.save(entity);
-        return ResponseFactory.success(true);
+        return ResponseFactory.success(null);
     }
 
     @Transactional

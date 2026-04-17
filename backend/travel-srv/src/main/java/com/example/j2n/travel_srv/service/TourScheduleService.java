@@ -28,7 +28,8 @@ public class TourScheduleService {
     @LogAround(message = "Get schedules by tour id")
     public BaseResponse<List<TourScheduleEntity>> getSchedulesByTourId(Long tourId) {
         ValidationUtils.validateLong(tourId);
-        return ResponseFactory.success(tourScheduleRepository.findAllByTourIdAndIsDeletedFalseOrderByDayNumberAsc(tourId));
+        return ResponseFactory
+                .success(tourScheduleRepository.findAllByTourIdAndIsDeletedFalseOrderByDayNumberAsc(tourId));
     }
 
     @Transactional
@@ -65,7 +66,7 @@ public class TourScheduleService {
         TourScheduleEntity entity = getTourScheduleByIdOrThrow(id);
         entity.setIsDeleted(true);
         tourScheduleRepository.save(entity);
-        return ResponseFactory.success(true);
+        return ResponseFactory.success(null);
     }
 
     // --- Private helpers ---

@@ -7,6 +7,9 @@ import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.ValidationUtils;
 import com.example.j2n.travel_srv.constant.MessageEnum;
 import com.example.j2n.travel_srv.dto.TourDto;
+import com.example.j2n.travel_srv.messaging.travel.event.TourCreatedEvent;
+import com.example.j2n.travel_srv.messaging.travel.event.TourDeletedEvent;
+import com.example.j2n.travel_srv.messaging.travel.publisher.TourEventPublisher;
 import com.example.j2n.travel_srv.repository.TourRepository;
 import com.example.j2n.travel_srv.repository.entity.CategoryEntity;
 import com.example.j2n.travel_srv.repository.entity.TourEntity;
@@ -25,6 +28,7 @@ public class TourService {
 
     private final TourRepository tourRepository;
     private final CategoryService categoryService;
+    private final TourEventPublisher tourEventPublisher;
 
     @LogAround(message = "Get all tours")
     public BaseResponse<List<TourEntity>> getAllTours() {
@@ -58,7 +62,9 @@ public class TourService {
                 .isDeleted(false)
                 .build();
 
-        return ResponseFactory.success(tourRepository.save(entity));
+        TourEntity savedTour = tourRepository.save(entity);
+        publishTourCreatedEvent(savedTour);
+        return ResponseFactory.success(savedTour);
     }
 
     @Transactional
@@ -87,7 +93,8 @@ public class TourService {
         validateTour(entity);
         entity.setIsDeleted(true);
         tourRepository.save(entity);
-        return ResponseFactory.success(true);
+        publishTourDeletedEvent(entity);
+        return ResponseFactory.success(null);
     }
 
     // --- Private helpers ---
@@ -105,5 +112,37 @@ public class TourService {
             log.error("Invalid input: tour is deleted");
             throw new DataNotFoundException(MessageEnum.TOUR_NOT_FOUND);
         }
+    }
+
+    private void publishTourCreatedEvent(TourEntity tour) {
+        if (tour.getId() == null) {
+            log.error("[TRAVEL-SRV] Tour id is null");
+            return;
+        }
+        log.info("[TRAVEL-SRV] Publishing tour created event for tour: {}", tour.getTitle());
+        TourCreatedEvent event = TourCreatedEvent.builder()
+                .tourId(tour.getId().toString())
+                .categoryId(tour.getCategory().getId())
+                .title(tour.getTitle())
+                .description(tour.getDescription())
+                .price(tour.getPrice())
+                .thumbnail(tour.getThumbnail())
+                .duration(tour.getDuration())
+                .startLocation(tour.getStartLocation())
+                .createdAt(tour.getCreatedAt() != null ? tour.getCreatedAt().toString() : null)
+                .build();
+        tourEventPublisher.publishTourCreated(event);
+    }
+
+    private void publishTourDeletedEvent(TourEntity tour) {
+        if (tour.getId() == null) {
+            log.error("[TRAVEL-SRV] Tour id is null");
+            return;
+        }
+        log.info("[TRAVEL-SRV] Publishing tour deleted event for tour: {}", tour.getTitle());
+        TourDeletedEvent event = TourDeletedEvent.builder()
+                .tourId(tour.getId().toString())
+                .build();
+        tourEventPublisher.publishTourDeleted(event);
     }
 }
