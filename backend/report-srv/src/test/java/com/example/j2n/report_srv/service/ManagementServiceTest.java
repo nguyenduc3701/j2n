@@ -44,6 +44,8 @@ import com.google.protobuf.Empty;
 
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
+import org.springframework.test.util.ReflectionTestUtils;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementServiceTest {
@@ -71,6 +73,8 @@ class ManagementServiceTest {
         validEvent = new UserRegisteredEvent();
         validEvent.setUserId("user-id");
         validEvent.setRole("ROLE_USER");
+        validEvent.setStatus("ACTIVE");
+        ReflectionTestUtils.setField(managementService, "self", managementService);
     }
 
     @Test
@@ -157,7 +161,7 @@ class ManagementServiceTest {
 
     @Test
     void testHandleUserRegistrationReport_CreateNewRecords() {
-        when(summaryMetricsRepository.findById("total_users")).thenReturn(Optional.empty());
+        when(summaryMetricsRepository.findById(anyString())).thenReturn(Optional.empty());
         when(distributionChartRepository.findByChartTypeAndItemLabel("USER_TYPE", "ROLE_USER"))
                 .thenReturn(Optional.empty());
 
@@ -166,7 +170,7 @@ class ManagementServiceTest {
         assertNotNull(response);
         assertEquals(String.valueOf(MessageEnum.UPDATE_USER_REPORT_SUCCESS.getHttpStatus().getCode()),
                 response.getCode());
-        verify(summaryMetricsRepository).save(any(SummaryMetrics.class));
+        verify(summaryMetricsRepository, times(2)).save(any(SummaryMetrics.class));
         verify(distributionChartRepository).save(any(DistributionChart.class));
     }
 
@@ -178,15 +182,15 @@ class ManagementServiceTest {
         DistributionChart existingChart = new DistributionChart();
         existingChart.setItemValue(2L);
 
-        when(summaryMetricsRepository.findById("total_users")).thenReturn(Optional.of(existingSummary));
+        when(summaryMetricsRepository.findById(anyString())).thenReturn(Optional.of(existingSummary));
         when(distributionChartRepository.findByChartTypeAndItemLabel("USER_TYPE", "ROLE_USER"))
                 .thenReturn(Optional.of(existingChart));
 
         BaseResponse<Object> response = managementService.handleUserRegistrationReport(validEvent);
 
         assertNotNull(response);
-        verify(summaryMetricsRepository).save(existingSummary);
-        assertEquals(6L, existingSummary.getMetricValue());
+        verify(summaryMetricsRepository, times(2)).save(existingSummary);
+        assertEquals(7L, existingSummary.getMetricValue());
 
         verify(distributionChartRepository).save(existingChart);
         assertEquals(3L, existingChart.getItemValue());
@@ -202,5 +206,89 @@ class ManagementServiceTest {
 
         assertEquals("Test Exception", ex.getMessage());
         verify(distributionChartRepository, never()).save(any());
+    }
+
+    @Test
+    void testHandleUserRegistrationReport_InactiveStatus() {
+        validEvent.setStatus("INACTIVE");
+        when(summaryMetricsRepository.findById(anyString())).thenReturn(Optional.empty());
+        when(distributionChartRepository.findByChartTypeAndItemLabel(anyString(), anyString())).thenReturn(Optional.empty());
+
+        BaseResponse<Object> response = managementService.handleUserRegistrationReport(validEvent);
+
+        assertNotNull(response);
+        verify(summaryMetricsRepository, times(2)).save(any(SummaryMetrics.class));
+    }
+
+    @Test
+    void testHandleTourReport_Increment() {
+        SummaryMetrics summary = new SummaryMetrics();
+        summary.setMetricValue(10L);
+        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.of(summary));
+
+        BaseResponse<Object> response = managementService.handleTourReport(true);
+
+        assertNotNull(response);
+        assertEquals(11L, summary.getMetricValue());
+        verify(summaryMetricsRepository).save(summary);
+    }
+
+    @Test
+    void testHandleTourReport_Decrement() {
+        SummaryMetrics summary = new SummaryMetrics();
+        summary.setMetricValue(10L);
+        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.of(summary));
+
+        BaseResponse<Object> response = managementService.handleTourReport(false);
+
+        assertNotNull(response);
+        assertEquals(9L, summary.getMetricValue());
+        verify(summaryMetricsRepository).save(summary);
+    }
+
+    @Test
+    void testHandleTourReport_DecrementToZero() {
+        SummaryMetrics summary = new SummaryMetrics();
+        summary.setMetricValue(0L);
+        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.of(summary));
+
+        BaseResponse<Object> response = managementService.handleTourReport(false);
+
+        assertNotNull(response);
+        assertEquals(0L, summary.getMetricValue());
+        verify(summaryMetricsRepository).save(summary);
+    }
+
+    @Test
+    void testHandleTourReport_NewRecord_Decrement() {
+        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.empty());
+
+        BaseResponse<Object> response = managementService.handleTourReport(false);
+
+        assertNotNull(response);
+        verify(summaryMetricsRepository).save(any(SummaryMetrics.class));
+        
+        ArgumentCaptor<SummaryMetrics> captor = ArgumentCaptor.forClass(SummaryMetrics.class);
+        verify(summaryMetricsRepository).save(captor.capture());
+        assertEquals(0L, captor.getValue().getMetricValue());
+    }
+
+    @Test
+    void testHandleTourReport_NewRecord_Increment() {
+        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.empty());
+
+        BaseResponse<Object> response = managementService.handleTourReport(true);
+
+        assertNotNull(response);
+        ArgumentCaptor<SummaryMetrics> captor = ArgumentCaptor.forClass(SummaryMetrics.class);
+        verify(summaryMetricsRepository).save(captor.capture());
+        assertEquals(1L, captor.getValue().getMetricValue());
+    }
+
+    @Test
+    void testHandleTourReport_ThrowsException() {
+        when(summaryMetricsRepository.findById(anyString())).thenThrow(new RuntimeException("DB Exception"));
+
+        assertThrows(RuntimeException.class, () -> managementService.handleTourReport(true));
     }
 }

@@ -85,7 +85,11 @@ class ImageServiceTest {
         assertEquals("generated_path", response.getFilePath());
         verify(imageRepository, times(1)).save(any(ImageEntity.class));
         verify(minioFactory).upload(any(), eq(BucketConstant.USER_BUCKET));
-        verify(avatarEventPublisher).publishAvatarUploaded(any());
+        verify(avatarEventPublisher).publishAvatarUploaded(argThat(event -> 
+            event.getUserId().equals("1") && 
+            event.getImageId().equals("1") &&
+            event.getImageUrl().equals("/api/bff/image/user/1")
+        ));
     }
 
     @Test
@@ -297,6 +301,16 @@ class ImageServiceTest {
         when(minioFactory.upload(any(), eq(BucketConstant.TRAVEL_BUCKET))).thenReturn("path");
         imageService.uploadImage(requestTravel);
         verify(minioFactory).upload(any(), eq(BucketConstant.TRAVEL_BUCKET));
+
+        // DEFAULT
+        UploadImageRequest requestDefault = UploadImageRequest.builder()
+                .files(List.of(file))
+                .ownerType(Optional.of("DEFAULT"))
+                .ownerId(1L)
+                .build();
+        when(minioFactory.upload(any(), eq(BucketConstant.DEFAULT_BUCKET))).thenReturn("path");
+        imageService.uploadImage(requestDefault);
+        verify(minioFactory).upload(any(), eq(BucketConstant.DEFAULT_BUCKET));
     }
 
     @Test
@@ -331,8 +345,27 @@ class ImageServiceTest {
         verify(travelEventPublisher, times(1)).publishTourImageUploaded(argThat(event -> 
             event.getTourId().equals(123L) && 
             event.getImages().size() == 2 && 
-            event.getImages().get(0).getImageUrl().equals("path1") &&
+            event.getImages().get(0).getImageUrl().equals("/api/bff/image/travel/1") &&
             event.getImages().get(0).getIsPrimary().equals(true)
+        ));
+    }
+
+    @Test
+    void uploadImage_Travel_NotPrimary_PublishesEvent() {
+        MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
+        UploadImageRequest request = UploadImageRequest.builder()
+                .files(List.of(file))
+                .ownerType(Optional.of("TRAVEL"))
+                .ownerId(123L)
+                .isPrimary(Optional.empty())
+                .build();
+
+        when(minioFactory.upload(any(), anyString())).thenReturn("path");
+
+        imageService.uploadImage(request);
+
+        verify(travelEventPublisher).publishTourImageUploaded(argThat(event -> 
+            event.getImages().get(0).getIsPrimary().equals(false)
         ));
     }
 

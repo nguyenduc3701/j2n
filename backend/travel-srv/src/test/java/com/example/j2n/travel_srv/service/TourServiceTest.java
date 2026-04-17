@@ -4,10 +4,12 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.travel_srv.dto.TourDto;
-import com.example.j2n.travel_srv.repository.CategoryRepository;
 import com.example.j2n.travel_srv.repository.TourRepository;
 import com.example.j2n.travel_srv.repository.entity.CategoryEntity;
 import com.example.j2n.travel_srv.repository.entity.TourEntity;
+import com.example.j2n.travel_srv.messaging.travel.event.TourCreatedEvent;
+import com.example.j2n.travel_srv.messaging.travel.event.TourDeletedEvent;
+import com.example.j2n.travel_srv.messaging.travel.publisher.TourEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +33,10 @@ class TourServiceTest {
     private TourRepository tourRepository;
 
     @Mock
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
+
+    @Mock
+    private TourEventPublisher tourEventPublisher;
 
     @InjectMocks
     private TourService tourService;
@@ -152,20 +157,21 @@ class TourServiceTest {
 
     @Test
     void createTour_Success() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockCategory));
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenReturn(mockCategory);
         when(tourRepository.save(any(TourEntity.class))).thenReturn(mockTour);
 
         BaseResponse<TourEntity> response = tourService.createTour(mockDto);
 
         assertNotNull(response.getData());
         assertEquals(mockTour.getTitle(), response.getData().getTitle());
-        verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryService, times(1)).getCategoryByIdOrThrow(1L);
         verify(tourRepository, times(1)).save(any(TourEntity.class));
+        verify(tourEventPublisher, times(1)).publishTourCreated(any(TourCreatedEvent.class));
     }
 
     @Test
     void createTour_Fail_CategoryNotFound() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenThrow(new DataNotFoundException(null));
 
         assertThrows(DataNotFoundException.class, () -> tourService.createTour(mockDto));
         verify(tourRepository, never()).save(any());
@@ -198,14 +204,14 @@ class TourServiceTest {
     @Test
     void updateTour_Success() {
         when(tourRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockTour));
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockCategory));
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenReturn(mockCategory);
         when(tourRepository.save(any(TourEntity.class))).thenReturn(mockTour);
 
         BaseResponse<TourEntity> response = tourService.updateTour(1L, mockDto);
 
         assertNotNull(response.getData());
         verify(tourRepository, times(1)).findByIdAndIsDeletedFalse(1L);
-        verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryService, times(1)).getCategoryByIdOrThrow(1L);
         verify(tourRepository, times(1)).save(any(TourEntity.class));
     }
 
@@ -219,14 +225,6 @@ class TourServiceTest {
 
     @Test
     void updateTour_Fail_TourIsDeleted() {
-        TourEntity deletedTour = TourEntity.builder()
-                .id(1L)
-                .category(mockCategory)
-                .title("Tour đã xóa")
-                .price(new BigDecimal("1000000"))
-                .isDeleted(true)
-                .build();
-
         // findByIdAndIsDeletedFalse won't return deleted tours, so simulate via not found
         when(tourRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.empty());
 
@@ -246,7 +244,7 @@ class TourServiceTest {
     @Test
     void updateTour_Fail_CategoryNotFound() {
         when(tourRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockTour));
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenThrow(new DataNotFoundException(null));
 
         assertThrows(DataNotFoundException.class, () -> tourService.updateTour(1L, mockDto));
         verify(tourRepository, never()).save(any());
@@ -269,10 +267,10 @@ class TourServiceTest {
 
         BaseResponse<Boolean> response = tourService.deleteTour(1L);
 
-        assertNotNull(response.getData());
-        assertTrue(response.getData());
-        assertTrue(mockTour.getIsDeleted());
+        assertNull(response.getData());
+        assertEquals("true", String.valueOf(mockTour.getIsDeleted()));
         verify(tourRepository, times(1)).save(any(TourEntity.class));
+        verify(tourEventPublisher, times(1)).publishTourDeleted(any(TourDeletedEvent.class));
     }
 
     @Test
@@ -302,7 +300,6 @@ class TourServiceTest {
 
     @Test
     void updateTour_Fail_ValidateTour_IsDeleted_True() {
-        // Tạo tour có isDeleted = true trực tiếp để test nhánh validateTour
         TourEntity deletedTour = TourEntity.builder()
                 .id(2L)
                 .category(mockCategory)
@@ -311,7 +308,6 @@ class TourServiceTest {
                 .isDeleted(true)
                 .build();
 
-        // findByIdAndIsDeletedFalse trả về entity này (giả sử DB inconsistency)
         when(tourRepository.findByIdAndIsDeletedFalse(2L)).thenReturn(Optional.of(deletedTour));
 
         assertThrows(DataNotFoundException.class, () -> tourService.updateTour(2L, mockDto));
@@ -330,5 +326,37 @@ class TourServiceTest {
         when(tourRepository.findByIdAndIsDeletedFalse(2L)).thenReturn(Optional.of(deletedTour));
 
         assertThrows(DataNotFoundException.class, () -> tourService.deleteTour(2L));
+    }
+
+    @Test
+    void publishTourCreatedEvent_NullId_Skips() {
+        TourEntity tour = new TourEntity();
+        tour.setId(null);
+        
+        when(categoryService.getCategoryByIdOrThrow(anyLong())).thenReturn(mockCategory);
+        when(tourRepository.save(any())).thenReturn(tour);
+        
+        tourService.createTour(mockDto);
+        verify(tourEventPublisher, never()).publishTourCreated(any());
+    }
+
+    @Test
+    void publishTourDeletedEvent_NullId_Skips() {
+        TourEntity tour = new TourEntity();
+        tour.setId(null);
+        when(tourRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.of(tour));
+        
+        tourService.deleteTour(1L);
+        verify(tourEventPublisher, never()).publishTourDeleted(any());
+    }
+
+    @Test
+    void publishTourCreatedEvent_NullCreatedAt_UsesNull() {
+        mockTour.setCreatedAt(null);
+        when(categoryService.getCategoryByIdOrThrow(anyLong())).thenReturn(mockCategory);
+        when(tourRepository.save(any())).thenReturn(mockTour);
+
+        tourService.createTour(mockDto);
+        verify(tourEventPublisher).publishTourCreated(argThat(event -> event.getCreatedAt() == null));
     }
 }
