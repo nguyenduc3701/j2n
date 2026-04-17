@@ -1,0 +1,49 @@
+query Op_getImagesByTourId($tourId: ID!) {
+  getImagesByTourId(tourId: $tourId) {
+    code
+    message
+    data {
+      id
+      imageUrl
+      isPrimary
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation Op_addImageToTour($input: TourImageInput!) {
+  addImageToTour(input: $input) {
+    code
+    message
+    data {
+      id
+      imageUrl
+      isPrimary
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation Op_deleteTourImage($id: ID!) {
+  deleteTourImage(id: $id) {
+    code
+    message
+    data
+  }
+}
+
+mutation Op_setPrimaryImage($id: ID!) {
+  setPrimaryImage(id: $id) {
+    code
+    message
+    data {
+      id
+      imageUrl
+      isPrimary
+      createdAt
+      updatedAt
+    }
+  }
+}

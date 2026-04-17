@@ -1,5 +1,9 @@
 package com.example.j2n.bff_srv.service;
 
+import com.example.j2n.bff_srv.controller.request.CategoryRequest;
+import com.example.j2n.bff_srv.controller.request.TourImageRequest;
+import com.example.j2n.bff_srv.controller.request.TourRequest;
+import com.example.j2n.bff_srv.controller.request.TourScheduleRequest;
 import com.example.j2n.bff_srv.utils.GraphQLFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,7 +99,7 @@ class TravelServiceTest {
 
     @Test
     void createCategory_ShouldReturnSuccess() {
-        Object input = new Object();
+        CategoryRequest input = CategoryRequest.builder().name("Test").slug("test").build();
         Object expectedResponse = new Object();
         when(graphQLFactory.execute(eq(TRAVEL_CATEGORY_DOC), eq("createCategory"), anyMap(), any(ParameterizedTypeReference.class)))
                 .thenReturn(Mono.just(expectedResponse));
@@ -112,7 +116,7 @@ class TravelServiceTest {
     @Test
     void updateCategory_ShouldReturnSuccess() {
         Long id = 1L;
-        Object input = new Object();
+        CategoryRequest input = CategoryRequest.builder().name("Test Updated").slug("test-updated").build();
         Object expectedResponse = new Object();
         when(graphQLFactory.execute(eq(TRAVEL_CATEGORY_DOC), eq("updateCategory"), anyMap(), any(ParameterizedTypeReference.class)))
                 .thenReturn(Mono.just(expectedResponse));
@@ -193,7 +197,7 @@ class TravelServiceTest {
 
     @Test
     void createTour_ShouldReturnSuccess() {
-        Object input = new Object();
+        TourRequest input = TourRequest.builder().title("Tour").categoryId(1L).build();
         Object expectedResponse = new Object();
         when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("createTour"), anyMap(), any(ParameterizedTypeReference.class)))
                 .thenReturn(Mono.just(expectedResponse));
@@ -210,7 +214,7 @@ class TravelServiceTest {
     @Test
     void updateTour_ShouldReturnSuccess() {
         Long id = 1L;
-        Object input = new Object();
+        TourRequest input = TourRequest.builder().title("Tour Updated").build();
         Object expectedResponse = new Object();
         when(graphQLFactory.execute(eq(TRAVEL_TOUR_DOC), eq("updateTour"), anyMap(), any(ParameterizedTypeReference.class)))
                 .thenReturn(Mono.just(expectedResponse));
@@ -238,5 +242,138 @@ class TravelServiceTest {
                 .verifyComplete();
 
         verify(graphQLFactory).execute(eq(TRAVEL_TOUR_DOC), eq("deleteTour"), eq(Map.of("id", id)), any(ParameterizedTypeReference.class));
+    }
+
+    // ===================== Tour Image Methods =====================
+
+    @Test
+    void getImagesByTourId_ShouldReturnSuccess() {
+        Long tourId = 1L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-image"), eq("getImagesByTourId"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.getImagesByTourId(tourId);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-image"), eq("getImagesByTourId"), eq(Map.of("tourId", tourId)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void addImageToTour_ShouldReturnSuccess() {
+        TourImageRequest input = TourImageRequest.builder().tourId(1L).imageUrl("url").build();
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-image"), eq("addImageToTour"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.addImageToTour(input);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-image"), eq("addImageToTour"), eq(Map.of("input", input)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void deleteTourImage_ShouldReturnSuccess() {
+        Long id = 1L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-image"), eq("deleteTourImage"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.deleteTourImage(id);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-image"), eq("deleteTourImage"), eq(Map.of("id", id)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void setPrimaryImage_ShouldReturnSuccess() {
+        Long id = 1L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-image"), eq("setPrimaryImage"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.setPrimaryImage(id);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-image"), eq("setPrimaryImage"), eq(Map.of("id", id)), any(ParameterizedTypeReference.class));
+    }
+
+    // ===================== Tour Schedule Methods =====================
+
+    @Test
+    void getSchedulesByTourId_ShouldReturnSuccess() {
+        Long tourId = 1L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-schedule"), eq("getSchedulesByTourId"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.getSchedulesByTourId(tourId);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-schedule"), eq("getSchedulesByTourId"), eq(Map.of("tourId", tourId)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void addScheduleToTour_ShouldReturnSuccess() {
+        TourScheduleRequest input = TourScheduleRequest.builder().tourId(1L).dayNumber(1).title("Day 1").build();
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-schedule"), eq("addScheduleToTour"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.addScheduleToTour(input);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-schedule"), eq("addScheduleToTour"), eq(Map.of("input", input)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void updateTourSchedule_ShouldReturnSuccess() {
+        Long id = 1L;
+        TourScheduleRequest input = TourScheduleRequest.builder().title("Day 1 Updated").build();
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-schedule"), eq("updateTourSchedule"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.updateTourSchedule(id, input);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-schedule"), eq("updateTourSchedule"), eq(Map.of("id", id, "input", input)), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void deleteTourSchedule_ShouldReturnSuccess() {
+        Long id = 1L;
+        Object expectedResponse = new Object();
+        when(graphQLFactory.execute(eq("travel-schedule"), eq("deleteTourSchedule"), anyMap(), any(ParameterizedTypeReference.class)))
+                .thenReturn(Mono.just(expectedResponse));
+
+        Mono<Object> result = travelService.deleteTourSchedule(id);
+
+        StepVerifier.create(result)
+                .expectNext(expectedResponse)
+                .verifyComplete();
+
+        verify(graphQLFactory).execute(eq("travel-schedule"), eq("deleteTourSchedule"), eq(Map.of("id", id)), any(ParameterizedTypeReference.class));
     }
 }
