@@ -40,7 +40,6 @@ import net.devh.boot.grpc.server.service.GrpcService;
 @GrpcService
 @RequiredArgsConstructor
 public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
-    private final static String TOTAL_USERS_METRIC_KEY = "total_users";
     private final static String ACTIVE_USERS_METRIC_KEY = "active_users";
     private final static String INACTIVE_USERS_METRIC_KEY = "inactive_users";
     private final static String TOTAL_TOURS_METRIC_KEY = "total_tours";
@@ -141,7 +140,6 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     @LogAround(message = "[REPORT-SRV] Processing registration report")
     public BaseResponse<Object> handleUserRegistrationReport(UserRegisteredEvent event) {
         try {
-            updateSummaryMetric(TOTAL_USERS_METRIC_KEY, ACCOUNT_CATEGORY, true);
             if ("ACTIVE".equalsIgnoreCase(event.getStatus())) {
                 updateSummaryMetric(ACTIVE_USERS_METRIC_KEY, ACCOUNT_CATEGORY, true);
             } else {

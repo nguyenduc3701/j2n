@@ -170,7 +170,7 @@ class ManagementServiceTest {
         assertNotNull(response);
         assertEquals(String.valueOf(MessageEnum.UPDATE_USER_REPORT_SUCCESS.getHttpStatus().getCode()),
                 response.getCode());
-        verify(summaryMetricsRepository, times(2)).save(any(SummaryMetrics.class));
+        verify(summaryMetricsRepository, times(1)).save(any(SummaryMetrics.class));
         verify(distributionChartRepository).save(any(DistributionChart.class));
     }
 
@@ -189,8 +189,8 @@ class ManagementServiceTest {
         BaseResponse<Object> response = managementService.handleUserRegistrationReport(validEvent);
 
         assertNotNull(response);
-        verify(summaryMetricsRepository, times(2)).save(existingSummary);
-        assertEquals(7L, existingSummary.getMetricValue());
+        verify(summaryMetricsRepository, times(1)).save(existingSummary);
+        assertEquals(6L, existingSummary.getMetricValue());
 
         verify(distributionChartRepository).save(existingChart);
         assertEquals(3L, existingChart.getItemValue());
@@ -217,7 +217,7 @@ class ManagementServiceTest {
         BaseResponse<Object> response = managementService.handleUserRegistrationReport(validEvent);
 
         assertNotNull(response);
-        verify(summaryMetricsRepository, times(2)).save(any(SummaryMetrics.class));
+        verify(summaryMetricsRepository, times(1)).save(any(SummaryMetrics.class));
     }
 
     @Test
