@@ -10,7 +10,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.j2n.travel_srv.filter.InternalAuthFilter;
-import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 @EnableWebSecurity

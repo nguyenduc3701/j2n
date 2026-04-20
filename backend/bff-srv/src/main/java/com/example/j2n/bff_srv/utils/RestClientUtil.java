@@ -1,11 +1,6 @@
 package com.example.j2n.bff_srv.utils;
 
-import com.example.j2n.bff_srv.client.AuthServiceClient;
-import com.example.j2n.bff_srv.config.GatewayConfig;
-import com.example.j2n.bff_srv.constant.GatewayPath;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
@@ -18,7 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.example.j2n.bff_srv.config.GatewayConfig;
+import com.example.j2n.bff_srv.constant.GatewayPath;
 import com.example.j2n.bff_srv.constant.MessageEnum;
 import com.example.j2n.bff_srv.dto.DownstreamMessage;
 import com.example.j2n.dto.BaseResponse;
@@ -27,11 +27,9 @@ import com.example.j2n.exception.ExternalServiceException;
 import com.example.j2n.exception.InvalidInputException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Map;
+import jakarta.servlet.http.Cookie;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

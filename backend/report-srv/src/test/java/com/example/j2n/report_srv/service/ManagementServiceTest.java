@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,10 +22,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
-import com.example.j2n.lib.proto.*;
+import com.example.j2n.lib.proto.ApiCatalogResponse;
+import com.example.j2n.lib.proto.BaseProtoResponse;
+import com.example.j2n.lib.proto.GetDashboardRequest;
 import com.example.j2n.report_srv.constant.MessageEnum;
 import com.example.j2n.report_srv.interceptor.GrpcServerAuthInterceptor;
 import com.example.j2n.report_srv.messaging.user.event.UserRegisteredEvent;
@@ -44,8 +48,6 @@ import com.google.protobuf.Empty;
 
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
-import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class ManagementServiceTest {
@@ -212,7 +214,8 @@ class ManagementServiceTest {
     void testHandleUserRegistrationReport_InactiveStatus() {
         validEvent.setStatus("INACTIVE");
         when(summaryMetricsRepository.findById(anyString())).thenReturn(Optional.empty());
-        when(distributionChartRepository.findByChartTypeAndItemLabel(anyString(), anyString())).thenReturn(Optional.empty());
+        when(distributionChartRepository.findByChartTypeAndItemLabel(anyString(), anyString()))
+                .thenReturn(Optional.empty());
 
         BaseResponse<Object> response = managementService.handleUserRegistrationReport(validEvent);
 
@@ -267,7 +270,7 @@ class ManagementServiceTest {
 
         assertNotNull(response);
         verify(summaryMetricsRepository).save(any(SummaryMetrics.class));
-        
+
         ArgumentCaptor<SummaryMetrics> captor = ArgumentCaptor.forClass(SummaryMetrics.class);
         verify(summaryMetricsRepository).save(captor.capture());
         assertEquals(0L, captor.getValue().getMetricValue());

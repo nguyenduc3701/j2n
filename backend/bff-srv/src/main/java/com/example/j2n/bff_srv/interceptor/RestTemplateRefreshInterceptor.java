@@ -10,7 +10,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 
 import com.example.j2n.bff_srv.client.AuthServiceClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,7 +53,8 @@ public class RestTemplateRefreshInterceptor implements ClientHttpRequestIntercep
             log.info("[BFF-SRV] Token expired, attempting silent refresh...");
             String expiredToken = getBearerToken(request);
             synchronized (this) {
-                String currentToken = authServiceClientProvider.getObject().getTokenFromCookie(servletRequest, ACCESS_TOKEN);
+                String currentToken = authServiceClientProvider.getObject().getTokenFromCookie(servletRequest,
+                        ACCESS_TOKEN);
                 if (currentToken != null && !currentToken.equals(expiredToken)) {
                     log.info("[BFF-SRV] Token was already refreshed by another thread, retrying...");
                     request.getHeaders().set(HttpHeaders.AUTHORIZATION, BEARER + currentToken);

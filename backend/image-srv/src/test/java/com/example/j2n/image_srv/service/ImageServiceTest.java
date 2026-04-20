@@ -1,10 +1,35 @@
 package com.example.j2n.image_srv.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.image_srv.constant.BucketConstant;
-import com.example.j2n.image_srv.constant.OwnerType;
 import com.example.j2n.image_srv.controller.request.UploadImageRequest;
 import com.example.j2n.image_srv.exception.FileSizeException;
 import com.example.j2n.image_srv.exception.FileTypeException;
@@ -16,24 +41,6 @@ import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
 import com.example.j2n.image_srv.service.response.ImageItemResponse;
 import com.example.j2n.image_srv.utils.MinioFactory;
-import com.example.j2n.utils.ResponseFactory;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 class ImageServiceTest {
 
@@ -85,11 +92,9 @@ class ImageServiceTest {
         assertEquals("generated_path", response.getFilePath());
         verify(imageRepository, times(1)).save(any(ImageEntity.class));
         verify(minioFactory).upload(any(), eq(BucketConstant.USER_BUCKET));
-        verify(avatarEventPublisher).publishAvatarUploaded(argThat(event -> 
-            event.getUserId().equals("1") && 
-            event.getImageId().equals("1") &&
-            event.getImageUrl().equals("/api/bff/image/user/1")
-        ));
+        verify(avatarEventPublisher).publishAvatarUploaded(argThat(event -> event.getUserId().equals("1") &&
+                event.getImageId().equals("1") &&
+                event.getImageUrl().equals("/api/bff/image/user/1")));
     }
 
     @Test
@@ -342,12 +347,11 @@ class ImageServiceTest {
 
         imageService.uploadImage(request);
 
-        verify(travelEventPublisher, times(1)).publishTourImageUploaded(argThat(event -> 
-            event.getTourId().equals(123L) && 
-            event.getImages().size() == 2 && 
-            event.getImages().get(0).getImageUrl().equals("/api/bff/image/travel/1") &&
-            event.getImages().get(0).getIsPrimary().equals(true)
-        ));
+        verify(travelEventPublisher, times(1))
+                .publishTourImageUploaded(argThat(event -> event.getTourId().equals(123L) &&
+                        event.getImages().size() == 2 &&
+                        event.getImages().get(0).getImageUrl().equals("/api/bff/image/travel/1") &&
+                        event.getImages().get(0).getIsPrimary().equals(true)));
     }
 
     @Test
@@ -364,9 +368,8 @@ class ImageServiceTest {
 
         imageService.uploadImage(request);
 
-        verify(travelEventPublisher).publishTourImageUploaded(argThat(event -> 
-            event.getImages().get(0).getIsPrimary().equals(false)
-        ));
+        verify(travelEventPublisher)
+                .publishTourImageUploaded(argThat(event -> event.getImages().get(0).getIsPrimary().equals(false)));
     }
 
     @Test

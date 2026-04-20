@@ -1,14 +1,19 @@
 package com.example.j2n.bff_srv.client;
 
-import com.example.j2n.bff_srv.constant.GatewayPath;
-import com.example.j2n.bff_srv.service.response.LoginResponse;
-import com.example.j2n.bff_srv.utils.RestClientUtil;
-import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.exception.RetryableException;
-import com.example.j2n.utils.ResponseFactory;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +27,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Map;
+import com.example.j2n.bff_srv.constant.GatewayPath;
+import com.example.j2n.bff_srv.service.response.LoginResponse;
+import com.example.j2n.bff_srv.utils.RestClientUtil;
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.exception.RetryableException;
+import com.example.j2n.utils.ResponseFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceClientTest {

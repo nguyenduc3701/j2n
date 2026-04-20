@@ -1,15 +1,15 @@
 package com.example.j2n.api_gateway_srv.filter;
 
-import com.example.j2n.api_gateway_srv.exception.ExpiredTokenException;
-import com.example.j2n.api_gateway_srv.exception.InvalidTokenException;
-import com.example.j2n.api_gateway_srv.exception.NotRecognizedServiceException;
-import com.example.j2n.api_gateway_srv.utils.JwtGeneralUtil;
-import com.example.j2n.constants.CommonConst;
-import com.example.j2n.utils.RedisUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.impl.DefaultClaims;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,18 +19,20 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.WebFilterChain;
+
+import com.example.j2n.api_gateway_srv.exception.ExpiredTokenException;
+import com.example.j2n.api_gateway_srv.exception.InvalidTokenException;
+import com.example.j2n.api_gateway_srv.exception.NotRecognizedServiceException;
+import com.example.j2n.api_gateway_srv.utils.JwtGeneralUtil;
+import com.example.j2n.constants.CommonConst;
+import com.example.j2n.utils.RedisUtil;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.impl.DefaultClaims;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtAuthFilterTest {
