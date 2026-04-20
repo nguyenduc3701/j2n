@@ -45,6 +45,11 @@ public class TourImageService {
                 .isPrimary(Boolean.TRUE.equals(input.getIsPrimary()))
                 .isDeleted(false)
                 .build();
+
+        if (Boolean.TRUE.equals(entity.getIsPrimary())) {
+            updateTourThumbnail(tour, entity.getImageUrl());
+        }
+
         return ResponseFactory.success(tourImageRepository.save(entity));
     }
 
@@ -54,6 +59,18 @@ public class TourImageService {
         TourImageEntity entity = getTourImageByIdOrThrow(id);
         entity.setIsDeleted(true);
         tourImageRepository.save(entity);
+
+        if (Boolean.TRUE.equals(entity.getIsPrimary())) {
+            TourEntity tour = entity.getTour();
+            // Try to find another primary image if available
+            tourImageRepository.findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(tour.getId())
+                    .stream()
+                    .findFirst()
+                    .ifPresentOrElse(
+                            img -> updateTourThumbnail(tour, img.getImageUrl()),
+                            () -> updateTourThumbnail(tour, null)
+                    );
+        }
         return ResponseFactory.success(null);
     }
 
@@ -65,6 +82,7 @@ public class TourImageService {
             unmarkCurrentPrimary(entity.getTour().getId());
             entity.setIsPrimary(true);
             entity = tourImageRepository.save(entity);
+            updateTourThumbnail(entity.getTour(), entity.getImageUrl());
         }
         return ResponseFactory.success(entity);
     }
@@ -77,32 +95,56 @@ public class TourImageService {
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.TOUR_IMAGE_NOT_FOUND));
     }
 
+    private void updateTourThumbnail(TourEntity tour, String imageUrl) {
+        log.info("Updating thumbnail for tour id: {}", tour.getId());
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            tour.setThumbnail(imageUrl);
+            tourService.save(tour);
+        }
+    }
+
     private void unmarkCurrentPrimary(Long tourId) {
-        log.info("Unmarking current primary image for tour id: {}", tourId);
-        tourImageRepository.findByTourIdAndIsPrimaryTrueAndIsDeletedFalse(tourId)
-                .ifPresent(img -> {
-                    img.setIsPrimary(false);
-                    tourImageRepository.save(img);
-                });
+        log.info("Unmarking current primary images for tour id: {}", tourId);
+        List<TourImageEntity> primaries = tourImageRepository.findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(tourId);
+        primaries.forEach(img -> img.setIsPrimary(false));
+        tourImageRepository.saveAll(primaries);
     }
 
     @Transactional
     @LogAround(message = "Handle tour image upload event")
     public void handleTourImageUploadEvent(TourImageUploadEvent event) {
         TourEntity tour = tourService.getTourByIdOrThrow(event.getTourId());
-        boolean hasNewPrimary = event.getImages().stream()
-                .anyMatch(img -> Boolean.TRUE.equals(img.getIsPrimary()));
-        if (hasNewPrimary) {
-            unmarkCurrentPrimary(event.getTourId());
+        
+        // Find the index of the first primary image in the event
+        int primaryIndex = -1;
+        for (int i = 0; i < event.getImages().size(); i++) {
+            if (Boolean.TRUE.equals(event.getImages().get(i).getIsPrimary())) {
+                primaryIndex = i;
+                break;
+            }
         }
-        List<TourImageEntity> entities = event.getImages().stream()
-                .map(img -> TourImageEntity.builder()
+
+        if (primaryIndex != -1) {
+            unmarkCurrentPrimary(event.getTourId());
+            updateTourThumbnail(tour, event.getImages().get(primaryIndex).getImageUrl());
+        }
+
+        final int finalPrimaryIndex = primaryIndex;
+        List<TourImageEntity> entities = new java.util.ArrayList<>();
+        for (int i = 0; i < event.getImages().size(); i++) {
+            TourImageUploadEvent.ImageInfo img = event.getImages().get(i);
+            if (!tourImageRepository.existsByTourIdAndImageUrlAndIsDeletedFalse(event.getTourId(), img.getImageUrl())) {
+                entities.add(TourImageEntity.builder()
                         .tour(tour)
                         .imageUrl(img.getImageUrl())
-                        .isPrimary(Boolean.TRUE.equals(img.getIsPrimary()))
+                        .isPrimary(i == finalPrimaryIndex)
                         .isDeleted(false)
-                        .build())
-                .toList();
-        tourImageRepository.saveAll(entities);
+                        .build());
+            }
+        }
+
+        if (!entities.isEmpty()) {
+            tourImageRepository.saveAll(entities);
+        }
     }
 }

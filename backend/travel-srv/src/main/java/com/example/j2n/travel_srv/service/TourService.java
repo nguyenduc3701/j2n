@@ -97,6 +97,11 @@ public class TourService {
         return ResponseFactory.success(null);
     }
 
+    @Transactional
+    public TourEntity save(TourEntity tour) {
+        return tourRepository.save(tour);
+    }
+
     // --- Private helpers ---
 
     public TourEntity getTourByIdOrThrow(Long id) {

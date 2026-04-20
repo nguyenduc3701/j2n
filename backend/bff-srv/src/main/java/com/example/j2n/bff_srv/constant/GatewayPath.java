@@ -28,4 +28,7 @@ public class GatewayPath {
     public static final String CONFIGURATION_BASE_PATH = "/api/centralize/configurations";
     public static final String CONFIGURATION_BY_KEY_PATH = "/api/centralize/configurations/%s";
     public static final String CONFIGURATION_BY_KEYS_PATH = "/api/centralize/configurations/keys";
+    // payment-srv
+    public static final String PAYMENT_CARTS_PATH = "/api/payment/carts";
+    public static final String PAYMENT_TRANSACTIONS_PATH = "/api/payment/transactions";
 }

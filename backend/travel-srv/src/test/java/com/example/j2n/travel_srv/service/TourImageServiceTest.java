@@ -5,7 +5,6 @@ import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.travel_srv.dto.TourImageDto;
 import com.example.j2n.travel_srv.repository.TourImageRepository;
-import com.example.j2n.travel_srv.repository.TourRepository;
 import com.example.j2n.travel_srv.repository.entity.TourEntity;
 import com.example.j2n.travel_srv.repository.entity.TourImageEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +29,7 @@ class TourImageServiceTest {
     private TourImageRepository tourImageRepository;
 
     @Mock
-    private TourRepository tourRepository;
+    private TourService tourService;
 
     @InjectMocks
     private TourImageService tourImageService;
@@ -75,13 +74,13 @@ class TourImageServiceTest {
 
     @Test
     void addImageToTour_Success() {
-        when(tourRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockTour));
-        when(tourImageRepository.save(any(TourImageEntity.class))).thenReturn(mockImage);
+        when(tourService.getTourByIdOrThrow(1L)).thenReturn(mockTour);
+        when(tourImageRepository.save(any(TourImageEntity.class))).thenAnswer(i -> i.getArgument(0));
 
         BaseResponse<TourImageEntity> response = tourImageService.addImageToTour(mockDto);
 
         assertNotNull(response.getData());
-        verify(tourRepository, times(1)).findByIdAndIsDeletedFalse(1L);
+        verify(tourService, times(1)).getTourByIdOrThrow(1L);
         verify(tourImageRepository, times(1)).save(any(TourImageEntity.class));
     }
 
@@ -90,47 +89,54 @@ class TourImageServiceTest {
         mockDto.setIsPrimary(true);
         TourImageEntity currentPrimary = TourImageEntity.builder().id(2L).isPrimary(true).build();
         
-        when(tourRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockTour));
-        when(tourImageRepository.findByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(Optional.of(currentPrimary));
+        when(tourService.getTourByIdOrThrow(1L)).thenReturn(mockTour);
+        when(tourImageRepository.findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(List.of(currentPrimary));
         when(tourImageRepository.save(any(TourImageEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(tourImageRepository.saveAll(anyList())).thenReturn(List.of(currentPrimary));
 
         BaseResponse<TourImageEntity> response = tourImageService.addImageToTour(mockDto);
 
         assertNotNull(response.getData());
         assertTrue(response.getData().getIsPrimary());
-        verify(tourImageRepository, times(1)).findByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L);
-        verify(tourImageRepository, times(2)).save(any(TourImageEntity.class)); // 1 for unmarking, 1 for saving new
+        verify(tourImageRepository, times(1)).findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L);
+        verify(tourImageRepository, times(1)).saveAll(anyList());
+        assertEquals("http://example.com/image.jpg", mockTour.getThumbnail());
     }
 
     @Test
     void addImageToTour_Fail_TourNotFound() {
-        when(tourRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.empty());
+        when(tourService.getTourByIdOrThrow(1L)).thenThrow(new DataNotFoundException(null));
 
         assertThrows(DataNotFoundException.class, () -> tourImageService.addImageToTour(mockDto));
     }
 
     @Test
     void deleteTourImage_Success() {
+        mockImage.setIsPrimary(true);
         when(tourImageRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockImage));
         when(tourImageRepository.save(any(TourImageEntity.class))).thenReturn(mockImage);
+        when(tourImageRepository.findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(Collections.emptyList());
 
         BaseResponse<Boolean> response = tourImageService.deleteTourImage(1L);
 
-        assertTrue(response.getData());
+        assertNull(response.getData());
         assertTrue(mockImage.getIsDeleted());
+        assertNull(mockTour.getThumbnail());
         verify(tourImageRepository, times(1)).save(mockImage);
     }
 
     @Test
     void setPrimaryImage_Success() {
         when(tourImageRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockImage));
-        when(tourImageRepository.findByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(Optional.empty());
+        when(tourImageRepository.findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(Collections.emptyList());
         when(tourImageRepository.save(any(TourImageEntity.class))).thenReturn(mockImage);
+        when(tourImageRepository.saveAll(anyList())).thenReturn(Collections.emptyList());
 
         BaseResponse<TourImageEntity> response = tourImageService.setPrimaryImage(1L);
 
         assertNotNull(response.getData());
         assertTrue(mockImage.getIsPrimary());
+        assertEquals(mockImage.getImageUrl(), mockTour.getThumbnail());
         verify(tourImageRepository, times(1)).save(mockImage);
     }
 
@@ -139,15 +145,17 @@ class TourImageServiceTest {
         TourImageEntity currentPrimary = TourImageEntity.builder().id(2L).isPrimary(true).build();
         
         when(tourImageRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockImage));
-        when(tourImageRepository.findByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(Optional.of(currentPrimary));
+        when(tourImageRepository.findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(List.of(currentPrimary));
         when(tourImageRepository.save(any(TourImageEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(tourImageRepository.saveAll(anyList())).thenReturn(List.of(currentPrimary));
 
         BaseResponse<TourImageEntity> response = tourImageService.setPrimaryImage(1L);
 
         assertNotNull(response.getData());
         assertTrue(mockImage.getIsPrimary());
         assertFalse(currentPrimary.getIsPrimary());
-        verify(tourImageRepository, times(2)).save(any(TourImageEntity.class));
+        verify(tourImageRepository, times(1)).save(any(TourImageEntity.class));
+        verify(tourImageRepository, times(1)).saveAll(anyList());
     }
 
     @Test

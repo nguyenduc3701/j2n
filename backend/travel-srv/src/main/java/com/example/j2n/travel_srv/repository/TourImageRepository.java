@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface TourImageRepository extends JpaRepository<TourImageEntity, Long> {
     List<TourImageEntity> findAllByTourIdAndIsDeletedFalse(Long tourId);
     Optional<TourImageEntity> findByIdAndIsDeletedFalse(Long id);
-    Optional<TourImageEntity> findByTourIdAndIsPrimaryTrueAndIsDeletedFalse(Long tourId);
+    List<TourImageEntity> findAllByTourIdAndIsPrimaryTrueAndIsDeletedFalse(Long tourId);
+    boolean existsByTourIdAndImageUrlAndIsDeletedFalse(Long tourId, String imageUrl);
 }
