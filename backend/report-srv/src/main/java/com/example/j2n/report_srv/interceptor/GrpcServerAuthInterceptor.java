@@ -1,7 +1,7 @@
 package com.example.j2n.report_srv.interceptor;
 
 import com.example.j2n.constants.CommonConst;
-import com.example.j2n.report_srv.dto.InternalUserAuthentication;
+import com.example.j2n.security.InternalUserAuthentication;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.j2n.constants.CommonConst;
-import com.example.j2n.image_srv.dto.InternalUserAuthentication;
+import com.example.j2n.security.InternalUserAuthentication;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

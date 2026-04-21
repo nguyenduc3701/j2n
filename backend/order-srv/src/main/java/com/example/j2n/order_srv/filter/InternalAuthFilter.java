@@ -1,19 +1,18 @@
-package com.example.j2n.travel_srv.filter;
+package com.example.j2n.order_srv.filter;
 
-import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.j2n.constants.CommonConst;
 import com.example.j2n.security.InternalUserAuthentication;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.List;
 @Component
 public class InternalAuthFilter extends OncePerRequestFilter {
 
-    private static final List<String> NOT_FILTER_LIST = List.of("/travel/graphiql", "/error");
+    private static final List<String> NOT_FILTER_LIST = List.of("/swagger-ui", "/v3/api-docs");
 
     @Value("${internal.token}")
     private String internalToken;
@@ -37,15 +36,21 @@ public class InternalAuthFilter extends OncePerRequestFilter {
         String userName = request.getHeader(CommonConst.X_USER_NAME);
         String roleId = request.getHeader(CommonConst.X_ROLE_ID);
 
+        // Allow requests without internal token if they are in the NOT_FILTER_LIST
+        if (shouldNotFilter(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (!internalToken.equals(token)) {
-            log.error("[TRAVEL-SRV] Invalid internal token");
+            log.error("[ORDER-SRV] Invalid internal token");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Forbidden");
+            response.getWriter().write("Forbidden - Invalid Internal Token");
             return;
         }
 
         if (userId == null || userId.isBlank()) {
-            log.error("[TRAVEL-SRV] User not authenticated");
+            log.error("[ORDER-SRV] User not authenticated");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("User not authenticated");
             return;

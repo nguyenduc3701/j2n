@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentService {
+public class OrderService {
 
     private final RestClientUtil restClientUtil;
 
-    public Object getAllTransactions() {
-        log.info("[Start] Get all transactions from payment-srv");
+    public Object getAllCartItems() {
+        log.info("[Start] Get all cart items from order-srv");
         return restClientUtil.request(
-                GatewayPath.PAYMENT_TRANSACTIONS_PATH,
+                GatewayPath.ORDER_CARTS_PATH,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<Object>() {

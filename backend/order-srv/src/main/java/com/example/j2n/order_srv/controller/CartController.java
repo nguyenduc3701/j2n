@@ -1,30 +1,27 @@
-package com.example.j2n.payment_srv.controller;
+package com.example.j2n.order_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.payment_srv.repository.entity.CartItemEntity;
-import com.example.j2n.payment_srv.service.CartService;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.order_srv.dto.request.CartItemRequest;
+import com.example.j2n.order_srv.dto.request.UpdateCartItemRequest;
+import com.example.j2n.order_srv.repository.entity.CartItemEntity;
+import com.example.j2n.order_srv.service.CartService;
 import com.example.j2n.swagger.annotation.J2NApiExample;
 import com.example.j2n.swagger.annotation.J2NApiResponse;
 import com.example.j2n.swagger.annotation.J2NApiResponses;
-import com.example.j2n.utils.ResponseFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.j2n.enums.BaseMessageEnum;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import com.example.j2n.payment_srv.dto.request.CartItemRequest;
-import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/payment/carts")
+@RequestMapping("/order/carts")
 @RequiredArgsConstructor
 @Tag(name = "Cart API", description = "Endpoints for managing shopping cart items")
 public class CartController {
@@ -67,6 +64,23 @@ public class CartController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<CartItemEntity>> addToCart(@Valid @RequestBody CartItemRequest request) {
         return ResponseEntity.ok(cartService.addToCart(request));
+    }
+
+    @Operation(summary = "Update cart item", description = "Update the quantity or metadata of an existing item in the user's cart.")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = "Success", examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS, summary = "Item successfully updated in cart")
+            }),
+            @J2NApiResponse(httpCode = 400, description = "Not Found", examples = {
+                    @J2NApiExample(status = "CART_NOT_FOUND", args = {
+                            "user-123" }, summary = "Cart item not found for the user")
+            })
+    })
+    @PutMapping(value = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BaseResponse<CartItemEntity>> updateQuantity(
+            @Valid @RequestBody UpdateCartItemRequest request,
+            @Parameter(description = "The unique identifier of the user", example = "user-123") @PathVariable String userId) {
+        return ResponseEntity.ok(cartService.updateQuantity(request, userId));
     }
 
     @Operation(summary = "Delete cart items", description = "Remove one or more items from the user's cart by their unique item IDs.")

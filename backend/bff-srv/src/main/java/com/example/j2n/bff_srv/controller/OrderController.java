@@ -1,6 +1,6 @@
 package com.example.j2n.bff_srv.controller;
 
-import com.example.j2n.bff_srv.service.PaymentService;
+import com.example.j2n.bff_srv.service.OrderService;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.swagger.annotation.J2NApiResponse;
 import com.example.j2n.swagger.annotation.J2NApiResponses;
@@ -13,19 +13,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/bff/payment")
+@RequestMapping("/api/bff/order")
 @RequiredArgsConstructor
-@Tag(name = "Payment Management", description = "Endpoints for transaction management")
-public class PaymentController {
+@Tag(name = "Order Management", description = "Endpoints for cart and order management")
+public class OrderController {
 
-    private final PaymentService paymentService;
+    private final OrderService orderService;
 
-    @Operation(summary = "Get all transactions")
-    @GetMapping(value = "/transactions", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get all cart items")
+    @GetMapping(value = "/carts", produces = MediaType.APPLICATION_JSON_VALUE)
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
     })
-    public Object getAllTransactions() {
-        return paymentService.getAllTransactions();
+    public Object getAllCartItems() {
+        return orderService.getAllCartItems();
     }
 }

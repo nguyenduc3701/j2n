@@ -75,6 +75,22 @@ spring:
             - Path=/api/travel/**
           filters:
             - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+        - id: order-srv
+          uri: ${api-gateway.order.base-url}
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
         - id: payment-srv
           uri: ${api-gateway.payment.base-url}
           predicates:

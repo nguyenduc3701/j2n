@@ -1,11 +1,10 @@
-package com.example.j2n.payment_srv.repository;
+package com.example.j2n.order_srv.repository;
 
-import com.example.j2n.payment_srv.repository.entity.CartItemEntity;
+import com.example.j2n.order_srv.repository.entity.CartItemEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
 import java.util.Optional;
 
 @Repository

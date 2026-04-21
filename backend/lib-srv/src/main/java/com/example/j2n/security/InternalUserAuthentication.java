@@ -1,4 +1,4 @@
-package com.example.j2n.payment_srv.dto;
+package com.example.j2n.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,13 +1,17 @@
-package com.example.j2n.payment_srv.service;
+package com.example.j2n.order_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
-import com.example.j2n.payment_srv.constant.MessageEnum;
-import com.example.j2n.payment_srv.dto.request.CartItemRequest;
-import com.example.j2n.payment_srv.repository.CartItemRepository;
-import com.example.j2n.payment_srv.repository.entity.CartItemEntity;
+import com.example.j2n.exception.UnknowFieldException;
+import com.example.j2n.order_srv.constant.MessageEnum;
+import com.example.j2n.order_srv.dto.request.CartItemRequest;
+import com.example.j2n.order_srv.dto.request.UpdateCartItemRequest;
+import com.example.j2n.dto.BaseRequest;
+import com.example.j2n.order_srv.repository.CartItemRepository;
+import com.example.j2n.order_srv.repository.entity.CartItemEntity;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +40,7 @@ public class CartService {
     @Transactional
     @LogAround(message = "Add to cart")
     public BaseResponse<CartItemEntity> addToCart(CartItemRequest request) {
+        validateUnknownFields(request);
         Optional<CartItemEntity> existingItem = cartItemRepository.findByUserIdAndItemIdAndItemType(
                 request.getUserId(), request.getItemId(), request.getItemType());
 
@@ -56,7 +61,20 @@ public class CartService {
                     .build();
         }
 
-        return ResponseFactory.success(cartItemRepository.save(item));
+        return ResponseFactory.of(MessageEnum.ADD_TO_CART_SUCCESS, cartItemRepository.save(item));
+    }
+
+    @Transactional
+    @LogAround(message = "Update cart item quantity")
+    public BaseResponse<CartItemEntity> updateQuantity(UpdateCartItemRequest request, String userId) {
+        validateUnknownFields(request);
+        CartItemEntity item = findCartItemOrThrow(userId, request.getItemId(), request.getItemType());
+        if (request.getQuantity() == 0) {
+            cartItemRepository.delete(item);
+            return ResponseFactory.of(MessageEnum.UPDATE_CART_SUCCESS, null);
+        }
+        item.setQuantity(request.getQuantity());
+        return ResponseFactory.of(MessageEnum.UPDATE_CART_SUCCESS, cartItemRepository.save(item));
     }
 
     @Transactional
@@ -75,5 +93,20 @@ public class CartService {
             throw new DataNotFoundException(MessageEnum.CART_NOT_FOUND.withArgs(userId));
         }
         return items;
+    }
+
+    private void validateUnknownFields(BaseRequest request) {
+        if (request.hasUnknownFields()) {
+            log.error("[ORDER-SRV] Unknown fields in request: {}", request.getUnknownFields());
+            throw new UnknowFieldException(BaseMessageEnum.UNKNOWN_FIELDS);
+        }
+    }
+
+    private CartItemEntity findCartItemOrThrow(String userId, String itemId, String itemType) {
+        return cartItemRepository.findByUserIdAndItemIdAndItemType(userId, itemId, itemType)
+                .orElseThrow(() -> {
+                    log.error("[ORDER-SRV] Cart item not found for user: {} and item: {}", userId, itemId);
+                    return new DataNotFoundException(MessageEnum.CART_NOT_FOUND.withArgs(userId));
+                });
     }
 }

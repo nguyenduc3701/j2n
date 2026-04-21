@@ -1,7 +1,7 @@
 package com.example.j2n.payment_srv.filter;
 
 import com.example.j2n.constants.CommonConst;
-import com.example.j2n.payment_srv.dto.InternalUserAuthentication;
+import com.example.j2n.security.InternalUserAuthentication;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
