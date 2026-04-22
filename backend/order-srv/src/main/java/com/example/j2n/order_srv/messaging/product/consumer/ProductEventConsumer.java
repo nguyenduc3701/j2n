@@ -4,7 +4,7 @@ import com.example.j2n.order_srv.messaging.product.constant.ProductEventConstant
 import com.example.j2n.order_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductDeletedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductUpdatedEvent;
-import com.example.j2n.order_srv.service.CartService;
+import com.example.j2n.order_srv.service.OrderService;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +19,13 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ProductEventConsumer {
 
-    private final CartService cartService;
+    private final OrderService orderService;
 
     @RabbitListener(queues = ProductEventConstants.QUEUE_ORDER_PRODUCT_SYNC)
     public void handleProductCreated(ProductCreatedEvent event, Channel channel, Message message) throws IOException {
         try {
             log.info("[ORDER-SRV] Received product created event: {}", event.getProductId());
-            cartService.syncProductCreated(event);
+            orderService.syncProductCreated(event);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
             log.error("[ORDER-SRV] Failed to process product created event", e);
@@ -37,7 +37,7 @@ public class ProductEventConsumer {
     public void handleProductUpdated(ProductUpdatedEvent event, Channel channel, Message message) throws IOException {
         try {
             log.info("[ORDER-SRV] Received product updated event: {}", event.getProductId());
-            cartService.syncProductUpdated(event);
+            orderService.syncProductUpdated(event);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
             log.error("[ORDER-SRV] Failed to process product updated event", e);
@@ -49,7 +49,7 @@ public class ProductEventConsumer {
     public void handleProductDeleted(ProductDeletedEvent event, Channel channel, Message message) throws IOException {
         try {
             log.info("[ORDER-SRV] Received product deleted event: {}", event.getProductId());
-            cartService.syncProductDeleted(event);
+            orderService.syncProductDeleted(event);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
             log.error("[ORDER-SRV] Failed to process product deleted event", e);

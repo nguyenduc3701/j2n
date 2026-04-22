@@ -7,17 +7,17 @@ import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.exception.UnknowFieldException;
 import com.example.j2n.order_srv.constant.MessageEnum;
-import com.example.j2n.order_srv.controller.request.CartItemRequest;
-import com.example.j2n.order_srv.controller.request.UpdateCartItemRequest;
+import com.example.j2n.order_srv.controller.request.OrderItemRequest;
+import com.example.j2n.order_srv.controller.request.UpdateOrderItemRequest;
 import com.example.j2n.dto.BaseRequest;
-import com.example.j2n.order_srv.dto.response.CartItemWithProductResponse;
 import com.example.j2n.order_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductDeletedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductUpdatedEvent;
-import com.example.j2n.order_srv.repository.CartItemRepository;
+import com.example.j2n.order_srv.repository.OrderItemRepository;
 import com.example.j2n.order_srv.repository.ProductInfoRepository;
-import com.example.j2n.order_srv.repository.entity.CartItemEntity;
+import com.example.j2n.order_srv.repository.entity.OrderItemEntity;
 import com.example.j2n.order_srv.repository.entity.ProductInfoEntity;
+import com.example.j2n.order_srv.service.response.OrderItemWithProductResponse;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,30 +35,30 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CartService {
-    private final CartItemRepository cartItemRepository;
+public class OrderService {
+    private final OrderItemRepository orderItemRepository;
     private final ProductInfoRepository productInfoRepository;
 
-    @LogAround(message = "Get all cart items with product details")
-    public BaseResponse<List<CartItemWithProductResponse>> getAllCartItems() {
-        List<CartItemEntity> items = cartItemRepository.findAll();
-        return ResponseFactory.success(enrichCartItems(items));
+    @LogAround(message = "Get all order items with product details")
+    public BaseResponse<List<OrderItemWithProductResponse>> getAllOrderItems() {
+        List<OrderItemEntity> items = orderItemRepository.findAll();
+        return ResponseFactory.success(enrichOrderItems(items));
     }
 
-    @LogAround(message = "Get cart items by user ID with product details")
-    public BaseResponse<List<CartItemWithProductResponse>> getCartByUserId(String userId) {
-        List<CartItemEntity> items = findByUserIdOrThrow(userId);
-        return ResponseFactory.success(enrichCartItems(items));
+    @LogAround(message = "Get order items by user ID with product details")
+    public BaseResponse<List<OrderItemWithProductResponse>> getOrderByUserId(String userId) {
+        List<OrderItemEntity> items = findByUserIdOrThrow(userId);
+        return ResponseFactory.success(enrichOrderItems(items));
     }
 
     @Transactional
-    @LogAround(message = "Add to cart")
-    public BaseResponse<CartItemEntity> addToCart(CartItemRequest request) {
+    @LogAround(message = "Add to order")
+    public BaseResponse<OrderItemEntity> addToOrder(OrderItemRequest request) {
         validateUnknownFields(request);
-        Optional<CartItemEntity> existingItem = cartItemRepository.findByUserIdAndItemIdAndItemType(
+        Optional<OrderItemEntity> existingItem = orderItemRepository.findByUserIdAndItemIdAndItemType(
                 request.getUserId(), request.getItemId(), request.getItemType());
 
-        CartItemEntity item;
+        OrderItemEntity item;
         if (existingItem.isPresent()) {
             item = existingItem.get();
             item.setQuantity(item.getQuantity() + request.getQuantity());
@@ -66,7 +66,7 @@ public class CartService {
                 item.setMetadata(request.getMetadata());
             }
         } else {
-            item = CartItemEntity.builder()
+            item = OrderItemEntity.builder()
                     .userId(request.getUserId())
                     .itemId(request.getItemId())
                     .itemType(request.getItemType())
@@ -75,36 +75,36 @@ public class CartService {
                     .build();
         }
 
-        return ResponseFactory.of(MessageEnum.ADD_TO_CART_SUCCESS, cartItemRepository.save(item));
+        return ResponseFactory.of(MessageEnum.ADD_TO_ORDER_SUCCESS, orderItemRepository.save(item));
     }
 
     @Transactional
-    @LogAround(message = "Update cart item quantity")
-    public BaseResponse<CartItemEntity> updateQuantity(UpdateCartItemRequest request, String userId) {
+    @LogAround(message = "Update order item quantity")
+    public BaseResponse<OrderItemEntity> updateQuantity(UpdateOrderItemRequest request, String userId) {
         validateUnknownFields(request);
-        CartItemEntity item = findCartItemOrThrow(userId, request.getItemId(), request.getItemType());
+        OrderItemEntity item = findOrderItemOrThrow(userId, request.getItemId(), request.getItemType());
         if (request.getQuantity() == 0) {
-            cartItemRepository.delete(item);
-            return ResponseFactory.of(MessageEnum.UPDATE_CART_SUCCESS, null);
+            orderItemRepository.delete(item);
+            return ResponseFactory.of(MessageEnum.UPDATE_ORDER_SUCCESS, null);
         }
         item.setQuantity(request.getQuantity());
-        return ResponseFactory.of(MessageEnum.UPDATE_CART_SUCCESS, cartItemRepository.save(item));
+        return ResponseFactory.of(MessageEnum.UPDATE_ORDER_SUCCESS, orderItemRepository.save(item));
     }
 
     @Transactional
-    @LogAround(message = "Delete cart items")
-    public BaseResponse<Void> deleteCartItems(String userId, List<Long> ids) {
+    @LogAround(message = "Delete order items")
+    public BaseResponse<Void> deleteOrderItems(String userId, List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            throw new InvalidInputException(MessageEnum.DELETE_CART_ITEMS_SHOULD_NOT_BE_EMPTY);
+            throw new InvalidInputException(MessageEnum.DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY);
         }
-        cartItemRepository.deleteByUserIdAndIdIn(userId, ids);
+        orderItemRepository.deleteByUserIdAndIdIn(userId, ids);
         return ResponseFactory.success(null);
     }
 
-    private List<CartItemEntity> findByUserIdOrThrow(String userId) {
-        List<CartItemEntity> items = cartItemRepository.findByUserId(userId);
+    private List<OrderItemEntity> findByUserIdOrThrow(String userId) {
+        List<OrderItemEntity> items = orderItemRepository.findByUserId(userId);
         if (items.isEmpty()) {
-            throw new DataNotFoundException(MessageEnum.CART_NOT_FOUND.withArgs(userId));
+            throw new DataNotFoundException(MessageEnum.ORDER_NOT_FOUND.withArgs(userId));
         }
         return items;
     }
@@ -116,17 +116,17 @@ public class CartService {
         }
     }
 
-    private CartItemEntity findCartItemOrThrow(String userId, String itemId, String itemType) {
-        return cartItemRepository.findByUserIdAndItemIdAndItemType(userId, itemId, itemType)
+    private OrderItemEntity findOrderItemOrThrow(String userId, String itemId, String itemType) {
+        return orderItemRepository.findByUserIdAndItemIdAndItemType(userId, itemId, itemType)
                 .orElseThrow(() -> {
-                    log.error("[ORDER-SRV] Cart item not found for user: {} and item: {}", userId, itemId);
-                    return new DataNotFoundException(MessageEnum.CART_NOT_FOUND.withArgs(userId));
+                    log.error("[ORDER-SRV] Order item not found for user: {} and item: {}", userId, itemId);
+                    return new DataNotFoundException(MessageEnum.ORDER_NOT_FOUND.withArgs(userId));
                 });
     }
 
-    private List<CartItemWithProductResponse> enrichCartItems(List<CartItemEntity> items) {
+    private List<OrderItemWithProductResponse> enrichOrderItems(List<OrderItemEntity> items) {
         if (items == null || items.isEmpty()) {
-            log.info("[ORDER-SRV] Cart is empty");
+            log.info("[ORDER-SRV] Order is empty");
             return List.of();
         }
 
@@ -158,7 +158,7 @@ public class CartService {
                     }
 
                     ProductInfoEntity productInfo = productId != null ? productInfoMap.get(productId) : null;
-                    return CartItemWithProductResponse.from(item, productInfo);
+                    return OrderItemWithProductResponse.from(item, productInfo);
                 })
                 .toList();
     }

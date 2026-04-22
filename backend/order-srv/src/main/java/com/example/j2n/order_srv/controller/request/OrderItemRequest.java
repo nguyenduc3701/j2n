@@ -14,15 +14,15 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request object for adding or updating an item in the shopping cart")
-public class CartItemRequest extends BaseRequest {
+@Schema(description = "Request object for adding or updating an item in the order")
+public class OrderItemRequest extends BaseRequest {
 
     @NotBlank(message = "User ID is required")
     @Schema(description = "The unique identifier of the user", example = "user-123")
     private String userId;
 
     @NotBlank(message = "Item ID is required")
-    @Schema(description = "The unique identifier of the item (e.g., Product ID, Product ID)", example = "product-789")
+    @Schema(description = "The unique identifier of the item (e.g., Product ID)", example = "product-789")
     private String itemId;
 
     @NotBlank(message = "Item type is required")

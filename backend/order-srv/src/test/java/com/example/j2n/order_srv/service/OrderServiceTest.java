@@ -3,16 +3,17 @@ package com.example.j2n.order_srv.service;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.UnknowFieldException;
-import com.example.j2n.order_srv.controller.request.CartItemRequest;
-import com.example.j2n.order_srv.controller.request.UpdateCartItemRequest;
-import com.example.j2n.order_srv.dto.response.CartItemWithProductResponse;
+import com.example.j2n.order_srv.controller.request.OrderItemRequest;
+import com.example.j2n.order_srv.controller.request.UpdateOrderItemRequest;
 import com.example.j2n.order_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductDeletedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductUpdatedEvent;
-import com.example.j2n.order_srv.repository.CartItemRepository;
+import com.example.j2n.order_srv.repository.OrderItemRepository;
 import com.example.j2n.order_srv.repository.ProductInfoRepository;
-import com.example.j2n.order_srv.repository.entity.CartItemEntity;
+import com.example.j2n.order_srv.repository.entity.OrderItemEntity;
 import com.example.j2n.order_srv.repository.entity.ProductInfoEntity;
+import com.example.j2n.order_srv.service.response.OrderItemWithProductResponse;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,25 +29,25 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CartServiceTest {
+class OrderServiceTest {
 
     @Mock
-    private CartItemRepository cartItemRepository;
+    private OrderItemRepository orderItemRepository;
 
     @Mock
     private ProductInfoRepository productInfoRepository;
 
     @InjectMocks
-    private CartService cartService;
+    private OrderService orderService;
 
-    private CartItemEntity mockItem;
+    private OrderItemEntity mockItem;
     private ProductInfoEntity mockProduct;
-    private CartItemRequest mockAddRequest;
-    private UpdateCartItemRequest mockUpdateRequest;
+    private OrderItemRequest mockAddRequest;
+    private UpdateOrderItemRequest mockUpdateRequest;
 
     @BeforeEach
     void setUp() {
-        mockItem = CartItemEntity.builder()
+        mockItem = OrderItemEntity.builder()
                 .id(1L)
                 .userId("user-123")
                 .itemId("1")
@@ -62,88 +63,90 @@ class CartServiceTest {
                 .thumbnail("test.jpg")
                 .build();
 
-        mockAddRequest = new CartItemRequest();
+        mockAddRequest = new OrderItemRequest();
         mockAddRequest.setUserId("user-123");
         mockAddRequest.setItemId("1");
         mockAddRequest.setItemType("PRODUCT");
         mockAddRequest.setQuantity(2);
         mockAddRequest.setMetadata(Map.of("color", "red"));
 
-        mockUpdateRequest = new UpdateCartItemRequest();
+        mockUpdateRequest = new UpdateOrderItemRequest();
         mockUpdateRequest.setItemId("1");
         mockUpdateRequest.setItemType("PRODUCT");
         mockUpdateRequest.setQuantity(5);
     }
 
     @Test
-    void getAllCartItems_ShouldReturnEnrichedList() {
-        when(cartItemRepository.findAll()).thenReturn(List.of(mockItem));
+    void getAllOrderItems_ShouldReturnEnrichedList() {
+        when(orderItemRepository.findAll()).thenReturn(List.of(mockItem));
         when(productInfoRepository.findAllById(any())).thenReturn(List.of(mockProduct));
 
-        BaseResponse<List<CartItemWithProductResponse>> response = cartService.getAllCartItems();
+        BaseResponse<List<OrderItemWithProductResponse>> response = orderService.getAllOrderItems();
 
         assertNotNull(response.getData());
         assertEquals(1, response.getData().size());
         assertNotNull(response.getData().get(0).getProduct());
         assertEquals("Test Product", response.getData().get(0).getProduct().getTitle());
-        verify(cartItemRepository).findAll();
+        verify(orderItemRepository).findAll();
     }
 
     @Test
-    void getCartByUserId_Success() {
-        when(cartItemRepository.findByUserId("user-123")).thenReturn(List.of(mockItem));
+    void getOrderByUserId_Success() {
+        when(orderItemRepository.findByUserId("user-123")).thenReturn(List.of(mockItem));
         when(productInfoRepository.findAllById(any())).thenReturn(List.of(mockProduct));
 
-        BaseResponse<List<CartItemWithProductResponse>> response = cartService.getCartByUserId("user-123");
+        BaseResponse<List<OrderItemWithProductResponse>> response = orderService.getOrderByUserId("user-123");
 
         assertNotNull(response.getData());
         assertEquals(1, response.getData().size());
         assertEquals("Test Product", response.getData().get(0).getProduct().getTitle());
-        verify(cartItemRepository).findByUserId("user-123");
+        verify(orderItemRepository).findByUserId("user-123");
     }
 
     @Test
-    void getCartByUserId_NotFound_ThrowsException() {
-        when(cartItemRepository.findByUserId("user-123")).thenReturn(Collections.emptyList());
+    void getOrderByUserId_NotFound_ThrowsException() {
+        when(orderItemRepository.findByUserId("user-123")).thenReturn(Collections.emptyList());
 
-        assertThrows(DataNotFoundException.class, () -> cartService.getCartByUserId("user-123"));
+        assertThrows(DataNotFoundException.class, () -> orderService.getOrderByUserId("user-123"));
     }
 
     @Test
-    void addToCart_NewItem_Success() {
-        when(cartItemRepository.findByUserIdAndItemIdAndItemType(any(), any(), any())).thenReturn(Optional.empty());
-        when(cartItemRepository.save(any(CartItemEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+    void addToOrder_NewItem_Success() {
+        when(orderItemRepository.findByUserIdAndItemIdAndItemType(any(), any(), any())).thenReturn(Optional.empty());
+        when(orderItemRepository.save(any(OrderItemEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        BaseResponse<CartItemEntity> response = cartService.addToCart(mockAddRequest);
+        BaseResponse<OrderItemEntity> response = orderService.addToOrder(mockAddRequest);
 
         assertNotNull(response.getData());
         assertEquals("user-123", response.getData().getUserId());
         assertEquals(2, response.getData().getQuantity());
-        verify(cartItemRepository).save(any(CartItemEntity.class));
+        verify(orderItemRepository).save(any(OrderItemEntity.class));
     }
 
     @Test
-    void addToCart_ExistingItem_IncreasesQuantity() {
-        when(cartItemRepository.findByUserIdAndItemIdAndItemType(any(), any(), any())).thenReturn(Optional.of(mockItem));
-        when(cartItemRepository.save(any(CartItemEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+    void addToOrder_ExistingItem_IncreasesQuantity() {
+        when(orderItemRepository.findByUserIdAndItemIdAndItemType(any(), any(), any()))
+                .thenReturn(Optional.of(mockItem));
+        when(orderItemRepository.save(any(OrderItemEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        BaseResponse<CartItemEntity> response = cartService.addToCart(mockAddRequest);
+        BaseResponse<OrderItemEntity> response = orderService.addToOrder(mockAddRequest);
 
         assertNotNull(response.getData());
         assertEquals(4, response.getData().getQuantity()); // 2 + 2
-        verify(cartItemRepository).save(mockItem);
+        verify(orderItemRepository).save(mockItem);
     }
 
     @Test
     void updateQuantity_Success() {
-        when(cartItemRepository.findByUserIdAndItemIdAndItemType(any(), any(), any())).thenReturn(Optional.of(mockItem));
-        when(cartItemRepository.save(any(CartItemEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(orderItemRepository.findByUserIdAndItemIdAndItemType(any(), any(), any()))
+                .thenReturn(Optional.of(mockItem));
+        when(orderItemRepository.save(any(OrderItemEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        BaseResponse<CartItemEntity> response = cartService.updateQuantity(mockUpdateRequest, "user-123");
+        BaseResponse<OrderItemEntity> response = orderService.updateQuantity(mockUpdateRequest, "user-123");
 
         assertNotNull(response.getData());
         assertEquals(5, response.getData().getQuantity());
-        verify(cartItemRepository).save(mockItem);
+        verify(orderItemRepository).save(mockItem);
     }
 
     @Test
@@ -155,7 +158,7 @@ class CartServiceTest {
                 .thumbnail("new.jpg")
                 .build();
 
-        cartService.syncProductCreated(event);
+        orderService.syncProductCreated(event);
 
         verify(productInfoRepository).save(any(ProductInfoEntity.class));
     }
@@ -171,7 +174,7 @@ class CartServiceTest {
 
         when(productInfoRepository.findById(1L)).thenReturn(Optional.of(mockProduct));
 
-        cartService.syncProductUpdated(event);
+        orderService.syncProductUpdated(event);
 
         assertEquals("Updated Title", mockProduct.getTitle());
         assertEquals(BigDecimal.valueOf(150), mockProduct.getPrice());
@@ -184,20 +187,25 @@ class CartServiceTest {
                 .productId("1")
                 .build();
 
-        cartService.syncProductDeleted(event);
+        orderService.syncProductDeleted(event);
 
         verify(productInfoRepository).deleteById(1L);
     }
 
     @Test
     void validateUnknownFields_ThrowsException() {
-        CartItemRequest requestWithUnknown = new CartItemRequest() {
+        OrderItemRequest requestWithUnknown = new OrderItemRequest() {
             @Override
-            public boolean hasUnknownFields() { return true; }
+            public boolean hasUnknownFields() {
+                return true;
+            }
+
             @Override
-            public List<String> getUnknownFields() { return List.of("bad"); }
+            public List<String> getUnknownFields() {
+                return List.of("bad");
+            }
         };
-        
-        assertThrows(UnknowFieldException.class, () -> cartService.addToCart(requestWithUnknown));
+
+        assertThrows(UnknowFieldException.class, () -> orderService.addToOrder(requestWithUnknown));
     }
 }

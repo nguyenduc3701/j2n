@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Entity
-@Table(name = "cart_items")
+@Table(name = "order_items")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CartItemEntity {
+public class OrderItemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

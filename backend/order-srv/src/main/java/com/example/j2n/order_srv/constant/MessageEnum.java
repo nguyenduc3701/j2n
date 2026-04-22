@@ -8,11 +8,11 @@ import lombok.Getter;
 
 @Getter
 public enum MessageEnum implements BaseMessage {
-    DELETE_CART_ITEMS_SHOULD_NOT_BE_EMPTY("400801", HttpStatusCode.BAD_REQUEST,
-            MessageConstants.DELETE_CART_ITEMS_SHOULD_NOT_BE_EMPTY),
-    CART_NOT_FOUND("400801", HttpStatusCode.BAD_REQUEST, MessageConstants.CART_NOT_FOUND),
-    ADD_TO_CART_SUCCESS("200801", HttpStatusCode.OK, MessageConstants.ADD_TO_CART_SUCCESS),
-    UPDATE_CART_SUCCESS("200801", HttpStatusCode.OK, MessageConstants.UPDATE_CART_SUCCESS);
+    DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY("400801", HttpStatusCode.BAD_REQUEST,
+            MessageConstants.DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY),
+    ORDER_NOT_FOUND("400801", HttpStatusCode.BAD_REQUEST, MessageConstants.ORDER_NOT_FOUND),
+    ADD_TO_ORDER_SUCCESS("200801", HttpStatusCode.OK, MessageConstants.ADD_TO_ORDER_SUCCESS),
+    UPDATE_ORDER_SUCCESS("200801", HttpStatusCode.OK, MessageConstants.UPDATE_ORDER_SUCCESS);
 
     private final String code;
     private final HttpStatusCode httpStatus;
@@ -30,9 +30,9 @@ public enum MessageEnum implements BaseMessage {
     }
 
     public static class MessageConstants {
-        public static final String ADD_TO_CART_SUCCESS = "Item added to cart successfully";
-        public static final String UPDATE_CART_SUCCESS = "Cart updated successfully";
-        public static final String CART_NOT_FOUND = "No cart items found for user %s";
-        public static final String DELETE_CART_ITEMS_SHOULD_NOT_BE_EMPTY = "Delete cart items should not be empty";
+        public static final String ADD_TO_ORDER_SUCCESS = "Item added to order successfully";
+        public static final String UPDATE_ORDER_SUCCESS = "Order updated successfully";
+        public static final String ORDER_NOT_FOUND = "No order items found for user %s";
+        public static final String DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY = "Delete order items should not be empty";
     }
 }
