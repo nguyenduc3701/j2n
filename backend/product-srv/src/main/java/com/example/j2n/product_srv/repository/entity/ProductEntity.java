@@ -51,6 +51,9 @@ public class ProductEntity {
     @Column(name = "start_location", length = 255)
     private String startLocation;
 
+    @Column(nullable = false, length = 50)
+    private String type;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -25,6 +25,9 @@ public class CategoryEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String slug;
 
+    @Column(nullable = false, length = 50)
+    private String type;
+
 
     @Builder.Default
     @Column(name = "is_deleted")

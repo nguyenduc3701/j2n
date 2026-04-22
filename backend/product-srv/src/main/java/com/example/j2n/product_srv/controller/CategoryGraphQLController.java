@@ -43,6 +43,11 @@ public class CategoryGraphQLController {
         return categoryService.getCategoryByName(name);
     }
 
+    @QueryMapping(name = "getCategoriesByType")
+    public BaseResponse<List<CategoryEntity>> getCategoriesByType(@Argument String type) {
+        return categoryService.getCategoriesByType(type);
+    }
+
     // --- Mutations ---
 
     @MutationMapping(name = "createCategory")

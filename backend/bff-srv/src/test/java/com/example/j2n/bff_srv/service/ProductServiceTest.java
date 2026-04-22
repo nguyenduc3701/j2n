@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class TravelServiceTest {
+class ProductServiceTest {
 
         @Mock
         private GraphQLFactory graphQLFactory;
@@ -160,6 +160,24 @@ class TravelServiceTest {
                                 any(ParameterizedTypeReference.class));
         }
 
+        @Test
+        void getCategoriesByType_ShouldReturnSuccess() {
+                String type = "TOUR";
+                Object expectedResponse = new Object();
+                when(graphQLFactory.execute(eq(PRODUCT_CATEGORY_DOC), eq("getCategoriesByType"), anyMap(),
+                                any(ParameterizedTypeReference.class)))
+                                .thenReturn(Mono.just(expectedResponse));
+
+                Mono<Object> result = productService.getCategoriesByType(type);
+
+                StepVerifier.create(result)
+                                .expectNext(expectedResponse)
+                                .verifyComplete();
+
+                verify(graphQLFactory).execute(eq(PRODUCT_CATEGORY_DOC), eq("getCategoriesByType"),
+                                eq(Map.of("type", type)), any(ParameterizedTypeReference.class));
+        }
+
         // ===================== Product Methods =====================
 
         @Test
@@ -213,6 +231,24 @@ class TravelServiceTest {
 
                 verify(graphQLFactory).execute(eq(PRODUCT_TOUR_DOC), eq("getProductsByCategory"),
                                 eq(Map.of("categoryId", categoryId)), any(ParameterizedTypeReference.class));
+        }
+
+        @Test
+        void getProductsByType_ShouldReturnSuccess() {
+                String type = "TOUR";
+                Object expectedResponse = new Object();
+                when(graphQLFactory.execute(eq(PRODUCT_TOUR_DOC), eq("getProductsByType"), anyMap(),
+                                any(ParameterizedTypeReference.class)))
+                                .thenReturn(Mono.just(expectedResponse));
+
+                Mono<Object> result = productService.getProductsByType(type);
+
+                StepVerifier.create(result)
+                                .expectNext(expectedResponse)
+                                .verifyComplete();
+
+                verify(graphQLFactory).execute(eq(PRODUCT_TOUR_DOC), eq("getProductsByType"),
+                                eq(Map.of("type", type)), any(ParameterizedTypeReference.class));
         }
 
         @Test

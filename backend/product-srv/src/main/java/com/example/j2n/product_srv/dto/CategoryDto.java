@@ -17,4 +17,6 @@ public class CategoryDto {
     private String name;
     @NotBlank(message = "Slug is required")
     private String slug;
+    @NotBlank(message = "Type is required")
+    private String type;
 }

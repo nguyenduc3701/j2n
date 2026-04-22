@@ -37,4 +37,7 @@ public class ProductDto {
 
     @Size(max = 255, message = "Start location must not exceed 255 characters")
     private String startLocation;
+
+    @NotBlank(message = "Type is required")
+    private String type;
 }

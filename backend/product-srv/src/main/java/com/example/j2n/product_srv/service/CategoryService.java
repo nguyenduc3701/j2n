@@ -60,6 +60,12 @@ public class CategoryService {
         return ResponseFactory.success(entity);
     }
 
+    @LogAround(message = "Get categories by type")
+    public BaseResponse<List<CategoryEntity>> getCategoriesByType(String type) {
+        ValidationUtils.validateString(type);
+        return ResponseFactory.success(categoryRepository.findByTypeAndIsDeletedFalse(type));
+    }
+
     @Transactional
     @CacheEvict(value = CommonConst.CATEGORY_CACHE_KEY, allEntries = true)
     @LogAround(message = "Create category")
@@ -67,6 +73,7 @@ public class CategoryService {
         CategoryEntity entity = CategoryEntity.builder()
                 .name(input.getName())
                 .slug(input.getSlug())
+                .type(input.getType())
                 .isDeleted(false)
                 .build();
         return ResponseFactory.of(MessageEnum.CREATE_CATEGORY_SUCCESS, categoryRepository.save(entity));
@@ -80,6 +87,9 @@ public class CategoryService {
         validateCategory(entity);
         entity.setName(input.getName());
         entity.setSlug(input.getSlug());
+        if (input.getType() != null) {
+            entity.setType(input.getType());
+        }
         return ResponseFactory.of(MessageEnum.UPDATE_CATEGORY_SUCCESS, categoryRepository.save(entity));
     }
 

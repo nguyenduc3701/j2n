@@ -9,6 +9,7 @@ import com.example.j2n.product_srv.constant.MessageEnum;
 import com.example.j2n.product_srv.dto.ProductDto;
 import com.example.j2n.product_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.product_srv.messaging.product.event.ProductDeletedEvent;
+import com.example.j2n.product_srv.messaging.product.event.ProductUpdatedEvent;
 import com.example.j2n.product_srv.messaging.product.publisher.ProductEventPublisher;
 import com.example.j2n.product_srv.repository.ProductRepository;
 import com.example.j2n.product_srv.repository.entity.CategoryEntity;
@@ -46,6 +47,12 @@ public class ProductService {
         return ResponseFactory.success(productRepository.findByCategoryIdAndIsDeletedFalse(categoryId));
     }
 
+    @LogAround(message = "Get products by type")
+    public BaseResponse<List<ProductEntity>> getProductsByType(String type) {
+        ValidationUtils.validateString(type);
+        return ResponseFactory.success(productRepository.findByTypeAndIsDeletedFalse(type));
+    }
+
     @Transactional
     @LogAround(message = "Create product")
     public BaseResponse<ProductEntity> createProduct(ProductDto input) {
@@ -59,6 +66,7 @@ public class ProductService {
                 .thumbnail(input.getThumbnail())
                 .duration(input.getDuration())
                 .startLocation(input.getStartLocation())
+                .type(input.getType())
                 .isDeleted(false)
                 .build();
 
@@ -82,8 +90,13 @@ public class ProductService {
         entity.setThumbnail(input.getThumbnail());
         entity.setDuration(input.getDuration());
         entity.setStartLocation(input.getStartLocation());
+        if (input.getType() != null) {
+            entity.setType(input.getType());
+        }
 
-        return ResponseFactory.of(MessageEnum.UPDATE_PRODUCT_SUCCESS, productRepository.save(entity));
+        ProductEntity savedProduct = productRepository.save(entity);
+        publishProductUpdatedEvent(savedProduct);
+        return ResponseFactory.of(MessageEnum.UPDATE_PRODUCT_SUCCESS, savedProduct);
     }
 
     @Transactional
@@ -134,6 +147,7 @@ public class ProductService {
                 .thumbnail(product.getThumbnail())
                 .duration(product.getDuration())
                 .startLocation(product.getStartLocation())
+                .type(product.getType())
                 .createdAt(product.getCreatedAt() != null ? product.getCreatedAt().toString() : null)
                 .build();
         productEventPublisher.publishProductCreated(event);
@@ -149,5 +163,26 @@ public class ProductService {
                 .productId(product.getId().toString())
                 .build();
         productEventPublisher.publishProductDeleted(event);
+    }
+
+    private void publishProductUpdatedEvent(ProductEntity product) {
+        if (product.getId() == null) {
+            log.error("[PRODUCT-SRV] Product id is null");
+            return;
+        }
+        log.info("[PRODUCT-SRV] Publishing product updated event for product: {}", product.getTitle());
+        ProductUpdatedEvent event = ProductUpdatedEvent.builder()
+                .productId(product.getId().toString())
+                .categoryId(product.getCategory().getId())
+                .title(product.getTitle())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .thumbnail(product.getThumbnail())
+                .duration(product.getDuration())
+                .startLocation(product.getStartLocation())
+                .type(product.getType())
+                .updatedAt(product.getUpdatedAt() != null ? product.getUpdatedAt().toString() : null)
+                .build();
+        productEventPublisher.publishProductUpdated(event);
     }
 }

@@ -1,11 +1,11 @@
 -- Script to insert default product categories
-INSERT INTO categories (name, slug) VALUES 
-('Ha Giang', 'ha-giang'),
-('Da Nang', 'da-nang'),
-('Nha Trang', 'nha-trang'),
-('Phu Yen', 'phu-yen'),
-('Hue', 'hue'),
-('Sapa', 'sapa'),
-('Binh Thuan', 'binh-thuan'),
-('Ca Mau', 'ca-mau'),
-('Cat Ba', 'cat-ba');
+INSERT INTO categories (name, slug, type) VALUES 
+('Ha Giang', 'ha-giang', 'TOUR'),
+('Da Nang', 'da-nang', 'TOUR'),
+('Nha Trang', 'nha-trang', 'TOUR'),
+('Phu Yen', 'phu-yen', 'TOUR'),
+('Hue', 'hue', 'TOUR'),
+('Sapa', 'sapa', 'TOUR'),
+('Binh Thuan', 'binh-thuan', 'TOUR'),
+('Ca Mau', 'ca-mau', 'TOUR'),
+('Cat Ba', 'cat-ba', 'TOUR');

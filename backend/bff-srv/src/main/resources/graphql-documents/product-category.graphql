@@ -6,6 +6,7 @@ query Op_getAllCategories {
       id
       name
       slug
+      type
     }
   }
 }
@@ -18,6 +19,7 @@ query Op_getCategoryById($id: ID!) {
       id
       name
       slug
+      type
     }
   }
 }
@@ -30,6 +32,7 @@ query Op_getCategoryBySlug($slug: String!) {
       id
       name
       slug
+      type
     }
   }
 }
@@ -42,6 +45,34 @@ query Op_getCategoryByName($name: String!) {
       id
       name
       slug
+      type
+    }
+  }
+}
+
+query Op_getCategoriesByType($type: String!) {
+  getCategoriesByType(type: $type) {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      type
+    }
+  }
+}
+
+
+query Op_getCategoriesByType($type: String!) {
+  getCategoriesByType(type: $type) {
+    code
+    message
+    data {
+      id
+      name
+      slug
+      type
     }
   }
 }

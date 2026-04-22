@@ -38,6 +38,11 @@ public class ProductGraphQLController {
         return productService.getProductsByCategory(categoryId);
     }
 
+    @QueryMapping(name = "getProductsByType")
+    public BaseResponse<List<ProductEntity>> getProductsByType(@Argument String type) {
+        return productService.getProductsByType(type);
+    }
+
     // --- Mutations ---
 
     @MutationMapping(name = "createProduct")

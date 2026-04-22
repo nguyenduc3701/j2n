@@ -102,6 +102,18 @@ class ProductGraphQLControllerTest {
     }
 
     @Test
+    void getProductsByType_CallsService() {
+        BaseResponse<List<ProductEntity>> listResponse = new BaseResponse<>();
+        listResponse.setData(Collections.singletonList(mockProduct));
+        when(productService.getProductsByType("TOUR")).thenReturn(listResponse);
+
+        BaseResponse<List<ProductEntity>> result = productGraphQLController.getProductsByType("TOUR");
+
+        assertEquals(listResponse, result);
+        verify(productService).getProductsByType("TOUR");
+    }
+
+    @Test
     void createProduct_CallsService() {
         when(productService.createProduct(mockDto)).thenReturn(mockResponse);
 

@@ -23,5 +23,6 @@ public class ProductCreatedEvent {
     private String thumbnail;
     private String duration;
     private String startLocation;
+    private String type;
     private String createdAt;
 }

@@ -39,12 +39,14 @@ class CategoryServiceTest {
                 .id(1L)
                 .name("Test Category")
                 .slug("test-category")
+                .type("TOUR")
                 .isDeleted(false)
                 .build();
 
         mockDto = CategoryDto.builder()
                 .name("New Category")
                 .slug("new-category")
+                .type("TOUR")
                 .build();
     }
 
@@ -129,6 +131,24 @@ class CategoryServiceTest {
         assertThrows(InvalidInputException.class, () -> categoryService.getCategoryByName(null));
         assertThrows(InvalidInputException.class, () -> categoryService.getCategoryByName(""));
         assertThrows(InvalidInputException.class, () -> categoryService.getCategoryByName("   "));
+    }
+
+    @Test
+    void getCategoriesByType_Success() {
+        when(categoryRepository.findByTypeAndIsDeletedFalse("TOUR")).thenReturn(Collections.singletonList(mockEntity));
+
+        BaseResponse<List<CategoryEntity>> response = categoryService.getCategoriesByType("TOUR");
+
+        assertNotNull(response.getData());
+        assertEquals(1, response.getData().size());
+        assertEquals("TOUR", response.getData().get(0).getType());
+    }
+
+    @Test
+    void getCategoriesByType_Fail_InvalidInput() {
+        assertThrows(InvalidInputException.class, () -> categoryService.getCategoriesByType(null));
+        assertThrows(InvalidInputException.class, () -> categoryService.getCategoriesByType(""));
+        assertThrows(InvalidInputException.class, () -> categoryService.getCategoriesByType("   "));
     }
 
     @Test

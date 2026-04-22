@@ -63,6 +63,7 @@ class ProductServiceTest {
                 .thumbnail("thumbnail.jpg")
                 .duration("3 ngày 2 đêm")
                 .startLocation("Hà Nội")
+                .type("TOUR")
                 .isDeleted(false)
                 .build();
 
@@ -74,6 +75,7 @@ class ProductServiceTest {
                 .thumbnail("thumbnail.jpg")
                 .duration("3 ngày 2 đêm")
                 .startLocation("Hà Nội")
+                .type("TOUR")
                 .build();
     }
 
@@ -153,6 +155,31 @@ class ProductServiceTest {
         assertThrows(InvalidInputException.class, () -> productService.getProductsByCategory(-1L));
     }
 
+    // ===================== getProductsByType =====================
+
+    @Test
+    void getProductsByType_Success() {
+        when(productRepository.findByTypeAndIsDeletedFalse("TOUR")).thenReturn(Collections.singletonList(mockProduct));
+
+        BaseResponse<List<ProductEntity>> response = productService.getProductsByType("TOUR");
+
+        assertNotNull(response.getData());
+        assertEquals(1, response.getData().size());
+        assertEquals("TOUR", response.getData().get(0).getType());
+        verify(productRepository, times(1)).findByTypeAndIsDeletedFalse("TOUR");
+    }
+
+    @Test
+    void getProductsByType_Fail_InvalidInput_Null() {
+        assertThrows(InvalidInputException.class, () -> productService.getProductsByType(null));
+    }
+
+    @Test
+    void getProductsByType_Fail_InvalidInput_Empty() {
+        assertThrows(InvalidInputException.class, () -> productService.getProductsByType(""));
+        assertThrows(InvalidInputException.class, () -> productService.getProductsByType("   "));
+    }
+
     // ===================== createProduct =====================
 
     @Test
@@ -171,7 +198,7 @@ class ProductServiceTest {
 
     @Test
     void createProduct_Fail_CategoryNotFound() {
-        when(categoryService.getCategoryByIdOrThrow(1L)).thenThrow(new DataNotFoundException(null));
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenThrow(new DataNotFoundException(com.example.j2n.product_srv.constant.MessageEnum.CATEGORY_NOT_FOUND));
 
         assertThrows(DataNotFoundException.class, () -> productService.createProduct(mockDto));
         verify(productRepository, never()).save(any());
@@ -185,6 +212,8 @@ class ProductServiceTest {
                 .price(new BigDecimal("1000000"))
                 .build();
 
+        when(categoryService.getCategoryByIdOrThrow(null)).thenThrow(new InvalidInputException(com.example.j2n.enums.BaseMessageEnum.BAD_REQUEST));
+
         assertThrows(InvalidInputException.class, () -> productService.createProduct(dto));
     }
 
@@ -195,6 +224,8 @@ class ProductServiceTest {
                 .title("Product test")
                 .price(new BigDecimal("1000000"))
                 .build();
+
+        when(categoryService.getCategoryByIdOrThrow(0L)).thenThrow(new InvalidInputException(com.example.j2n.enums.BaseMessageEnum.BAD_REQUEST));
 
         assertThrows(InvalidInputException.class, () -> productService.createProduct(dto));
     }
@@ -244,7 +275,7 @@ class ProductServiceTest {
     @Test
     void updateProduct_Fail_CategoryNotFound() {
         when(productRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockProduct));
-        when(categoryService.getCategoryByIdOrThrow(1L)).thenThrow(new DataNotFoundException(null));
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenThrow(new DataNotFoundException(com.example.j2n.product_srv.constant.MessageEnum.CATEGORY_NOT_FOUND));
 
         assertThrows(DataNotFoundException.class, () -> productService.updateProduct(1L, mockDto));
         verify(productRepository, never()).save(any());
@@ -254,8 +285,28 @@ class ProductServiceTest {
     void updateProduct_Fail_InvalidCategoryId_Null() {
         ProductDto dto = ProductDto.builder().categoryId(null).title("Product").price(new BigDecimal("1000000")).build();
         when(productRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockProduct));
+        when(categoryService.getCategoryByIdOrThrow(null)).thenThrow(new InvalidInputException(com.example.j2n.enums.BaseMessageEnum.BAD_REQUEST));
 
         assertThrows(InvalidInputException.class, () -> productService.updateProduct(1L, dto));
+    }
+
+    @Test
+    void updateProduct_TypeIsNull_DoesNotUpdateType() {
+        ProductDto dto = ProductDto.builder()
+                .categoryId(1L)
+                .title("Product Updated")
+                .type(null) // Type is null
+                .build();
+        
+        mockProduct.setType("EXISTING_TYPE");
+        when(productRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockProduct));
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenReturn(mockCategory);
+        when(productRepository.save(any(ProductEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BaseResponse<ProductEntity> response = productService.updateProduct(1L, dto);
+
+        assertEquals("EXISTING_TYPE", response.getData().getType());
+        verify(productRepository).save(mockProduct);
     }
 
     // ===================== deleteProduct =====================
@@ -267,7 +318,7 @@ class ProductServiceTest {
 
         BaseResponse<Boolean> response = productService.deleteProduct(1L);
 
-        assertNull(response.getData());
+        assertTrue(response.getData());
         assertEquals("true", String.valueOf(mockProduct.getIsDeleted()));
         verify(productRepository, times(1)).save(any(ProductEntity.class));
         verify(productEventPublisher, times(1)).publishProductDeleted(any(ProductDeletedEvent.class));

@@ -91,6 +91,18 @@ class CategoryGraphQLControllerTest {
     }
 
     @Test
+    void getCategoriesByType_CallsService() {
+        BaseResponse<List<CategoryEntity>> listResponse = new BaseResponse<>();
+        listResponse.setData(Collections.singletonList(mockEntity));
+        when(categoryService.getCategoriesByType("TOUR")).thenReturn(listResponse);
+
+        BaseResponse<List<CategoryEntity>> result = categoryGraphQLController.getCategoriesByType("TOUR");
+
+        assertEquals(listResponse, result);
+        verify(categoryService).getCategoriesByType("TOUR");
+    }
+
+    @Test
     void createCategory_CallsService() {
         when(categoryService.createCategory(mockDto)).thenReturn(mockResponse);
 

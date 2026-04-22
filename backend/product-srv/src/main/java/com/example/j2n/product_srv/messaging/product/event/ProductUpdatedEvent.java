@@ -1,4 +1,4 @@
-package com.example.j2n.report_srv.messaging.product.event;
+package com.example.j2n.product_srv.messaging.product.event;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ProductCreatedEvent {
+public class ProductUpdatedEvent {
     private String productId;
     private Long categoryId;
     private String title;
@@ -24,5 +24,5 @@ public class ProductCreatedEvent {
     private String duration;
     private String startLocation;
     private String type;
-    private String createdAt;
+    private String updatedAt;
 }

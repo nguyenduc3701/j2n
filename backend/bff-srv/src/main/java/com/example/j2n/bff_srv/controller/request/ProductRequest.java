@@ -42,4 +42,7 @@ public class ProductRequest {
     @JsonProperty("startLocation")
     @JsonAlias("start_location")
     private String startLocation;
+
+    @NotBlank(message = "Type is required")
+    private String type;
 }

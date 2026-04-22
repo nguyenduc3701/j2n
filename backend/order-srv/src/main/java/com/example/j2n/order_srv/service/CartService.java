@@ -10,8 +10,14 @@ import com.example.j2n.order_srv.constant.MessageEnum;
 import com.example.j2n.order_srv.controller.request.CartItemRequest;
 import com.example.j2n.order_srv.controller.request.UpdateCartItemRequest;
 import com.example.j2n.dto.BaseRequest;
+import com.example.j2n.order_srv.dto.response.CartItemWithProductResponse;
+import com.example.j2n.order_srv.messaging.product.event.ProductCreatedEvent;
+import com.example.j2n.order_srv.messaging.product.event.ProductDeletedEvent;
+import com.example.j2n.order_srv.messaging.product.event.ProductUpdatedEvent;
 import com.example.j2n.order_srv.repository.CartItemRepository;
+import com.example.j2n.order_srv.repository.ProductInfoRepository;
 import com.example.j2n.order_srv.repository.entity.CartItemEntity;
+import com.example.j2n.order_srv.repository.entity.ProductInfoEntity;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,22 +25,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CartService {
     private final CartItemRepository cartItemRepository;
+    private final ProductInfoRepository productInfoRepository;
 
-    @LogAround(message = "Get all cart items")
-    public BaseResponse<List<CartItemEntity>> getAllCartItems() {
-        return ResponseFactory.success(cartItemRepository.findAll());
+    @LogAround(message = "Get all cart items with product details")
+    public BaseResponse<List<CartItemWithProductResponse>> getAllCartItems() {
+        List<CartItemEntity> items = cartItemRepository.findAll();
+        return ResponseFactory.success(enrichCartItems(items));
     }
 
-    @LogAround(message = "Get cart items by user ID")
-    public BaseResponse<List<CartItemEntity>> getCartByUserId(String userId) {
-        return ResponseFactory.success(findByUserIdOrThrow(userId));
+    @LogAround(message = "Get cart items by user ID with product details")
+    public BaseResponse<List<CartItemWithProductResponse>> getCartByUserId(String userId) {
+        List<CartItemEntity> items = findByUserIdOrThrow(userId);
+        return ResponseFactory.success(enrichCartItems(items));
     }
 
     @Transactional
@@ -108,5 +122,71 @@ public class CartService {
                     log.error("[ORDER-SRV] Cart item not found for user: {} and item: {}", userId, itemId);
                     return new DataNotFoundException(MessageEnum.CART_NOT_FOUND.withArgs(userId));
                 });
+    }
+
+    private List<CartItemWithProductResponse> enrichCartItems(List<CartItemEntity> items) {
+        if (items == null || items.isEmpty()) {
+            log.info("[ORDER-SRV] Cart is empty");
+            return List.of();
+        }
+
+        // Collect unique product IDs
+        Set<Long> productIds = items.stream()
+                .map(item -> {
+                    try {
+                        return Long.valueOf(item.getItemId());
+                    } catch (NumberFormatException e) {
+                        log.warn("[ORDER-SRV] Invalid itemId format: {}", item.getItemId());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Bulk fetch product info
+        Map<Long, ProductInfoEntity> productInfoMap = productInfoRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(ProductInfoEntity::getId,
+                        Function.identity()));
+
+        // Map items to enriched response
+        return items.stream()
+                .map(item -> {
+                    Long productId = null;
+                    try {
+                        productId = Long.valueOf(item.getItemId());
+                    } catch (NumberFormatException ignored) {
+                    }
+
+                    ProductInfoEntity productInfo = productId != null ? productInfoMap.get(productId) : null;
+                    return CartItemWithProductResponse.from(item, productInfo);
+                })
+                .toList();
+    }
+
+    @Transactional
+    public void syncProductCreated(ProductCreatedEvent event) {
+        ProductInfoEntity entity = ProductInfoEntity.builder()
+                .id(Long.valueOf(event.getProductId()))
+                .title(event.getTitle())
+                .price(event.getPrice())
+                .thumbnail(event.getThumbnail())
+                .build();
+        productInfoRepository.save(entity);
+    }
+
+    @Transactional
+    public void syncProductUpdated(ProductUpdatedEvent event) {
+        productInfoRepository.findById(Long.valueOf(event.getProductId()))
+                .ifPresent(entity -> {
+                    entity.setTitle(event.getTitle());
+                    entity.setPrice(event.getPrice());
+                    entity.setThumbnail(event.getThumbnail());
+                    productInfoRepository.save(entity);
+                });
+    }
+
+    @Transactional
+    public void syncProductDeleted(ProductDeletedEvent event) {
+        productInfoRepository.deleteById(Long.valueOf(event.getProductId()));
     }
 }

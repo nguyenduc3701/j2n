@@ -61,6 +61,15 @@ public class ProductController {
         return productService.getCategoryByName(name);
     }
 
+    @Operation(summary = "Get categories by type")
+    @GetMapping(value = "/categories/type/{type}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> getCategoriesByType(@PathVariable String type) {
+        return productService.getCategoriesByType(type);
+    }
+
     @Operation(summary = "Create a new category")
     @PostMapping(value = "/categories", produces = MediaType.APPLICATION_JSON_VALUE)
     @J2NApiResponses({
@@ -115,6 +124,15 @@ public class ProductController {
     })
     public Mono<Object> getProductsByCategory(@PathVariable Long categoryId) {
         return productService.getProductsByCategory(categoryId);
+    }
+
+    @Operation(summary = "Get products by type")
+    @GetMapping(value = "/type/{type}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public Mono<Object> getProductsByType(@PathVariable String type) {
+        return productService.getProductsByType(type);
     }
 
     @Operation(summary = "Create a new product")

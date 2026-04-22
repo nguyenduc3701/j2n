@@ -4,11 +4,13 @@ type Query {
   getCategoryById(id: ID!): CategoryResponse
   getCategoryBySlug(slug: String!): CategoryResponse
   getCategoryByName(name: String!): CategoryResponse
+  getCategoriesByType(type: String!): CategoryListResponse
 
   # Products
   getAllProducts: ProductListResponse
   getProductById(id: ID!): ProductResponse
   getProductsByCategory(categoryId: ID!): ProductListResponse
+  getProductsByType(type: String!): ProductListResponse
 
   # Product Images
   getImagesByProductId(productId: ID!): ProductImageListResponse
@@ -43,6 +45,7 @@ type Category {
   id: ID
   name: String
   slug: String
+  type: String
   isDeleted: Boolean
   products: [Product]
 }
@@ -55,6 +58,7 @@ type Product {
   thumbnail: String
   duration: String
   startLocation: String
+  type: String
   createdAt: String
   updatedAt: String
   isDeleted: Boolean
@@ -83,6 +87,7 @@ type ProductImage {
 input CategoryInput {
   name: String!
   slug: String!
+  type: String!
 }
 
 input ProductInput {
@@ -93,6 +98,7 @@ input ProductInput {
   thumbnail: String
   duration: String
   startLocation: String
+  type: String!
 }
 
 input ProductImageInput {

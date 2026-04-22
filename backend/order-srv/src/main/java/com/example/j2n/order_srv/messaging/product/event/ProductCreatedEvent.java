@@ -1,4 +1,4 @@
-package com.example.j2n.report_srv.messaging.product.event;
+package com.example.j2n.order_srv.messaging.product.event;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

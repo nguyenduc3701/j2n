@@ -4,6 +4,7 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.order_srv.controller.request.CartItemRequest;
 import com.example.j2n.order_srv.controller.request.UpdateCartItemRequest;
+import com.example.j2n.order_srv.dto.response.CartItemWithProductResponse;
 import com.example.j2n.order_srv.repository.entity.CartItemEntity;
 import com.example.j2n.order_srv.service.CartService;
 import com.example.j2n.swagger.annotation.J2NApiExample;
@@ -35,7 +36,7 @@ public class CartController {
                         })
         })
         @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<BaseResponse<List<CartItemEntity>>> getAllCartItems() {
+        public ResponseEntity<BaseResponse<List<CartItemWithProductResponse>>> getAllCartItems() {
                 return ResponseEntity.ok(cartService.getAllCartItems());
         }
 
@@ -50,7 +51,7 @@ public class CartController {
                         })
         })
         @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<BaseResponse<List<CartItemEntity>>> getCartByUserId(
+        public ResponseEntity<BaseResponse<List<CartItemWithProductResponse>>> getCartByUserId(
                         @Parameter(description = "The unique identifier of the user", example = "user-123") @PathVariable String userId) {
                 return ResponseEntity.ok(cartService.getCartByUserId(userId));
         }

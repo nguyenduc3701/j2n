@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WithMockUser
 @WebMvcTest(ProductController.class)
-class TravelControllerTest {
+class ProductControllerTest {
 
         @Autowired
         private MockMvc mockMvc;
@@ -81,6 +81,17 @@ class TravelControllerTest {
                 when(productService.getCategoryByName(name)).thenReturn(Mono.just(expectedResponse));
 
                 mockMvc.perform(get(CATEGORY_BASE_URL + "/name/{name}", name)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void getCategoriesByType_ShouldReturnSuccess() throws Exception {
+                String type = "TOUR";
+                Object expectedResponse = Collections.singletonMap("data", "items-by-type");
+                when(productService.getCategoriesByType(type)).thenReturn(Mono.just(expectedResponse));
+
+                mockMvc.perform(get(CATEGORY_BASE_URL + "/type/{type}", type)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk());
         }
@@ -156,6 +167,17 @@ class TravelControllerTest {
                 when(productService.getProductsByCategory(categoryId)).thenReturn(Mono.just(expectedResponse));
 
                 mockMvc.perform(get(PRODUCT_BASE_URL + "/category/{categoryId}", categoryId)
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void getProductsByType_ShouldReturnSuccess() throws Exception {
+                String type = "TOUR";
+                Object expectedResponse = Collections.singletonMap("data", "products-by-type");
+                when(productService.getProductsByType(type)).thenReturn(Mono.just(expectedResponse));
+
+                mockMvc.perform(get(PRODUCT_BASE_URL + "/type/{type}", type)
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk());
         }

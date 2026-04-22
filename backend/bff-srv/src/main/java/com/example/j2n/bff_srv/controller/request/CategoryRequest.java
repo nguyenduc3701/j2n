@@ -18,4 +18,7 @@ public class CategoryRequest {
 
     @NotBlank(message = "Slug is required")
     private String slug;
+
+    @NotBlank(message = "Type is required")
+    private String type;
 }

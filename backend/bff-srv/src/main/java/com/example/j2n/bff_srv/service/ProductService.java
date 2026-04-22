@@ -92,6 +92,18 @@ public class ProductService {
         });
   }
 
+  public Mono<Object> getProductsByType(String type) {
+    return graphQLFactory.execute(PRODUCT_DOC, "getProductsByType", Map.of("type", type),
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
+  public Mono<Object> getCategoriesByType(String type) {
+    return graphQLFactory.execute(PRODUCT_CATEGORY_DOC, "getCategoriesByType", Map.of("type", type),
+        new ParameterizedTypeReference<Object>() {
+        });
+  }
+
   public Mono<Object> createProduct(ProductRequest input) {
     return graphQLFactory.execute(PRODUCT_DOC, "createProduct", Map.of(INPUT, input),
         new ParameterizedTypeReference<Object>() {

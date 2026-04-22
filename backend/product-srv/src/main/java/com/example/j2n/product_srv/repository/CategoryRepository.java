@@ -14,4 +14,5 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
     Optional<CategoryEntity> findByIdAndIsDeletedFalse(Long id);
     Optional<CategoryEntity> findBySlugAndIsDeletedFalse(String slug);
     Optional<CategoryEntity> findByNameAndIsDeletedFalse(String name);
+    List<CategoryEntity> findByTypeAndIsDeletedFalse(String type);
 }

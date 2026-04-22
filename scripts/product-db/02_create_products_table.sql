@@ -7,10 +7,12 @@ CREATE TABLE products (
     thumbnail VARCHAR(255),
     duration VARCHAR(100),
     start_location VARCHAR(255),
+    type VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted BOOLEAN DEFAULT FALSE,
     INDEX idx_category_id (category_id),
     INDEX idx_is_deleted (is_deleted),
+    INDEX idx_type (type),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
