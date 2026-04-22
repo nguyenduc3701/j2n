@@ -42,9 +42,9 @@ import net.devh.boot.grpc.server.service.GrpcService;
 public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     private final static String ACTIVE_USERS_METRIC_KEY = "active_users";
     private final static String INACTIVE_USERS_METRIC_KEY = "inactive_users";
-    private final static String TOTAL_TOURS_METRIC_KEY = "total_tours";
+    private final static String TOTAL_TOURS_METRIC_KEY = "total_products";
     private final static String ACCOUNT_CATEGORY = "ACCOUNT";
-    private final static String TRAVEL_CATEGORY = "TRAVEL";
+    private final static String PRODUCT_CATEGORY = "PRODUCT";
     private final static String USER_TYPE_CHART = "USER_TYPE";
 
     @Lazy
@@ -153,10 +153,10 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     }
 
     @Transactional
-    @LogAround(message = "[REPORT-SRV] Processing tour report change")
-    public BaseResponse<Object> handleTourReport(boolean isIncrement) {
+    @LogAround(message = "[REPORT-SRV] Processing product report change")
+    public BaseResponse<Object> handleProductReport(boolean isIncrement) {
         try {
-            updateSummaryMetric(TOTAL_TOURS_METRIC_KEY, TRAVEL_CATEGORY, isIncrement);
+            updateSummaryMetric(TOTAL_TOURS_METRIC_KEY, PRODUCT_CATEGORY, isIncrement);
             return ResponseFactory.of(BaseMessageEnum.SUCCESS, null);
         } catch (Exception e) {
             throw e;

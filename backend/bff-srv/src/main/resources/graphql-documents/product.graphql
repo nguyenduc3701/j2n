@@ -1,0 +1,155 @@
+query Op_getAllProducts {
+  getAllProducts {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+      schedules {
+        id
+        dayNumber
+        title
+        content
+      }
+      images {
+        id
+        imageUrl
+        isPrimary
+      }
+    }
+  }
+}
+
+query Op_getProductById($id: ID!) {
+  getProductById(id: $id) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+      schedules {
+        id
+        dayNumber
+        title
+        content
+      }
+      images {
+        id
+        imageUrl
+        isPrimary
+      }
+    }
+  }
+}
+
+query Op_getProductsByCategory($categoryId: ID!) {
+  getProductsByCategory(categoryId: $categoryId) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+      schedules {
+        id
+        dayNumber
+        title
+        content
+      }
+      images {
+        id
+        imageUrl
+        isPrimary
+      }
+    }
+  }
+}
+
+mutation Op_createProduct($input: ProductInput!) {
+  createProduct(input: $input) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+    }
+  }
+}
+
+mutation Op_updateProduct($id: ID!, $input: ProductInput!) {
+  updateProduct(id: $id, input: $input) {
+    code
+    message
+    data {
+      id
+      title
+      description
+      price
+      thumbnail
+      duration
+      startLocation
+      createdAt
+      updatedAt
+      category {
+        id
+        name
+        slug
+      }
+    }
+  }
+}
+
+mutation Op_deleteProduct($id: ID!) {
+  deleteProduct(id: $id) {
+    code
+    message
+    data
+  }
+}

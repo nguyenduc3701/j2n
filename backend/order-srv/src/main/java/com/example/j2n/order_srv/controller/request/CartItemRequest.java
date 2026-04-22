@@ -1,4 +1,4 @@
-package com.example.j2n.order_srv.dto.request;
+package com.example.j2n.order_srv.controller.request;
 
 import com.example.j2n.dto.BaseRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,11 +22,11 @@ public class CartItemRequest extends BaseRequest {
     private String userId;
 
     @NotBlank(message = "Item ID is required")
-    @Schema(description = "The unique identifier of the item (e.g., Tour ID, Product ID)", example = "tour-789")
+    @Schema(description = "The unique identifier of the item (e.g., Product ID, Product ID)", example = "product-789")
     private String itemId;
 
     @NotBlank(message = "Item type is required")
-    @Schema(description = "The category of the item", example = "TRAVEL")
+    @Schema(description = "The category of the item", example = "PRODUCT")
     private String itemType;
 
     @NotNull(message = "Quantity is required")
@@ -34,6 +34,6 @@ public class CartItemRequest extends BaseRequest {
     @Schema(description = "The number of items to add", example = "2")
     private Integer quantity;
 
-    @Schema(description = "Additional JSON metadata specific to the item type", example = "{\"tourDate\": \"2024-12-25\", \"pax\": 2}")
+    @Schema(description = "Additional JSON metadata specific to the item type", example = "{\"productDate\": \"2024-12-25\", \"pax\": 2}")
     private Map<String, Object> metadata;
 }

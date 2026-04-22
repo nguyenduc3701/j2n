@@ -26,7 +26,6 @@ services:
       mc mb -p myminio/j2n-user;
       mc mb -p myminio/j2n-product;
       mc mb -p myminio/j2n-room;
-      mc mb -p myminio/j2n-travel;
       mc mb -p myminio/j2n-default;
       mc ls myminio;
       exit 0;

@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GraphQLClientConfig {
 
-    private final String TRAVEL_GRAPHQL_URL = "/api/travel/graphql";
+    private final String PRODUCT_GRAPHQL_URL = "/api/product/graphql";
 
     @Value("${api-gateway.base-url}")
     private String gatewayBaseUrl;
@@ -26,9 +26,9 @@ public class GraphQLClientConfig {
     private final WebClientRefreshInterceptor webClientRefreshInterceptor;
 
     @Bean
-    public HttpGraphQlClient travelGraphQlClient() {
+    public HttpGraphQlClient productGraphQlClient() {
         WebClient webClient = WebClient.builder()
-                .baseUrl(gatewayBaseUrl + TRAVEL_GRAPHQL_URL)
+                .baseUrl(gatewayBaseUrl + PRODUCT_GRAPHQL_URL)
                 .filter(webClientRefreshInterceptor)
                 .build();
 

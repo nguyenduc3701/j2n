@@ -1,13 +1,16 @@
-package com.example.j2n.order_srv.dto.request;
+package com.example.j2n.order_srv.controller.request;
 
 import com.example.j2n.dto.BaseRequest;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -18,11 +21,11 @@ import java.util.Map;
 public class UpdateCartItemRequest extends BaseRequest {
 
     @NotBlank(message = "Item ID is required")
-    @Schema(description = "The unique identifier of the item", example = "tour-789")
+    @Schema(description = "The unique identifier of the item", example = "product-789")
     private String itemId;
 
     @NotBlank(message = "Item type is required")
-    @Schema(description = "The category of the item", example = "TRAVEL")
+    @Schema(description = "The category of the item", example = "PRODUCT")
     private String itemType;
 
     @NotNull(message = "Quantity is required")

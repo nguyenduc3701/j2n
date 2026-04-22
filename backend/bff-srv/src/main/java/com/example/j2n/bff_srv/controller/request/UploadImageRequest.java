@@ -20,7 +20,7 @@ import java.util.Optional;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UploadImageRequest {
     @Builder.Default
-    @Schema(description = "Owner type (e.g., USER, PRODUCT, ROOM, TRAVEL)", example = "USER")
+    @Schema(description = "Owner type (e.g., USER, PRODUCT, ROOM, PRODUCT)", example = "USER")
     private Optional<String> ownerType = Optional.empty();
 
     @Schema(description = "Owner ID", example = "1")

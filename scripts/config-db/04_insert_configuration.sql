@@ -30,7 +30,7 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('api-gateway.report.discovery.retry-ms', '60000', 'api-gateway-srv', 'dev'),
 ('api-gateway.image.base-url', 'http://localhost:8183', 'api-gateway-srv', 'dev'),
 ('api-gateway.bff.base-url', 'http://localhost:8180', 'api-gateway-srv', 'dev'),
-('api-gateway.travel.base-url', 'http://localhost:8186', 'api-gateway-srv', 'dev'),
+('api-gateway.product.base-url', 'http://localhost:8186', 'api-gateway-srv', 'dev'),
 ('api-gateway.payment.base-url', 'http://localhost:8187', 'api-gateway-srv', 'dev'),
 ('api-gateway.order.base-url', 'http://localhost:8188', 'api-gateway-srv', 'dev'),
 
@@ -44,7 +44,7 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 -- BFF Service Configuration
 ('bff.base-url', 'http://localhost:8180', 'bff-srv', 'dev'),
 -- Frontend Configuration
-('travel-portal.base-url', 'http://localhost:3104', 'frontend', 'dev'),
+('product-portal.base-url', 'http://localhost:3104', 'frontend', 'dev'),
 ('store-portal.base-url', 'http://localhost:3103', 'frontend', 'dev'),
 ('room-portal.base-url', 'http://localhost:3102', 'frontend', 'dev'),
 ('management-portal.base-url', 'http://localhost:3101', 'frontend', 'dev'),

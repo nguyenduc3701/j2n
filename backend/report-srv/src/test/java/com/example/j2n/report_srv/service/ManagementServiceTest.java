@@ -224,12 +224,12 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testHandleTourReport_Increment() {
+    void testHandleProductReport_Increment() {
         SummaryMetrics summary = new SummaryMetrics();
         summary.setMetricValue(10L);
-        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.of(summary));
+        when(summaryMetricsRepository.findById("total_products")).thenReturn(Optional.of(summary));
 
-        BaseResponse<Object> response = managementService.handleTourReport(true);
+        BaseResponse<Object> response = managementService.handleProductReport(true);
 
         assertNotNull(response);
         assertEquals(11L, summary.getMetricValue());
@@ -237,12 +237,12 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testHandleTourReport_Decrement() {
+    void testHandleProductReport_Decrement() {
         SummaryMetrics summary = new SummaryMetrics();
         summary.setMetricValue(10L);
-        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.of(summary));
+        when(summaryMetricsRepository.findById("total_products")).thenReturn(Optional.of(summary));
 
-        BaseResponse<Object> response = managementService.handleTourReport(false);
+        BaseResponse<Object> response = managementService.handleProductReport(false);
 
         assertNotNull(response);
         assertEquals(9L, summary.getMetricValue());
@@ -250,12 +250,12 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testHandleTourReport_DecrementToZero() {
+    void testHandleProductReport_DecrementToZero() {
         SummaryMetrics summary = new SummaryMetrics();
         summary.setMetricValue(0L);
-        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.of(summary));
+        when(summaryMetricsRepository.findById("total_products")).thenReturn(Optional.of(summary));
 
-        BaseResponse<Object> response = managementService.handleTourReport(false);
+        BaseResponse<Object> response = managementService.handleProductReport(false);
 
         assertNotNull(response);
         assertEquals(0L, summary.getMetricValue());
@@ -263,10 +263,10 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testHandleTourReport_NewRecord_Decrement() {
-        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.empty());
+    void testHandleProductReport_NewRecord_Decrement() {
+        when(summaryMetricsRepository.findById("total_products")).thenReturn(Optional.empty());
 
-        BaseResponse<Object> response = managementService.handleTourReport(false);
+        BaseResponse<Object> response = managementService.handleProductReport(false);
 
         assertNotNull(response);
         verify(summaryMetricsRepository).save(any(SummaryMetrics.class));
@@ -277,10 +277,10 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testHandleTourReport_NewRecord_Increment() {
-        when(summaryMetricsRepository.findById("total_tours")).thenReturn(Optional.empty());
+    void testHandleProductReport_NewRecord_Increment() {
+        when(summaryMetricsRepository.findById("total_products")).thenReturn(Optional.empty());
 
-        BaseResponse<Object> response = managementService.handleTourReport(true);
+        BaseResponse<Object> response = managementService.handleProductReport(true);
 
         assertNotNull(response);
         ArgumentCaptor<SummaryMetrics> captor = ArgumentCaptor.forClass(SummaryMetrics.class);
@@ -289,9 +289,9 @@ class ManagementServiceTest {
     }
 
     @Test
-    void testHandleTourReport_ThrowsException() {
+    void testHandleProductReport_ThrowsException() {
         when(summaryMetricsRepository.findById(anyString())).thenThrow(new RuntimeException("DB Exception"));
 
-        assertThrows(RuntimeException.class, () -> managementService.handleTourReport(true));
+        assertThrows(RuntimeException.class, () -> managementService.handleProductReport(true));
     }
 }

@@ -22,7 +22,7 @@ import java.util.Optional;
 public class UploadImageRequest extends BaseRequest {
 
     @Builder.Default
-    @Schema(description = "Type of owner (e.g., USER, PRODUCT, ROOM, TRAVEL)", example = "USER")
+    @Schema(description = "Type of owner (e.g., USER, PRODUCT, ROOM)", example = "USER")
     private Optional<String> ownerType = Optional.empty();
 
     @Schema(description = "ID of the owner", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

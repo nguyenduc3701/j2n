@@ -1,0 +1,49 @@
+query Op_getImagesByProductId($productId: ID!) {
+  getImagesByProductId(productId: $productId) {
+    code
+    message
+    data {
+      id
+      imageUrl
+      isPrimary
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation Op_addImageToProduct($input: ProductImageInput!) {
+  addImageToProduct(input: $input) {
+    code
+    message
+    data {
+      id
+      imageUrl
+      isPrimary
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation Op_deleteProductImage($id: ID!) {
+  deleteProductImage(id: $id) {
+    code
+    message
+    data
+  }
+}
+
+mutation Op_setPrimaryImage($id: ID!) {
+  setPrimaryImage(id: $id) {
+    code
+    message
+    data {
+      id
+      imageUrl
+      isPrimary
+      createdAt
+      updatedAt
+    }
+  }
+}

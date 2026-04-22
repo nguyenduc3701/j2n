@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
     item_id VARCHAR(36) NOT NULL,
-    item_type VARCHAR(50) NOT NULL COMMENT 'TRAVEL, STORE, etc.',
+    item_type VARCHAR(50) NOT NULL COMMENT 'PRODUCT, STORE, etc.',
     quantity INT NOT NULL DEFAULT 1,
     metadata JSON COMMENT 'Flexible metadata for different item types',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

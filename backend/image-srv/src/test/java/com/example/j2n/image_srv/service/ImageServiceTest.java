@@ -35,7 +35,7 @@ import com.example.j2n.image_srv.exception.FileSizeException;
 import com.example.j2n.image_srv.exception.FileTypeException;
 import com.example.j2n.image_srv.exception.OwnerTypeException;
 import com.example.j2n.image_srv.exception.StaticFileReadException;
-import com.example.j2n.image_srv.messaging.travel.publisher.TravelEventPublisher;
+import com.example.j2n.image_srv.messaging.product.publisher.ProductEventPublisher;
 import com.example.j2n.image_srv.messaging.user.publisher.UserEventPublisher;
 import com.example.j2n.image_srv.repository.ImageRepository;
 import com.example.j2n.image_srv.repository.entity.ImageEntity;
@@ -54,7 +54,7 @@ class ImageServiceTest {
     private UserEventPublisher avatarEventPublisher;
 
     @Mock
-    private TravelEventPublisher travelEventPublisher;
+    private ProductEventPublisher productEventPublisher;
 
     @InjectMocks
     private ImageService imageService;
@@ -297,15 +297,15 @@ class ImageServiceTest {
         imageService.uploadImage(requestRoom);
         verify(minioFactory).upload(any(), eq(BucketConstant.ROOM_BUCKET));
 
-        // TRAVEL
+        // PRODUCT
         UploadImageRequest requestTravel = UploadImageRequest.builder()
                 .files(List.of(file))
-                .ownerType(Optional.of("TRAVEL"))
+                .ownerType(Optional.of("PRODUCT"))
                 .ownerId(1L)
                 .build();
-        when(minioFactory.upload(any(), eq(BucketConstant.TRAVEL_BUCKET))).thenReturn("path");
+        when(minioFactory.upload(any(), eq(BucketConstant.PRODUCT_BUCKET))).thenReturn("path");
         imageService.uploadImage(requestTravel);
-        verify(minioFactory).upload(any(), eq(BucketConstant.TRAVEL_BUCKET));
+        verify(minioFactory).upload(any(), eq(BucketConstant.PRODUCT_BUCKET));
 
         // DEFAULT
         UploadImageRequest requestDefault = UploadImageRequest.builder()
@@ -338,7 +338,7 @@ class ImageServiceTest {
         MockMultipartFile file2 = new MockMultipartFile("file", "test2.jpg", "image/jpeg", "content2".getBytes());
         UploadImageRequest request = UploadImageRequest.builder()
                 .files(List.of(file1, file2))
-                .ownerType(Optional.of("TRAVEL"))
+                .ownerType(Optional.of("PRODUCT"))
                 .ownerId(123L)
                 .isPrimary(Optional.of(true))
                 .build();
@@ -347,10 +347,10 @@ class ImageServiceTest {
 
         imageService.uploadImage(request);
 
-        verify(travelEventPublisher, times(1))
-                .publishTourImageUploaded(argThat(event -> event.getTourId().equals(123L) &&
+        verify(productEventPublisher, times(1))
+                .publishProductImageUploaded(argThat(event -> event.getProductId().equals(123L) &&
                         event.getImages().size() == 2 &&
-                        event.getImages().get(0).getImageUrl().equals("/api/bff/image/travel/1") &&
+                        event.getImages().get(0).getImageUrl().equals("/api/bff/image/product/1") &&
                         event.getImages().get(0).getIsPrimary().equals(true)));
     }
 
@@ -359,7 +359,7 @@ class ImageServiceTest {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "content".getBytes());
         UploadImageRequest request = UploadImageRequest.builder()
                 .files(List.of(file))
-                .ownerType(Optional.of("TRAVEL"))
+                .ownerType(Optional.of("PRODUCT"))
                 .ownerId(123L)
                 .isPrimary(Optional.empty())
                 .build();
@@ -368,8 +368,8 @@ class ImageServiceTest {
 
         imageService.uploadImage(request);
 
-        verify(travelEventPublisher)
-                .publishTourImageUploaded(argThat(event -> event.getImages().get(0).getIsPrimary().equals(false)));
+        verify(productEventPublisher)
+                .publishProductImageUploaded(argThat(event -> event.getImages().get(0).getIsPrimary().equals(false)));
     }
 
     @Test

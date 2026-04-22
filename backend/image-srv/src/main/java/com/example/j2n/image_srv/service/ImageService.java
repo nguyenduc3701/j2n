@@ -11,8 +11,8 @@ import com.example.j2n.image_srv.exception.FileSizeException;
 import com.example.j2n.image_srv.exception.FileTypeException;
 import com.example.j2n.image_srv.exception.OwnerTypeException;
 import com.example.j2n.image_srv.exception.StaticFileReadException;
-import com.example.j2n.image_srv.messaging.travel.event.TourImageUploadEvent;
-import com.example.j2n.image_srv.messaging.travel.publisher.TravelEventPublisher;
+import com.example.j2n.image_srv.messaging.product.event.ProductImageUploadEvent;
+import com.example.j2n.image_srv.messaging.product.publisher.ProductEventPublisher;
 import com.example.j2n.image_srv.messaging.user.event.UserAvatarUploadEvent;
 import com.example.j2n.image_srv.messaging.user.publisher.UserEventPublisher;
 import com.example.j2n.image_srv.repository.ImageRepository;
@@ -48,7 +48,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final MinioFactory minioFactory;
     private final UserEventPublisher avatarEventPublisher;
-    private final TravelEventPublisher travelEventPublisher;
+    private final ProductEventPublisher productEventPublisher;
 
     @LogAround(message = "[ImageSrv] Uploading images")
     public BaseResponse<List<ImageItemResponse>> uploadImage(UploadImageRequest request) {
@@ -113,8 +113,6 @@ public class ImageService {
                 return BucketConstant.PRODUCT_BUCKET;
             case OwnerType.ROOM:
                 return BucketConstant.ROOM_BUCKET;
-            case OwnerType.TRAVEL:
-                return BucketConstant.TRAVEL_BUCKET;
             default:
                 return BucketConstant.DEFAULT_BUCKET;
         }
@@ -173,8 +171,8 @@ public class ImageService {
         String ownerType = request.getOwnerType().orElse(OwnerType.DEFAULT).toUpperCase();
         if (ownerType.equals(OwnerType.USER)) {
             publishAvatarUploadedEvent(request, result);
-        } else if (ownerType.equals(OwnerType.TRAVEL)) {
-            publishTourImageUploadedEvent(request, result);
+        } else if (ownerType.equals(OwnerType.PRODUCT)) {
+            publishProductImageUploadedEvent(request, result);
         }
     }
 
@@ -192,23 +190,23 @@ public class ImageService {
         avatarEventPublisher.publishAvatarUploaded(event);
     }
 
-    private void publishTourImageUploadedEvent(UploadImageRequest request, List<ImageItemResponse> result) {
-        log.info("[ImageSrv] Publishing tour image uploaded event for owner id: {}", request.getOwnerId());
-        
+    private void publishProductImageUploadedEvent(UploadImageRequest request, List<ImageItemResponse> result) {
+        log.info("[ImageSrv] Publishing product image uploaded event for owner id: {}", request.getOwnerId());
+
         Boolean isPrimary = request.getIsPrimary().orElse(false);
-        List<TourImageUploadEvent.ImageInfo> images = result.stream()
+        List<ProductImageUploadEvent.ImageInfo> images = result.stream()
                 .map(item -> {
-                    String finalImageUrl = buildFinalImageUrl(OwnerType.TRAVEL, item.getId());
-                    return new TourImageUploadEvent.ImageInfo(finalImageUrl, isPrimary);
+                    String finalImageUrl = buildFinalImageUrl(OwnerType.PRODUCT, item.getId());
+                    return new ProductImageUploadEvent.ImageInfo(finalImageUrl, isPrimary);
                 })
                 .toList();
 
-        TourImageUploadEvent event = TourImageUploadEvent.builder()
-                .tourId(request.getOwnerId())
+        ProductImageUploadEvent event = ProductImageUploadEvent.builder()
+                .productId(request.getOwnerId())
                 .images(images)
                 .build();
-        
-        travelEventPublisher.publishTourImageUploaded(event);
+
+        productEventPublisher.publishProductImageUploaded(event);
     }
 
     private String buildFinalImageUrl(String ownerType, Long id) {

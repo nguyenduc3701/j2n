@@ -1,0 +1,52 @@
+query Op_getSchedulesByProductId($productId: ID!) {
+  getSchedulesByProductId(productId: $productId) {
+    code
+    message
+    data {
+      id
+      dayNumber
+      title
+      content
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation Op_addScheduleToProduct($input: ProductScheduleInput!) {
+  addScheduleToProduct(input: $input) {
+    code
+    message
+    data {
+      id
+      dayNumber
+      title
+      content
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation Op_updateProductSchedule($id: ID!, $input: ProductScheduleInput!) {
+  updateProductSchedule(id: $id, input: $input) {
+    code
+    message
+    data {
+      id
+      dayNumber
+      title
+      content
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation Op_deleteProductSchedule($id: ID!) {
+  deleteProductSchedule(id: $id) {
+    code
+    message
+    data
+  }
+}
