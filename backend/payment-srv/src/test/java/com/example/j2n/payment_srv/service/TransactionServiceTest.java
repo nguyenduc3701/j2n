@@ -3,6 +3,8 @@ package com.example.j2n.payment_srv.service;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.payment_srv.repository.TransactionRepository;
 import com.example.j2n.payment_srv.repository.entity.TransactionEntity;
+import com.example.j2n.payment_srv.service.response.TransactionResponse;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +24,12 @@ class TransactionServiceTest {
     @Mock
     private TransactionRepository transactionRepository;
 
+    @Mock
+    private OrderInfoService orderInfoService;
+
+    @Mock
+    private ProductInfoService productInfoService;
+
     @InjectMocks
     private TransactionService transactionService;
 
@@ -33,7 +41,7 @@ class TransactionServiceTest {
         when(transactionRepository.findAll()).thenReturn(Arrays.asList(t1, t2));
 
         // Act
-        BaseResponse<List<TransactionEntity>> result = transactionService.getAllTransactions();
+        BaseResponse<List<TransactionResponse>> result = transactionService.getAllTransactions();
 
         // Assert
         assertNotNull(result);

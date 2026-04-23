@@ -8,4 +8,5 @@ public class ProductEventConstants {
     public static final String RK_PRODUCT_CREATED = "product.product.created";
     public static final String RK_PRODUCT_UPDATED = "product.product.updated";
     public static final String RK_PRODUCT_DELETED = "product.product.deleted";
+    public static final String RK_PRODUCT_ALL = "product.product.#";
 }

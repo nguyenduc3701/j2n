@@ -10,6 +10,10 @@ import com.example.j2n.order_srv.constant.MessageEnum;
 import com.example.j2n.order_srv.controller.request.OrderItemRequest;
 import com.example.j2n.order_srv.controller.request.UpdateOrderItemRequest;
 import com.example.j2n.dto.BaseRequest;
+import com.example.j2n.order_srv.messaging.order.event.OrderItemCreatedEvent;
+import com.example.j2n.order_srv.messaging.order.event.OrderItemDeletedEvent;
+import com.example.j2n.order_srv.messaging.order.event.OrderItemUpdatedEvent;
+import com.example.j2n.order_srv.messaging.order.publisher.OrderEventPublisher;
 import com.example.j2n.order_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductDeletedEvent;
 import com.example.j2n.order_srv.messaging.product.event.ProductUpdatedEvent;
@@ -38,6 +42,7 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductInfoRepository productInfoRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
     @LogAround(message = "Get all order items with product details")
     public BaseResponse<List<OrderItemWithProductResponse>> getAllOrderItems() {
@@ -59,6 +64,7 @@ public class OrderService {
                 request.getUserId(), request.getItemId(), request.getItemType());
 
         OrderItemEntity item;
+        boolean isNew = existingItem.isEmpty();
         if (existingItem.isPresent()) {
             item = existingItem.get();
             item.setQuantity(item.getQuantity() + request.getQuantity());
@@ -75,7 +81,13 @@ public class OrderService {
                     .build();
         }
 
-        return ResponseFactory.of(MessageEnum.ADD_TO_ORDER_SUCCESS, orderItemRepository.save(item));
+        OrderItemEntity saved = orderItemRepository.save(item);
+        if (isNew) {
+            publishOrderItemCreated(saved);
+        } else {
+            publishOrderItemUpdated(saved);
+        }
+        return ResponseFactory.of(MessageEnum.ADD_TO_ORDER_SUCCESS, saved);
     }
 
     @Transactional
@@ -85,10 +97,13 @@ public class OrderService {
         OrderItemEntity item = findOrderItemOrThrow(userId, request.getItemId(), request.getItemType());
         if (request.getQuantity() == 0) {
             orderItemRepository.delete(item);
+            publishOrderItemDeleted(item);
             return ResponseFactory.of(MessageEnum.UPDATE_ORDER_SUCCESS, null);
         }
         item.setQuantity(request.getQuantity());
-        return ResponseFactory.of(MessageEnum.UPDATE_ORDER_SUCCESS, orderItemRepository.save(item));
+        OrderItemEntity saved = orderItemRepository.save(item);
+        publishOrderItemUpdated(saved);
+        return ResponseFactory.of(MessageEnum.UPDATE_ORDER_SUCCESS, saved);
     }
 
     @Transactional
@@ -97,8 +112,41 @@ public class OrderService {
         if (ids == null || ids.isEmpty()) {
             throw new InvalidInputException(MessageEnum.DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY);
         }
+        List<OrderItemEntity> items = orderItemRepository.findAllById(ids);
         orderItemRepository.deleteByUserIdAndIdIn(userId, ids);
+        items.stream()
+                .filter(item -> item.getUserId().equals(userId))
+                .forEach(this::publishOrderItemDeleted);
         return ResponseFactory.success(null);
+    }
+
+    private void publishOrderItemCreated(OrderItemEntity entity) {
+        orderEventPublisher.publishOrderCreated(OrderItemCreatedEvent.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .itemId(entity.getItemId())
+                .itemType(entity.getItemType())
+                .quantity(entity.getQuantity())
+                .build());
+    }
+
+    private void publishOrderItemUpdated(OrderItemEntity entity) {
+        orderEventPublisher.publishOrderUpdated(OrderItemUpdatedEvent.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .itemId(entity.getItemId())
+                .itemType(entity.getItemType())
+                .quantity(entity.getQuantity())
+                .build());
+    }
+
+    private void publishOrderItemDeleted(OrderItemEntity entity) {
+        orderEventPublisher.publishOrderDeleted(OrderItemDeletedEvent.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .itemId(entity.getItemId())
+                .itemType(entity.getItemType())
+                .build());
     }
 
     private List<OrderItemEntity> findByUserIdOrThrow(String userId) {
@@ -164,28 +212,33 @@ public class OrderService {
     }
 
     @Transactional
+    @LogAround(message = "Sync Product Created")
     public void syncProductCreated(ProductCreatedEvent event) {
         ProductInfoEntity entity = ProductInfoEntity.builder()
                 .id(Long.valueOf(event.getProductId()))
                 .title(event.getTitle())
                 .price(event.getPrice())
+                .stock(event.getStock())
                 .thumbnail(event.getThumbnail())
                 .build();
         productInfoRepository.save(entity);
     }
 
     @Transactional
+    @LogAround(message = "Sync Product Updated")
     public void syncProductUpdated(ProductUpdatedEvent event) {
         productInfoRepository.findById(Long.valueOf(event.getProductId()))
                 .ifPresent(entity -> {
                     entity.setTitle(event.getTitle());
                     entity.setPrice(event.getPrice());
+                    entity.setStock(event.getStock());
                     entity.setThumbnail(event.getThumbnail());
                     productInfoRepository.save(entity);
                 });
     }
 
     @Transactional
+    @LogAround(message = "Sync Product Deleted")
     public void syncProductDeleted(ProductDeletedEvent event) {
         productInfoRepository.deleteById(Long.valueOf(event.getProductId()));
     }

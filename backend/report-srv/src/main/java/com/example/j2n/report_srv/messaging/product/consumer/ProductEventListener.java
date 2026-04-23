@@ -1,6 +1,6 @@
 package com.example.j2n.report_srv.messaging.product.consumer;
 
-import com.example.j2n.report_srv.messaging.product.constant.TravelEventConstants;
+import com.example.j2n.report_srv.messaging.product.constant.ProductEventConstants;
 import com.example.j2n.report_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.report_srv.messaging.product.event.ProductDeletedEvent;
 import com.example.j2n.report_srv.service.ManagementService;
@@ -20,7 +20,7 @@ public class ProductEventListener {
 
     private final ManagementService managementService;
 
-    @RabbitListener(queues = TravelEventConstants.QUEUE_REPORT_PRODUCT_TOUR)
+    @RabbitListener(queues = ProductEventConstants.QUEUE_REPORT_PRODUCT_TOUR)
     public void onProductCreated(
             ProductCreatedEvent event,
             Channel channel,
@@ -35,7 +35,7 @@ public class ProductEventListener {
         }
     }
 
-    @RabbitListener(queues = TravelEventConstants.QUEUE_REPORT_PRODUCT_TOUR)
+    @RabbitListener(queues = ProductEventConstants.QUEUE_REPORT_PRODUCT_TOUR)
     public void onProductDeleted(
             ProductDeletedEvent event,
             Channel channel,

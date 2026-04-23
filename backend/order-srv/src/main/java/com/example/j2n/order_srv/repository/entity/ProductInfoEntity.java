@@ -27,6 +27,9 @@ public class ProductInfoEntity {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
+    @Column(name = "stock")
+    private Integer stock;
+
     @Column(name = "thumbnail")
     private String thumbnail;
 

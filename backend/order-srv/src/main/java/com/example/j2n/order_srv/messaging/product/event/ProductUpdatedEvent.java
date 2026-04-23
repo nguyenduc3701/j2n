@@ -20,6 +20,7 @@ public class ProductUpdatedEvent {
     private String title;
     private String description;
     private BigDecimal price;
+    private Integer stock;
     private String thumbnail;
     private String duration;
     private String startLocation;

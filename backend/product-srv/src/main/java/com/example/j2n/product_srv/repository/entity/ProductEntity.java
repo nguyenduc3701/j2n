@@ -42,6 +42,9 @@ public class ProductEntity {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal price;
 
+    @Column(nullable = false)
+    private Integer stock;
+
     @Column(length = 255)
     private String thumbnail;
 

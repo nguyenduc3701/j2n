@@ -63,6 +63,7 @@ public class ProductService {
                 .title(input.getTitle())
                 .description(input.getDescription())
                 .price(input.getPrice())
+                .stock(input.getStock())
                 .thumbnail(input.getThumbnail())
                 .duration(input.getDuration())
                 .startLocation(input.getStartLocation())
@@ -87,6 +88,7 @@ public class ProductService {
         entity.setTitle(input.getTitle());
         entity.setDescription(input.getDescription());
         entity.setPrice(input.getPrice());
+        entity.setStock(input.getStock());
         entity.setThumbnail(input.getThumbnail());
         entity.setDuration(input.getDuration());
         entity.setStartLocation(input.getStartLocation());
@@ -111,6 +113,7 @@ public class ProductService {
     }
 
     @Transactional
+    @LogAround(message = "Save product")
     public ProductEntity save(ProductEntity product) {
         return productRepository.save(product);
     }
@@ -144,6 +147,7 @@ public class ProductService {
                 .title(product.getTitle())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .stock(product.getStock())
                 .thumbnail(product.getThumbnail())
                 .duration(product.getDuration())
                 .startLocation(product.getStartLocation())
@@ -177,6 +181,7 @@ public class ProductService {
                 .title(product.getTitle())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .stock(product.getStock())
                 .thumbnail(product.getThumbnail())
                 .duration(product.getDuration())
                 .startLocation(product.getStartLocation())

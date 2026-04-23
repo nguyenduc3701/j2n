@@ -29,6 +29,7 @@ public class OrderItemWithProductResponse {
         private Long id;
         private String title;
         private java.math.BigDecimal price;
+        private Integer stock;
         private String thumbnail;
     }
 
@@ -39,6 +40,7 @@ public class OrderItemWithProductResponse {
                     .id(productInfo.getId())
                     .title(productInfo.getTitle())
                     .price(productInfo.getPrice())
+                    .stock(productInfo.getStock())
                     .thumbnail(productInfo.getThumbnail())
                     .build();
         }

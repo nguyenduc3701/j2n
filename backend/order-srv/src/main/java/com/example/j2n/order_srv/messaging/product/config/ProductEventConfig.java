@@ -15,21 +15,14 @@ public class ProductEventConfig {
 
     @Bean
     public Queue productSyncQueue() {
-        return new Queue(ProductEventConstants.QUEUE_ORDER_PRODUCT_SYNC);
+        return QueueBuilder.durable(ProductEventConstants.QUEUE_ORDER_PRODUCT_SYNC).build();
     }
 
     @Bean
-    public Binding bindingCreated(Queue productSyncQueue, TopicExchange productExchange) {
-        return BindingBuilder.bind(productSyncQueue).to(productExchange).with(ProductEventConstants.RK_PRODUCT_CREATED);
-    }
-
-    @Bean
-    public Binding bindingUpdated(Queue productSyncQueue, TopicExchange productExchange) {
-        return BindingBuilder.bind(productSyncQueue).to(productExchange).with(ProductEventConstants.RK_PRODUCT_UPDATED);
-    }
-
-    @Bean
-    public Binding bindingDeleted(Queue productSyncQueue, TopicExchange productExchange) {
-        return BindingBuilder.bind(productSyncQueue).to(productExchange).with(ProductEventConstants.RK_PRODUCT_DELETED);
+    public Binding productBinding() {
+        return BindingBuilder
+                .bind(productSyncQueue())
+                .to(productExchange())
+                .with(ProductEventConstants.RK_PRODUCT_ALL);
     }
 }
