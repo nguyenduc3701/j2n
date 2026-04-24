@@ -5,6 +5,7 @@ CREATE TABLE products (
     description TEXT,
     price DECIMAL(15, 2) NOT NULL,
     stock INT DEFAULT 0,
+    locked_stock INT DEFAULT 0,
     thumbnail VARCHAR(255),
     duration VARCHAR(100),
     start_location VARCHAR(255),

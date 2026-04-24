@@ -21,6 +21,7 @@ public class ProductCreatedEvent {
     private String description;
     private BigDecimal price;
     private Integer stock;
+    private Integer lockedStock;
     private String thumbnail;
     private String duration;
     private String startLocation;

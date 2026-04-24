@@ -118,6 +118,34 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @Transactional
+    @LogAround(message = "Lock stock")
+    public void lockStock(Long productId, Integer quantity) {
+        ProductEntity product = getProductByIdOrThrow(productId);
+        product.setLockedStock(product.getLockedStock() + quantity);
+        productRepository.save(product);
+        publishProductUpdatedEvent(product);
+    }
+
+    @Transactional
+    @LogAround(message = "Release stock")
+    public void releaseStock(Long productId, Integer quantity) {
+        ProductEntity product = getProductByIdOrThrow(productId);
+        product.setLockedStock(Math.max(0, product.getLockedStock() - quantity));
+        productRepository.save(product);
+        publishProductUpdatedEvent(product);
+    }
+
+    @Transactional
+    @LogAround(message = "Confirm stock")
+    public void confirmStock(Long productId, Integer quantity) {
+        ProductEntity product = getProductByIdOrThrow(productId);
+        product.setStock(product.getStock() - quantity);
+        product.setLockedStock(Math.max(0, product.getLockedStock() - quantity));
+        productRepository.save(product);
+        publishProductUpdatedEvent(product);
+    }
+
     // --- Private helpers ---
 
     public ProductEntity getProductByIdOrThrow(Long id) {
@@ -148,6 +176,7 @@ public class ProductService {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .stock(product.getStock())
+                .lockedStock(product.getLockedStock())
                 .thumbnail(product.getThumbnail())
                 .duration(product.getDuration())
                 .startLocation(product.getStartLocation())
@@ -182,6 +211,7 @@ public class ProductService {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .stock(product.getStock())
+                .lockedStock(product.getLockedStock())
                 .thumbnail(product.getThumbnail())
                 .duration(product.getDuration())
                 .startLocation(product.getStartLocation())

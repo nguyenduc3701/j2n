@@ -20,6 +20,7 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('application.access-token.expired-time-seconds', '14400', 'application', 'dev'),
 ('application.refresh-token.expired-time-days', '7', 'application', 'dev'),
 ('application.api-gateway.base-url', 'http://localhost:8181', 'application', 'dev'),
+('application.rabbitmq.dead-letter-message-ttl', '600000', 'application', 'dev'),
 
 -- Config Server Configuration
 ('application.config.base-url', 'http://localhost:8185', 'application', 'dev'),

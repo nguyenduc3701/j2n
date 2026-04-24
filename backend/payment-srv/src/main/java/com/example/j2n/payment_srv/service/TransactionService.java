@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent;
+import com.example.j2n.payment_srv.messaging.reservation.publisher.ReservationPublisher;
 import com.example.j2n.payment_srv.controller.request.CreateTransactionRequest;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.payment_srv.constant.MessageEnum;
@@ -35,6 +37,7 @@ public class TransactionService {
     private final OrderInfoService orderInfoService;
     private final ProductInfoService productInfoService;
     private final PayOSService payOSService;
+    private final ReservationPublisher reservationPublisher;
 
     @LogAround(message = "Get all transactions")
     public BaseResponse<List<TransactionResponse>> getAllTransactions() {
@@ -45,35 +48,57 @@ public class TransactionService {
         return ResponseFactory.success(transactions);
     }
 
+    @Transactional
+    @LogAround(message = "Confirm transaction success")
+    public void confirmTransactionSuccess(String externalTxId) {
+        transactionRepository.findByExternalTxId(externalTxId).ifPresent(transaction -> {
+            if (transaction.getStatus() == TransactionEntity.Status.PENDING) {
+                transaction.setStatus(TransactionEntity.Status.SUCCESS);
+                transactionRepository.save(transaction);
+
+                // Prepare Stock Reservation Event for confirmation
+                // We need to get items from orderInfoService based on the transaction if
+                // possible,
+                // otherwise we might need to store ordered items in TransactionEntity or a
+                // separate table.
+                // Assuming we can derive it or for now just confirming what was locked.
+                // TODO: Store items in transaction or fetch from order_info linked to this tx
+                log.info("[PAYMENT-SRV] Transaction {} confirmed SUCCESS", externalTxId);
+            }
+        });
+    }
+
+    @Transactional
+    @LogAround(message = "Cancel pending transaction")
+    public boolean cancelPendingTransaction(String transactionId) {
+        return transactionRepository.findById(transactionId)
+                .map(transaction -> {
+                    if (transaction.getStatus() == TransactionEntity.Status.PENDING) {
+                        transaction.setStatus(TransactionEntity.Status.CANCELLED);
+                        transactionRepository.save(transaction);
+                        return true;
+                    }
+                    return false;
+                }).orElse(false);
+    }
+
     @LogAround(message = "Create a transaction")
     @Transactional
     public BaseResponse<TransactionResponse> createTransaction(CreateTransactionRequest request) {
         log.info("Creating transaction for user: {}, amount: {}", request.getUserId(), request.getTotalAmount());
-
-        // 1. Validate and fetch orders
         List<OrderInfoEntity> orders = validateAndGetOrders(request.getOrderIds(), request.getUserId());
-
-        // 2. Validate products (stock, price) and prepare payment items
         ProductValidationResult validationResult = validateProductsAndPrepareItems(orders);
-
-        // 3. Verify total amount consistency
         validateTotalAmount(validationResult.price(), request.getTotalAmount());
-
-        // 4. Generate unique order code for PayOS
         Long orderCode = generateOrderCode();
-
-        // 5. Create Payment Link via PayOS Service
         CreatePaymentLinkResponse payOSResponse = payOSService.createPaymentLink(
                 orderCode,
                 validationResult.price(),
                 orders,
                 validationResult.products());
-
-        // 6. Persist transaction record
         TransactionEntity transaction = buildTransactionEntity(request, orderCode);
         TransactionEntity savedTransaction = transactionRepository.save(transaction);
+        handleStockReservation(savedTransaction, orders);
 
-        // 7. Return DTO with checkout URL
         return ResponseFactory
                 .success(TransactionResponse.fromEntity(savedTransaction, payOSResponse.getCheckoutUrl()));
     }
@@ -110,11 +135,12 @@ public class TransactionService {
     }
 
     private void validateStock(ProductInfoEntity product, Integer requestedQuantity) {
-        if (product.getStock() < requestedQuantity) {
-            log.warn("Insufficient stock for product: {}. Available: {}, Requested: {}",
-                    product.getTitle(), product.getStock(), requestedQuantity);
+        int availableStock = product.getStock() - product.getLockedStock();
+        if (availableStock < requestedQuantity) {
+            log.warn("Insufficient stock for product: {}. Available (incl. locked): {}, Requested: {}",
+                    product.getTitle(), availableStock, requestedQuantity);
             throw new InvalidInputException(
-                    MessageEnum.INSUFFICIENT_STOCK.withArgs(product.getTitle(), product.getStock()));
+                    MessageEnum.INSUFFICIENT_STOCK.withArgs(product.getTitle(), availableStock));
         }
     }
 
@@ -149,6 +175,29 @@ public class TransactionService {
                 .paymentMethod(TransactionEntity.PaymentMethod.PAYOS)
                 .externalTxId(String.valueOf(orderCode))
                 .description("Payment for Order #" + orderCode)
+                .build();
+    }
+
+    private void handleStockReservation(TransactionEntity transaction, List<OrderInfoEntity> orders) {
+        StockReservationEvent event = buildStockReservationEvent(transaction, orders);
+        // 1. Lock stock locally in payment-srv (for validation)
+        productInfoService.lockStock(event);
+        // 2. Publish to product-srv to lock real stock
+        reservationPublisher.publishLockStock(event);
+        // 3. Publish to delay queue for auto-release
+        reservationPublisher.publishReservationDelay(event);
+    }
+
+    private StockReservationEvent buildStockReservationEvent(TransactionEntity transaction,
+            List<OrderInfoEntity> orders) {
+        return StockReservationEvent.builder()
+                .transactionId(transaction.getId())
+                .items(orders.stream()
+                        .map(o -> StockReservationEvent.ProductStockItem.builder()
+                                .productId(o.getItemId())
+                                .quantity(o.getQuantity())
+                                .build())
+                        .toList())
                 .build();
     }
 }

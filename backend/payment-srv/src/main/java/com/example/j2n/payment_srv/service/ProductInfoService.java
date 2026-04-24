@@ -61,4 +61,41 @@ public class ProductInfoService {
     public java.util.List<ProductInfoEntity> getProductInfos(java.util.List<Long> ids) {
         return productInfoRepository.findAllById(ids);
     }
+
+    @Transactional
+    @LogAround(message = "Lock stock")
+    public void lockStock(com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent event) {
+        event.getItems().forEach(item -> {
+            productInfoRepository.findById(Long.valueOf(item.getProductId()))
+                    .ifPresent(entity -> {
+                        entity.setLockedStock(entity.getLockedStock() + item.getQuantity());
+                        productInfoRepository.save(entity);
+                    });
+        });
+    }
+
+    @Transactional
+    @LogAround(message = "Release stock")
+    public void releaseStock(com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent event) {
+        event.getItems().forEach(item -> {
+            productInfoRepository.findById(Long.valueOf(item.getProductId()))
+                    .ifPresent(entity -> {
+                        entity.setLockedStock(Math.max(0, entity.getLockedStock() - item.getQuantity()));
+                        productInfoRepository.save(entity);
+                    });
+        });
+    }
+
+    @Transactional
+    @LogAround(message = "Confirm stock")
+    public void confirmStock(com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent event) {
+        event.getItems().forEach(item -> {
+            productInfoRepository.findById(Long.valueOf(item.getProductId()))
+                    .ifPresent(entity -> {
+                        entity.setStock(entity.getStock() - item.getQuantity());
+                        entity.setLockedStock(Math.max(0, entity.getLockedStock() - item.getQuantity()));
+                        productInfoRepository.save(entity);
+                    });
+        });
+    }
 }

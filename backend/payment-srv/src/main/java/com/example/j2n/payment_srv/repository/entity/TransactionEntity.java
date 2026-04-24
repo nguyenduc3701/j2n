@@ -50,6 +50,9 @@ public class TransactionEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     public enum Status {
         PENDING, SUCCESS, FAILED, CANCELLED
     }

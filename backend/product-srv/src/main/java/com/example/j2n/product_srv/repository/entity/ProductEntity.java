@@ -45,6 +45,10 @@ public class ProductEntity {
     @Column(nullable = false)
     private Integer stock;
 
+    @Builder.Default
+    @Column(name = "locked_stock", nullable = false)
+    private Integer lockedStock = 0;
+
     @Column(length = 255)
     private String thumbnail;
 
