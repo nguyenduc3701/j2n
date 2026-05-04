@@ -41,11 +41,11 @@ public class PayOSService {
     private final PayOS payOS;
 
     @LogAround(message = "Verify PayOS webhook data")
-    public BaseResponse<WebhookData> verifyWebhookData(Object body) {
+    public WebhookData verifyWebhookData(Object body) {
         try {
             WebhookData data = payOS.webhooks().verify(body);
             System.out.println(data);
-            return ResponseFactory.success(data);
+            return data;
         } catch (Exception e) {
             log.error("Failed to verify PayOS webhook: {}", e.getMessage());
             throw new InvalidInputException(MessageEnum.PAYMENT_PROVIDER_ERROR.withArgs("Webhook verification failed"));

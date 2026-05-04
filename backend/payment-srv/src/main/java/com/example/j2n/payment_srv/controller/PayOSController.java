@@ -31,13 +31,9 @@ public class PayOSController {
     @PostMapping("/webhook")
     public WebhookResponse<WebhookData> handleWebhook(@RequestBody Object body) {
         log.info("Received PayOS webhook: {}", body);
-        BaseResponse<WebhookData> response = payOSService.verifyWebhookData(body);
-        WebhookData data = response.getData();
-        if (data != null) {
-            log.info("PayOS webhook verified for orderCode: {}", data.getOrderCode());
-            transactionService.confirmTransactionSuccess(String.valueOf(data.getOrderCode()));
-        }
-
+        WebhookData data = payOSService.verifyWebhookData(body);
+        log.info("PayOS webhook verified for orderCode: {}", data.getOrderCode());
+        transactionService.confirmTransactionSuccess(String.valueOf(data.getOrderCode()));
         return WebhookResponse.success(data);
     }
 }
