@@ -3,6 +3,7 @@ package com.example.j2n.payment_srv.service;
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.payment_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.payment_srv.messaging.product.event.ProductUpdatedEvent;
+import com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent;
 import com.example.j2n.payment_srv.repository.ProductInfoRepository;
 import com.example.j2n.payment_srv.repository.entity.ProductInfoEntity;
 import lombok.RequiredArgsConstructor;
@@ -49,22 +50,25 @@ public class ProductInfoService {
                 });
     }
 
+    @LogAround(message = "Sync Product Deleted")
     public void syncProductDeleted(String productId) {
         productInfoRepository.deleteById(Long.valueOf(productId));
     }
 
+    @LogAround(message = "Get Product Info")
     public ProductInfoEntity getProductInfo(Long id) {
         return productInfoRepository.findById(id)
                 .orElseThrow(() -> new InvalidInputException(MessageEnum.PRODUCT_NOT_FOUND.withArgs(id)));
     }
 
+    @LogAround(message = "Get Product Infos")
     public java.util.List<ProductInfoEntity> getProductInfos(java.util.List<Long> ids) {
         return productInfoRepository.findAllById(ids);
     }
 
     @Transactional
     @LogAround(message = "Lock stock")
-    public void lockStock(com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent event) {
+    public void lockStock(StockReservationEvent event) {
         event.getItems().forEach(item -> {
             productInfoRepository.findById(Long.valueOf(item.getProductId()))
                     .ifPresent(entity -> {
@@ -76,7 +80,7 @@ public class ProductInfoService {
 
     @Transactional
     @LogAround(message = "Release stock")
-    public void releaseStock(com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent event) {
+    public void releaseStock(StockReservationEvent event) {
         event.getItems().forEach(item -> {
             productInfoRepository.findById(Long.valueOf(item.getProductId()))
                     .ifPresent(entity -> {
@@ -88,7 +92,7 @@ public class ProductInfoService {
 
     @Transactional
     @LogAround(message = "Confirm stock")
-    public void confirmStock(com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent event) {
+    public void confirmStock(StockReservationEvent event) {
         event.getItems().forEach(item -> {
             productInfoRepository.findById(Long.valueOf(item.getProductId()))
                     .ifPresent(entity -> {

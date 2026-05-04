@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 @Tag(name = "Order Controller", description = "Endpoints for managing items in the order")
 public class OrderController {

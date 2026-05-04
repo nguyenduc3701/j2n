@@ -72,6 +72,7 @@ public class ProductScheduleService {
     // --- Private helpers ---
 
     private ProductScheduleEntity getProductScheduleByIdOrThrow(Long id) {
+        log.info("Getting schedule by id for product: {}", id);
         ValidationUtils.validateLong(id);
         return productScheduleRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.PRODUCT_SCHEDULE_NOT_FOUND));

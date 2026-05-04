@@ -68,8 +68,7 @@ public class ProductImageService {
                     .findFirst()
                     .ifPresentOrElse(
                             img -> updateProductThumbnail(product, img.getImageUrl()),
-                            () -> updateProductThumbnail(product, null)
-                    );
+                            () -> updateProductThumbnail(product, null));
         }
         return ResponseFactory.of(MessageEnum.DELETE_PRODUCT_IMAGE_SUCCESS, true);
     }
@@ -105,7 +104,8 @@ public class ProductImageService {
 
     private void unmarkCurrentPrimary(Long productId) {
         log.info("Unmarking current primary images for product id: {}", productId);
-        List<ProductImageEntity> primaries = productImageRepository.findAllByProductIdAndIsPrimaryTrueAndIsDeletedFalse(productId);
+        List<ProductImageEntity> primaries = productImageRepository
+                .findAllByProductIdAndIsPrimaryTrueAndIsDeletedFalse(productId);
         primaries.forEach(img -> img.setIsPrimary(false));
         productImageRepository.saveAll(primaries);
     }
@@ -114,30 +114,42 @@ public class ProductImageService {
     @LogAround(message = "Handle product image upload event")
     public void handleProductImageUploadEvent(ProductImageUploadEvent event) {
         ProductEntity product = productService.getProductByIdOrThrow(event.getProductId());
-        
-        // Find the index of the first primary image in the event
-        int primaryIndex = -1;
-        for (int i = 0; i < event.getImages().size(); i++) {
-            if (Boolean.TRUE.equals(event.getImages().get(i).getIsPrimary())) {
-                primaryIndex = i;
-                break;
+        int primaryIndex = findPrimaryImageIndex(event.getImages());
+        if (primaryIndex != -1) {
+            handleNewPrimaryImage(product, event.getImages().get(primaryIndex).getImageUrl());
+        }
+        saveNewImagesFromEvent(product, event, primaryIndex);
+    }
+
+    private int findPrimaryImageIndex(List<ProductImageUploadEvent.ImageInfo> images) {
+        log.info("Finding primary image index in images: {}", images);
+        for (int i = 0; i < images.size(); i++) {
+            if (Boolean.TRUE.equals(images.get(i).getIsPrimary())) {
+                return i;
             }
         }
+        return -1;
+    }
 
-        if (primaryIndex != -1) {
-            unmarkCurrentPrimary(event.getProductId());
-            updateProductThumbnail(product, event.getImages().get(primaryIndex).getImageUrl());
-        }
+    private void handleNewPrimaryImage(ProductEntity product, String imageUrl) {
+        log.info("Handling new primary image for product id: {}", product.getId());
+        unmarkCurrentPrimary(product.getId());
+        updateProductThumbnail(product, imageUrl);
+    }
 
-        final int finalPrimaryIndex = primaryIndex;
+    private void saveNewImagesFromEvent(ProductEntity product, ProductImageUploadEvent event, int primaryIndex) {
+        log.info("Saving new images from event for product id: {}", product.getId());
         List<ProductImageEntity> entities = new java.util.ArrayList<>();
-        for (int i = 0; i < event.getImages().size(); i++) {
-            ProductImageUploadEvent.ImageInfo img = event.getImages().get(i);
-            if (!productImageRepository.existsByProductIdAndImageUrlAndIsDeletedFalse(event.getProductId(), img.getImageUrl())) {
+        List<ProductImageUploadEvent.ImageInfo> images = event.getImages();
+
+        for (int i = 0; i < images.size(); i++) {
+            ProductImageUploadEvent.ImageInfo img = images.get(i);
+            if (!productImageRepository.existsByProductIdAndImageUrlAndIsDeletedFalse(event.getProductId(),
+                    img.getImageUrl())) {
                 entities.add(ProductImageEntity.builder()
                         .product(product)
                         .imageUrl(img.getImageUrl())
-                        .isPrimary(i == finalPrimaryIndex)
+                        .isPrimary(i == primaryIndex)
                         .isDeleted(false)
                         .build());
             }

@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.j2n.aspect.LogAround;
@@ -15,6 +16,7 @@ import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.lib.proto.*;
 import com.example.j2n.report_srv.constant.MessageEnum;
 import com.example.j2n.report_srv.constant.ReportApiMapping;
+import com.example.j2n.report_srv.messaging.payment.event.PaymentConfirmedEvent;
 import com.example.j2n.report_srv.messaging.user.event.UserRegisteredEvent;
 import com.example.j2n.report_srv.repository.DistributionChartRepository;
 import com.example.j2n.report_srv.repository.SummaryMetricsRepository;
@@ -35,6 +37,10 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @GrpcService
@@ -163,19 +169,53 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
         }
     }
 
+    @Transactional
+    @LogAround(message = "[REPORT-SRV] Processing payment confirmed report")
+    public void handlePaymentConfirmed(PaymentConfirmedEvent event) {
+        if (event.getAmount() == null || event.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            log.warn("[REPORT-SRV] Skipping payment report — amount is zero or null for txId={}", event.getTransactionId());
+            return;
+        }
+        String domain = "PRODUCT";
+        String monthYear = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+        MonthlyFinancials financials = monthlyFinancialsRepository
+                .findByMonthYearAndDomain(monthYear, domain)
+                .orElseGet(() -> MonthlyFinancials.builder()
+                        .monthYear(monthYear)
+                        .domain(domain)
+                        .totalIncome(BigDecimal.ZERO)
+                        .totalOrders(0)
+                        .remainingAmount(BigDecimal.ZERO)
+                        .build());
+
+        financials.setTotalIncome(financials.getTotalIncome().add(event.getAmount()));
+        financials.setTotalOrders(financials.getTotalOrders() + 1);
+        monthlyFinancialsRepository.save(financials);
+
+        log.info("[REPORT-SRV] Monthly financials updated: month={} domain={} income={} orders={}",
+                monthYear, domain, financials.getTotalIncome(), financials.getTotalOrders());
+    }
+
     @LogAround(message = "[REPORT-SRV] Updating summary metric")
     private void updateSummaryMetric(String metricKey, String category, boolean isIncrement) {
-        SummaryMetrics summary = findOrCreateSummaryMetricsById(metricKey);
-        if (summary == null) {
-            summary = new SummaryMetrics();
-            summary.setMetricKey(metricKey);
-            summary.setCategory(category);
-            summary.setMetricValue(isIncrement ? 1L : 0L);
+        int updatedRows = 0;
+        if (isIncrement) {
+            updatedRows = summaryMetricsRepository.incrementValue(metricKey);
         } else {
-            long newValue = isIncrement ? summary.getMetricValue() + 1 : Math.max(0, summary.getMetricValue() - 1);
-            summary.setMetricValue(newValue);
+            updatedRows = summaryMetricsRepository.decrementValueIfGreaterThanZero(metricKey);
         }
-        summaryMetricsRepository.save(summary);
+        if (updatedRows == 0 && isIncrement) {
+            try {
+                SummaryMetrics summary = new SummaryMetrics();
+                summary.setMetricKey(metricKey);
+                summary.setCategory(category);
+                summary.setMetricValue(1L);
+                summaryMetricsRepository.save(summary);
+            } catch (DataIntegrityViolationException e) {
+                summaryMetricsRepository.incrementValue(metricKey);
+            }
+        }
     }
 
     @LogAround(message = "[REPORT-SRV] Updating distribution chart")
@@ -187,11 +227,6 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
             chart.setItemValue(chart.getItemValue() + 1);
         }
         distributionChartRepository.save(chart);
-    }
-
-    private SummaryMetrics findOrCreateSummaryMetricsById(String metricId) {
-        return summaryMetricsRepository.findById(metricId)
-                .orElse(null);
     }
 
     private DistributionChart findOrCreateDistributionChart(String chartType, String itemLabel) {

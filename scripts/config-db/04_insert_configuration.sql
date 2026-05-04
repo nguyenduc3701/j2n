@@ -21,6 +21,7 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('application.refresh-token.expired-time-days', '7', 'application', 'dev'),
 ('application.api-gateway.base-url', 'http://localhost:8181', 'application', 'dev'),
 ('application.rabbitmq.dead-letter-message-ttl', '600000', 'application', 'dev'),
+('application.payment.expiration-minutes', '15', 'application', 'dev'),
 
 -- Config Server Configuration
 ('application.config.base-url', 'http://localhost:8185', 'application', 'dev'),
@@ -44,6 +45,11 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('image.minio.secret-key', 'minio123', 'image-srv', 'dev'),
 -- BFF Service Configuration
 ('bff.base-url', 'http://localhost:8180', 'bff-srv', 'dev'),
+-- Payment Service Configuration
+('payos.return-url', 'http://localhost:3100/payment/success', 'payment-srv', 'dev'),
+('payos.cancel-url', 'http://localhost:3100/payment/cancel', 'payment-srv', 'dev'),
+('payos.webhook-url', 'http://localhost:8187/payment/payos/webhook', 'payment-srv', 'dev'),
+('payos.payment-expiration-minutes', '15', 'payment-srv', 'dev'),
 -- Frontend Configuration
 ('product-portal.base-url', 'http://localhost:3104', 'frontend', 'dev'),
 ('store-portal.base-url', 'http://localhost:3103', 'frontend', 'dev'),

@@ -6,6 +6,9 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -17,6 +20,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@SQLDelete(sql = "UPDATE order_items SET is_deleted = true WHERE id=?")
+@Where(clause = "is_deleted = false")
 public class OrderItemEntity {
 
     @Id
@@ -38,6 +43,10 @@ public class OrderItemEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "metadata", columnDefinition = "json")
     private Map<String, Object> metadata;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

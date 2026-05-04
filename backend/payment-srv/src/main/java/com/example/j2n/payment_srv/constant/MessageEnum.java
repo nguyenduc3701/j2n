@@ -8,8 +8,8 @@ import lombok.Getter;
 
 @Getter
 public enum MessageEnum implements BaseMessage {
-    DELETE_CART_ITEMS_SHOULD_NOT_BE_EMPTY("400401", HttpStatusCode.BAD_REQUEST,
-            MessageConstants.DELETE_CART_ITEMS_SHOULD_NOT_BE_EMPTY),
+    DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY("400401", HttpStatusCode.BAD_REQUEST,
+            MessageConstants.DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY),
     CART_NOT_FOUND("400401", HttpStatusCode.BAD_REQUEST, MessageConstants.CART_NOT_FOUND),
     ORDER_NOT_FOUND("400401", HttpStatusCode.BAD_REQUEST, MessageConstants.ORDER_NOT_FOUND),
     PRODUCT_NOT_FOUND("400402", HttpStatusCode.BAD_REQUEST, MessageConstants.PRODUCT_NOT_FOUND),
@@ -34,7 +34,7 @@ public enum MessageEnum implements BaseMessage {
 
     public static class MessageConstants {
         public static final String CART_NOT_FOUND = "No cart items found for user %s";
-        public static final String DELETE_CART_ITEMS_SHOULD_NOT_BE_EMPTY = "Delete cart items should not be empty";
+        public static final String DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY = "Delete order items should not be empty";
         public static final String ORDER_NOT_FOUND = "Order not found";
         public static final String PRODUCT_NOT_FOUND = "Product with ID %s not found";
         public static final String INSUFFICIENT_STOCK = "Product %s is out of stock or insufficient quantity (Available: %s)";

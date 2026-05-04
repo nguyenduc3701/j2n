@@ -22,7 +22,7 @@ import java.util.List;
 @Component
 public class InternalAuthFilter extends OncePerRequestFilter {
 
-    private static final List<String> NOT_FILTER_LIST = List.of("/api/v1/payments/webhook", "/swagger-ui", "/v3/api-docs");
+    private static final List<String> NOT_FILTER_LIST = List.of("/payment/payos/webhook", "/swagger-ui", "/v3/api-docs");
 
     @Value("${internal.token}")
     private String internalToken;

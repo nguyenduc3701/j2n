@@ -12,7 +12,9 @@ public enum MessageEnum implements BaseMessage {
             MessageConstants.DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY),
     ORDER_NOT_FOUND("400801", HttpStatusCode.BAD_REQUEST, MessageConstants.ORDER_NOT_FOUND),
     ADD_TO_ORDER_SUCCESS("200801", HttpStatusCode.OK, MessageConstants.ADD_TO_ORDER_SUCCESS),
-    UPDATE_ORDER_SUCCESS("200801", HttpStatusCode.OK, MessageConstants.UPDATE_ORDER_SUCCESS);
+    UPDATE_ORDER_SUCCESS("200801", HttpStatusCode.OK, MessageConstants.UPDATE_ORDER_SUCCESS),
+    PRODUCT_NOT_FOUND("400802", HttpStatusCode.BAD_REQUEST, MessageConstants.PRODUCT_NOT_FOUND),
+    INSUFFICIENT_STOCK("400803", HttpStatusCode.BAD_REQUEST, MessageConstants.INSUFFICIENT_STOCK);
 
     private final String code;
     private final HttpStatusCode httpStatus;
@@ -33,6 +35,8 @@ public enum MessageEnum implements BaseMessage {
         public static final String ADD_TO_ORDER_SUCCESS = "Item added to order successfully";
         public static final String UPDATE_ORDER_SUCCESS = "Order updated successfully";
         public static final String ORDER_NOT_FOUND = "No order items found for user %s";
+        public static final String PRODUCT_NOT_FOUND = "Product with ID %s not found";
+        public static final String INSUFFICIENT_STOCK = "Product %s is out of stock or insufficient quantity (Available: %s)";
         public static final String DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY = "Delete order items should not be empty";
     }
 }

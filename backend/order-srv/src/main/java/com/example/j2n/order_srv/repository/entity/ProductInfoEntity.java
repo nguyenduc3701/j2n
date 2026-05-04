@@ -29,6 +29,9 @@ public class ProductInfoEntity {
 
     @Column(name = "stock")
     private Integer stock;
+    
+    @Column(name = "locked_stock")
+    private Integer lockedStock;
 
     @Column(name = "thumbnail")
     private String thumbnail;

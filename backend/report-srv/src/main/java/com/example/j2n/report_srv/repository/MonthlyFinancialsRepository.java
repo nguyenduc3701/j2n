@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MonthlyFinancialsRepository extends JpaRepository<MonthlyFinancials, Integer> {
+    java.util.Optional<MonthlyFinancials> findByMonthYearAndDomain(String monthYear, String domain);
 }

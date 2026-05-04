@@ -12,6 +12,4 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity, Long
     List<OrderItemEntity> findByUserId(String userId);
 
     Optional<OrderItemEntity> findByUserIdAndItemIdAndItemType(String userId, String itemId, String itemType);
-
-    void deleteByUserIdAndIdIn(String userId, List<Long> ids);
 }

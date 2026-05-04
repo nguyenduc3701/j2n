@@ -60,6 +60,7 @@ public class OrderService {
     @LogAround(message = "Add to order")
     public BaseResponse<OrderItemEntity> addToOrder(OrderItemRequest request) {
         validateUnknownFields(request);
+        validateStock(request.getItemId(), request.getQuantity());
         Optional<OrderItemEntity> existingItem = orderItemRepository.findByUserIdAndItemIdAndItemType(
                 request.getUserId(), request.getItemId(), request.getItemType());
 
@@ -67,7 +68,7 @@ public class OrderService {
         boolean isNew = existingItem.isEmpty();
         if (existingItem.isPresent()) {
             item = existingItem.get();
-            item.setQuantity(item.getQuantity() + request.getQuantity());
+            item.setQuantity(request.getQuantity());
             if (request.getMetadata() != null) {
                 item.setMetadata(request.getMetadata());
             }
@@ -113,14 +114,30 @@ public class OrderService {
             throw new InvalidInputException(MessageEnum.DELETE_ORDER_ITEMS_SHOULD_NOT_BE_EMPTY);
         }
         List<OrderItemEntity> items = orderItemRepository.findAllById(ids);
-        orderItemRepository.deleteByUserIdAndIdIn(userId, ids);
+        orderItemRepository.deleteAll(items);
         items.stream()
                 .filter(item -> item.getUserId().equals(userId))
                 .forEach(this::publishOrderItemDeleted);
         return ResponseFactory.success(null);
     }
 
+    @Transactional
+    @LogAround(message = "Clear cart after payment")
+    public void clearCartAfterPayment(String userId) {
+        log.info("[ORDER-SRV] Clearing cart for user: {}", userId);
+        List<OrderItemEntity> items = orderItemRepository.findByUserId(userId);
+        if (items.isEmpty()) {
+            log.info("[ORDER-SRV] Cart already empty for user: {}", userId);
+            return;
+        }
+
+        orderItemRepository.deleteAll(items);
+        items.forEach(this::publishOrderItemDeleted);
+        log.info("[ORDER-SRV] Soft-deleted {} order items for userId: {}", items.size(), userId);
+    }
+
     private void publishOrderItemCreated(OrderItemEntity entity) {
+        log.info("Publishing order created event for item id: {}", entity.getId());
         orderEventPublisher.publishOrderCreated(OrderItemCreatedEvent.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())
@@ -131,6 +148,7 @@ public class OrderService {
     }
 
     private void publishOrderItemUpdated(OrderItemEntity entity) {
+        log.info("Publishing order updated event for item id: {}", entity.getId());
         orderEventPublisher.publishOrderUpdated(OrderItemUpdatedEvent.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())
@@ -141,6 +159,7 @@ public class OrderService {
     }
 
     private void publishOrderItemDeleted(OrderItemEntity entity) {
+        log.info("Publishing order deleted event for item id: {}", entity.getId());
         orderEventPublisher.publishOrderDeleted(OrderItemDeletedEvent.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())
@@ -241,5 +260,21 @@ public class OrderService {
     @LogAround(message = "Sync Product Deleted")
     public void syncProductDeleted(ProductDeletedEvent event) {
         productInfoRepository.deleteById(Long.valueOf(event.getProductId()));
+    }
+
+    private void validateStock(String itemId, Integer requestedQuantity) {
+        log.info("Validating stock for item id: {} and quantity: {}", itemId, requestedQuantity);
+        ProductInfoEntity product = productInfoRepository.findById(Long.valueOf(itemId))
+                .orElseThrow(() -> new DataNotFoundException(MessageEnum.PRODUCT_NOT_FOUND.withArgs(itemId)));
+
+        int availableStock = (product.getStock() != null ? product.getStock() : 0)
+                - (product.getLockedStock() != null ? product.getLockedStock() : 0);
+
+        if (availableStock < requestedQuantity) {
+            log.warn("[ORDER-SRV] Insufficient stock for product: {}. Available: {}, Requested: {}",
+                    product.getTitle(), availableStock, requestedQuantity);
+            throw new InvalidInputException(
+                    MessageEnum.INSUFFICIENT_STOCK.withArgs(product.getTitle(), availableStock));
+        }
     }
 }

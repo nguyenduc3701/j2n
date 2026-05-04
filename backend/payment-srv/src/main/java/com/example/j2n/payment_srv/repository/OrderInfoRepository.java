@@ -12,5 +12,4 @@ public interface OrderInfoRepository extends JpaRepository<OrderInfoEntity, Long
     List<OrderInfoEntity> findByUserId(String userId);
     List<OrderInfoEntity> findByIdInAndUserId(List<Long> ids, String userId);
     Optional<OrderInfoEntity> findByUserIdAndItemIdAndItemType(String userId, String itemId, String itemType);
-    void deleteByUserIdAndItemIdAndItemType(String userId, String itemId, String itemType);
 }

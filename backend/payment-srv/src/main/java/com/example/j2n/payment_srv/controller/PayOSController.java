@@ -7,12 +7,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.payment_srv.service.PayOSService;
-import com.example.j2n.utils.ResponseFactory;
+import com.example.j2n.payment_srv.service.TransactionService;
+
+import com.example.j2n.payment_srv.service.response.WebhookResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import vn.payos.model.webhooks.WebhookData;
 
 @RestController
 @RequestMapping("/payment/payos")
@@ -22,12 +25,19 @@ import lombok.extern.slf4j.Slf4j;
 public class PayOSController {
 
     private final PayOSService payOSService;
+    private final TransactionService transactionService;
 
     @Operation(summary = "PayOS Webhook", description = "Endpoint to receive payment notifications from PayOS")
     @PostMapping("/webhook")
-    public BaseResponse<String> handleWebhook(@RequestBody Object body) {
+    public WebhookResponse<WebhookData> handleWebhook(@RequestBody Object body) {
         log.info("Received PayOS webhook: {}", body);
-        // Logic to verify and process webhook will go here
-        return ResponseFactory.success("Webhook received");
+        BaseResponse<WebhookData> response = payOSService.verifyWebhookData(body);
+        WebhookData data = response.getData();
+        if (data != null) {
+            log.info("PayOS webhook verified for orderCode: {}", data.getOrderCode());
+            transactionService.confirmTransactionSuccess(String.valueOf(data.getOrderCode()));
+        }
+
+        return WebhookResponse.success(data);
     }
 }

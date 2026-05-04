@@ -50,10 +50,25 @@ public class OrderInfoService {
     @Transactional
     @LogAround(message = "Sync User Order Deleted")
     public void syncOrderDeleted(String userId, String itemId, String itemType) {
-        orderInfoRepository.deleteByUserIdAndItemIdAndItemType(userId, itemId, itemType);
+        orderInfoRepository.findByUserIdAndItemIdAndItemType(userId, itemId, itemType)
+                .ifPresent(orderInfoRepository::delete);
     }
 
     public List<OrderInfoEntity> getOrdersByIdsAndUserId(List<Long> orderIds, String userId) {
+        log.info("Getting orders for user: {}", userId);
         return orderInfoRepository.findByIdInAndUserId(orderIds, userId);
+    }
+
+    public List<OrderInfoEntity> getOrdersByUserId(String userId) {
+        log.info("Getting all orders for user: {}", userId);
+        return orderInfoRepository.findByUserId(userId);
+    }
+
+    @Transactional
+    @LogAround(message = "Delete all orders by user ID")
+    public void deleteByUserId(String userId) {
+        log.info("Soft-deleting all order_info records for user: {}", userId);
+        List<OrderInfoEntity> items = orderInfoRepository.findByUserId(userId);
+        orderInfoRepository.deleteAll(items);
     }
 }

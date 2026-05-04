@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.payment_srv.messaging.payment.event.PaymentConfirmedEvent;
+import com.example.j2n.payment_srv.messaging.payment.publisher.PaymentEventPublisher;
 import com.example.j2n.payment_srv.messaging.reservation.event.StockReservationEvent;
 import com.example.j2n.payment_srv.messaging.reservation.publisher.ReservationPublisher;
 import com.example.j2n.payment_srv.controller.request.CreateTransactionRequest;
@@ -38,6 +40,7 @@ public class TransactionService {
     private final ProductInfoService productInfoService;
     private final PayOSService payOSService;
     private final ReservationPublisher reservationPublisher;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     @LogAround(message = "Get all transactions")
     public BaseResponse<List<TransactionResponse>> getAllTransactions() {
@@ -51,21 +54,44 @@ public class TransactionService {
     @Transactional
     @LogAround(message = "Confirm transaction success")
     public void confirmTransactionSuccess(String externalTxId) {
-        transactionRepository.findByExternalTxId(externalTxId).ifPresent(transaction -> {
-            if (transaction.getStatus() == TransactionEntity.Status.PENDING) {
-                transaction.setStatus(TransactionEntity.Status.SUCCESS);
-                transactionRepository.save(transaction);
-
-                // Prepare Stock Reservation Event for confirmation
-                // We need to get items from orderInfoService based on the transaction if
-                // possible,
-                // otherwise we might need to store ordered items in TransactionEntity or a
-                // separate table.
-                // Assuming we can derive it or for now just confirming what was locked.
-                // TODO: Store items in transaction or fetch from order_info linked to this tx
-                log.info("[PAYMENT-SRV] Transaction {} confirmed SUCCESS", externalTxId);
+        transactionRepository.findByExternalTxId(externalTxId).ifPresentOrElse(transaction -> {
+            if (transaction.getStatus() != TransactionEntity.Status.PENDING) {
+                log.error("[PAYMENT-SRV] Transaction {} is in status {} - cannot confirm as SUCCESS. Expected PENDING.",
+                        externalTxId, transaction.getStatus());
+                return;
             }
-        });
+            finalizeTransactionAsSuccess(transaction);
+            List<OrderInfoEntity> orders = orderInfoService.getOrdersByUserId(transaction.getUserId());
+            StockReservationEvent stockEvent = buildStockReservationEvent(transaction, orders);
+            confirmLocalStock(stockEvent);
+            publishTransactionConfirmationEvents(transaction, orders, stockEvent);
+            cleanupLocalOrders(transaction.getUserId());
+            log.info("[PAYMENT-SRV] Transaction {} confirmation completed successfully.", externalTxId);
+        }, () -> log.error("[PAYMENT-SRV] Transaction with external ID {} not found for confirmation.", externalTxId));
+    }
+
+    private void finalizeTransactionAsSuccess(TransactionEntity transaction) {
+        transaction.setStatus(TransactionEntity.Status.SUCCESS);
+        transactionRepository.save(transaction);
+        log.debug("[PAYMENT-SRV] Transaction {} status updated to SUCCESS", transaction.getId());
+    }
+
+    private void confirmLocalStock(StockReservationEvent stockEvent) {
+        productInfoService.confirmStock(stockEvent);
+        log.debug("[PAYMENT-SRV] Local stock mirror confirmed for transaction {}", stockEvent.getTransactionId());
+    }
+
+    private void cleanupLocalOrders(String userId) {
+        orderInfoService.deleteByUserId(userId);
+        log.debug("[PAYMENT-SRV] Local order_info mirror cleared for user {}", userId);
+    }
+
+    private void publishTransactionConfirmationEvents(TransactionEntity transaction, List<OrderInfoEntity> orders,
+            StockReservationEvent stockEvent) {
+        log.info("[PAYMENT-SRV] Publishing confirmation events for transaction: {}", transaction.getId());
+        reservationPublisher.publishConfirmStock(stockEvent);
+        PaymentConfirmedEvent confirmedEvent = buildPaymentConfirmedEvent(transaction, orders);
+        paymentEventPublisher.publishPaymentConfirmed(confirmedEvent);
     }
 
     @Transactional
@@ -107,6 +133,7 @@ public class TransactionService {
     }
 
     private ProductValidationResult validateProductsAndPrepareItems(List<OrderInfoEntity> orders) {
+        log.info("Validating products and preparing items for orders: {}", orders);
         List<Long> productIds = orders.stream()
                 .map(order -> Long.valueOf(order.getItemId()))
                 .toList();
@@ -129,12 +156,14 @@ public class TransactionService {
     }
 
     private BigDecimal calculateTotalPrice(List<OrderInfoEntity> orders, List<ProductInfoEntity> products) {
+        log.info("Calculating total price for orders: {}, products: {}", orders, products);
         return IntStream.range(0, orders.size())
                 .mapToObj(i -> products.get(i).getPrice().multiply(BigDecimal.valueOf(orders.get(i).getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private void validateStock(ProductInfoEntity product, Integer requestedQuantity) {
+        log.info("Validating stock for product: {}, requested quantity: {}", product, requestedQuantity);
         int availableStock = product.getStock() - product.getLockedStock();
         if (availableStock < requestedQuantity) {
             log.warn("Insufficient stock for product: {}. Available (incl. locked): {}, Requested: {}",
@@ -145,6 +174,7 @@ public class TransactionService {
     }
 
     private List<OrderInfoEntity> validateAndGetOrders(List<Long> orderIds, String userId) {
+        log.info("Validating and getting orders for user: {}", userId);
         List<OrderInfoEntity> orders = orderInfoService.getOrdersByIdsAndUserId(orderIds, userId);
         if (orders.size() != orderIds.size()) {
             log.error("Order mismatch. Found {}/{} orders for user {}", orders.size(), orderIds.size(), userId);
@@ -154,6 +184,7 @@ public class TransactionService {
     }
 
     private void validateTotalAmount(BigDecimal calculatedTotal, BigDecimal requestedTotal) {
+        log.info("Validating total amount for orders: {}, products: {}", calculatedTotal, requestedTotal);
         if (calculatedTotal.compareTo(requestedTotal) != 0) {
             log.error("Amount mismatch! Calculated: {}, Requested: {}", calculatedTotal, requestedTotal);
             throw new InvalidInputException(
@@ -162,10 +193,12 @@ public class TransactionService {
     }
 
     private Long generateOrderCode() {
+        log.info("Generating order code");
         return System.currentTimeMillis() * 1000 + ThreadLocalRandom.current().nextInt(1000);
     }
 
     private TransactionEntity buildTransactionEntity(CreateTransactionRequest request, Long orderCode) {
+        log.info("Building transaction entity for order code: {}", orderCode);
         return TransactionEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .userId(request.getUserId())
@@ -179,6 +212,7 @@ public class TransactionService {
     }
 
     private void handleStockReservation(TransactionEntity transaction, List<OrderInfoEntity> orders) {
+        log.info("Handling stock reservation for transaction: {}, orders: {}", transaction, orders);
         StockReservationEvent event = buildStockReservationEvent(transaction, orders);
         // 1. Lock stock locally in payment-srv (for validation)
         productInfoService.lockStock(event);
@@ -190,10 +224,28 @@ public class TransactionService {
 
     private StockReservationEvent buildStockReservationEvent(TransactionEntity transaction,
             List<OrderInfoEntity> orders) {
+        log.info("Building stock reservation event for transaction: {}, orders: {}", transaction, orders);
         return StockReservationEvent.builder()
                 .transactionId(transaction.getId())
                 .items(orders.stream()
                         .map(o -> StockReservationEvent.ProductStockItem.builder()
+                                .productId(o.getItemId())
+                                .quantity(o.getQuantity())
+                                .build())
+                        .toList())
+                .build();
+    }
+
+    private PaymentConfirmedEvent buildPaymentConfirmedEvent(TransactionEntity transaction,
+            List<OrderInfoEntity> orders) {
+        log.info("Building payment confirmed event for transaction: {}", transaction.getId());
+        return PaymentConfirmedEvent.builder()
+                .transactionId(transaction.getId())
+                .externalTxId(transaction.getExternalTxId())
+                .userId(transaction.getUserId())
+                .amount(transaction.getAmount())
+                .items(orders.stream()
+                        .map(o -> PaymentConfirmedEvent.OrderItem.builder()
                                 .productId(o.getItemId())
                                 .quantity(o.getQuantity())
                                 .build())
