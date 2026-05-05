@@ -50,3 +50,6 @@ docker/vault-secrets.env
 # yarn.lock
 
 setting-j2n.xml
+
+# Agent files
+.agents/
