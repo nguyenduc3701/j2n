@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS bills (
     id VARCHAR(36) PRIMARY KEY, -- Sử dụng UUID từ Java để đồng bộ dễ dàng hơn
     room_id BIGINT,
-    renter_id VARCHAR(36), -- UserId của người thuê
+    renter_id BIGINT, -- UserId of the tenant (matches UserEntity ID)
     billing_month INT NOT NULL,
     electricity_old_index INT,
     electricity_new_index INT,

@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface BillRepository extends JpaRepository<BillEntity, String> {
-    List<BillEntity> findByRenterId(String renterId);
+    List<BillEntity> findByRoomId(Long roomId);
     List<BillEntity> findByRoomIdAndBillingMonth(Long roomId, Integer month);
 }

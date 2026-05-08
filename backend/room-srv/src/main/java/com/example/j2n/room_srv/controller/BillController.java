@@ -35,13 +35,14 @@ public class BillController {
         return ResponseEntity.ok(billingService.calculateBill(request));
     }
 
-    @GetMapping("/renter/{renterId}")
-    @Operation(summary = "Get bills for a specific renter", description = "Retrieve a list of bills associated with a renter ID")
+
+    @GetMapping("/room/{roomId}")
+    @Operation(summary = "Get bills for a specific room", description = "Retrieve a list of bills associated with a room ID")
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
     })
-    public ResponseEntity<BaseResponse<List<BillEntity>>> getBillsByRenter(@PathVariable String renterId) {
-        return ResponseEntity.ok(billingService.getBillsByRenter(renterId));
+    public ResponseEntity<BaseResponse<List<BillEntity>>> getBillsByRoom(@PathVariable Long roomId) {
+        return ResponseEntity.ok(billingService.getBillsByRoom(roomId));
     }
 
     @PostMapping("/{billId}/pay")

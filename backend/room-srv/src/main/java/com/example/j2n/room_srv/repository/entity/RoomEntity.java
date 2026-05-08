@@ -34,8 +34,8 @@ public class RoomEntity {
     @Column(name = "area")
     private String area;
 
-    @Column(name = "total_people")
-    private Integer totalPeople;
+    @Column(name = "max_people")
+    private Integer maxPeople;
 
     @Column(name = "status")
     private String status;
@@ -53,6 +53,9 @@ public class RoomEntity {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     private List<RoomObjectEntity> objects;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    private List<RoomMemberEntity> members;
 
     public Long getId() {
         return id;
@@ -74,8 +77,8 @@ public class RoomEntity {
         return area;
     }
 
-    public Integer getTotalPeople() {
-        return totalPeople;
+    public Integer getMaxPeople() {
+        return maxPeople;
     }
 
     public String getStatus() {
@@ -110,8 +113,8 @@ public class RoomEntity {
         this.area = area;
     }
 
-    public void setTotalPeople(Integer totalPeople) {
-        this.totalPeople = totalPeople;
+    public void setMaxPeople(Integer maxPeople) {
+        this.maxPeople = maxPeople;
     }
 
     public void setStatus(String status) {

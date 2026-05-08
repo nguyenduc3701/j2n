@@ -48,7 +48,7 @@ class BillingServiceTest {
                 .month(5)
                 .electricityUsage(100)
                 .waterUsage(10)
-                .renterId("user-123")
+                .renterId(123L)
                 .build();
 
         RoomEntity room = RoomEntity.builder()
@@ -85,5 +85,16 @@ class BillingServiceTest {
         when(roomRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> billingService.calculateBill(request));
+    }
+
+    @Test
+    void getBillsByRoom_Success() {
+        BillEntity bill = BillEntity.builder().id("bill-1").build();
+        when(billRepository.findByRoomId(1L)).thenReturn(List.of(bill));
+
+        BaseResponse<List<BillEntity>> response = billingService.getBillsByRoom(1L);
+
+        assertEquals(1, response.getData().size());
+        verify(billRepository, times(1)).findByRoomId(1L);
     }
 }

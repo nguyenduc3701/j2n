@@ -90,8 +90,9 @@ public class BillingService {
         return ResponseFactory.success(savedBill);
     }
 
-    @LogAround(message = "Get bills by renter ID")
-    public BaseResponse<List<BillEntity>> getBillsByRenter(String renterId) {
-        return ResponseFactory.success(billRepository.findByRenterId(renterId));
+
+    @LogAround(message = "Get bills by room ID")
+    public BaseResponse<List<BillEntity>> getBillsByRoom(Long roomId) {
+        return ResponseFactory.success(billRepository.findByRoomId(roomId));
     }
 }

@@ -37,7 +37,7 @@ public class RoomService {
     @LogAround(message = "Get all rooms")
     public BaseResponse<List<RoomResponse>> getAllRooms() {
         List<RoomResponse> rooms = roomRepository.findAll().stream()
-                .map(this::mapToResponse)
+                .map(entity -> mapToResponse(entity))
                 .collect(Collectors.toList());
         return ResponseFactory.success(rooms);
     }
@@ -57,7 +57,7 @@ public class RoomService {
         room.setFloor(request.getFloor());
         room.setBasePrice(request.getBasePrice());
         room.setArea(request.getArea());
-        room.setTotalPeople(request.getTotalPeople());
+        room.setMaxPeople(request.getMaxPeople());
         room.setStatus(request.getStatus() != null ? request.getStatus() : "AVAILABLE");
         room.setDescription(request.getDescription());
         
@@ -75,7 +75,7 @@ public class RoomService {
         room.setFloor(request.getFloor());
         room.setBasePrice(request.getBasePrice());
         room.setArea(request.getArea());
-        room.setTotalPeople(request.getTotalPeople());
+        room.setMaxPeople(request.getMaxPeople());
         if (request.getStatus() != null) {
             room.setStatus(request.getStatus());
         }
@@ -119,7 +119,7 @@ public class RoomService {
         List<RoomUtilityEntity> savedUtilities = roomUtilityRepository.saveAll(newUtilities);
         
         List<RoomUtilityResponse> response = savedUtilities.stream()
-                .map(this::mapToUtilityResponse)
+                .map(entity -> mapToUtilityResponse(entity))
                 .collect(Collectors.toList());
 
         return ResponseFactory.success(response);
@@ -144,7 +144,7 @@ public class RoomService {
                 entity.getFloor(),
                 entity.getBasePrice(),
                 entity.getArea(),
-                entity.getTotalPeople(),
+                entity.getMaxPeople(),
                 entity.getStatus(),
                 entity.getDescription(),
                 entity.getCreatedAt(),

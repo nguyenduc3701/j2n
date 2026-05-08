@@ -49,7 +49,7 @@ class RoomServiceTest {
                 .roomNumber("101")
                 .basePrice(BigDecimal.valueOf(2000000))
                 .area("20m2")
-                .totalPeople(2)
+                .maxPeople(2)
                 .build();
 
         RoomEntity entity = RoomEntity.builder()
@@ -57,7 +57,7 @@ class RoomServiceTest {
                 .roomNumber("101")
                 .basePrice(BigDecimal.valueOf(2000000))
                 .area("20m2")
-                .totalPeople(2)
+                .maxPeople(2)
                 .build();
 
         when(roomRepository.save(any(RoomEntity.class))).thenReturn(entity);
@@ -83,7 +83,7 @@ class RoomServiceTest {
                 .roomNumber("101")
                 .basePrice(BigDecimal.valueOf(2500000))
                 .area("25m2")
-                .totalPeople(3)
+                .maxPeople(3)
                 .build();
 
         RoomEntity existingRoom = RoomEntity.builder()
@@ -91,7 +91,7 @@ class RoomServiceTest {
                 .roomNumber("101")
                 .basePrice(BigDecimal.valueOf(2000000))
                 .area("20m2")
-                .totalPeople(2)
+                .maxPeople(2)
                 .build();
 
         when(roomRepository.findById(id)).thenReturn(Optional.of(existingRoom));
@@ -101,7 +101,7 @@ class RoomServiceTest {
 
         assertEquals(BigDecimal.valueOf(2500000), existingRoom.getBasePrice());
         assertEquals("25m2", existingRoom.getArea());
-        assertEquals(3, existingRoom.getTotalPeople());
+        assertEquals(3, existingRoom.getMaxPeople());
     }
 
     @Test

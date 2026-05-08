@@ -43,7 +43,7 @@ class BillControllerTest {
         BillRequest request = BillRequest.builder()
                 .roomId(1L)
                 .month(5)
-                .renterId("user-123")
+                .renterId(123L)
                 .build();
         BillEntity bill = BillEntity.builder().id("bill-1").totalAmount(BigDecimal.valueOf(2000000)).build();
         
@@ -56,12 +56,13 @@ class BillControllerTest {
                 .andExpect(jsonPath("$.data.id").value("bill-1"));
     }
 
-    @Test
-    void getBillsByRenter_Success() throws Exception {
-        BillEntity bill = BillEntity.builder().id("bill-1").renterId("user-123").build();
-        when(billingService.getBillsByRenter("user-123")).thenReturn(ResponseFactory.success(List.of(bill)));
 
-        mockMvc.perform(get("/bills/renter/user-123"))
+    @Test
+    void getBillsByRoom_Success() throws Exception {
+        BillEntity bill = BillEntity.builder().id("bill-1").build();
+        when(billingService.getBillsByRoom(1L)).thenReturn(ResponseFactory.success(List.of(bill)));
+
+        mockMvc.perform(get("/bills/room/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value("bill-1"));
     }

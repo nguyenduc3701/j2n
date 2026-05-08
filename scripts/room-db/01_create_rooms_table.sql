@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS rooms (
     floor INT,
     base_price DECIMAL(19, 2) NOT NULL,
     area VARCHAR(100),
-    total_people INT DEFAULT 0,
+    max_people INT DEFAULT 1, -- Maximum capacity of the room
     status VARCHAR(50) DEFAULT 'AVAILABLE', -- AVAILABLE, OCCUPIED, MAINTENANCE
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

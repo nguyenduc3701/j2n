@@ -21,7 +21,7 @@ public class RoomResponse {
     private Integer floor;
     private java.math.BigDecimal basePrice;
     private String area;
-    private Integer totalPeople;
+    private Integer maxPeople;
     private String status;
     private String description;
     private LocalDateTime createdAt;

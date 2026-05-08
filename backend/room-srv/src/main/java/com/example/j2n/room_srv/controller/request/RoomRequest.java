@@ -27,7 +27,7 @@ public class RoomRequest {
 
     private String area;
 
-    private Integer totalPeople;
+    private Integer maxPeople;
 
     private String status;
 
