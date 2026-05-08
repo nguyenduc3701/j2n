@@ -34,6 +34,12 @@ public class OrderItemRequest extends BaseRequest {
     @Schema(description = "The number of items to add", example = "2")
     private Integer quantity;
 
+    @Schema(description = "The size of the item", example = "M")
+    private String size;
+
+    @Schema(description = "The design of the item", example = "Classic")
+    private String design;
+
     @Schema(description = "Additional JSON metadata specific to the item type", example = "{\"productDate\": \"2024-12-25\", \"pax\": 2}")
     private Map<String, Object> metadata;
 }

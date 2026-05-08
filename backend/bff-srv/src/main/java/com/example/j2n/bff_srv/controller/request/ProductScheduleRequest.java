@@ -28,4 +28,8 @@ public class ProductScheduleRequest {
     private String title;
 
     private String content;
+    private String hotel;
+    private String breakfast;
+    private String lunch;
+    private String dinner;
 }

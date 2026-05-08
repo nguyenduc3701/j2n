@@ -23,6 +23,9 @@ public class ProductCreatedEvent {
     private String thumbnail;
     private String duration;
     private String startLocation;
+    private String size;
+    private String design;
     private String type;
+    private Boolean isDeleted;
     private String createdAt;
 }

@@ -61,23 +61,58 @@ public class OrderService {
     public BaseResponse<OrderItemEntity> addToOrder(OrderItemRequest request) {
         validateUnknownFields(request);
         validateStock(request.getItemId(), request.getQuantity());
+
+        OrderItemEntity savedItem = switch (request.getItemType()) {
+            case "STORE" -> handleStoreItem(request);
+            case "TOUR" -> handleTourItem(request);
+            default -> handleDefaultItem(request);
+        };
+
+        return ResponseFactory.of(MessageEnum.ADD_TO_ORDER_SUCCESS, savedItem);
+    }
+
+    private OrderItemEntity handleStoreItem(OrderItemRequest request) {
+        log.info("[ORDER-SRV] Handling STORE item: {} for user: {}", request.getItemId(), request.getUserId());
+        Optional<OrderItemEntity> existingItem = orderItemRepository.findByUserIdAndItemIdAndItemTypeAndSizeAndDesign(
+                request.getUserId(), request.getItemId(), request.getItemType(), request.getSize(), request.getDesign());
+        return saveOrUpdate(existingItem, request);
+    }
+
+    private OrderItemEntity handleTourItem(OrderItemRequest request) {
+        log.info("[ORDER-SRV] Handling TOUR item: {} for user: {}", request.getItemId(), request.getUserId());
+        // For TOUR, we currently use standard lookup. Specific logic can be added here (e.g., checking date in metadata)
         Optional<OrderItemEntity> existingItem = orderItemRepository.findByUserIdAndItemIdAndItemType(
                 request.getUserId(), request.getItemId(), request.getItemType());
+        return saveOrUpdate(existingItem, request);
+    }
 
+    private OrderItemEntity handleDefaultItem(OrderItemRequest request) {
+        log.info("[ORDER-SRV] Handling generic item type: {} for user: {}", request.getItemType(), request.getUserId());
+        Optional<OrderItemEntity> existingItem = orderItemRepository.findByUserIdAndItemIdAndItemType(
+                request.getUserId(), request.getItemId(), request.getItemType());
+        return saveOrUpdate(existingItem, request);
+    }
+
+    private OrderItemEntity saveOrUpdate(Optional<OrderItemEntity> existing, OrderItemRequest request) {
         OrderItemEntity item;
-        boolean isNew = existingItem.isEmpty();
-        if (existingItem.isPresent()) {
-            item = existingItem.get();
+        boolean isNew = existing.isEmpty();
+
+        if (existing.isPresent()) {
+            item = existing.get();
             item.setQuantity(request.getQuantity());
             if (request.getMetadata() != null) {
                 item.setMetadata(request.getMetadata());
             }
+            item.setSize(request.getSize());
+            item.setDesign(request.getDesign());
         } else {
             item = OrderItemEntity.builder()
                     .userId(request.getUserId())
                     .itemId(request.getItemId())
                     .itemType(request.getItemType())
                     .quantity(request.getQuantity())
+                    .size(request.getSize())
+                    .design(request.getDesign())
                     .metadata(request.getMetadata())
                     .build();
         }
@@ -88,20 +123,22 @@ public class OrderService {
         } else {
             publishOrderItemUpdated(saved);
         }
-        return ResponseFactory.of(MessageEnum.ADD_TO_ORDER_SUCCESS, saved);
+        return saved;
     }
 
     @Transactional
     @LogAround(message = "Update order item quantity")
     public BaseResponse<OrderItemEntity> updateQuantity(UpdateOrderItemRequest request, String userId) {
         validateUnknownFields(request);
-        OrderItemEntity item = findOrderItemOrThrow(userId, request.getItemId(), request.getItemType());
+        OrderItemEntity item = findOrderItemOrThrow(userId, request.getItemId(), request.getItemType(), request.getSize(), request.getDesign());
         if (request.getQuantity() == 0) {
             orderItemRepository.delete(item);
             publishOrderItemDeleted(item);
             return ResponseFactory.of(MessageEnum.UPDATE_ORDER_SUCCESS, null);
         }
         item.setQuantity(request.getQuantity());
+        item.setSize(request.getSize());
+        item.setDesign(request.getDesign());
         OrderItemEntity saved = orderItemRepository.save(item);
         publishOrderItemUpdated(saved);
         return ResponseFactory.of(MessageEnum.UPDATE_ORDER_SUCCESS, saved);
@@ -144,6 +181,8 @@ public class OrderService {
                 .itemId(entity.getItemId())
                 .itemType(entity.getItemType())
                 .quantity(entity.getQuantity())
+                .size(entity.getSize())
+                .design(entity.getDesign())
                 .build());
     }
 
@@ -155,6 +194,8 @@ public class OrderService {
                 .itemId(entity.getItemId())
                 .itemType(entity.getItemType())
                 .quantity(entity.getQuantity())
+                .size(entity.getSize())
+                .design(entity.getDesign())
                 .build());
     }
 
@@ -183,9 +224,12 @@ public class OrderService {
         }
     }
 
-    private OrderItemEntity findOrderItemOrThrow(String userId, String itemId, String itemType) {
-        return orderItemRepository.findByUserIdAndItemIdAndItemType(userId, itemId, itemType)
-                .orElseThrow(() -> {
+    private OrderItemEntity findOrderItemOrThrow(String userId, String itemId, String itemType, String size, String design) {
+        Optional<OrderItemEntity> item = "STORE".equals(itemType)
+                ? orderItemRepository.findByUserIdAndItemIdAndItemTypeAndSizeAndDesign(userId, itemId, itemType, size, design)
+                : orderItemRepository.findByUserIdAndItemIdAndItemType(userId, itemId, itemType);
+
+        return item.orElseThrow(() -> {
                     log.error("[ORDER-SRV] Order item not found for user: {} and item: {}", userId, itemId);
                     return new DataNotFoundException(MessageEnum.ORDER_NOT_FOUND.withArgs(userId));
                 });
@@ -239,6 +283,9 @@ public class OrderService {
                 .price(event.getPrice())
                 .stock(event.getStock())
                 .thumbnail(event.getThumbnail())
+                .size(event.getSize())
+                .design(event.getDesign())
+                .isDeleted(event.getIsDeleted())
                 .build();
         productInfoRepository.save(entity);
     }
@@ -252,6 +299,9 @@ public class OrderService {
                     entity.setPrice(event.getPrice());
                     entity.setStock(event.getStock());
                     entity.setThumbnail(event.getThumbnail());
+                    entity.setSize(event.getSize());
+                    entity.setDesign(event.getDesign());
+                    entity.setIsDeleted(event.getIsDeleted());
                     productInfoRepository.save(entity);
                 });
     }
@@ -259,7 +309,11 @@ public class OrderService {
     @Transactional
     @LogAround(message = "Sync Product Deleted")
     public void syncProductDeleted(ProductDeletedEvent event) {
-        productInfoRepository.deleteById(Long.valueOf(event.getProductId()));
+        productInfoRepository.findById(Long.valueOf(event.getProductId()))
+                .ifPresent(entity -> {
+                    entity.setIsDeleted(true);
+                    productInfoRepository.save(entity);
+                });
     }
 
     private void validateStock(String itemId, Integer requestedQuantity) {

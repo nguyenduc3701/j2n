@@ -36,6 +36,18 @@ public class ProductScheduleEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(length = 255)
+    private String hotel;
+
+    @Column(length = 255)
+    private String breakfast;
+
+    @Column(length = 255)
+    private String lunch;
+
+    @Column(length = 255)
+    private String dinner;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

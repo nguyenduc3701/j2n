@@ -17,6 +17,8 @@ public class OrderItemWithProductResponse {
     private String itemId;
     private String itemType;
     private Integer quantity;
+    private String size;
+    private String design;
     private Object metadata;
     private ProductInfoResponse product;
 
@@ -31,6 +33,8 @@ public class OrderItemWithProductResponse {
         private java.math.BigDecimal price;
         private Integer stock;
         private String thumbnail;
+        private String size;
+        private String design;
     }
 
     public static OrderItemWithProductResponse from(OrderItemEntity item, ProductInfoEntity productInfo) {
@@ -42,6 +46,8 @@ public class OrderItemWithProductResponse {
                     .price(productInfo.getPrice())
                     .stock(productInfo.getStock())
                     .thumbnail(productInfo.getThumbnail())
+                    .size(productInfo.getSize())
+                    .design(productInfo.getDesign())
                     .build();
         }
 
@@ -51,6 +57,8 @@ public class OrderItemWithProductResponse {
                 .itemId(item.getItemId())
                 .itemType(item.getItemType())
                 .quantity(item.getQuantity())
+                .size(item.getSize())
+                .design(item.getDesign())
                 .metadata(item.getMetadata())
                 .product(productResponse)
                 .build();

@@ -31,4 +31,10 @@ public class UpdateOrderItemRequest extends BaseRequest {
     @Min(value = 0, message = "Quantity must be at least 0")
     @Schema(description = "The target number of items (setting to 0 will remove the item)", example = "2")
     private Integer quantity;
+
+    @Schema(description = "The size of the item", example = "M")
+    private String size;
+
+    @Schema(description = "The design of the item", example = "Classic")
+    private String design;
 }

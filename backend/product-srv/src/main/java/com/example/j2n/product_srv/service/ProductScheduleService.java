@@ -42,6 +42,10 @@ public class ProductScheduleService {
                 .dayNumber(input.getDayNumber())
                 .title(input.getTitle())
                 .content(input.getContent())
+                .hotel(input.getHotel())
+                .breakfast(input.getBreakfast())
+                .lunch(input.getLunch())
+                .dinner(input.getDinner())
                 .isDeleted(false)
                 .build();
 
@@ -56,6 +60,10 @@ public class ProductScheduleService {
         entity.setDayNumber(input.getDayNumber());
         entity.setTitle(input.getTitle());
         entity.setContent(input.getContent());
+        entity.setHotel(input.getHotel());
+        entity.setBreakfast(input.getBreakfast());
+        entity.setLunch(input.getLunch());
+        entity.setDinner(input.getDinner());
 
         return ResponseFactory.of(MessageEnum.UPDATE_PRODUCT_SCHEDULE_SUCCESS, productScheduleRepository.save(entity));
     }

@@ -58,6 +58,10 @@ class ProductScheduleServiceTest {
                 .dayNumber(1)
                 .title("Ngày 1: Khởi hành")
                 .content("Bắt đầu chuyến đi")
+                .hotel("Khách sạn 4 sao")
+                .breakfast("Bún bò")
+                .lunch("Cơm tấm")
+                .dinner("Lẩu")
                 .isDeleted(false)
                 .build();
 
@@ -66,6 +70,10 @@ class ProductScheduleServiceTest {
                 .dayNumber(1)
                 .title("Ngày 1: Khởi hành")
                 .content("Bắt đầu chuyến đi")
+                .hotel("Khách sạn 4 sao")
+                .breakfast("Bún bò")
+                .lunch("Cơm tấm")
+                .dinner("Lẩu")
                 .build();
     }
 

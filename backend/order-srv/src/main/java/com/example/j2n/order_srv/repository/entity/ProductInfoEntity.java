@@ -36,9 +36,18 @@ public class ProductInfoEntity {
     @Column(name = "thumbnail")
     private String thumbnail;
 
+    @Column(name = "size")
+    private String size;
+
+    @Column(name = "design")
+    private String design;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 }

@@ -20,4 +20,7 @@ public class ProductUpdatedEvent {
     private BigDecimal price;
     private Integer stock;
     private String thumbnail;
+    private String size;
+    private String design;
+    private Boolean isDeleted;
 }

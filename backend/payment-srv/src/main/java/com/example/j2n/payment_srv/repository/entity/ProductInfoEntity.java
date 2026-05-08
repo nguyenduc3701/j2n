@@ -34,6 +34,15 @@ public class ProductInfoEntity {
     @Column(length = 500)
     private String thumbnail;
 
+    @Column(length = 50)
+    private String size;
+
+    @Column(length = 255)
+    private String design;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 }

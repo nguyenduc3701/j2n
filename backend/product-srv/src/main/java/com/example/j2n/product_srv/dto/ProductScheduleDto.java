@@ -14,4 +14,8 @@ public class ProductScheduleDto {
     private Integer dayNumber;
     private String title;
     private String content;
+    private String hotel;
+    private String breakfast;
+    private String lunch;
+    private String dinner;
 }

@@ -7,6 +7,10 @@ query Op_getSchedulesByProductId($productId: ID!) {
       dayNumber
       title
       content
+      hotel
+      breakfast
+      lunch
+      dinner
       createdAt
       updatedAt
     }
@@ -22,6 +26,10 @@ mutation Op_addScheduleToProduct($input: ProductScheduleInput!) {
       dayNumber
       title
       content
+      hotel
+      breakfast
+      lunch
+      dinner
       createdAt
       updatedAt
     }
@@ -37,6 +45,10 @@ mutation Op_updateProductSchedule($id: ID!, $input: ProductScheduleInput!) {
       dayNumber
       title
       content
+      hotel
+      breakfast
+      lunch
+      dinner
       createdAt
       updatedAt
     }

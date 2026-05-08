@@ -9,6 +9,8 @@ CREATE TABLE products (
     thumbnail VARCHAR(255),
     duration VARCHAR(100),
     start_location VARCHAR(255),
+    size VARCHAR(50),
+    design VARCHAR(255),
     type VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

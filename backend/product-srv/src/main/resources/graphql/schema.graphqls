@@ -59,6 +59,8 @@ type Product {
   thumbnail: String
   duration: String
   startLocation: String
+  size: String
+  design: String
   type: String
   createdAt: String
   updatedAt: String
@@ -73,6 +75,10 @@ type ProductSchedule {
   dayNumber: Int
   title: String
   content: String
+  hotel: String
+  breakfast: String
+  lunch: String
+  dinner: String
   createdAt: String
   updatedAt: String
 }
@@ -100,6 +106,8 @@ input ProductInput {
   thumbnail: String
   duration: String
   startLocation: String
+  size: String
+  design: String
   type: String!
 }
 
@@ -114,6 +122,10 @@ input ProductScheduleInput {
   dayNumber: Int!
   title: String!
   content: String
+  hotel: String
+  breakfast: String
+  lunch: String
+  dinner: String
 }
 
 type CategoryResponse {

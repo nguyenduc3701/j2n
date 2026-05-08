@@ -40,6 +40,12 @@ public class OrderItemEntity {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
+    @Column(name = "size", length = 50)
+    private String size;
+
+    @Column(name = "design", length = 255)
+    private String design;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "metadata", columnDefinition = "json")
     private Map<String, Object> metadata;

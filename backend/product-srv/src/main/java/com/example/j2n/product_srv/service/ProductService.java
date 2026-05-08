@@ -67,6 +67,8 @@ public class ProductService {
                 .thumbnail(input.getThumbnail())
                 .duration(input.getDuration())
                 .startLocation(input.getStartLocation())
+                .size(input.getSize())
+                .design(input.getDesign())
                 .type(input.getType())
                 .isDeleted(false)
                 .build();
@@ -92,6 +94,8 @@ public class ProductService {
         entity.setThumbnail(input.getThumbnail());
         entity.setDuration(input.getDuration());
         entity.setStartLocation(input.getStartLocation());
+        entity.setSize(input.getSize());
+        entity.setDesign(input.getDesign());
         if (input.getType() != null) {
             entity.setType(input.getType());
         }
@@ -180,7 +184,10 @@ public class ProductService {
                 .thumbnail(product.getThumbnail())
                 .duration(product.getDuration())
                 .startLocation(product.getStartLocation())
+                .size(product.getSize())
+                .design(product.getDesign())
                 .type(product.getType())
+                .isDeleted(product.getIsDeleted())
                 .createdAt(product.getCreatedAt() != null ? product.getCreatedAt().toString() : null)
                 .build();
         productEventPublisher.publishProductCreated(event);
@@ -215,7 +222,10 @@ public class ProductService {
                 .thumbnail(product.getThumbnail())
                 .duration(product.getDuration())
                 .startLocation(product.getStartLocation())
+                .size(product.getSize())
+                .design(product.getDesign())
                 .type(product.getType())
+                .isDeleted(product.getIsDeleted())
                 .updatedAt(product.getUpdatedAt() != null ? product.getUpdatedAt().toString() : null)
                 .build();
         productEventPublisher.publishProductUpdated(event);

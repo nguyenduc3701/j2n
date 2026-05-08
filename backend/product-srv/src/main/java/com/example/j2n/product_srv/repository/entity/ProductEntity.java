@@ -58,6 +58,12 @@ public class ProductEntity {
     @Column(name = "start_location", length = 255)
     private String startLocation;
 
+    @Column(length = 50)
+    private String size;
+
+    @Column(length = 255)
+    private String design;
+
     @Column(nullable = false, length = 50)
     private String type;
 

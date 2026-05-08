@@ -40,6 +40,12 @@ public class OrderInfoEntity {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Column(length = 50)
+    private String size;
+
+    @Column(length = 255)
+    private String design;
+
     @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;

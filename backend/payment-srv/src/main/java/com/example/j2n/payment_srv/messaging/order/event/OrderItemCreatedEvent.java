@@ -18,4 +18,6 @@ public class OrderItemCreatedEvent {
     private String itemId;
     private String itemType;
     private Integer quantity;
+    private String size;
+    private String design;
 }

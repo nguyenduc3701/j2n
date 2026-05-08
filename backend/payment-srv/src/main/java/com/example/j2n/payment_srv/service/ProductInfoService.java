@@ -31,6 +31,9 @@ public class ProductInfoService {
                 .price(event.getPrice())
                 .stock(event.getStock())
                 .thumbnail(event.getThumbnail())
+                .size(event.getSize())
+                .design(event.getDesign())
+                .isDeleted(event.getIsDeleted())
                 .updatedAt(LocalDateTime.now())
                 .build();
         productInfoRepository.save(entity);
@@ -45,6 +48,9 @@ public class ProductInfoService {
                     entity.setPrice(event.getPrice());
                     entity.setStock(event.getStock());
                     entity.setThumbnail(event.getThumbnail());
+                    entity.setSize(event.getSize());
+                    entity.setDesign(event.getDesign());
+                    entity.setIsDeleted(event.getIsDeleted());
                     entity.setUpdatedAt(LocalDateTime.now());
                     productInfoRepository.save(entity);
                 });
@@ -52,7 +58,11 @@ public class ProductInfoService {
 
     @LogAround(message = "Sync Product Deleted")
     public void syncProductDeleted(String productId) {
-        productInfoRepository.deleteById(Long.valueOf(productId));
+        productInfoRepository.findById(Long.valueOf(productId))
+                .ifPresent(entity -> {
+                    entity.setIsDeleted(true);
+                    productInfoRepository.save(entity);
+                });
     }
 
     @LogAround(message = "Get Product Info")

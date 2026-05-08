@@ -30,6 +30,8 @@ public class OrderInfoService {
                 .itemId(event.getItemId())
                 .itemType(event.getItemType())
                 .quantity(event.getQuantity())
+                .size(event.getSize())
+                .design(event.getDesign())
                 .updatedAt(LocalDateTime.now())
                 .build();
         orderInfoRepository.save(entity);
@@ -42,6 +44,8 @@ public class OrderInfoService {
                 event.getUserId(), event.getItemId(), event.getItemType())
                 .ifPresent(entity -> {
                     entity.setQuantity(event.getQuantity());
+                    entity.setSize(event.getSize());
+                    entity.setDesign(event.getDesign());
                     entity.setUpdatedAt(LocalDateTime.now());
                     orderInfoRepository.save(entity);
                 });
