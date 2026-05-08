@@ -102,6 +102,17 @@ spring:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
+        - id: room-srv
+          uri: ${api-gateway.room.base-url:http://localhost:8189}
+          predicates:
+            - Path=/api/room/**
+          filters:
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
       filter:
         request-rate-limiter:
           redis-rate-limiter:

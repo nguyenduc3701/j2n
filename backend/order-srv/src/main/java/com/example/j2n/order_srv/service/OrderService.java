@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductInfoRepository productInfoRepository;
+    private final com.example.j2n.order_srv.repository.RoomBillInfoRepository roomBillInfoRepository;
     private final OrderEventPublisher orderEventPublisher;
 
     @LogAround(message = "Get all order items with product details")
@@ -60,7 +61,7 @@ public class OrderService {
     @LogAround(message = "Add to order")
     public BaseResponse<OrderItemEntity> addToOrder(OrderItemRequest request) {
         validateUnknownFields(request);
-        validateStock(request.getItemId(), request.getQuantity());
+        validateStock(request.getItemId(), request.getQuantity(), request.getItemType());
 
         OrderItemEntity savedItem = switch (request.getItemType()) {
             case "STORE" -> handleStoreItem(request);
@@ -241,17 +242,23 @@ public class OrderService {
             return List.of();
         }
 
-        // Collect unique product IDs
+        // Collect unique product IDs and bill IDs
         Set<Long> productIds = items.stream()
+                .filter(item -> !"ROOM".equals(item.getItemType()))
                 .map(item -> {
                     try {
                         return Long.valueOf(item.getItemId());
                     } catch (NumberFormatException e) {
-                        log.warn("[ORDER-SRV] Invalid itemId format: {}", item.getItemId());
+                        log.warn("[ORDER-SRV] Invalid itemId format for product: {}", item.getItemId());
                         return null;
                     }
                 })
                 .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Set<String> billIds = items.stream()
+                .filter(item -> "ROOM".equals(item.getItemType()))
+                .map(OrderItemEntity::getItemId)
                 .collect(Collectors.toSet());
 
         // Bulk fetch product info
@@ -259,17 +266,26 @@ public class OrderService {
                 .collect(Collectors.toMap(ProductInfoEntity::getId,
                         Function.identity()));
 
+        // Bulk fetch room bill info
+        Map<String, com.example.j2n.order_srv.repository.entity.RoomBillInfoEntity> billInfoMap = roomBillInfoRepository.findAllById(billIds).stream()
+                .collect(Collectors.toMap(com.example.j2n.order_srv.repository.entity.RoomBillInfoEntity::getId,
+                        Function.identity()));
+
         // Map items to enriched response
         return items.stream()
                 .map(item -> {
-                    Long productId = null;
-                    try {
-                        productId = Long.valueOf(item.getItemId());
-                    } catch (NumberFormatException ignored) {
-                    }
+                    ProductInfoEntity productInfo = null;
+                    com.example.j2n.order_srv.repository.entity.RoomBillInfoEntity billInfo = null;
 
-                    ProductInfoEntity productInfo = productId != null ? productInfoMap.get(productId) : null;
-                    return OrderItemWithProductResponse.from(item, productInfo);
+                    if ("ROOM".equals(item.getItemType())) {
+                        billInfo = billInfoMap.get(item.getItemId());
+                    } else {
+                        try {
+                            productInfo = productInfoMap.get(Long.valueOf(item.getItemId()));
+                        } catch (NumberFormatException ignored) {}
+                    }
+                    
+                    return OrderItemWithProductResponse.from(item, productInfo, billInfo);
                 })
                 .toList();
     }
@@ -316,7 +332,12 @@ public class OrderService {
                 });
     }
 
-    private void validateStock(String itemId, Integer requestedQuantity) {
+    private void validateStock(String itemId, Integer requestedQuantity, String itemType) {
+        if ("ROOM".equals(itemType)) {
+            log.info("[ORDER-SRV] Skipping stock validation for ROOM type item: {}", itemId);
+            return;
+        }
+
         log.info("Validating stock for item id: {} and quantity: {}", itemId, requestedQuantity);
         ProductInfoEntity product = productInfoRepository.findById(Long.valueOf(itemId))
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.PRODUCT_NOT_FOUND.withArgs(itemId)));
@@ -330,5 +351,19 @@ public class OrderService {
             throw new InvalidInputException(
                     MessageEnum.INSUFFICIENT_STOCK.withArgs(product.getTitle(), availableStock));
         }
+    }
+
+    @Transactional
+    @LogAround(message = "Sync Room Bill")
+    public void syncRoomBill(com.example.j2n.order_srv.messaging.room.event.RoomBillSyncedEvent event) {
+        log.info("[ORDER-SRV] Syncing room bill: {}", event.getBillId());
+        com.example.j2n.order_srv.repository.entity.RoomBillInfoEntity entity = com.example.j2n.order_srv.repository.entity.RoomBillInfoEntity.builder()
+                .id(event.getBillId())
+                .roomNumber(event.getRoomNumber())
+                .title(event.getTitle())
+                .totalAmount(event.getTotalAmount())
+                .isPaid(event.getIsPaid())
+                .build();
+        roomBillInfoRepository.save(entity);
     }
 }

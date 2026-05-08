@@ -21,6 +21,7 @@ public class OrderItemWithProductResponse {
     private String design;
     private Object metadata;
     private ProductInfoResponse product;
+    private RoomBillInfoResponse bill;
 
     @Getter
     @Setter
@@ -37,7 +38,20 @@ public class OrderItemWithProductResponse {
         private String design;
     }
 
-    public static OrderItemWithProductResponse from(OrderItemEntity item, ProductInfoEntity productInfo) {
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RoomBillInfoResponse {
+        private String id;
+        private String roomNumber;
+        private String title;
+        private java.math.BigDecimal totalAmount;
+        private Boolean isPaid;
+    }
+
+    public static OrderItemWithProductResponse from(OrderItemEntity item, ProductInfoEntity productInfo, com.example.j2n.order_srv.repository.entity.RoomBillInfoEntity billInfo) {
         OrderItemWithProductResponse.ProductInfoResponse productResponse = null;
         if (productInfo != null) {
             productResponse = OrderItemWithProductResponse.ProductInfoResponse.builder()
@@ -51,6 +65,17 @@ public class OrderItemWithProductResponse {
                     .build();
         }
 
+        OrderItemWithProductResponse.RoomBillInfoResponse billResponse = null;
+        if (billInfo != null) {
+            billResponse = OrderItemWithProductResponse.RoomBillInfoResponse.builder()
+                    .id(billInfo.getId())
+                    .roomNumber(billInfo.getRoomNumber())
+                    .title(billInfo.getTitle())
+                    .totalAmount(billInfo.getTotalAmount())
+                    .isPaid(billInfo.getIsPaid())
+                    .build();
+        }
+
         return OrderItemWithProductResponse.builder()
                 .id(item.getId())
                 .userId(item.getUserId())
@@ -61,6 +86,7 @@ public class OrderItemWithProductResponse {
                 .design(item.getDesign())
                 .metadata(item.getMetadata())
                 .product(productResponse)
+                .bill(billResponse)
                 .build();
     }
 }

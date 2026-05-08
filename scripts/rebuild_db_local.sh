@@ -11,7 +11,7 @@ MYSQL_PORT="3306"
 
 echo "🚀 Starting Master Database Rebuild..."
 
-DB_DIRS=("auth-db" "image-db" "report-db" "config-db" "product-db" "payment-db" "order-db")
+DB_DIRS=("auth-db" "image-db" "report-db" "config-db" "product-db" "payment-db" "order-db" "room-db")
 
 for dir in "${DB_DIRS[@]}"; do
     TARGET_DIR="$SCRIPT_DIR/$dir"
@@ -24,7 +24,9 @@ for dir in "${DB_DIRS[@]}"; do
             "config-db") DB_NAME="j2n_config" ;;
             "product-db") DB_NAME="j2n_product" ;;
             "payment-db") DB_NAME="j2n_payment" ;;
+            "order-srv") DB_NAME="j2n_order" ;;
             "order-db") DB_NAME="j2n_order" ;;
+            "room-db") DB_NAME="j2n_room" ;;
             *) DB_NAME="j2n_unknown" ;;
         esac
         

@@ -35,6 +35,7 @@ INSERT INTO configuration (config_key, config_value, service_id, environment) VA
 ('api-gateway.product.base-url', 'http://localhost:8186', 'api-gateway-srv', 'dev'),
 ('api-gateway.payment.base-url', 'http://localhost:8187', 'api-gateway-srv', 'dev'),
 ('api-gateway.order.base-url', 'http://localhost:8188', 'api-gateway-srv', 'dev'),
+('api-gateway.room.base-url', 'http://localhost:8189', 'api-gateway-srv', 'dev'),
 
 -- Auth Service Configuration
 -- Report Service Configuration
