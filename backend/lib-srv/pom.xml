@@ -215,7 +215,6 @@
 				</configuration>
 				<executions>
 					<execution>
-						<phase>none</phase>
 						<goals>
 							<goal>compile</goal>
 							<goal>compile-custom</goal>
