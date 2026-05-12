@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "utility_configs")
+@Table(name = "fees")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UtilityConfigEntity {
+public class FeeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +23,6 @@ public class UtilityConfigEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "type", nullable = false)
-    private String type; // ELECTRIC, WATER, SERVICE
 
     @Column(name = "unit_price", nullable = false)
     private BigDecimal unitPrice;
@@ -43,27 +41,4 @@ public class UtilityConfigEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public java.math.BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
-
-    public String getUnitName() {
-        return unitName;
-    }
-
-    public Boolean getIsActive() {
-        return isActive;
-    }
 }

@@ -1,8 +1,10 @@
 package com.example.j2n.room_srv.service;
+import com.example.j2n.utils.ResponseFactory;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.room_srv.enums.BillStatus;
 import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
@@ -42,7 +44,7 @@ class PaymentServiceTest {
                 .renterId(123L)
                 .room(room)
                 .billingMonth(5)
-                .status("UNPAID")
+                .status(BillStatus.UNPAID)
                 .build();
 
         when(billRepository.findById(billId)).thenReturn(Optional.of(bill));
@@ -54,14 +56,14 @@ class PaymentServiceTest {
         BaseResponse<Object> response = paymentService.initiatePayment(billId);
 
         assertNotNull(response);
-        assertEquals("0000", response.getCode());
+        assertEquals("200", response.getCode());
         verify(restTemplate, times(1)).postForEntity(anyString(), any(), eq(BaseResponse.class));
     }
 
     @Test
     void initiatePayment_AlreadyPaid() {
         String billId = "bill-1";
-        BillEntity bill = BillEntity.builder().id(billId).status("PAID").build();
+        BillEntity bill = BillEntity.builder().id(billId).status(BillStatus.PAID).build();
 
         when(billRepository.findById(billId)).thenReturn(Optional.of(bill));
 
@@ -86,7 +88,7 @@ class PaymentServiceTest {
                 .renterId(123L)
                 .room(room)
                 .billingMonth(5)
-                .status("UNPAID")
+                .status(BillStatus.UNPAID)
                 .build();
 
         when(billRepository.findById(billId)).thenReturn(Optional.of(bill));

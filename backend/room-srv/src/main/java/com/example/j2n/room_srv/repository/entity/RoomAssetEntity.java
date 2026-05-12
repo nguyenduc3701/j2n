@@ -8,30 +8,25 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "room_objects")
+@Table(name = "room_assets")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RoomObjectEntity {
+public class RoomAssetEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id")
+    @JoinColumn(name = "room_id", nullable = false)
     private RoomEntity room;
 
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Column(name = "status")
-    private String status;
-
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "object_id", nullable = false)
+    private AssetEntity asset;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

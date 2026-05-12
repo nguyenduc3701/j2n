@@ -1,6 +1,7 @@
 package com.example.j2n.room_srv.service;
 
 import com.example.j2n.aspect.LogAround;
+import com.example.j2n.room_srv.enums.BillStatus;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.enums.BaseMessageEnum;
@@ -36,7 +37,7 @@ public class PaymentService {
         BillEntity bill = billRepository.findById(billId)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.BILL_NOT_FOUND.withArgs(billId)));
 
-        if ("PAID".equals(bill.getStatus())) {
+        if (BillStatus.PAID.equals(bill.getStatus())) {
             return ResponseFactory.error(BaseMessageEnum.BAD_REQUEST);
         }
 
@@ -46,7 +47,7 @@ public class PaymentService {
         request.put("item_id", bill.getId());
         request.put("item_type", "ROOM");
         request.put("quantity", 1);
-        
+
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("room_number", bill.getRoom().getRoomNumber());
         metadata.put("period", bill.getBillingMonth().toString());
@@ -56,7 +57,7 @@ public class PaymentService {
             log.info("[ROOM-SRV] Calling order-srv to create payment item for bill: {}", billId);
             ResponseEntity<BaseResponse> response = restTemplate.postForEntity(
                     orderSrvUrl + "/orders", request, BaseResponse.class);
-            
+
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 // In a real app, you might want to extract the order ID from the response
                 // and save it to the bill.

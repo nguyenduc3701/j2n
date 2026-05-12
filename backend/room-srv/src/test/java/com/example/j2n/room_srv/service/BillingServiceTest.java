@@ -2,13 +2,22 @@ package com.example.j2n.room_srv.service;
 
 import com.example.j2n.room_srv.controller.request.BillRequest;
 import com.example.j2n.room_srv.repository.BillRepository;
-import com.example.j2n.room_srv.repository.RoomRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
-import com.example.j2n.room_srv.repository.entity.UtilityConfigEntity;
-import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
+import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
+import com.example.j2n.room_srv.repository.entity.FeeEntity;
+import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
+import com.example.j2n.room_srv.controller.response.BillResponse;
+import com.example.j2n.room_srv.controller.response.SearchBillsResponse;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.exception.InvalidInputException;
+import com.example.j2n.utils.SearchFactory;
+import java.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,13 +38,13 @@ class BillingServiceTest {
     private BillRepository billRepository;
 
     @Mock
-    private RoomRepository roomRepository;
+    private RoomService roomService;
 
     @Mock
-    private UtilityConfigService utilityConfigService;
+    private FeeService feeService;
 
     @Mock
-    private RoomEventPublisher roomEventPublisher;
+    private SearchFactory searchFactory;
 
     @InjectMocks
     private BillingService billingService;
@@ -45,9 +53,8 @@ class BillingServiceTest {
     void calculateBill_Success() {
         BillRequest request = BillRequest.builder()
                 .roomId(1L)
-                .month(5)
-                .electricityUsage(100)
-                .waterUsage(10)
+                .month(Optional.of(5))
+                .electricityNewIndex(100)
                 .renterId(123L)
                 .build();
 
@@ -57,32 +64,32 @@ class BillingServiceTest {
                 .basePrice(BigDecimal.valueOf(2000000))
                 .build();
 
-        UtilityConfigEntity electricConfig = UtilityConfigEntity.builder()
-                .type("ELECTRIC")
+        FeeEntity electricConfig = FeeEntity.builder()
+                .name("ELECTRIC")
                 .unitPrice(BigDecimal.valueOf(3500))
                 .build();
 
-        UtilityConfigEntity waterConfig = UtilityConfigEntity.builder()
-                .type("WATER")
+        FeeEntity waterConfig = FeeEntity.builder()
+                .name("WATER")
                 .unitPrice(BigDecimal.valueOf(15000))
                 .build();
 
-        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
-        when(utilityConfigService.getActiveConfigs()).thenReturn(List.of(electricConfig, waterConfig));
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+        when(feeService.getActiveFees()).thenReturn(List.of(electricConfig, waterConfig));
         when(billRepository.save(any(BillEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
         BaseResponse<BillEntity> response = billingService.calculateBill(request);
 
         assertNotNull(response);
-        // 2,000,000 + (100 * 3,500) + (10 * 15,000) = 2,000,000 + 350,000 + 150,000 = 2,500,000
-        assertEquals(0, response.getData().getTotalAmount().compareTo(BigDecimal.valueOf(2500000)));
-        verify(roomEventPublisher, times(1)).publishRoomBillSynced(any());
+        // 2,000,000 + (100 * 3,500) = 2,350,000
+        assertEquals(0, response.getData().getTotalAmount().compareTo(BigDecimal.valueOf(2350000)));
     }
 
     @Test
     void calculateBill_RoomNotFound() {
         BillRequest request = BillRequest.builder().roomId(1L).build();
-        when(roomRepository.findById(1L)).thenReturn(Optional.empty());
+        when(roomService.findRoomByIdOrThrow(1L))
+                .thenThrow(new DataNotFoundException(com.example.j2n.room_srv.constant.MessageEnum.ROOM_NOT_FOUND));
 
         assertThrows(DataNotFoundException.class, () -> billingService.calculateBill(request));
     }
@@ -92,9 +99,96 @@ class BillingServiceTest {
         BillEntity bill = BillEntity.builder().id("bill-1").build();
         when(billRepository.findByRoomId(1L)).thenReturn(List.of(bill));
 
-        BaseResponse<List<BillEntity>> response = billingService.getBillsByRoom(1L);
+        BaseResponse<List<BillEntity>> response = billingService.getBillsByRoomId(1L);
 
         assertEquals(1, response.getData().size());
         verify(billRepository, times(1)).findByRoomId(1L);
+    }
+
+    @Test
+    void searchBills_Success() {
+        SearchBillsRequest request = new SearchBillsRequest();
+        request.setRoomId(1L);
+
+        RoomEntity room = RoomEntity.builder().id(1L).roomNumber("101").build();
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+
+        Page<BillResponse> page = new PageImpl<>(List.of(
+                BillResponse.builder().id("bill-1").roomNumber("101").build()), PageRequest.of(0, 10), 1);
+
+        doReturn(page).when(searchFactory).searchAndMap(any(), anyList(), any(), any());
+
+        BaseResponse<SearchBillsResponse> response = billingService.searchBills(request);
+
+        assertNotNull(response);
+        assertEquals(1, response.getData().getBills().size());
+        assertEquals("bill-1", response.getData().getBills().get(0).getId());
+    }
+
+    @Test
+    void validateMonth_Success() {
+        int currentMonth = LocalDate.now().getMonthValue();
+        when(billRepository.findByRoomIdAndBillingMonth(1L, currentMonth)).thenReturn(List.of());
+
+        Integer result = billingService.validateMonth(null, 1L);
+        assertEquals(currentMonth, result);
+    }
+
+    @Test
+    void validateMonth_FutureMonth_ThrowsException() {
+        int futureMonth = LocalDate.now().getMonthValue() + 1;
+        if (futureMonth > 12) {
+            return; // Skip if current month is December
+        }
+        assertThrows(InvalidInputException.class, () -> billingService.validateMonth(futureMonth, 1L));
+    }
+
+    @Test
+    void validateMonth_BillAlreadyExists_ThrowsException() {
+        int currentMonth = LocalDate.now().getMonthValue();
+        when(billRepository.findByRoomIdAndBillingMonth(1L, currentMonth)).thenReturn(List.of(new BillEntity()));
+
+        assertThrows(InvalidInputException.class, () -> billingService.validateMonth(currentMonth, 1L));
+    }
+
+    @Test
+    void calculateAllBills_Success() {
+        RoomMemberEntity member = new RoomMemberEntity();
+        member.setUserId(123L);
+        member.setIsPrimary(true);
+
+        RoomEntity room = RoomEntity.builder()
+                .id(1L)
+                .roomNumber("101")
+                .basePrice(BigDecimal.valueOf(2000000))
+                .members(List.of(member))
+                .build();
+
+        when(roomService.getAllRooms()).thenReturn(List.of(room));
+        when(feeService.getActiveFees()).thenReturn(List.of());
+        when(billRepository.saveAll(anyList())).thenAnswer(i -> i.getArguments()[0]);
+
+        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(5);
+
+        assertNotNull(response);
+        assertEquals(1, response.getData().size());
+        verify(billRepository, times(1)).saveAll(anyList());
+    }
+
+    @Test
+    void calculateAllBills_NoPrimaryRenter_ReturnsEmpty() {
+        RoomEntity room = RoomEntity.builder()
+                .id(1L)
+                .roomNumber("101")
+                .members(List.of())
+                .build();
+
+        when(roomService.getAllRooms()).thenReturn(List.of(room));
+
+        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(5);
+
+        assertNotNull(response);
+        assertTrue(response.getData().isEmpty());
+        verify(billRepository, never()).saveAll(anyList());
     }
 }

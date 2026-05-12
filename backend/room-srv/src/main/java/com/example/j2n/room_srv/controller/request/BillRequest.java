@@ -8,21 +8,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Optional;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class BillRequest {
+    @Schema(description = "ID of the room", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "Room ID is required")
     private Long roomId;
 
-    @NotNull(message = "Month is required")
-    private Integer month;
+    @Schema(description = "Month for the bill (1-12), defaults to current month if null", example = "5", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Builder.Default
+    private Optional<Integer> month = Optional.empty();
 
+    @Schema(description = "New electricity index", example = "1250", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer electricityNewIndex;
-    private Integer electricityUsage;
-    private Integer waterUsage;
-    private java.math.BigDecimal otherServiceFees;
-    private String renterId;
+
+    @Schema(description = "ID of the renter", example = "100", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Long renterId;
 }

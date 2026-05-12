@@ -27,6 +27,7 @@ public class RoomMemberEntity {
     private Long userId;
 
     @Column(name = "is_primary")
+    @Builder.Default
     private Boolean isPrimary = false;
 
     @CreationTimestamp

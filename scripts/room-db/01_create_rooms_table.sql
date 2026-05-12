@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS rooms (
     area VARCHAR(100),
     max_people INT DEFAULT 1, -- Maximum capacity of the room
     status VARCHAR(50) DEFAULT 'AVAILABLE', -- AVAILABLE, OCCUPIED, MAINTENANCE
+    current_electric_index INT DEFAULT 0,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

@@ -1,7 +1,6 @@
-CREATE TABLE IF NOT EXISTS utility_configs (
+CREATE TABLE IF NOT EXISTS fees (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    type VARCHAR(50) NOT NULL, -- ELECTRIC, WATER, SERVICE
     unit_price DECIMAL(19, 2) NOT NULL,
     unit_name VARCHAR(50), -- kWh, m3, Month
     is_active BOOLEAN DEFAULT TRUE,

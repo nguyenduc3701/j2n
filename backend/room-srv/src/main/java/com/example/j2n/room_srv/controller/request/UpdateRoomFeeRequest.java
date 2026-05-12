@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 @Data
@@ -16,12 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class UpdateRoomUtilityRequest {
-    @NotEmpty(message = "Utility configs list cannot be empty")
+public class UpdateRoomFeeRequest {
+    @Schema(description = "List of fees to update for the room", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "Fees list cannot be empty")
     @Valid
-    private List<RoomUtilityConfigDto> utilityConfigs;
-
-    public List<RoomUtilityConfigDto> getUtilityConfigs() {
-        return utilityConfigs;
-    }
+    private List<RoomFeeDto> fees;
 }

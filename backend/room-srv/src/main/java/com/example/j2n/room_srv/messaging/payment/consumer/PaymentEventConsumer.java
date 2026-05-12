@@ -31,7 +31,7 @@ public class PaymentEventConsumer {
             for (PaymentConfirmedEvent.OrderItem item : event.getItems()) {
                 billRepository.findById(item.getProductId()).ifPresent(bill -> {
                     log.info("[ROOM-SRV] Updating bill {} to PAID", bill.getId());
-                    bill.setStatus("PAID");
+                    bill.setStatus(com.example.j2n.room_srv.enums.BillStatus.PAID);
                     billRepository.save(bill);
 
                     // Report revenue

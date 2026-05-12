@@ -1,23 +1,25 @@
 package com.example.j2n.room_srv.service;
 
 import com.example.j2n.room_srv.controller.request.RoomRequest;
-import com.example.j2n.room_srv.controller.request.RoomUtilityConfigDto;
-import com.example.j2n.room_srv.controller.request.UpdateRoomUtilityRequest;
+import com.example.j2n.room_srv.controller.request.RoomFeeDto;
+import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
+import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
 import com.example.j2n.room_srv.controller.response.RoomResponse;
-import com.example.j2n.room_srv.controller.response.RoomUtilityResponse;
+import com.example.j2n.room_srv.controller.response.RoomFeeResponse;
+import com.example.j2n.room_srv.controller.response.SearchRoomsResponse;
 import com.example.j2n.room_srv.repository.RoomRepository;
-import com.example.j2n.room_srv.repository.RoomUtilityRepository;
-import com.example.j2n.room_srv.repository.UtilityConfigRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
-import com.example.j2n.room_srv.repository.entity.RoomUtilityEntity;
-import com.example.j2n.room_srv.repository.entity.UtilityConfigEntity;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.utils.SearchFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -35,38 +37,33 @@ class RoomServiceTest {
     private RoomRepository roomRepository;
 
     @Mock
-    private RoomUtilityRepository roomUtilityRepository;
+    private RoomFeeService roomFeeService;
 
     @Mock
-    private UtilityConfigRepository utilityConfigRepository;
+    private SearchFactory searchFactory;
 
     @InjectMocks
     private RoomService roomService;
 
     @Test
-    void createRoom_Success() {
-        RoomRequest request = RoomRequest.builder()
-                .roomNumber("101")
-                .basePrice(BigDecimal.valueOf(2000000))
-                .area("20m2")
-                .maxPeople(2)
-                .build();
-
+    void searchRooms_Success() {
+        SearchRoomsRequest request = new SearchRoomsRequest();
         RoomEntity entity = RoomEntity.builder()
                 .id(1L)
                 .roomNumber("101")
-                .basePrice(BigDecimal.valueOf(2000000))
-                .area("20m2")
-                .maxPeople(2)
                 .build();
+        
+        Page<RoomResponse> page = new PageImpl<>(List.of(
+                RoomResponse.builder().id(1L).roomNumber("101").build()
+        ), PageRequest.of(0, 10), 1);
 
-        when(roomRepository.save(any(RoomEntity.class))).thenReturn(entity);
+        doReturn(page).when(searchFactory).searchAndMap(any(), anyList(), any(), any());
 
-        BaseResponse<RoomResponse> response = roomService.createRoom(request);
+        BaseResponse<SearchRoomsResponse> response = roomService.searchRooms(request);
 
         assertNotNull(response);
-        assertEquals("101", response.getData().getRoomNumber());
-        verify(roomRepository, times(1)).save(any(RoomEntity.class));
+        assertEquals(1, response.getData().getRooms().size());
+        assertEquals("101", response.getData().getRooms().get(0).getRoomNumber());
     }
 
     @Test
@@ -80,10 +77,11 @@ class RoomServiceTest {
     void updateRoom_Success() {
         Long id = 1L;
         RoomRequest request = RoomRequest.builder()
-                .roomNumber("101")
-                .basePrice(BigDecimal.valueOf(2500000))
-                .area("25m2")
-                .maxPeople(3)
+                .roomNumber(Optional.of("101"))
+                .basePrice(Optional.of(BigDecimal.valueOf(2500000)))
+                .area(Optional.of("25m2"))
+                .maxPeople(Optional.of(3))
+                .currentElectricIndex(Optional.of(100))
                 .build();
 
         RoomEntity existingRoom = RoomEntity.builder()
@@ -92,6 +90,7 @@ class RoomServiceTest {
                 .basePrice(BigDecimal.valueOf(2000000))
                 .area("20m2")
                 .maxPeople(2)
+                .currentElectricIndex(50)
                 .build();
 
         when(roomRepository.findById(id)).thenReturn(Optional.of(existingRoom));
@@ -102,73 +101,49 @@ class RoomServiceTest {
         assertEquals(BigDecimal.valueOf(2500000), existingRoom.getBasePrice());
         assertEquals("25m2", existingRoom.getArea());
         assertEquals(3, existingRoom.getMaxPeople());
+        assertEquals(100, existingRoom.getCurrentElectricIndex());
     }
 
     @Test
-    void updateRoomUtilities_Success() {
+    void updateRoomFees_Success() {
         Long roomId = 1L;
-        Long configId = 10L;
-        UpdateRoomUtilityRequest request = UpdateRoomUtilityRequest.builder()
-                .utilityConfigs(List.of(
-                        RoomUtilityConfigDto.builder()
-                                .utilityConfigId(configId)
-                                .quantity(1)
+        Long feeId = 10L;
+        UpdateRoomFeeRequest request = UpdateRoomFeeRequest.builder()
+                .fees(List.of(
+                        RoomFeeDto.builder()
+                                .feeId(feeId)
                                 .build()
                 ))
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(roomId).build();
-        UtilityConfigEntity config = UtilityConfigEntity.builder()
-                .id(configId)
-                .name("Electric")
-                .type("ELECTRIC")
+        RoomFeeResponse feeResp = RoomFeeResponse.builder()
+                .feeId(feeId)
+                .name("ELECTRIC")
                 .unitPrice(BigDecimal.valueOf(3500))
                 .unitName("kWh")
                 .build();
 
         when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
-        when(utilityConfigRepository.findById(configId)).thenReturn(Optional.of(config));
-        when(roomUtilityRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(roomFeeService.updateRoomFees(eq(room), anyList())).thenReturn(List.of(feeResp));
 
-        BaseResponse<List<RoomUtilityResponse>> response = roomService.updateRoomUtilities(roomId, request);
+        BaseResponse<List<RoomFeeResponse>> response = roomService.updateRoomFees(roomId, request);
 
         assertNotNull(response);
         assertEquals(1, response.getData().size());
-        assertEquals("Electric", response.getData().get(0).getName());
-        verify(roomUtilityRepository, times(1)).deleteByRoomId(roomId);
-        verify(roomUtilityRepository, times(1)).saveAll(anyList());
+        assertEquals("ELECTRIC", response.getData().get(0).getName());
+        verify(roomFeeService, times(1)).updateRoomFees(eq(room), anyList());
     }
 
     @Test
-    void updateRoomUtilities_RoomNotFound() {
+    void updateRoomFees_RoomNotFound() {
         Long roomId = 1L;
-        UpdateRoomUtilityRequest request = UpdateRoomUtilityRequest.builder()
-                .utilityConfigs(new ArrayList<>())
+        UpdateRoomFeeRequest request = UpdateRoomFeeRequest.builder()
+                .fees(new ArrayList<>())
                 .build();
 
         when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
 
-        assertThrows(DataNotFoundException.class, () -> roomService.updateRoomUtilities(roomId, request));
-    }
-
-    @Test
-    void updateRoomUtilities_UtilityConfigNotFound() {
-        Long roomId = 1L;
-        Long configId = 10L;
-        UpdateRoomUtilityRequest request = UpdateRoomUtilityRequest.builder()
-                .utilityConfigs(List.of(
-                        RoomUtilityConfigDto.builder()
-                                .utilityConfigId(configId)
-                                .quantity(1)
-                                .build()
-                ))
-                .build();
-
-        RoomEntity room = RoomEntity.builder().id(roomId).build();
-
-        when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
-        when(utilityConfigRepository.findById(configId)).thenReturn(Optional.empty());
-
-        assertThrows(DataNotFoundException.class, () -> roomService.updateRoomUtilities(roomId, request));
+        assertThrows(DataNotFoundException.class, () -> roomService.updateRoomFees(roomId, request));
     }
 }

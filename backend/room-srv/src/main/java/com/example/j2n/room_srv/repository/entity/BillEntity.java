@@ -1,5 +1,7 @@
 package com.example.j2n.room_srv.repository.entity;
 
+import com.example.j2n.room_srv.enums.BillStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -48,8 +50,9 @@ public class BillEntity {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private BillStatus status;
 
     @Column(name = "order_id")
     private Long orderId;

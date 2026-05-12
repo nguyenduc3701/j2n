@@ -40,6 +40,9 @@ public class RoomEntity {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "current_electric_index")
+    private Integer currentElectricIndex;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
@@ -52,76 +55,8 @@ public class RoomEntity {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-    private List<RoomObjectEntity> objects;
+    private List<RoomAssetEntity> assets;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     private List<RoomMemberEntity> members;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getRoomNumber() {
-        return roomNumber;
-    }
-
-    public Integer getFloor() {
-        return floor;
-    }
-
-    public BigDecimal getBasePrice() {
-        return basePrice;
-    }
-
-    public String getArea() {
-        return area;
-    }
-
-    public Integer getMaxPeople() {
-        return maxPeople;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setRoomNumber(String roomNumber) {
-        this.roomNumber = roomNumber;
-    }
-
-    public void setFloor(Integer floor) {
-        this.floor = floor;
-    }
-
-    public void setBasePrice(BigDecimal basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
-
-    public void setMaxPeople(Integer maxPeople) {
-        this.maxPeople = maxPeople;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

@@ -9,24 +9,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class RoomUtilityConfigDto {
-    @NotNull(message = "Utility config ID is required")
-    private Long utilityConfigId;
+public class RoomFeeDto {
+    @Schema(description = "ID of the fee", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "Fee ID is required")
+    private Long feeId;
 
-    @NotNull(message = "Quantity is required")
-    @Positive(message = "Quantity must be positive")
-    private Integer quantity;
-
-    public Long getUtilityConfigId() {
-        return utilityConfigId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
 }
