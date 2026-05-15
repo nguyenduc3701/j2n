@@ -1,10 +1,10 @@
 package com.example.j2n.room_srv.service;
+
 import com.example.j2n.utils.ResponseFactory;
 
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.DataNotFoundException;
-import com.example.j2n.room_srv.enums.BillStatus;
+import com.example.j2n.room_srv.constant.BillStatus;
 import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
@@ -48,7 +48,7 @@ class PaymentServiceTest {
                 .build();
 
         when(billRepository.findById(billId)).thenReturn(Optional.of(bill));
-        
+
         BaseResponse mockResponse = ResponseFactory.success("Success");
         when(restTemplate.postForEntity(anyString(), any(), eq(BaseResponse.class)))
                 .thenReturn(ResponseEntity.ok(mockResponse));
