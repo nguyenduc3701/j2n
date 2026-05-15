@@ -107,7 +107,7 @@ spring:
           predicates:
             - Path=/api/room/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5

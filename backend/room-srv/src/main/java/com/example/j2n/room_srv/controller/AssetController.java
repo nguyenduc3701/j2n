@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/room/assets")
+@RequestMapping("/assets")
 @RequiredArgsConstructor
 @Tag(name = "Asset Controller", description = "Endpoints for managing room assets")
 public class AssetController {

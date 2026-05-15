@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/room/fees")
+@RequestMapping("/fees")
 @RequiredArgsConstructor
 @Tag(name = "Fee Controller", description = "Endpoints for managing fees")
 public class FeeController {

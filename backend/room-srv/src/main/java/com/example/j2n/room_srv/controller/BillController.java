@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/room/bills")
+@RequestMapping("/bills")
 @RequiredArgsConstructor
 @Tag(name = "Bill Controller", description = "Endpoints for managing bills and utility indices")
 public class BillController {
