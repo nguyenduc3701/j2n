@@ -3,7 +3,7 @@ package com.example.j2n.room_srv.controller;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.BillRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
-import com.example.j2n.room_srv.controller.response.SearchBillsResponse;
+import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.service.BillingService;
 import com.example.j2n.room_srv.service.PaymentService;

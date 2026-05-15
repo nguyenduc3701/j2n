@@ -5,12 +5,15 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
-import com.example.j2n.room_srv.controller.request.RoomFeeDto;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
-import com.example.j2n.room_srv.controller.response.RoomResponse;
-import com.example.j2n.room_srv.controller.response.RoomFeeResponse;
-import com.example.j2n.room_srv.controller.response.SearchRoomsResponse;
+import com.example.j2n.room_srv.service.response.AssetResponse;
+import com.example.j2n.room_srv.service.response.RoomResponse;
+import com.example.j2n.room_srv.service.response.RoomFeeResponse;
+import com.example.j2n.room_srv.service.response.SimpleRoomResponse;
+import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
+import com.example.j2n.room_srv.messaging.room.event.RoomStatusUpdatedEvent;
+import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 import com.example.j2n.room_srv.repository.RoomRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.utils.PageUtil;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.*;
@@ -36,7 +40,10 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomFeeService roomFeeService;
+    private final RoomAssetService roomAssetService;
+    private final AssetService assetService;
     private final SearchFactory searchFactory;
+    private final RoomEventPublisher roomEventPublisher;
 
     @LogAround(message = "Get all rooms")
     public List<RoomEntity> getAllRooms() {
@@ -46,11 +53,11 @@ public class RoomService {
     @LogAround(message = "Search rooms")
     public BaseResponse<SearchRoomsResponse> searchRooms(SearchRoomsRequest request) {
         List<SearchCriteria> criteriaList = buildSearchCriteria(request);
-        Page<RoomResponse> pageData = searchFactory.searchAndMap(
+        Page<SimpleRoomResponse> pageData = searchFactory.searchAndMap(
                 roomRepository,
                 criteriaList,
                 request,
-                this::mapToResponse);
+                this::mapToSimpleResponse);
 
         SearchRoomsResponse response = SearchRoomsResponse.builder()
                 .rooms(pageData.getContent())
@@ -62,16 +69,37 @@ public class RoomService {
     @LogAround(message = "Get room by ID")
     public BaseResponse<RoomResponse> getRoomById(Long id) {
         RoomEntity room = findRoomByIdOrThrow(id);
-        return ResponseFactory.success(mapToResponse(room));
+        RoomResponse response = mapToResponse(room);
+        response.setAssets(getRoomAssets(id));
+        response.setFees(roomFeeService.getRoomFees(id));
+        return ResponseFactory.success(response);
+    }
+
+    private List<AssetResponse> getRoomAssets(Long roomId) {
+        return roomAssetService.getAssetsByRoomId(roomId).stream()
+                .map(ra -> assetService.mapToResponse(ra.getAsset()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @LogAround(message = "Update room")
     public BaseResponse<RoomResponse> updateRoom(Long id, RoomRequest request) {
         RoomEntity room = findRoomByIdOrThrow(id);
+        String oldStatus = room.getStatus();
         updateEntityFromRequest(room, request);
         RoomEntity updatedRoom = roomRepository.save(room);
+        publishRoomStatusUpdatedEvent(updatedRoom, oldStatus);
         return ResponseFactory.success(mapToResponse(updatedRoom));
+    }
+
+    private void publishRoomStatusUpdatedEvent(RoomEntity room, String oldStatus) {
+        if (!Objects.equals(oldStatus, room.getStatus())) {
+            roomEventPublisher.publishRoomStatusUpdated(RoomStatusUpdatedEvent.builder()
+                    .roomId(room.getId())
+                    .oldStatus(oldStatus)
+                    .newStatus(room.getStatus())
+                    .build());
+        }
     }
 
     @Transactional
@@ -89,6 +117,22 @@ public class RoomService {
 
     private RoomResponse mapToResponse(RoomEntity entity) {
         return RoomResponse.builder()
+                .id(entity.getId())
+                .roomNumber(entity.getRoomNumber())
+                .floor(entity.getFloor())
+                .basePrice(entity.getBasePrice())
+                .area(entity.getArea())
+                .maxPeople(entity.getMaxPeople())
+                .status(entity.getStatus())
+                .currentElectricIndex(entity.getCurrentElectricIndex())
+                .description(entity.getDescription())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    private SimpleRoomResponse mapToSimpleResponse(RoomEntity entity) {
+        return SimpleRoomResponse.builder()
                 .id(entity.getId())
                 .roomNumber(entity.getRoomNumber())
                 .floor(entity.getFloor())

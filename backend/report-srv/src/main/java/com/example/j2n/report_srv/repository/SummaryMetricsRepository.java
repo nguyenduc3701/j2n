@@ -18,4 +18,8 @@ public interface SummaryMetricsRepository extends JpaRepository<SummaryMetrics, 
     @Modifying
     @Query("UPDATE SummaryMetrics s SET s.metricValue = s.metricValue - 1 WHERE s.metricKey = :key AND s.metricValue > 0")
     int decrementValueIfGreaterThanZero(@Param("key") String key);
+
+    @Modifying
+    @Query("UPDATE SummaryMetrics s SET s.metricValue = :value WHERE s.metricKey = :key")
+    int updateValue(@Param("key") String key, @Param("value") Long value);
 }

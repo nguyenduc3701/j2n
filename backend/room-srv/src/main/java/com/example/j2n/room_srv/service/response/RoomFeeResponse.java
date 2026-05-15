@@ -1,4 +1,4 @@
-package com.example.j2n.room_srv.controller.response;
+package com.example.j2n.room_srv.service.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

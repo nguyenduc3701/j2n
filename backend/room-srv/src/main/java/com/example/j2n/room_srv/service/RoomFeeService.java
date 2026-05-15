@@ -1,7 +1,7 @@
 package com.example.j2n.room_srv.service;
 
 import com.example.j2n.room_srv.controller.request.RoomFeeDto;
-import com.example.j2n.room_srv.controller.response.RoomFeeResponse;
+import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.repository.RoomFeeRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomFeeEntity;
@@ -33,6 +33,12 @@ public class RoomFeeService {
         List<RoomFeeEntity> newFees = buildRoomFeeEntities(room, configDtos);
         List<RoomFeeEntity> savedFees = roomFeeRepository.saveAll(newFees);
         return mapToFeeResponseList(savedFees);
+    }
+
+    public List<RoomFeeResponse> getRoomFees(Long roomId) {
+        log.info("Getting fees for room id: {}", roomId);
+        List<RoomFeeEntity> entities = roomFeeRepository.findByRoomId(roomId);
+        return mapToFeeResponseList(entities);
     }
 
     private List<RoomFeeEntity> buildRoomFeeEntities(RoomEntity room, List<RoomFeeDto> configDtos) {
@@ -71,7 +77,7 @@ public class RoomFeeService {
                 .collect(Collectors.toList());
     }
 
-    private RoomFeeResponse mapToFeeResponse(RoomFeeEntity entity) {
+    public RoomFeeResponse mapToFeeResponse(RoomFeeEntity entity) {
         return RoomFeeResponse.builder()
                 .id(entity.getId())
                 .feeId(entity.getFee().getId())

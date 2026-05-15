@@ -1,4 +1,4 @@
-package com.example.j2n.room_srv.enums;
+package com.example.j2n.room_srv.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

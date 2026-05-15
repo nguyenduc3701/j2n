@@ -1,4 +1,4 @@
-package com.example.j2n.room_srv.controller.response;
+package com.example.j2n.room_srv.service.response;
 
 import com.example.j2n.dto.PagingResponse;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -19,7 +19,7 @@ import java.util.List;
 public class SearchRoomsResponse {
 
     @Schema(description = "List of rooms matching the search criteria", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<RoomResponse> rooms;
+    private List<SimpleRoomResponse> rooms;
 
     @Schema(description = "Paging information", requiredMode = Schema.RequiredMode.REQUIRED)
     private PagingResponse page;

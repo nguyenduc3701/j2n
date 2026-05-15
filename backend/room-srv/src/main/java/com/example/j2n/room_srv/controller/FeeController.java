@@ -34,7 +34,7 @@ public class FeeController {
                 return ResponseEntity.ok(ResponseFactory.success(feeService.getActiveFees()));
         }
 
-        @PatchMapping("/{id}")
+        @PutMapping("/{id}")
         @Operation(summary = "Update fee configuration", description = "Update specific fields of a fee")
         @J2NApiResponses({
                         @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS),

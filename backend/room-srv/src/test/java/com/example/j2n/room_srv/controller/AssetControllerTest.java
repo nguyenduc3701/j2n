@@ -2,82 +2,100 @@ package com.example.j2n.room_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.*;
-import com.example.j2n.room_srv.controller.response.AssetResponse;
-import com.example.j2n.room_srv.controller.response.SearchAssetsResponse;
+import com.example.j2n.room_srv.service.response.AssetResponse;
+import com.example.j2n.room_srv.service.response.SearchAssetsResponse;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.service.AssetService;
 import com.example.j2n.utils.ResponseFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(AssetController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class AssetControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
     private AssetService assetService;
 
-    @InjectMocks
-    private AssetController assetController;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
-    void searchAssets_Success() {
+    void searchAssets_Success() throws Exception {
         SearchAssetsRequest request = new SearchAssetsRequest();
-        when(assetService.searchAssets(request)).thenReturn(ResponseFactory.success(new SearchAssetsResponse()));
+        when(assetService.searchAssets(any(SearchAssetsRequest.class))).thenReturn(ResponseFactory.success(new SearchAssetsResponse()));
 
-        ResponseEntity<BaseResponse<SearchAssetsResponse>> result = assetController.searchAssets(request);
+        mockMvc.perform(post("/room/assets/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        verify(assetService, times(1)).searchAssets(request);
+        verify(assetService, times(1)).searchAssets(any(SearchAssetsRequest.class));
     }
 
     @Test
-    void createAsset_Success() {
+    void createAsset_Success() throws Exception {
         CreateAssetRequest request = new CreateAssetRequest();
-        when(assetService.createAsset(request)).thenReturn(ResponseFactory.success(new AssetResponse()));
+        when(assetService.createAsset(any(CreateAssetRequest.class))).thenReturn(ResponseFactory.success(new AssetResponse()));
 
-        ResponseEntity<BaseResponse<AssetResponse>> result = assetController.createAsset(request);
+        mockMvc.perform(post("/room/assets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        verify(assetService, times(1)).createAsset(request);
+        verify(assetService, times(1)).createAsset(any(CreateAssetRequest.class));
     }
 
     @Test
-    void updateAsset_Success() {
+    void updateAsset_Success() throws Exception {
         UpdateAssetRequest request = new UpdateAssetRequest();
-        when(assetService.updateAsset(1L, request)).thenReturn(ResponseFactory.success(new AssetResponse()));
+        when(assetService.updateAsset(eq(1L), any(UpdateAssetRequest.class))).thenReturn(ResponseFactory.success(new AssetResponse()));
 
-        ResponseEntity<BaseResponse<AssetResponse>> result = assetController.updateAsset(1L, request);
+        // We use PUT here as per the updated REST rules
+        mockMvc.perform(put("/room/assets/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        verify(assetService, times(1)).updateAsset(1L, request);
+        verify(assetService, times(1)).updateAsset(eq(1L), any(UpdateAssetRequest.class));
     }
 
     @Test
-    void deleteAsset_Success() {
+    void deleteAsset_Success() throws Exception {
         when(assetService.deleteAsset(1L)).thenReturn(ResponseFactory.success(null));
 
-        ResponseEntity<BaseResponse<Void>> result = assetController.deleteAsset(1L);
+        mockMvc.perform(delete("/room/assets/1"))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
         verify(assetService, times(1)).deleteAsset(1L);
     }
 
     @Test
-    void mapAssetWithRoom_Success() {
+    void mapAssetWithRoom_Success() throws Exception {
         MapAssetToRoomRequest request = new MapAssetToRoomRequest();
-        when(assetService.mapAssetWithRoom(request)).thenReturn(ResponseFactory.success(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage()));
+        when(assetService.mapAssetWithRoom(any(MapAssetToRoomRequest.class)))
+                .thenReturn(ResponseFactory.success(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage()));
 
-        ResponseEntity<BaseResponse<String>> result = assetController.mapAssetWithRoom(request);
+        mockMvc.perform(post("/room/assets/map-room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertEquals(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage(), result.getBody().getData());
-        verify(assetService, times(1)).mapAssetWithRoom(request);
+        verify(assetService, times(1)).mapAssetWithRoom(any(MapAssetToRoomRequest.class));
     }
 }

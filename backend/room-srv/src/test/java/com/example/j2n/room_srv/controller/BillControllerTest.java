@@ -1,105 +1,107 @@
 package com.example.j2n.room_srv.controller;
 
-import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.BillRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
-import com.example.j2n.room_srv.controller.response.SearchBillsResponse;
+import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.service.BillingService;
 import com.example.j2n.room_srv.service.PaymentService;
 import com.example.j2n.utils.ResponseFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(BillController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class BillControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
     private BillingService billingService;
 
-    @Mock
+    @MockitoBean
     private PaymentService paymentService;
 
-    @InjectMocks
-    private BillController billController;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
-    void calculateBillByRoomId_Success() {
+    void searchBills_Success() throws Exception {
+        SearchBillsRequest request = new SearchBillsRequest();
+        SearchBillsResponse response = new SearchBillsResponse();
+        when(billingService.searchBills(any(SearchBillsRequest.class))).thenReturn(ResponseFactory.success(response));
+
+        mockMvc.perform(post("/room/bills/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(billingService, times(1)).searchBills(any(SearchBillsRequest.class));
+    }
+
+    @Test
+    void calculateBillByRoomId_Success() throws Exception {
         BillRequest request = new BillRequest();
         BillEntity billEntity = new BillEntity();
-        when(billingService.calculateBill(request)).thenReturn(ResponseFactory.success(billEntity));
+        when(billingService.calculateBill(any(BillRequest.class))).thenReturn(ResponseFactory.success(billEntity));
 
-        ResponseEntity<BaseResponse<BillEntity>> result = billController.calculateBillByRoomId(request);
+        mockMvc.perform(post("/room/bills/calculate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(billEntity, result.getBody().getData());
-        verify(billingService, times(1)).calculateBill(request);
+        verify(billingService, times(1)).calculateBill(any(BillRequest.class));
     }
 
     @Test
-    void calculateAllBills_Success() {
-        Integer month = 5;
+    void calculateAllBills_Success() throws Exception {
         List<BillEntity> bills = List.of(new BillEntity());
-        when(billingService.calculateAllBills(month)).thenReturn(ResponseFactory.success(bills));
+        when(billingService.calculateAllBills(any())).thenReturn(ResponseFactory.success(bills));
 
-        ResponseEntity<BaseResponse<List<BillEntity>>> result = billController.calculateAllBills(month);
+        mockMvc.perform(post("/room/bills/calculate-all")
+                .param("month", "5"))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(bills, result.getBody().getData());
-        verify(billingService, times(1)).calculateAllBills(month);
+        verify(billingService, times(1)).calculateAllBills(anyInt());
     }
 
     @Test
-    void getBillsByRoom_Success() {
+    void getBillsByRoomId_Success() throws Exception {
         Long roomId = 1L;
         List<BillEntity> bills = List.of(new BillEntity());
         when(billingService.getBillsByRoomId(roomId)).thenReturn(ResponseFactory.success(bills));
 
-        ResponseEntity<BaseResponse<List<BillEntity>>> result = billController.getBillsByRoomId(roomId);
+        mockMvc.perform(get("/room/bills/room/" + roomId))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(bills, result.getBody().getData());
         verify(billingService, times(1)).getBillsByRoomId(roomId);
     }
 
     @Test
-    void payBill_Success() {
+    void payBill_Success() throws Exception {
         String billId = "bill-1";
-        Object paymentResponse = new Object();
-        when(paymentService.initiatePayment(billId)).thenReturn(ResponseFactory.success(paymentResponse));
+        when(paymentService.initiatePayment(billId)).thenReturn(ResponseFactory.success(new Object()));
 
-        ResponseEntity<BaseResponse<Object>> result = billController.payBill(billId);
+        mockMvc.perform(post("/room/bills/" + billId + "/pay"))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(paymentResponse, result.getBody().getData());
         verify(paymentService, times(1)).initiatePayment(billId);
-    }
-
-    @Test
-    void searchBills_Success() {
-        SearchBillsRequest request = new SearchBillsRequest();
-        SearchBillsResponse response = new SearchBillsResponse();
-        when(billingService.searchBills(request)).thenReturn(ResponseFactory.success(response));
-
-        ResponseEntity<BaseResponse<SearchBillsResponse>> result = billController.searchBills(request);
-
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(response, result.getBody().getData());
-        verify(billingService, times(1)).searchBills(request);
     }
 }

@@ -1,6 +1,6 @@
-package com.example.j2n.room_srv.controller.response;
+package com.example.j2n.room_srv.service.response;
 
-import com.example.j2n.room_srv.enums.BillStatus;
+import com.example.j2n.room_srv.constant.BillStatus;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;

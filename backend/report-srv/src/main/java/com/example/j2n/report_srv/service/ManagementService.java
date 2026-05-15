@@ -17,7 +17,9 @@ import com.example.j2n.lib.proto.*;
 import com.example.j2n.report_srv.constant.MessageEnum;
 import com.example.j2n.report_srv.constant.ReportApiMapping;
 import com.example.j2n.report_srv.messaging.payment.event.PaymentConfirmedEvent;
+import com.example.j2n.report_srv.messaging.room.event.RoomStatusUpdatedEvent;
 import com.example.j2n.report_srv.messaging.user.event.UserRegisteredEvent;
+import com.example.j2n.report_srv.messaging.room.event.BillsCalculatedEvent;
 import com.example.j2n.report_srv.repository.DistributionChartRepository;
 import com.example.j2n.report_srv.repository.SummaryMetricsRepository;
 import com.example.j2n.report_srv.repository.entity.DistributionChart;
@@ -49,9 +51,20 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     private final static String ACTIVE_USERS_METRIC_KEY = "active_users";
     private final static String INACTIVE_USERS_METRIC_KEY = "inactive_users";
     private final static String TOTAL_TOURS_METRIC_KEY = "total_products";
+    private final static String EMPTY_ROOMS_METRIC_KEY = "empty_rooms";
+    private final static String TOTAL_BILLS_METRIC_KEY = "total_bills_this_month";
+    private final static String UNPAID_AMOUNT_METRIC_KEY = "remaining_unpaid_amount_this_month";
+    private final static String ELECTRIC_AMOUNT_METRIC_KEY = "total_electricity_amount_this_month";
+    private final static String WATER_AMOUNT_METRIC_KEY = "total_water_amount_this_month";
+
+    private final static String ROOM_CATEGORY = "ROOM";
     private final static String ACCOUNT_CATEGORY = "ACCOUNT";
     private final static String PRODUCT_CATEGORY = "PRODUCT";
+    private final static String FINANCE_CATEGORY = "FINANCE";
+    private final static String UTILITY_CATEGORY = "UTILITY";
+
     private final static String USER_TYPE_CHART = "USER_TYPE";
+    private final static String STATUS_AVAILABLE = "AVAILABLE";
 
     @Lazy
     @Autowired
@@ -159,6 +172,24 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
     }
 
     @Transactional
+    @LogAround(message = "[REPORT-SRV] Processing room status update report")
+    public void handleRoomStatusUpdate(RoomStatusUpdatedEvent event) {
+        log.info("[REPORT-SRV] Handling room status update: roomId={} old={} new={}", 
+                event.getRoomId(), event.getOldStatus(), event.getNewStatus());
+        
+        boolean wasAvailable = STATUS_AVAILABLE.equalsIgnoreCase(event.getOldStatus());
+        boolean isAvailable = STATUS_AVAILABLE.equalsIgnoreCase(event.getNewStatus());
+
+        if (wasAvailable && !isAvailable) {
+            // Room is no longer available (e.g. occupied) -> decrement empty rooms
+            updateSummaryMetric(EMPTY_ROOMS_METRIC_KEY, ROOM_CATEGORY, false);
+        } else if (!wasAvailable && isAvailable) {
+            // Room became available -> increment empty rooms
+            updateSummaryMetric(EMPTY_ROOMS_METRIC_KEY, ROOM_CATEGORY, true);
+        }
+    }
+
+    @Transactional
     @LogAround(message = "[REPORT-SRV] Processing product report change")
     public BaseResponse<Object> handleProductReport(boolean isIncrement) {
         try {
@@ -195,6 +226,46 @@ public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
 
         log.info("[REPORT-SRV] Monthly financials updated: month={} domain={} income={} orders={}",
                 monthYear, domain, financials.getTotalIncome(), financials.getTotalOrders());
+    }
+
+    @Transactional
+    @LogAround(message = "[REPORT-SRV] Processing bills calculated report")
+    public void handleBillsCalculated(BillsCalculatedEvent event) {
+        log.info("[REPORT-SRV] Handling bills calculated: monthYear={} totalBills={} totalUnpaid={}", 
+                event.getMonthYear(), event.getTotalBills(), event.getTotalUnpaidAmount());
+        
+        setSummaryMetricValue(TOTAL_BILLS_METRIC_KEY, FINANCE_CATEGORY, event.getTotalBills().longValue());
+        setSummaryMetricValue(UNPAID_AMOUNT_METRIC_KEY, FINANCE_CATEGORY, event.getTotalUnpaidAmount().longValue());
+        setSummaryMetricValue(ELECTRIC_AMOUNT_METRIC_KEY, UTILITY_CATEGORY, event.getTotalElectricityAmount().longValue());
+        setSummaryMetricValue(WATER_AMOUNT_METRIC_KEY, UTILITY_CATEGORY, event.getTotalWaterAmount().longValue());
+
+        updateRoomUtilityReport(event);
+    }
+
+    private void updateRoomUtilityReport(BillsCalculatedEvent event) {
+        RoomUtilityReport report = roomUtilityReportRepository.findById(event.getMonthYear())
+                .orElseGet(() -> RoomUtilityReport.builder()
+                        .monthYear(event.getMonthYear())
+                        .build());
+
+        report.setTotalElectricity(event.getTotalElectricityAmount());
+        report.setTotalWater(event.getTotalWaterAmount());
+        roomUtilityReportRepository.save(report);
+
+        log.info("[REPORT-SRV] Room utility report updated for {}", event.getMonthYear());
+    }
+
+    @LogAround(message = "[REPORT-SRV] Setting summary metric value")
+    private void setSummaryMetricValue(String metricKey, String category, Long value) {
+        int updatedRows = summaryMetricsRepository.updateValue(metricKey, value);
+        if (updatedRows == 0) {
+            SummaryMetrics summary = SummaryMetrics.builder()
+                    .metricKey(metricKey)
+                    .category(category)
+                    .metricValue(value)
+                    .build();
+            summaryMetricsRepository.save(summary);
+        }
     }
 
     @LogAround(message = "[REPORT-SRV] Updating summary metric")

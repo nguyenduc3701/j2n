@@ -1,4 +1,4 @@
-package com.example.j2n.room_srv.controller.response;
+package com.example.j2n.room_srv.service.response;
 
 import com.example.j2n.dto.PagingResponse;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@Schema(description = "Response object for asset search results")
 public class SearchAssetsResponse {
 
     @Schema(description = "List of assets matching the search criteria", requiredMode = Schema.RequiredMode.REQUIRED)

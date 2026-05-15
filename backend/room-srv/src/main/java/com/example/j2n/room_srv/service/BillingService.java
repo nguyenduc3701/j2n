@@ -1,9 +1,8 @@
 package com.example.j2n.room_srv.service;
 
 import com.example.j2n.aspect.LogAround;
-import com.example.j2n.room_srv.enums.BillStatus;
+import com.example.j2n.room_srv.constant.BillStatus;
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.BillRequest;
@@ -13,8 +12,10 @@ import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
-import com.example.j2n.room_srv.controller.response.BillResponse;
-import com.example.j2n.room_srv.controller.response.SearchBillsResponse;
+import com.example.j2n.room_srv.service.response.BillResponse;
+import com.example.j2n.room_srv.service.response.SearchBillsResponse;
+import com.example.j2n.room_srv.messaging.room.event.BillsCalculatedEvent;
+import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.SearchFactory;
@@ -42,6 +43,7 @@ public class BillingService {
     private final RoomService roomService;
     private final FeeService feeService;
     private final SearchFactory searchFactory;
+    private final RoomEventPublisher eventPublisher;
 
     @LogAround(message = "Get bills by room ID")
     public BaseResponse<List<BillEntity>> getBillsByRoomId(Long roomId) {
@@ -86,7 +88,46 @@ public class BillingService {
         }
 
         List<BillEntity> savedBills = billRepository.saveAll(billsToSave);
+
+        // Publish event
+        publishBillsCalculatedEvent(savedBills, billingMonth);
+
         return ResponseFactory.success(savedBills);
+    }
+
+    private void publishBillsCalculatedEvent(List<BillEntity> savedBills, Integer month) {
+        log.info("Aggregating billing data for event publishing");
+        List<FeeEntity> configs = feeService.getActiveFees();
+        BigDecimal electricUnitPrice = configs.stream()
+                .filter(f -> "ELECTRIC".equals(f.getName()))
+                .map(FeeEntity::getUnitPrice)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal waterUnitPrice = configs.stream()
+                .filter(f -> "WATER".equals(f.getName()))
+                .map(FeeEntity::getUnitPrice)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal totalUnpaidAmount = BigDecimal.ZERO;
+        BigDecimal totalElectricityAmount = BigDecimal.ZERO;
+        BigDecimal totalWaterAmount = BigDecimal.ZERO;
+
+        for (BillEntity bill : savedBills) {
+            totalUnpaidAmount = totalUnpaidAmount.add(bill.getTotalAmount());
+            totalElectricityAmount = totalElectricityAmount
+                    .add(electricUnitPrice.multiply(BigDecimal.valueOf(bill.getElectricityUsage())));
+            totalWaterAmount = totalWaterAmount.add(waterUnitPrice.multiply(BigDecimal.valueOf(bill.getWaterUsage())));
+        }
+
+        eventPublisher.publishBillsCalculated(BillsCalculatedEvent.builder()
+                .totalBills(savedBills.size())
+                .totalUnpaidAmount(totalUnpaidAmount)
+                .totalElectricityAmount(totalElectricityAmount)
+                .totalWaterAmount(totalWaterAmount)
+                .monthYear(String.format("%d-%02d", LocalDate.now().getYear(), month))
+                .build());
     }
 
     private Long findPrimaryRenterId(RoomEntity room) {

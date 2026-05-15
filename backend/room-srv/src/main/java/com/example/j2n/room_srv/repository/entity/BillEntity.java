@@ -1,6 +1,6 @@
 package com.example.j2n.room_srv.repository.entity;
 
-import com.example.j2n.room_srv.enums.BillStatus;
+import com.example.j2n.room_srv.constant.BillStatus;
 
 import jakarta.persistence.*;
 import lombok.*;

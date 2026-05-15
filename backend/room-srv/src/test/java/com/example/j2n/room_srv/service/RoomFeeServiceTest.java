@@ -2,7 +2,7 @@ package com.example.j2n.room_srv.service;
 
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.room_srv.controller.request.RoomFeeDto;
-import com.example.j2n.room_srv.controller.response.RoomFeeResponse;
+import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.repository.RoomFeeRepository;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;

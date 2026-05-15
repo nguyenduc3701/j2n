@@ -1,4 +1,4 @@
-package com.example.j2n.room_srv.controller.response;
+package com.example.j2n.room_srv.service.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@Schema(description = "Data transfer object for asset information")
 public class AssetResponse {
 
     @Schema(description = "ID of the object", example = "1")

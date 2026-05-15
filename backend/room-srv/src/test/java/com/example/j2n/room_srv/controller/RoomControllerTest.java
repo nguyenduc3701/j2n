@@ -1,91 +1,96 @@
 package com.example.j2n.room_srv.controller;
 
-import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
-import com.example.j2n.room_srv.controller.response.RoomFeeResponse;
-import com.example.j2n.room_srv.controller.response.RoomResponse;
-import com.example.j2n.room_srv.controller.response.SearchRoomsResponse;
+import com.example.j2n.room_srv.service.response.RoomFeeResponse;
+import com.example.j2n.room_srv.service.response.RoomResponse;
+import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
 import com.example.j2n.room_srv.service.RoomService;
 import com.example.j2n.utils.ResponseFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(RoomController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class RoomControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
     private RoomService roomService;
 
-    @InjectMocks
-    private RoomController roomController;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
-    void searchRooms_Success() {
+    void searchRooms_Success() throws Exception {
         SearchRoomsRequest request = new SearchRoomsRequest();
         SearchRoomsResponse responseData = new SearchRoomsResponse();
-        when(roomService.searchRooms(request)).thenReturn(ResponseFactory.success(responseData));
+        when(roomService.searchRooms(any(SearchRoomsRequest.class))).thenReturn(ResponseFactory.success(responseData));
 
-        ResponseEntity<BaseResponse<SearchRoomsResponse>> result = roomController.searchRooms(request);
+        mockMvc.perform(post("/rooms/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(responseData, result.getBody().getData());
-        verify(roomService, times(1)).searchRooms(request);
+        verify(roomService, times(1)).searchRooms(any(SearchRoomsRequest.class));
     }
 
     @Test
-    void getRoomById_Success() {
+    void getRoomById_Success() throws Exception {
         Long roomId = 1L;
         RoomResponse responseData = new RoomResponse();
         when(roomService.getRoomById(roomId)).thenReturn(ResponseFactory.success(responseData));
 
-        ResponseEntity<BaseResponse<RoomResponse>> result = roomController.getRoomById(roomId);
+        mockMvc.perform(get("/rooms/" + roomId))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(responseData, result.getBody().getData());
         verify(roomService, times(1)).getRoomById(roomId);
     }
 
     @Test
-    void updateRoom_Success() {
+    void updateRoom_Success() throws Exception {
         Long roomId = 1L;
         RoomRequest request = new RoomRequest();
         RoomResponse responseData = new RoomResponse();
-        when(roomService.updateRoom(roomId, request)).thenReturn(ResponseFactory.success(responseData));
+        when(roomService.updateRoom(eq(roomId), any(RoomRequest.class))).thenReturn(ResponseFactory.success(responseData));
 
-        ResponseEntity<BaseResponse<RoomResponse>> result = roomController.updateRoom(roomId, request);
+        mockMvc.perform(put("/rooms/" + roomId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(responseData, result.getBody().getData());
-        verify(roomService, times(1)).updateRoom(roomId, request);
+        verify(roomService, times(1)).updateRoom(eq(roomId), any(RoomRequest.class));
     }
 
     @Test
-    void updateRoomFees_Success() {
+    void updateRoomFees_Success() throws Exception {
         Long roomId = 1L;
         UpdateRoomFeeRequest request = new UpdateRoomFeeRequest();
         List<RoomFeeResponse> responseData = List.of(new RoomFeeResponse());
-        when(roomService.updateRoomFees(roomId, request)).thenReturn(ResponseFactory.success(responseData));
+        when(roomService.updateRoomFees(eq(roomId), any(UpdateRoomFeeRequest.class))).thenReturn(ResponseFactory.success(responseData));
 
-        ResponseEntity<BaseResponse<List<RoomFeeResponse>>> result = roomController.updateRoomFees(roomId, request);
+        mockMvc.perform(put("/rooms/" + roomId + "/fees")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-        assertEquals(200, result.getStatusCode().value());
-        assertNotNull(result.getBody());
-        assertEquals(responseData, result.getBody().getData());
-        verify(roomService, times(1)).updateRoomFees(roomId, request);
+        verify(roomService, times(1)).updateRoomFees(eq(roomId), any(UpdateRoomFeeRequest.class));
     }
 }

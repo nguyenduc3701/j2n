@@ -6,9 +6,10 @@ import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.*;
-import com.example.j2n.room_srv.controller.response.AssetResponse;
-import com.example.j2n.room_srv.controller.response.SearchAssetsResponse;
+import com.example.j2n.room_srv.service.response.AssetResponse;
+import com.example.j2n.room_srv.service.response.SearchAssetsResponse;
 import com.example.j2n.room_srv.repository.AssetRepository;
+import com.example.j2n.room_srv.repository.RoomRepository;
 import com.example.j2n.room_srv.repository.entity.AssetEntity;
 import com.example.j2n.room_srv.repository.entity.RoomAssetEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
@@ -33,7 +34,7 @@ import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.LIKE;
 public class AssetService {
 
     private final AssetRepository assetRepository;
-    private final RoomService roomService;
+    private final RoomRepository roomRepository;
     private final RoomAssetService roomAssetService;
     private final SearchFactory searchFactory;
 
@@ -89,7 +90,8 @@ public class AssetService {
     @LogAround(message = "Map assets with room")
     public BaseResponse<String> mapAssetWithRoom(MapAssetToRoomRequest request) {
         log.info("Mapping asset ids: {} to room id: {}", request.getAssetIds(), request.getRoomId());
-        RoomEntity room = roomService.findRoomByIdOrThrow(request.getRoomId());
+        RoomEntity room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new DataNotFoundException(MessageEnum.ROOM_NOT_FOUND.withArgs(request.getRoomId())));
 
         List<AssetEntity> assets = assetRepository.findAllById(request.getAssetIds());
         if (assets.size() != request.getAssetIds().size()) {
@@ -113,7 +115,7 @@ public class AssetService {
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.ASSET_NOT_FOUND.withArgs(id)));
     }
 
-    private AssetResponse mapToResponse(AssetEntity entity) {
+    public AssetResponse mapToResponse(AssetEntity entity) {
         return AssetResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())

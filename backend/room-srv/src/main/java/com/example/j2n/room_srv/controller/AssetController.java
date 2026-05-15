@@ -1,11 +1,11 @@
 package com.example.j2n.room_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.room_srv.controller.response.SearchAssetsResponse;
+import com.example.j2n.room_srv.service.response.SearchAssetsResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.*;
-import com.example.j2n.room_srv.controller.response.AssetResponse;
+import com.example.j2n.room_srv.service.response.AssetResponse;
 import com.example.j2n.room_srv.service.AssetService;
 import com.example.j2n.swagger.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +41,7 @@ public class AssetController {
         return ResponseEntity.ok(assetService.createAsset(request));
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Update asset", description = "Update asset details")
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS),

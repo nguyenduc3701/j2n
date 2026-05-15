@@ -5,9 +5,10 @@ import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.*;
-import com.example.j2n.room_srv.controller.response.AssetResponse;
-import com.example.j2n.room_srv.controller.response.SearchAssetsResponse;
+import com.example.j2n.room_srv.service.response.AssetResponse;
+import com.example.j2n.room_srv.service.response.SearchAssetsResponse;
 import com.example.j2n.room_srv.repository.AssetRepository;
+import com.example.j2n.room_srv.repository.RoomRepository;
 import com.example.j2n.room_srv.repository.entity.AssetEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.utils.SearchFactory;
@@ -24,7 +25,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +33,7 @@ class AssetServiceTest {
     @Mock
     private AssetRepository assetRepository;
     @Mock
-    private RoomService roomService;
+    private RoomRepository roomRepository;
     @Mock
     private RoomAssetService roomAssetService;
     @Mock
@@ -122,22 +122,22 @@ class AssetServiceTest {
         RoomEntity room = RoomEntity.builder().id(1L).build();
         AssetEntity asset2 = AssetEntity.builder().id(2L).build();
         AssetEntity asset3 = AssetEntity.builder().id(3L).build();
- 
-        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
         when(assetRepository.findAllById(List.of(2L, 3L))).thenReturn(List.of(asset2, asset3));
- 
+
         BaseResponse<String> result = assetService.mapAssetWithRoom(request);
- 
+
         assertNotNull(result);
         assertEquals(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage(), result.getData());
         verify(roomAssetService, times(1)).saveAll(anyList());
     }
- 
+
     @Test
     void mapAssetWithRoom_RoomNotFound() {
         MapAssetToRoomRequest request = MapAssetToRoomRequest.builder().roomId(1L).assetIds(List.of(2L)).build();
-        when(roomService.findRoomByIdOrThrow(1L)).thenThrow(new DataNotFoundException(com.example.j2n.room_srv.constant.MessageEnum.ROOM_NOT_FOUND));
- 
+        when(roomRepository.findById(1L)).thenReturn(Optional.empty());
+
         assertThrows(DataNotFoundException.class, () -> assetService.mapAssetWithRoom(request));
     }
 }
