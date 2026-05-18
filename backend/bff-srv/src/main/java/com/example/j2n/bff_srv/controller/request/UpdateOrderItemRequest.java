@@ -1,0 +1,39 @@
+package com.example.j2n.bff_srv.controller.request;
+
+import com.example.j2n.dto.BaseRequest;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@Schema(description = "Request object for updating an item quantity in the order")
+public class UpdateOrderItemRequest extends BaseRequest {
+
+    @NotBlank(message = "Item ID is required")
+    @Schema(description = "The unique identifier of the item", example = "product-789", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String itemId;
+
+    @NotBlank(message = "Item type is required")
+    @Schema(description = "The category of the item", example = "PRODUCT", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String itemType;
+
+    @NotNull(message = "Quantity is required")
+    @Min(value = 0, message = "Quantity must be at least 0")
+    @Schema(description = "The target number of items (setting to 0 will remove the item)", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer quantity;
+
+    @Schema(description = "The size of the item", example = "M", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String size;
+
+    @Schema(description = "The design of the item", example = "Classic", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private String design;
+}

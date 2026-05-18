@@ -31,7 +31,8 @@ public class GatewayPath {
     // payment-srv
     public static final String PAYMENT_TRANSACTIONS_PATH = "/api/payment/transactions";
     // order-srv
-    public static final String ORDER_CARTS_PATH = "/api/order/carts";
+    public static final String ORDER_BASE_PATH = "/api/order/orders";
+    public static final String ORDER_BY_USER_ID_PATH = "/api/order/orders/%s";
     // room-srv
     public static final String ROOM_SEARCH_PATH = "/api/room/search";
     public static final String ROOM_DETAIL_PATH = "/api/room/%s";

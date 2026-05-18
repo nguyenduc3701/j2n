@@ -85,7 +85,7 @@ spring:
           predicates:
             - Path=/api/order/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5

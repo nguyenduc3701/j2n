@@ -20,6 +20,7 @@ import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.SearchFactory;
 import com.example.j2n.utils.SearchPredicateBuilder.SearchCriteria;
+import com.example.j2n.room_srv.utils.RoomSecurityUtil;
 import org.springframework.data.domain.Page;
 import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.EQUAL;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +45,12 @@ public class BillingService {
     private final FeeService feeService;
     private final SearchFactory searchFactory;
     private final RoomEventPublisher eventPublisher;
+    private final RoomSecurityUtil roomSecurityUtil;
 
     @LogAround(message = "Get bills by room ID")
     public BaseResponse<List<BillEntity>> getBillsByRoomId(Long roomId) {
+        RoomEntity room = roomService.findRoomByIdOrThrow(roomId);
+        roomSecurityUtil.checkRoomAccess(room);
         return ResponseFactory.success(billRepository.findByRoomId(roomId));
     }
 
@@ -58,6 +62,7 @@ public class BillingService {
         Integer validMonth = validateMonth(reqMonth, request.getRoomId());
         request.setMonth(Optional.of(validMonth));
         RoomEntity room = roomService.findRoomByIdOrThrow(request.getRoomId());
+        roomSecurityUtil.checkRoomAccess(room);
         Integer electricOld = room.getCurrentElectricIndex() != null ? room.getCurrentElectricIndex() : 0;
         BigDecimal totalAmount = calculateTotalAmount(request, room, electricOld);
         BillEntity bill = buildBillEntity(request, room, electricOld, totalAmount);

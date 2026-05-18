@@ -7,6 +7,8 @@ import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
+import com.example.j2n.room_srv.utils.RoomSecurityUtil;
+import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 import com.example.j2n.room_srv.service.response.BillResponse;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.dto.BaseResponse;
@@ -45,6 +47,12 @@ class BillingServiceTest {
 
     @Mock
     private SearchFactory searchFactory;
+
+    @Mock
+    private RoomSecurityUtil roomSecurityUtil;
+
+    @Mock
+    private RoomEventPublisher eventPublisher;
 
     @InjectMocks
     private BillingService billingService;
@@ -96,13 +104,33 @@ class BillingServiceTest {
 
     @Test
     void getBillsByRoom_Success() {
+        RoomEntity room = RoomEntity.builder().id(1L).roomNumber("101").build();
         BillEntity bill = BillEntity.builder().id("bill-1").build();
+
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+        doNothing().when(roomSecurityUtil).checkRoomAccess(room);
         when(billRepository.findByRoomId(1L)).thenReturn(List.of(bill));
 
         BaseResponse<List<BillEntity>> response = billingService.getBillsByRoomId(1L);
 
         assertEquals(1, response.getData().size());
+        verify(roomService, times(1)).findRoomByIdOrThrow(1L);
+        verify(roomSecurityUtil, times(1)).checkRoomAccess(room);
         verify(billRepository, times(1)).findByRoomId(1L);
+    }
+
+    @Test
+    void getBillsByRoom_AccessDenied_ThrowsException() {
+        RoomEntity room = RoomEntity.builder().id(1L).roomNumber("101").build();
+
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+        doThrow(new com.example.j2n.exception.AccessDeniedException(com.example.j2n.enums.BaseMessageEnum.ACCESS_DENIED))
+                .when(roomSecurityUtil).checkRoomAccess(room);
+
+        assertThrows(com.example.j2n.exception.AccessDeniedException.class, () -> billingService.getBillsByRoomId(1L));
+        verify(roomService, times(1)).findRoomByIdOrThrow(1L);
+        verify(roomSecurityUtil, times(1)).checkRoomAccess(room);
+        verify(billRepository, never()).findByRoomId(any());
     }
 
     @Test

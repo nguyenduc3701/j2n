@@ -26,7 +26,6 @@ public class PaymentService {
     public BaseResponse<Object> initiatePayment(String billId) {
         BillEntity bill = billRepository.findById(billId)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.BILL_NOT_FOUND.withArgs(billId)));
-
         if (BillStatus.PAID.equals(bill.getStatus())) {
             return ResponseFactory.error(BaseMessageEnum.BAD_REQUEST);
         }

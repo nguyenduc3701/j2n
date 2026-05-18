@@ -2,6 +2,8 @@ package com.example.j2n.room_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.enums.BaseMessageEnum;
+import com.example.j2n.exception.AccessDeniedException;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
@@ -11,6 +13,7 @@ import com.example.j2n.room_srv.service.response.AssetResponse;
 import com.example.j2n.room_srv.service.response.RoomResponse;
 import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.service.response.SimpleRoomResponse;
+import com.example.j2n.room_srv.utils.RoomSecurityUtil;
 import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
 import com.example.j2n.room_srv.messaging.room.event.RoomStatusUpdatedEvent;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
@@ -44,6 +47,7 @@ public class RoomService {
     private final AssetService assetService;
     private final SearchFactory searchFactory;
     private final RoomEventPublisher roomEventPublisher;
+    private final RoomSecurityUtil roomSecurityUtil;
 
     @LogAround(message = "Get all rooms")
     public List<RoomEntity> getAllRooms() {
@@ -69,6 +73,7 @@ public class RoomService {
     @LogAround(message = "Get room by ID")
     public BaseResponse<RoomResponse> getRoomById(Long id) {
         RoomEntity room = findRoomByIdOrThrow(id);
+        roomSecurityUtil.checkRoomAccess(room);
         RoomResponse response = mapToResponse(room);
         response.setAssets(getRoomAssets(id));
         response.setFees(roomFeeService.getRoomFees(id));
