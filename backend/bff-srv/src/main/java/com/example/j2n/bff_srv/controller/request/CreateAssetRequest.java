@@ -3,6 +3,7 @@ package com.example.j2n.bff_srv.controller.request;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,4 +23,9 @@ public class CreateAssetRequest {
 
     @Schema(description = "Description of the asset", example = "Electric water heater with 30L capacity", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;
+
+    @Min(value = 1, message = "Quantity must be at least 1")
+    @Schema(description = "Quantity of the asset", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Builder.Default
+    private Integer quantity = 1;
 }

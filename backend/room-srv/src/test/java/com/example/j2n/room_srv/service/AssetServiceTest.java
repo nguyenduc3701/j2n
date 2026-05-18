@@ -59,8 +59,8 @@ class AssetServiceTest {
 
     @Test
     void createAsset_Success() {
-        CreateAssetRequest request = CreateAssetRequest.builder().name("New Asset").description("Desc").build();
-        AssetEntity entity = AssetEntity.builder().id(1L).name("New Asset").description("Desc").build();
+        CreateAssetRequest request = CreateAssetRequest.builder().name("New Asset").description("Desc").quantity(3).build();
+        AssetEntity entity = AssetEntity.builder().id(1L).name("New Asset").description("Desc").quantity(3).build();
 
         when(assetRepository.findByName("New Asset")).thenReturn(Optional.empty());
         when(assetRepository.save(any(AssetEntity.class))).thenReturn(entity);
@@ -69,6 +69,7 @@ class AssetServiceTest {
 
         assertNotNull(result);
         assertEquals("New Asset", result.getData().getName());
+        assertEquals(3, result.getData().getQuantity());
         verify(assetRepository, times(1)).save(any());
     }
 
@@ -85,8 +86,11 @@ class AssetServiceTest {
 
     @Test
     void updateAsset_Success() {
-        UpdateAssetRequest request = UpdateAssetRequest.builder().name(Optional.of("Updated")).build();
-        AssetEntity entity = AssetEntity.builder().id(1L).name("Old").build();
+        UpdateAssetRequest request = UpdateAssetRequest.builder()
+                .name(Optional.of("Updated"))
+                .quantity(Optional.of(5))
+                .build();
+        AssetEntity entity = AssetEntity.builder().id(1L).name("Old").quantity(2).isDeleted(false).build();
 
         when(assetRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(assetRepository.save(any(AssetEntity.class))).thenAnswer(i -> i.getArguments()[0]);
@@ -94,6 +98,20 @@ class AssetServiceTest {
         BaseResponse<AssetResponse> result = assetService.updateAsset(1L, request);
 
         assertEquals("Updated", result.getData().getName());
+        assertEquals(5, result.getData().getQuantity());
+    }
+
+    @Test
+    void updateAsset_InvalidQuantity() {
+        UpdateAssetRequest request = UpdateAssetRequest.builder()
+                .quantity(Optional.of(0))
+                .build();
+        AssetEntity entity = AssetEntity.builder().id(1L).name("Old").quantity(2).isDeleted(false).build();
+
+        when(assetRepository.findById(1L)).thenReturn(Optional.of(entity));
+
+        assertThrows(InvalidInputException.class, () -> assetService.updateAsset(1L, request));
+        verify(assetRepository, never()).save(any());
     }
 
     @Test
@@ -105,14 +123,24 @@ class AssetServiceTest {
     }
 
     @Test
-    void deleteAsset_Success() {
-        AssetEntity entity = AssetEntity.builder().id(1L).build();
+    void findByIdOrThrow_AssetDeleted() {
+        AssetEntity entity = AssetEntity.builder().id(1L).isDeleted(true).build();
         when(assetRepository.findById(1L)).thenReturn(Optional.of(entity));
+
+        assertThrows(DataNotFoundException.class, () -> assetService.updateAsset(1L, new UpdateAssetRequest()));
+    }
+
+    @Test
+    void deleteAsset_Success() {
+        AssetEntity entity = AssetEntity.builder().id(1L).isDeleted(false).build();
+        when(assetRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(assetRepository.save(any(AssetEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
         BaseResponse<Void> result = assetService.deleteAsset(1L);
 
         assertNotNull(result);
-        verify(assetRepository, times(1)).delete(entity);
+        assertTrue(entity.getIsDeleted());
+        verify(assetRepository, times(1)).save(entity);
     }
 
     @Test
@@ -120,8 +148,8 @@ class AssetServiceTest {
         MapAssetToRoomRequest request = MapAssetToRoomRequest.builder()
                 .roomId(1L).assetIds(List.of(2L, 3L)).build();
         RoomEntity room = RoomEntity.builder().id(1L).build();
-        AssetEntity asset2 = AssetEntity.builder().id(2L).build();
-        AssetEntity asset3 = AssetEntity.builder().id(3L).build();
+        AssetEntity asset2 = AssetEntity.builder().id(2L).isDeleted(false).build();
+        AssetEntity asset3 = AssetEntity.builder().id(3L).isDeleted(false).build();
 
         when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
         when(assetRepository.findAllById(List.of(2L, 3L))).thenReturn(List.of(asset2, asset3));
@@ -137,6 +165,20 @@ class AssetServiceTest {
     void mapAssetWithRoom_RoomNotFound() {
         MapAssetToRoomRequest request = MapAssetToRoomRequest.builder().roomId(1L).assetIds(List.of(2L)).build();
         when(roomRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(DataNotFoundException.class, () -> assetService.mapAssetWithRoom(request));
+    }
+
+    @Test
+    void mapAssetWithRoom_AssetDeleted() {
+        MapAssetToRoomRequest request = MapAssetToRoomRequest.builder()
+                .roomId(1L).assetIds(List.of(2L, 3L)).build();
+        RoomEntity room = RoomEntity.builder().id(1L).build();
+        AssetEntity asset2 = AssetEntity.builder().id(2L).isDeleted(false).build();
+        AssetEntity asset3 = AssetEntity.builder().id(3L).isDeleted(true).build();
+
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        when(assetRepository.findAllById(List.of(2L, 3L))).thenReturn(List.of(asset2, asset3));
 
         assertThrows(DataNotFoundException.class, () -> assetService.mapAssetWithRoom(request));
     }

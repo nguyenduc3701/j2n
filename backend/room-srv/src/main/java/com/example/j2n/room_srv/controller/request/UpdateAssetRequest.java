@@ -28,8 +28,12 @@ public class UpdateAssetRequest implements ValidatableRequest {
     @Builder.Default
     private Optional<String> description = Optional.empty();
 
+    @Schema(description = "Updated quantity of the asset", example = "2", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Builder.Default
+    private Optional<Integer> quantity = Optional.empty();
+
     @Override
     public boolean isEmpty() {
-        return name.isEmpty() && description.isEmpty();
+        return name.isEmpty() && description.isEmpty() && quantity.isEmpty();
     }
 }

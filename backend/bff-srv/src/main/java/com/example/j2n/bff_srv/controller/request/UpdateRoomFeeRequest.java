@@ -2,7 +2,6 @@ package com.example.j2n.bff_srv.controller.request;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,8 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UpdateRoomFeeRequest {
-    @Schema(description = "List of fees to update for the room", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "Fees list cannot be empty")
-    @Valid
-    private List<RoomFeeDto> fees;
+    @Schema(description = "List of fee IDs to update for the room", example = "[1, 2]", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "Fee IDs list cannot be empty")
+    private List<Integer> feeIds;
 }

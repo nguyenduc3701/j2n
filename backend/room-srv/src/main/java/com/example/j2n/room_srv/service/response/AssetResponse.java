@@ -27,6 +27,9 @@ public class AssetResponse {
     @Schema(description = "Description of the object", example = "Daikin Inverter 1HP")
     private String description;
 
+    @Schema(description = "Quantity of the asset", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer quantity;
+
     @Schema(description = "Creation timestamp")
     private LocalDateTime createdAt;
 

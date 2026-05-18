@@ -1,7 +1,6 @@
 package com.example.j2n.room_srv.service;
 
 import com.example.j2n.room_srv.controller.request.RoomRequest;
-import com.example.j2n.room_srv.controller.request.RoomFeeDto;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
 import com.example.j2n.room_srv.service.response.RoomResponse;
@@ -108,10 +107,7 @@ class RoomServiceTest {
                 Long roomId = 1L;
                 Long feeId = 10L;
                 UpdateRoomFeeRequest request = UpdateRoomFeeRequest.builder()
-                                .fees(List.of(
-                                                RoomFeeDto.builder()
-                                                                .feeId(feeId)
-                                                                .build()))
+                                .feeIds(List.of(feeId.intValue()))
                                 .build();
 
                 RoomEntity room = RoomEntity.builder().id(roomId).build();
@@ -137,7 +133,7 @@ class RoomServiceTest {
         void updateRoomFees_RoomNotFound() {
                 Long roomId = 1L;
                 UpdateRoomFeeRequest request = UpdateRoomFeeRequest.builder()
-                                .fees(new ArrayList<>())
+                                .feeIds(new ArrayList<>())
                                 .build();
 
                 when(roomRepository.findById(roomId)).thenReturn(Optional.empty());

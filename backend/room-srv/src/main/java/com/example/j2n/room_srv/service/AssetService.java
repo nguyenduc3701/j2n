@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.EQUAL;
 import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.LIKE;
 
 @Service
@@ -63,6 +64,8 @@ public class AssetService {
         AssetEntity entity = AssetEntity.builder()
                 .name(request.getName())
                 .description(request.getDescription())
+                .quantity(request.getQuantity())
+                .isDeleted(false)
                 .build();
         return ResponseFactory.success(mapToResponse(assetRepository.save(entity)));
     }
@@ -82,7 +85,8 @@ public class AssetService {
     public BaseResponse<Void> deleteAsset(Long id) {
         log.info("Deleting asset with id: {}", id);
         AssetEntity entity = findByIdOrThrow(id);
-        assetRepository.delete(entity);
+        entity.setIsDeleted(true);
+        assetRepository.save(entity);
         return ResponseFactory.success(null);
     }
 
@@ -94,8 +98,9 @@ public class AssetService {
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.ROOM_NOT_FOUND.withArgs(request.getRoomId())));
 
         List<AssetEntity> assets = assetRepository.findAllById(request.getAssetIds());
-        if (assets.size() != request.getAssetIds().size()) {
-            log.error("Some assets not found. Requested: {}, Found: {}", request.getAssetIds().size(), assets.size());
+        boolean hasDeleted = assets.stream().anyMatch(asset -> Boolean.TRUE.equals(asset.getIsDeleted()));
+        if (assets.size() != request.getAssetIds().size() || hasDeleted) {
+            log.error("Some assets not found or are deleted. Requested: {}, Found: {}", request.getAssetIds().size(), assets.size());
             throw new DataNotFoundException(MessageEnum.ASSET_NOT_FOUND.withArgs("multiple IDs"));
         }
 
@@ -111,8 +116,12 @@ public class AssetService {
     }
 
     public AssetEntity findByIdOrThrow(Long id) {
-        return assetRepository.findById(id)
+        AssetEntity entity = assetRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.ASSET_NOT_FOUND.withArgs(id)));
+        if (Boolean.TRUE.equals(entity.getIsDeleted())) {
+            throw new DataNotFoundException(MessageEnum.ASSET_NOT_FOUND.withArgs(id));
+        }
+        return entity;
     }
 
     public AssetResponse mapToResponse(AssetEntity entity) {
@@ -120,6 +129,7 @@ public class AssetService {
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
+                .quantity(entity.getQuantity())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -128,6 +138,11 @@ public class AssetService {
     private List<SearchCriteria> buildSearchCriteria(SearchAssetsRequest request) {
         log.info("Building search criteria for request: {}", request);
         List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(SearchCriteria.builder()
+                .fieldName("isDeleted")
+                .value(false)
+                .operation(EQUAL)
+                .build());
         request.getName().ifPresent(name -> criteriaList.add(SearchCriteria.builder()
                 .fieldName("name")
                 .value(name)
@@ -145,6 +160,12 @@ public class AssetService {
         log.info("Updating entity from request: {}", request);
         request.getName().ifPresent(entity::setName);
         request.getDescription().ifPresent(entity::setDescription);
+        request.getQuantity().ifPresent(q -> {
+            if (q < 1) {
+                throw new InvalidInputException(MessageEnum.INVALID_QUANTITY);
+            }
+            entity.setQuantity(q);
+        });
     }
 
     private void validateAssetNameUnique(String name) {

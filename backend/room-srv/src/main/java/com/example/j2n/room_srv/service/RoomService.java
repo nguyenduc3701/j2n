@@ -111,7 +111,7 @@ public class RoomService {
     @LogAround(message = "Update room fees")
     public BaseResponse<List<RoomFeeResponse>> updateRoomFees(Long roomId, UpdateRoomFeeRequest request) {
         RoomEntity room = findRoomByIdOrThrow(roomId);
-        List<RoomFeeResponse> response = roomFeeService.updateRoomFees(room, request.getFees());
+        List<RoomFeeResponse> response = roomFeeService.updateRoomFees(room, request.getFeeIds());
         return ResponseFactory.success(response);
     }
 

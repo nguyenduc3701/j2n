@@ -1,7 +1,6 @@
 package com.example.j2n.room_srv.service;
 
 import com.example.j2n.exception.DataNotFoundException;
-import com.example.j2n.room_srv.controller.request.RoomFeeDto;
 import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.repository.RoomFeeRepository;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
@@ -34,7 +33,6 @@ class RoomFeeServiceTest {
     @Test
     void updateRoomFees_Success() {
         RoomEntity room = RoomEntity.builder().id(1L).build();
-        RoomFeeDto feeDto = RoomFeeDto.builder().feeId(10L).build();
         FeeEntity feeEntity = new FeeEntity();
         feeEntity.setId(10L);
         feeEntity.setName("WATER");
@@ -52,7 +50,7 @@ class RoomFeeServiceTest {
             return entities;
         });
 
-        List<RoomFeeResponse> responses = roomFeeService.updateRoomFees(room, List.of(feeDto));
+        List<RoomFeeResponse> responses = roomFeeService.updateRoomFees(room, List.of(10));
 
         assertNotNull(responses);
         assertEquals(1, responses.size());
@@ -70,13 +68,12 @@ class RoomFeeServiceTest {
     @Test
     void updateRoomFees_FeeNotFound_ThrowsException() {
         RoomEntity room = RoomEntity.builder().id(1L).build();
-        RoomFeeDto feeDto = RoomFeeDto.builder().feeId(99L).build();
 
         // Return empty list simulating fee not found
         when(feeService.findAllByIds(List.of(99L))).thenReturn(List.of());
 
         assertThrows(DataNotFoundException.class, () -> {
-            roomFeeService.updateRoomFees(room, List.of(feeDto));
+            roomFeeService.updateRoomFees(room, List.of(99));
         });
 
         verify(roomFeeRepository, times(1)).deleteByRoomId(1L);

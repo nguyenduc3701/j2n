@@ -1,6 +1,5 @@
 package com.example.j2n.room_srv.service;
 
-import com.example.j2n.room_srv.controller.request.RoomFeeDto;
 import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.repository.RoomFeeRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,10 +27,10 @@ public class RoomFeeService {
     private final FeeService feeService;
 
     @Transactional
-    public List<RoomFeeResponse> updateRoomFees(RoomEntity room, List<RoomFeeDto> configDtos) {
+    public List<RoomFeeResponse> updateRoomFees(RoomEntity room, List<Integer> feeIds) {
         log.info("Updating fees for room id: {}", room.getId());
         roomFeeRepository.deleteByRoomId(room.getId());
-        List<RoomFeeEntity> newFees = buildRoomFeeEntities(room, configDtos);
+        List<RoomFeeEntity> newFees = buildRoomFeeEntities(room, feeIds);
         List<RoomFeeEntity> savedFees = roomFeeRepository.saveAll(newFees);
         return mapToFeeResponseList(savedFees);
     }
@@ -41,34 +41,31 @@ public class RoomFeeService {
         return mapToFeeResponseList(entities);
     }
 
-    private List<RoomFeeEntity> buildRoomFeeEntities(RoomEntity room, List<RoomFeeDto> configDtos) {
+    private List<RoomFeeEntity> buildRoomFeeEntities(RoomEntity room, List<Integer> feeIds) {
         log.info("Building room fee entities for room id: {}", room.getId());
-        List<Long> feeIds = configDtos.stream()
-                .map(RoomFeeDto::getFeeId)
+        List<Long> longFeeIds = feeIds.stream()
+                .filter(Objects::nonNull)
+                .map(Integer::longValue)
                 .distinct()
                 .collect(Collectors.toList());
 
-        Map<Long, FeeEntity> feeMap = feeService.findAllByIds(feeIds).stream()
+        Map<Long, FeeEntity> feeMap = feeService.findAllByIds(longFeeIds).stream()
                 .collect(Collectors.toMap(FeeEntity::getId, Function.identity()));
 
-        return configDtos.stream()
-                .map(configDto -> mapToRoomFeeEntity(room, configDto, feeMap))
+        return longFeeIds.stream()
+                .map(feeId -> {
+                    FeeEntity fee = feeMap.get(feeId);
+                    if (fee == null) {
+                        throw new DataNotFoundException(
+                                MessageEnum.FEE_NOT_FOUND.withArgs(feeId));
+                    }
+
+                    RoomFeeEntity roomFee = new RoomFeeEntity();
+                    roomFee.setRoom(room);
+                    roomFee.setFee(fee);
+                    return roomFee;
+                })
                 .collect(Collectors.toList());
-    }
-
-    private RoomFeeEntity mapToRoomFeeEntity(RoomEntity room, RoomFeeDto configDto,
-            Map<Long, FeeEntity> feeMap) {
-        log.info("Mapping room fee entity for room id: {}", room.getId());
-        FeeEntity fee = feeMap.get(configDto.getFeeId());
-        if (fee == null) {
-            throw new DataNotFoundException(
-                    MessageEnum.FEE_NOT_FOUND.withArgs(configDto.getFeeId()));
-        }
-
-        RoomFeeEntity roomFee = new RoomFeeEntity();
-        roomFee.setRoom(room);
-        roomFee.setFee(fee);
-        return roomFee;
     }
 
     private List<RoomFeeResponse> mapToFeeResponseList(List<RoomFeeEntity> entities) {

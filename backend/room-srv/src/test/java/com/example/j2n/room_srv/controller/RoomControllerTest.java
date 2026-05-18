@@ -82,7 +82,9 @@ class RoomControllerTest {
     @Test
     void updateRoomFees_Success() throws Exception {
         Long roomId = 1L;
-        UpdateRoomFeeRequest request = new UpdateRoomFeeRequest();
+        UpdateRoomFeeRequest request = UpdateRoomFeeRequest.builder()
+                .feeIds(List.of(1, 2))
+                .build();
         List<RoomFeeResponse> responseData = List.of(new RoomFeeResponse());
         when(roomService.updateRoomFees(eq(roomId), any(UpdateRoomFeeRequest.class))).thenReturn(ResponseFactory.success(responseData));
 
