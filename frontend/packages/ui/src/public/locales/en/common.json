@@ -63,7 +63,71 @@
   "account_type": "Account Type",
   "recently_registered": "Recently Registered",
   "room": "Room",
-  "rooms": "Rooms",
+  "rooms": {
+    "title": "Room Management",
+    "create": "Create Room",
+    "tabs": {
+      "rooms": "Rooms",
+      "assets": "Assets Catalog",
+      "bills": "Bills & Invoices",
+      "fees": "Fees Configuration"
+    },
+    "table": {
+      "room_number": "Room Number",
+      "floor": "Floor",
+      "price": "Base Price",
+      "area": "Area",
+      "capacity": "Capacity",
+      "status": "Status",
+      "electric_index": "Electric Index",
+      "actions": "Actions"
+    },
+    "status": {
+      "available": "Available",
+      "occupied": "Occupied",
+      "maintenance": "Under Maintenance"
+    },
+    "modal": {
+      "edit_title": "Edit Room {number}",
+      "view_title": "Room {number} Details",
+      "tabs": {
+        "general": "General Details",
+        "members": "Occupants",
+        "assets": "Assets Inventory",
+        "billing": "Billing History"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "assets": {
+      "create": "Add New Asset",
+      "name": "Asset Name",
+      "serial": "Serial Number",
+      "map_to_room": "Assign Asset to Room"
+    },
+    "bills": {
+      "calculate": "Calculate Bill",
+      "calculate_all": "Calculate All Bills",
+      "month": "Billing Month",
+      "amount": "Total Amount",
+      "status": {
+        "paid": "Paid",
+        "unpaid": "Unpaid"
+      }
+    },
+    "fees": {
+      "name": "Fee Name",
+      "type": "Type",
+      "price": "Unit Price",
+      "unit": "Unit Name",
+      "edit_pricing": "Edit pricing",
+      "edit_title": "Edit Fee Configuration",
+      "validation": {
+        "name_required": "Name is required",
+        "price_min": "Price must be greater than or equal to 0"
+      }
+    }
+  },
   "total_income": "Total Income",
   "total_users": "Total Users",
   "remaining": "Remaining",

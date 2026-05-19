@@ -7,6 +7,7 @@ import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.MapMemberToRoomRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomMemberRequest;
+import com.example.j2n.room_srv.messaging.user.event.UserRegisteredEvent;
 import com.example.j2n.room_srv.repository.RoomMemberRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
@@ -139,5 +140,29 @@ public class RoomMemberService {
                 .isPrimary(entity.getIsPrimary())
                 .joinedAt(entity.getJoinedAt())
                 .build();
+    }
+
+    @Transactional
+    public void handleUserRegisteredEvent(UserRegisteredEvent event) {
+        if ("RENTER".equals(event.getRole()) && event.getRoomId() != null && !event.getRoomId().trim().isEmpty()
+                && !"null".equalsIgnoreCase(event.getRoomId().trim())) {
+            try {
+                Long roomId = Long.parseLong(event.getRoomId().trim());
+                Long userId = Long.parseLong(event.getUserId().trim());
+                log.info("Handling RENTER registered event for user {} and room {}", userId, roomId);
+                if (!roomMemberRepository.existsByRoomIdAndUserId(roomId, userId)) {
+                    RoomEntity room = roomService.findRoomByIdOrThrow(roomId);
+                    RoomMemberEntity newMember = buildRoomMemberEntity(room, userId, false);
+                    roomMemberRepository.save(newMember);
+                    log.info("Successfully created RoomMember for user {} in room {}", userId, roomId);
+                } else {
+                    log.info("User {} already mapped to room {}", userId, roomId);
+                }
+            } catch (NumberFormatException e) {
+                log.error("Invalid roomId or userId format in UserRegisteredEvent: {}", event);
+            } catch (Exception e) {
+                log.error("Error handling UserRegisteredEvent: {}", e.getMessage(), e);
+            }
+        }
     }
 }

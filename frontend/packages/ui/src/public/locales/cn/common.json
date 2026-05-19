@@ -63,7 +63,71 @@
   "account_type": "账户类型",
   "recently_registered": "最近注册",
   "room": "房间",
-  "rooms": "房间",
+  "rooms": {
+    "title": "房间管理",
+    "create": "创建房间",
+    "tabs": {
+      "rooms": "房间",
+      "assets": "资产目录",
+      "bills": "账单与发票",
+      "fees": "费用配置"
+    },
+    "table": {
+      "room_number": "房间号",
+      "floor": "楼层",
+      "price": "基础价格",
+      "area": "面积",
+      "capacity": "容量",
+      "status": "状态",
+      "electric_index": "电表指数",
+      "actions": "操作"
+    },
+    "status": {
+      "available": "空闲",
+      "occupied": "已入住",
+      "maintenance": "维护中"
+    },
+    "modal": {
+      "edit_title": "编辑房间 {number}",
+      "view_title": "房间 {number} 详情",
+      "tabs": {
+        "general": "基本详情",
+        "members": "居住者",
+        "assets": "资产清单",
+        "billing": "计费历史"
+      },
+      "cancel": "取消",
+      "save": "保存"
+    },
+    "assets": {
+      "create": "添加新资产",
+      "name": "资产名称",
+      "serial": "序列号",
+      "map_to_room": "分配资产到房间"
+    },
+    "bills": {
+      "calculate": "计算账单",
+      "calculate_all": "计算所有账单",
+      "month": "账单月份",
+      "amount": "总金额",
+      "status": {
+        "paid": "已付",
+        "unpaid": "未付"
+      }
+    },
+    "fees": {
+      "name": "费用名称",
+      "type": "类型",
+      "price": "单价",
+      "unit": "单位",
+      "edit_pricing": "编辑价格",
+      "edit_title": "编辑费用配置",
+      "validation": {
+        "name_required": "名称是必填项",
+        "price_min": "价格必须大于或等于0"
+      }
+    }
+  },
   "total_income": "总收入",
   "total_users": "总用户",
   "remaining": "剩余",

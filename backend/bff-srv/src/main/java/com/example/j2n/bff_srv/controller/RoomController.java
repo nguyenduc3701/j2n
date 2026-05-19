@@ -204,4 +204,39 @@ public class RoomController {
     public ResponseEntity<Object> updateFee(@PathVariable Long id, @Valid @RequestBody UpdateFeeRequest request) {
         return ResponseEntity.ok(roomService.updateFee(id, request));
     }
+
+    // --- Member Endpoints ---
+
+    @PostMapping("/members/mapping")
+    @Operation(summary = "Map members to room", description = "Assign users as members of a room")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> mapMemberToRoom(@Valid @RequestBody MapMemberToRoomRequest request) {
+        return ResponseEntity.ok(roomService.mapMemberToRoom(request));
+    }
+
+    @PutMapping("/members/{id}")
+    @Operation(summary = "Update room member", description = "Update room member attributes like primary status")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> updateRoomMember(@PathVariable Long id, @Valid @RequestBody UpdateRoomMemberRequest request) {
+        return ResponseEntity.ok(roomService.updateRoomMember(id, request));
+    }
+
+    @DeleteMapping("/members/{id}")
+    @Operation(summary = "Delete room member", description = "Remove a member from a room")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> deleteRoomMember(@PathVariable Long id) {
+        return ResponseEntity.ok(roomService.deleteRoomMember(id));
+    }
 }

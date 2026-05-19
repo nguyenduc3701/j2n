@@ -296,7 +296,8 @@ public class AuthService {
                 user.getPhoneNumber(),
                 mapRoleIdToText(user.getRoleId()),
                 user.getStatus().name(),
-                user.getCreatedAt().toString());
+                user.getCreatedAt().toString(),
+                user.getRoomId() != null ? user.getRoomId().toString() : null);
     }
 
     public void publishUserRegisteredEvent(UserEntity user) {

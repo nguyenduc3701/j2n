@@ -1,12 +1,12 @@
-package com.example.j2n.auth_srv.messaging.user.event;
- 
+package com.example.j2n.room_srv.messaging.user.event;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
- 
+
 @Data
 @Builder
 @NoArgsConstructor

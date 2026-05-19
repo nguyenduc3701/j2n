@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useQuery } from "@repo/query";
 import {
   Grid,
   Group,
@@ -12,6 +13,8 @@ import {
 import { useForm } from "@mantine/form";
 import { useTranslation } from "@repo/ui/src/providers";
 import { IUser } from "@/types/user";
+import { roomService } from "@/services/roomServices";
+import { IRoom } from "@/types/room";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
@@ -36,7 +39,6 @@ const UserModal = ({
 }: UserModalProps) => {
   const { t } = useTranslation();
   const isView = mode === ModalMode.VIEW;
-
   const form = useForm<Partial<IUser>>({
     initialValues: {
       user_name: undefined,
@@ -74,6 +76,21 @@ const UserModal = ({
           ? t("validation.company_required")
           : null,
     },
+  });
+
+  const { data: rooms = [], isLoading: loadingRooms } = useQuery({
+    queryKey: ["rooms", { page: 1, size: 100 }],
+    queryFn: async () => {
+      const response = await roomService.searchRooms({ page: 1, size: 100 });
+      return (
+        response?.data?.rooms?.map((r: IRoom) => ({
+          value: r.id.toString(),
+          label: r.room_number,
+        })) || []
+      );
+    },
+    enabled: opened && form.values.role_id === ROLE_MAPPING.RENTER,
+    staleTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {
@@ -201,10 +218,12 @@ const UserModal = ({
           </Grid.Col>
           {form.values.role_id === ROLE_MAPPING.RENTER && (
             <Grid.Col span={{ base: 12, md: 6 }}>
-              <TextInput
+              <Select
                 label={t("users.modal.room")}
                 placeholder={t("users.modal.room")}
-                readOnly={isView}
+                disabled={isView || loadingRooms}
+                data={rooms}
+                searchable
                 {...form.getInputProps("room_id")}
                 required
               />
@@ -224,13 +243,22 @@ const UserModal = ({
         </Grid>
 
         <Group justify="flex-end" mt="xl">
-          <J2NButton j2nType={J2NButtonTypes.SECONDARY} onClick={onClose}>
+          <J2NButton
+            type="button"
+            j2nType={J2NButtonTypes.SECONDARY}
+            onClick={onClose}
+          >
             {t("users.modal.cancel")}
           </J2NButton>
           {isView ? (
             <J2NButton
+              type="button"
               j2nType={J2NButtonTypes.PRIMARY}
-              onClick={() => onModeChange?.(ModalMode.EDIT)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onModeChange?.(ModalMode.EDIT);
+              }}
             >
               {t("users.actions.edit")}
             </J2NButton>

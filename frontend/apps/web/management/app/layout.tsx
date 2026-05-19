@@ -1,6 +1,7 @@
 import { J2NI18nProvider, J2NConfigProvider } from "@repo/ui/src/providers";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
+import { QueryProvider } from "@repo/query";
 import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
 import "@mantine/charts/styles.css";
@@ -54,9 +55,11 @@ export default function RootLayout({
       >
         <MantineProvider>
           <ModalsProvider>
-            <J2NI18nProvider>
-              <J2NConfigProvider>{children}</J2NConfigProvider>
-            </J2NI18nProvider>
+            <QueryProvider>
+              <J2NI18nProvider>
+                <J2NConfigProvider>{children}</J2NConfigProvider>
+              </J2NI18nProvider>
+            </QueryProvider>
           </ModalsProvider>
         </MantineProvider>
       </body>

@@ -10,12 +10,11 @@ import J2NButton, {
 import { useTranslation } from "@repo/ui/src/providers";
 import {
   initialSearchValues,
-  USER_ROLES,
-  USER_STATUS_OPTIONS,
-  UserSearchFormProps,
-} from "./user.types";
+  ROOM_STATUS_OPTIONS,
+  RoomSearchFormProps,
+} from "./room.types";
 
-const UserSearchForm = ({ onSearch, onClear }: UserSearchFormProps) => {
+const RoomSearchForm = ({ onSearch, onClear }: RoomSearchFormProps) => {
   const { t } = useTranslation();
   const form = useForm({
     initialValues: initialSearchValues,
@@ -31,39 +30,48 @@ const UserSearchForm = ({ onSearch, onClear }: UserSearchFormProps) => {
       <form onSubmit={form.onSubmit(onSearch)}>
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
           <TextInput
-            label={t("users.table.username")}
-            placeholder={t("users.table.username")}
-            {...form.getInputProps("user_name")}
+            label={t("rooms.table.room_number")}
+            placeholder={t("rooms.table.room_number")}
+            {...form.getInputProps("room_number")}
           />
           <TextInput
-            label={t("users.table.fullname")}
-            placeholder={t("users.table.fullname")}
-            {...form.getInputProps("full_name")}
-          />
-          <TextInput
-            label={t("users.table.email")}
-            placeholder={t("users.table.email")}
-            {...form.getInputProps("email")}
+            label={t("rooms.table.floor")}
+            placeholder={t("rooms.table.floor")}
+            type="number"
+            {...form.getInputProps("floor")}
           />
           <Select
-            label={t("users.table.role")}
-            placeholder={t("users.table.role")}
-            data={USER_ROLES.map((role) => ({
-              value: role.value,
-              label: t(role.labelKey) || t("visitor"), // Fallback for visitor spelling
-            }))}
-            clearable
-            {...form.getInputProps("role_id")}
-          />
-          <Select
-            label={t("users.table.status")}
-            placeholder={t("users.table.status")}
-            data={USER_STATUS_OPTIONS.map((opt) => ({
+            label={t("rooms.table.status")}
+            placeholder={t("rooms.table.status")}
+            data={ROOM_STATUS_OPTIONS.map((opt) => ({
               value: opt.value,
               label: t(opt.labelKey),
             }))}
             clearable
             {...form.getInputProps("status")}
+          />
+          <TextInput
+            label={t("rooms.table.price") + " (Min)"}
+            placeholder="Min Price"
+            type="number"
+            {...form.getInputProps("min_price")}
+          />
+          <TextInput
+            label={t("rooms.table.price") + " (Max)"}
+            placeholder="Max Price"
+            type="number"
+            {...form.getInputProps("max_price")}
+          />
+          <TextInput
+            label={t("rooms.table.area")}
+            placeholder={t("rooms.table.area")}
+            {...form.getInputProps("area")}
+          />
+          <TextInput
+            label={t("rooms.table.capacity")}
+            placeholder={t("rooms.table.capacity")}
+            type="number"
+            {...form.getInputProps("max_people")}
           />
         </SimpleGrid>
         <Group justify="flex-end" mt="md">
@@ -88,4 +96,4 @@ const UserSearchForm = ({ onSearch, onClear }: UserSearchFormProps) => {
   );
 };
 
-export default UserSearchForm;
+export default RoomSearchForm;

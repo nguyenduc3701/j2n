@@ -9,7 +9,7 @@ const J2NFooter: React.FC<IJ2NFooterProps> = ({ text, className }) => {
     >
       <J2NTransText
         tKey={text || "footer_text"}
-        className="text-j2n-ink-500 text-center py-5 opacity-65 cursor-default"
+        className="block text-j2n-ink-500 text-center py-5 opacity-65 cursor-default"
       />
     </footer>
   );

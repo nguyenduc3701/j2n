@@ -63,7 +63,71 @@
   "account_type": "アカウントの種類",
   "recently_registered": "最近登録されたユーザー",
   "room": "部屋",
-  "rooms": "部屋",
+  "rooms": {
+    "title": "部屋管理",
+    "create": "部屋を作成",
+    "tabs": {
+      "rooms": "部屋",
+      "assets": "資産カタログ",
+      "bills": "請求書",
+      "fees": "料金設定"
+    },
+    "table": {
+      "room_number": "部屋番号",
+      "floor": "階",
+      "price": "基本料金",
+      "area": "面積",
+      "capacity": "定員",
+      "status": "ステータス",
+      "electric_index": "電気メーター",
+      "actions": "アクション"
+    },
+    "status": {
+      "available": "空室",
+      "occupied": "入居中",
+      "maintenance": "メンテナンス中"
+    },
+    "modal": {
+      "edit_title": "部屋 {number} を編集",
+      "view_title": "部屋 {number} の詳細",
+      "tabs": {
+        "general": "基本詳細",
+        "members": "入居者",
+        "assets": "資産リスト",
+        "billing": "請求履歴"
+      },
+      "cancel": "キャンセル",
+      "save": "保存"
+    },
+    "assets": {
+      "create": "新しい資産を追加",
+      "name": "資産名",
+      "serial": "シリアル番号",
+      "map_to_room": "資産を部屋に割り当てる"
+    },
+    "bills": {
+      "calculate": "請求書を計算",
+      "calculate_all": "すべての請求書を計算",
+      "month": "請求月",
+      "amount": "合計金額",
+      "status": {
+        "paid": "支払い済み",
+        "unpaid": "未払い"
+      }
+    },
+    "fees": {
+      "name": "料金名",
+      "type": "種類",
+      "price": "単価",
+      "unit": "単位",
+      "edit_pricing": "価格を編集",
+      "edit_title": "料金設定を編集",
+      "validation": {
+        "name_required": "名前は必須です",
+        "price_min": "価格は0以上である必要があります"
+      }
+    }
+  },
   "total_income": "総収入",
   "total_users": "総ユーザー数",
   "remaining": "残り",

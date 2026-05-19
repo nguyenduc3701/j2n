@@ -2,8 +2,6 @@ package com.example.j2n.room_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.enums.BaseMessageEnum;
-import com.example.j2n.exception.AccessDeniedException;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.RoomRequest;

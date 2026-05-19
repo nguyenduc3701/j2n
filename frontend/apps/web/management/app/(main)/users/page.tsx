@@ -83,8 +83,6 @@ const UsersPage = () => {
     setModalOpened(true);
   };
 
-
-
   const handleDelete = (user: IUser) => {
     modals.openConfirmModal({
       title: t("users.actions.delete"),
@@ -149,25 +147,25 @@ const UsersPage = () => {
         <Stack gap="lg">
           <Paper shadow="xs" radius="lg" withBorder p="md">
             <UserSearchForm onSearch={handleSearch} onClear={handleClear} />
-          </Paper>
 
-          <Box
-            style={{
-              backgroundColor: "transparent",
-            }}
-          >
-            <UserTable
-              data={users}
-              loading={loading}
-              total={total}
-              pageSize={pageSize}
-              activePage={page}
-              onPageChange={setPage}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          </Box>
+            <Box
+              style={{
+                backgroundColor: "transparent",
+              }}
+            >
+              <UserTable
+                data={users}
+                loading={loading}
+                total={total}
+                pageSize={pageSize}
+                activePage={page}
+                onPageChange={setPage}
+                onView={handleView}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            </Box>
+          </Paper>
         </Stack>
 
         <UserModal

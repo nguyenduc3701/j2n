@@ -63,7 +63,71 @@
   "account_type": "Loại tài khoản",
   "recently_registered": "Đăng ký gần đây",
   "room": "Phòng",
-  "rooms": "Phòng",
+  "rooms": {
+    "title": "Quản lý phòng",
+    "create": "Tạo phòng mới",
+    "tabs": {
+      "rooms": "Phòng",
+      "assets": "Danh mục tài sản",
+      "bills": "Hóa đơn & Thanh toán",
+      "fees": "Cấu hình chi phí"
+    },
+    "table": {
+      "room_number": "Số phòng",
+      "floor": "Tầng",
+      "price": "Giá cơ bản",
+      "area": "Diện tích",
+      "capacity": "Sức chứa tối đa",
+      "status": "Trạng thái",
+      "electric_index": "Chỉ số điện",
+      "actions": "Hành động"
+    },
+    "status": {
+      "available": "Còn trống",
+      "occupied": "Đã thuê",
+      "maintenance": "Đang sửa chữa"
+    },
+    "modal": {
+      "edit_title": "Chỉnh sửa phòng {number}",
+      "view_title": "Chi tiết phòng {number}",
+      "tabs": {
+        "general": "Thông tin chung",
+        "members": "Thành viên thuê",
+        "assets": "Tài sản phòng",
+        "billing": "Lịch sử hóa đơn"
+      },
+      "cancel": "Hủy bỏ",
+      "save": "Lưu lại"
+    },
+    "assets": {
+      "create": "Thêm tài sản mới",
+      "name": "Tên tài sản",
+      "serial": "Số sê-ri",
+      "map_to_room": "Gán tài sản vào phòng"
+    },
+    "bills": {
+      "calculate": "Tính hóa đơn",
+      "calculate_all": "Tính toàn bộ hóa đơn",
+      "month": "Tháng hóa đơn",
+      "amount": "Tổng tiền",
+      "status": {
+        "paid": "Đã thanh toán",
+        "unpaid": "Chưa thanh toán"
+      }
+    },
+    "fees": {
+      "name": "Tên chi phí",
+      "type": "Loại phí",
+      "price": "Đơn giá",
+      "unit": "Đơn vị tính",
+      "edit_pricing": "Chỉnh sửa giá",
+      "edit_title": "Chỉnh sửa cấu hình chi phí",
+      "validation": {
+        "name_required": "Tên là bắt buộc",
+        "price_min": "Giá phải lớn hơn hoặc bằng 0"
+      }
+    }
+  },
   "total_income": "Tổng doanh thu",
   "total_users": "Tổng người dùng",
   "remaining": "Còn lại",

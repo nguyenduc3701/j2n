@@ -128,4 +128,25 @@ public class RoomService {
                 new ParameterizedTypeReference<Object>() {
                 });
     }
+
+    // --- Member methods ---
+    public Object mapMemberToRoom(MapMemberToRoomRequest request) {
+        return restClientUtil.request(GatewayPath.ROOM_MEMBER_MAP_ROOM_PATH, HttpMethod.POST, request,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
+
+    public Object updateRoomMember(Long id, UpdateRoomMemberRequest request) {
+        String path = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, id);
+        return restClientUtil.request(path, HttpMethod.PUT, request,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
+
+    public Object deleteRoomMember(Long id) {
+        String path = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, id);
+        return restClientUtil.request(path, HttpMethod.DELETE, null,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
 }

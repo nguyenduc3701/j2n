@@ -63,7 +63,71 @@
   "account_type": "계정 유형",
   "recently_registered": "최근 등록됨",
   "room": "방",
-  "rooms": "방",
+  "rooms": {
+    "title": "객실 관리",
+    "create": "객실 생성",
+    "tabs": {
+      "rooms": "객실",
+      "assets": "자산 카탈로그",
+      "bills": "청구서 및 송장",
+      "fees": "요금 설정"
+    },
+    "table": {
+      "room_number": "객실 번호",
+      "floor": "층",
+      "price": "기본 요금",
+      "area": "면적",
+      "capacity": "수용 인원",
+      "status": "상태",
+      "electric_index": "전기 계량기",
+      "actions": "작업"
+    },
+    "status": {
+      "available": "이용 가능",
+      "occupied": "사용 중",
+      "maintenance": "유지보수 중"
+    },
+    "modal": {
+      "edit_title": "객실 {number} 편집",
+      "view_title": "객실 {number} 세부 정보",
+      "tabs": {
+        "general": "일반 세부 정보",
+        "members": "입주자",
+        "assets": "자산 목록",
+        "billing": "청구 내역"
+      },
+      "cancel": "취소",
+      "save": "저장"
+    },
+    "assets": {
+      "create": "새 자산 추가",
+      "name": "자산명",
+      "serial": "일련번호",
+      "map_to_room": "객실에 자산 할당"
+    },
+    "bills": {
+      "calculate": "청구서 계산",
+      "calculate_all": "모든 청구서 계산",
+      "month": "청구 월",
+      "amount": "총액",
+      "status": {
+        "paid": "결제 완료",
+        "unpaid": "미결제"
+      }
+    },
+    "fees": {
+      "name": "요금명",
+      "type": "종류",
+      "price": "단가",
+      "unit": "단위",
+      "edit_pricing": "가격 편집",
+      "edit_title": "요금 설정 편집",
+      "validation": {
+        "name_required": "이름은 필수 항목입니다",
+        "price_min": "가격은 0 이상이어야 합니다"
+      }
+    }
+  },
   "total_income": "총 수입",
   "total_users": "총 사용자",
   "remaining": "남음",

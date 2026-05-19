@@ -28,6 +28,7 @@ export const userService = {
     status?: string;
     start_date?: string;
     end_date?: string;
+    room_id?: string | number;
   }) {
     const {
       page = 1,
@@ -39,6 +40,7 @@ export const userService = {
       status,
       start_date,
       end_date,
+      room_id,
     } = params;
 
     const options = {
@@ -53,6 +55,7 @@ export const userService = {
         status,
         start_date,
         end_date,
+        room_id,
       },
     };
 
