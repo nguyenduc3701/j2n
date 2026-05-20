@@ -262,6 +262,21 @@ export const roomService = {
   },
 
   // --- Fees APIs ---
+  async createFee(data: Partial<IFee>) {
+    const options = {
+      method: HTTP_METHODS.POST,
+      data,
+    };
+    const response = await request<BaseResponse<IFee>>(
+      "/api/bff/rooms/fees",
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
   async getActiveFees() {
     const options = {
       method: HTTP_METHODS.GET,

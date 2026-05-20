@@ -116,6 +116,8 @@
       }
     },
     "fees": {
+      "create": "Add New Fee",
+      "create_title": "Create Fee Configuration",
       "name": "Fee Name",
       "type": "Type",
       "price": "Unit Price",
@@ -124,7 +126,8 @@
       "edit_title": "Edit Fee Configuration",
       "validation": {
         "name_required": "Name is required",
-        "price_min": "Price must be greater than or equal to 0"
+        "price_min": "Price must be greater than or equal to 0",
+        "unit_required": "Unit name is required"
       }
     }
   },

@@ -3,6 +3,7 @@ package com.example.j2n.room_srv.controller;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.room_srv.constant.MessageEnum;
+import com.example.j2n.room_srv.controller.request.CreateFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateFeeRequest;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.service.FeeService;
@@ -34,6 +35,16 @@ public class FeeController {
                 return ResponseEntity.ok(ResponseFactory.success(feeService.getActiveFees()));
         }
 
+        @PostMapping
+        @Operation(summary = "Create fee configuration", description = "Create a new fee type")
+        @J2NApiResponses({
+                        @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+        })
+        public ResponseEntity<BaseResponse<FeeEntity>> createFee(
+                        @Valid @RequestBody CreateFeeRequest request) {
+                return ResponseEntity.ok(feeService.createFee(request));
+        }
+
         @PutMapping("/{id}")
         @Operation(summary = "Update fee configuration", description = "Update specific fields of a fee")
         @J2NApiResponses({
@@ -47,3 +58,4 @@ public class FeeController {
                 return ResponseEntity.ok(feeService.updateFee(id, request));
         }
 }
+

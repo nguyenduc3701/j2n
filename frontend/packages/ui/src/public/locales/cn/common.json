@@ -116,6 +116,8 @@
       }
     },
     "fees": {
+      "create": "添加新费用",
+      "create_title": "创建费用配置",
       "name": "费用名称",
       "type": "类型",
       "price": "单价",
@@ -124,7 +126,8 @@
       "edit_title": "编辑费用配置",
       "validation": {
         "name_required": "名称是必填项",
-        "price_min": "价格必须大于或等于0"
+        "price_min": "价格必须大于或等于0",
+        "unit_required": "单位名称是必填项"
       }
     }
   },

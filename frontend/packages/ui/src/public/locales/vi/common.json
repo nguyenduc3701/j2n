@@ -116,6 +116,8 @@
       }
     },
     "fees": {
+      "create": "Thêm chi phí mới",
+      "create_title": "Tạo cấu hình chi phí mới",
       "name": "Tên chi phí",
       "type": "Loại phí",
       "price": "Đơn giá",
@@ -124,7 +126,8 @@
       "edit_title": "Chỉnh sửa cấu hình chi phí",
       "validation": {
         "name_required": "Tên là bắt buộc",
-        "price_min": "Giá phải lớn hơn hoặc bằng 0"
+        "price_min": "Giá phải lớn hơn hoặc bằng 0",
+        "unit_required": "Đơn vị tính là bắt buộc"
       }
     }
   },

@@ -6,6 +6,7 @@ import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
+import com.example.j2n.room_srv.controller.request.CreateFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateFeeRequest;
 import com.example.j2n.room_srv.repository.FeeRepository;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
@@ -42,6 +43,19 @@ public class FeeService {
             throw new InvalidInputException(BaseMessageEnum.INVALID_REQUEST);
         }
         return feeRepository.findAllById(ids);
+    }
+
+    @Transactional
+    @LogAround(message = "Create fee")
+    public BaseResponse<FeeEntity> createFee(CreateFeeRequest request) {
+        log.info("Creating fee: {}", request.getName());
+        FeeEntity fee = FeeEntity.builder()
+                .name(request.getName())
+                .unitPrice(request.getUnitPrice())
+                .unitName(request.getUnitName())
+                .isActive(true)
+                .build();
+        return ResponseFactory.success(feeRepository.save(fee));
     }
 
     @Transactional

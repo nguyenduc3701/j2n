@@ -12,7 +12,7 @@ import {
   SimpleGrid,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconPlus } from "@tabler/icons-react";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
@@ -44,6 +44,7 @@ const FeeTab = () => {
     validate: {
       name: (value) => (value ? null : t("rooms.fees.validation.name_required")),
       unit_price: (value) => (value >= 0 ? null : t("rooms.fees.validation.price_min")),
+      unit_name: (value) => (value ? null : t("rooms.fees.validation.unit_required")),
     },
   });
 
@@ -65,6 +66,18 @@ const FeeTab = () => {
     fetchFees();
   }, []);
 
+  const handleOpenCreate = () => {
+    setEditingFee(null);
+    form.reset();
+    form.setValues({
+      name: "",
+      unit_price: 0,
+      unit_name: "",
+      is_active: true,
+    });
+    setModalOpened(true);
+  };
+
   const handleOpenEdit = (fee: IFee) => {
     setEditingFee(fee);
     form.setValues({
@@ -77,10 +90,13 @@ const FeeTab = () => {
   };
 
   const handleSubmit = async (values: typeof form.values) => {
-    if (!editingFee) return;
     setSubmitLoading(true);
     try {
-      await roomService.updateFee(editingFee.id, values);
+      if (editingFee) {
+        await roomService.updateFee(editingFee.id, values);
+      } else {
+        await roomService.createFee(values);
+      }
       setModalOpened(false);
       fetchFees();
     } catch (e) {
@@ -109,7 +125,7 @@ const FeeTab = () => {
       title: t("rooms.table.status"),
       render: (r: IFee) => (
         <Badge color={r.is_active ? "green" : "gray"}>
-          {r.is_active ? "ACTIVE" : "INACTIVE"}
+          {r.is_active ? t("users.status.active").toUpperCase() : t("users.status.inactive").toUpperCase()}
         </Badge>
       ),
     },
@@ -130,6 +146,12 @@ const FeeTab = () => {
 
   return (
     <Box>
+      <Group justify="flex-end" mb="md">
+        <J2NButton onClick={handleOpenCreate} leftSection={<IconPlus size={16} />} j2nType={J2NButtonTypes.PRIMARY}>
+          {t("rooms.fees.create")}
+        </J2NButton>
+      </Group>
+
       <J2NTable<IFee>
         columns={columns}
         data={data}
@@ -143,14 +165,15 @@ const FeeTab = () => {
       <J2NModal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
-        title={t("rooms.fees.edit_title")}
+        title={editingFee ? t("rooms.fees.edit_title") : t("rooms.fees.create_title")}
         centered
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <SimpleGrid cols={1} spacing="md">
             <TextInput
               label={t("rooms.fees.name")}
-              disabled
+              disabled={!!editingFee}
+              required
               {...form.getInputProps("name")}
             />
             <TextInput
@@ -164,17 +187,19 @@ const FeeTab = () => {
               required
               {...form.getInputProps("unit_name")}
             />
-            <Select
-              label={t("rooms.table.status")}
-              data={[
-                { value: "true", label: "ACTIVE" },
-                { value: "false", label: "INACTIVE" }
-              ]}
-              required
-              {...form.getInputProps("is_active")}
-              value={form.values.is_active ? "true" : "false"}
-              onChange={(val) => form.setFieldValue("is_active", val === "true")}
-            />
+            {editingFee && (
+              <Select
+                label={t("rooms.table.status")}
+                data={[
+                  { value: "true", label: t("users.status.active") },
+                  { value: "false", label: t("users.status.inactive") }
+                ]}
+                required
+                {...form.getInputProps("is_active")}
+                value={form.values.is_active ? "true" : "false"}
+                onChange={(val) => form.setFieldValue("is_active", val === "true")}
+              />
+            )}
           </SimpleGrid>
           <Group justify="flex-end" mt="xl">
             <J2NButton type="button" onClick={() => setModalOpened(false)} j2nType={J2NButtonTypes.SECONDARY}>

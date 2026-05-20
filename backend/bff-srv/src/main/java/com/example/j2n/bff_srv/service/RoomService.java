@@ -122,6 +122,12 @@ public class RoomService {
                 });
     }
 
+    public Object createFee(CreateFeeRequest request) {
+        return restClientUtil.request(GatewayPath.ROOM_FEE_BASE_PATH, HttpMethod.POST, request,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
+
     public Object updateFee(Long id, UpdateFeeRequest request) {
         String path = String.format(GatewayPath.ROOM_FEE_ID_PATH, id);
         return restClientUtil.request(path, HttpMethod.PUT, request,

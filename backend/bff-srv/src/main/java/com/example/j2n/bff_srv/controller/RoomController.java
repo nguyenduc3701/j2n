@@ -194,6 +194,17 @@ public class RoomController {
         return ResponseEntity.ok(roomService.getActiveFees());
     }
 
+    @PostMapping("/fees")
+    @Operation(summary = "Create fee", description = "Create a new fee type")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> createFee(@Valid @RequestBody CreateFeeRequest request) {
+        return ResponseEntity.ok(roomService.createFee(request));
+    }
+
     @PutMapping("/fees/{id}")
     @Operation(summary = "Update fee", description = "Update fee type configuration")
     @J2NApiResponses({

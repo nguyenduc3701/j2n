@@ -1,6 +1,7 @@
 package com.example.j2n.room_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.room_srv.controller.request.CreateFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateFeeRequest;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.service.FeeService;
@@ -14,12 +15,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +36,12 @@ class FeeControllerTest {
     @MockitoBean
     private FeeService feeService;
 
+    @MockitoBean
+    private org.springframework.data.redis.connection.RedisConnectionFactory redisConnectionFactory;
+
+    @MockitoBean
+    private org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -41,21 +50,41 @@ class FeeControllerTest {
         List<FeeEntity> fees = List.of(new FeeEntity());
         when(feeService.getActiveFees()).thenReturn(fees);
 
-        mockMvc.perform(get("/room/fees"))
+        mockMvc.perform(get("/fees"))
                 .andExpect(status().isOk());
 
         verify(feeService, times(1)).getActiveFees();
     }
 
     @Test
+    void createFee_Success() throws Exception {
+        CreateFeeRequest request = CreateFeeRequest.builder()
+                .name("Internet")
+                .unitPrice(BigDecimal.valueOf(200000))
+                .unitName("month")
+                .build();
+        FeeEntity feeEntity = new FeeEntity();
+        when(feeService.createFee(any(CreateFeeRequest.class))).thenReturn(ResponseFactory.success(feeEntity));
+
+        mockMvc.perform(post("/fees")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(feeService, times(1)).createFee(any(CreateFeeRequest.class));
+    }
+
+    @Test
     void updateFee_Success() throws Exception {
         Long feeId = 1L;
-        UpdateFeeRequest request = new UpdateFeeRequest();
+        UpdateFeeRequest request = UpdateFeeRequest.builder()
+                .name(java.util.Optional.of("Internet"))
+                .build();
         FeeEntity feeEntity = new FeeEntity();
         when(feeService.updateFee(eq(feeId), any(UpdateFeeRequest.class))).thenReturn(ResponseFactory.success(feeEntity));
 
         // Use PUT here to match the updated controller
-        mockMvc.perform(put("/room/fees/" + feeId)
+        mockMvc.perform(put("/fees/" + feeId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -63,3 +92,5 @@ class FeeControllerTest {
         verify(feeService, times(1)).updateFee(eq(feeId), any(UpdateFeeRequest.class));
     }
 }
+
+

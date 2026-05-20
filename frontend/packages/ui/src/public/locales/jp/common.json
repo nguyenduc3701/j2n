@@ -116,6 +116,8 @@
       }
     },
     "fees": {
+      "create": "新しい料金を追加",
+      "create_title": "料金設定を作成",
       "name": "料金名",
       "type": "種類",
       "price": "単価",
@@ -124,7 +126,8 @@
       "edit_title": "料金設定を編集",
       "validation": {
         "name_required": "名前は必須です",
-        "price_min": "価格は0以上である必要があります"
+        "price_min": "価格は0以上である必要があります",
+        "unit_required": "単位名は必須です"
       }
     }
   },

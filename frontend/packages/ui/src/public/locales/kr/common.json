@@ -116,6 +116,8 @@
       }
     },
     "fees": {
+      "create": "새 요금 추가",
+      "create_title": "요금 설정 생성",
       "name": "요금명",
       "type": "종류",
       "price": "단가",
@@ -124,7 +126,8 @@
       "edit_title": "요금 설정 편집",
       "validation": {
         "name_required": "이름은 필수 항목입니다",
-        "price_min": "가격은 0 이상이어야 합니다"
+        "price_min": "가격은 0 이상이어야 합니다",
+        "unit_required": "단위 이름은 필수 항목입니다"
       }
     }
   },
