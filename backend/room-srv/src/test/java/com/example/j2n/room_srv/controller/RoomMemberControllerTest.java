@@ -45,6 +45,26 @@ class RoomMemberControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
+    void getRoomMembersByRoomId_Success() throws Exception {
+        RoomMemberResponse response = RoomMemberResponse.builder()
+                .id(100L)
+                .roomId(1L)
+                .userId(10L)
+                .isPrimary(true)
+                .joinedAt(LocalDateTime.now())
+                .build();
+
+        when(roomMemberService.getRoomMembersByRoomId(1L))
+                .thenReturn(ResponseFactory.success(List.of(response)));
+
+        mockMvc.perform(get("/room/members/room/1")
+                .contextPath("/room"))
+                .andExpect(status().isOk());
+
+        verify(roomMemberService, times(1)).getRoomMembersByRoomId(1L);
+    }
+
+    @Test
     void mapMemberToRoom_Success() throws Exception {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)

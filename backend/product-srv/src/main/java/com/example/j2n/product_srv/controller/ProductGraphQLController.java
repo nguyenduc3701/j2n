@@ -2,8 +2,8 @@ package com.example.j2n.product_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.product_srv.dto.ProductDto;
-import com.example.j2n.product_srv.repository.entity.ProductEntity;
 import com.example.j2n.product_srv.service.ProductService;
+import com.example.j2n.product_srv.service.response.ProductResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,34 +24,34 @@ public class ProductGraphQLController {
     // --- Queries ---
 
     @QueryMapping(name = "getAllProducts")
-    public BaseResponse<List<ProductEntity>> getAllProducts() {
+    public BaseResponse<List<ProductResponse>> getAllProducts() {
         return productService.getAllProducts();
     }
 
     @QueryMapping(name = "getProductById")
-    public BaseResponse<ProductEntity> getProductById(@Argument Long id) {
+    public BaseResponse<ProductResponse> getProductById(@Argument Long id) {
         return productService.getProductById(id);
     }
 
     @QueryMapping(name = "getProductsByCategory")
-    public BaseResponse<List<ProductEntity>> getProductsByCategory(@Argument Long categoryId) {
+    public BaseResponse<List<ProductResponse>> getProductsByCategory(@Argument Long categoryId) {
         return productService.getProductsByCategory(categoryId);
     }
 
     @QueryMapping(name = "getProductsByType")
-    public BaseResponse<List<ProductEntity>> getProductsByType(@Argument String type) {
+    public BaseResponse<List<ProductResponse>> getProductsByType(@Argument String type) {
         return productService.getProductsByType(type);
     }
 
     // --- Mutations ---
 
     @MutationMapping(name = "createProduct")
-    public BaseResponse<ProductEntity> createProduct(@Argument @Valid ProductDto input) {
+    public BaseResponse<ProductResponse> createProduct(@Argument @Valid ProductDto input) {
         return productService.createProduct(input);
     }
 
     @MutationMapping(name = "updateProduct")
-    public BaseResponse<ProductEntity> updateProduct(@Argument Long id, @Argument @Valid ProductDto input) {
+    public BaseResponse<ProductResponse> updateProduct(@Argument Long id, @Argument @Valid ProductDto input) {
         return productService.updateProduct(id, input);
     }
 

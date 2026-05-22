@@ -1,13 +1,12 @@
 "use client";
 
-import React from "react";
-import { Group, Select, TextInput, SimpleGrid, Box } from "@mantine/core";
+import { Box, Group, Select, SimpleGrid, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconSearch, IconX } from "@tabler/icons-react";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
 import { useTranslation } from "@repo/ui/src/providers";
+import { IconSearch, IconX } from "@tabler/icons-react";
 import {
   initialSearchValues,
   USER_ROLES,

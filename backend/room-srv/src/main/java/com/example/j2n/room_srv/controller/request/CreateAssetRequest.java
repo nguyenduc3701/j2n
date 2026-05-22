@@ -24,8 +24,4 @@ public class CreateAssetRequest {
     @Schema(description = "Description of the asset", example = "Electric water heater with 30L capacity", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;
 
-    @Min(value = 1, message = "Quantity must be at least 1")
-    @Schema(description = "Quantity of the asset", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    @Builder.Default
-    private Integer quantity = 1;
 }

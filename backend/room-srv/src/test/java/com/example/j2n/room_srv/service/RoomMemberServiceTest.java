@@ -312,4 +312,35 @@ class RoomMemberServiceTest {
         verify(roomMemberRepository, times(1)).findById(100L);
         verify(roomMemberRepository, never()).delete(any());
     }
+
+    @Test
+    void getRoomMembersByRoomId_Success() {
+        RoomEntity room = RoomEntity.builder().id(1L).build();
+        RoomMemberEntity member1 = RoomMemberEntity.builder()
+                .id(100L)
+                .room(room)
+                .userId(10L)
+                .isPrimary(true)
+                .build();
+        RoomMemberEntity member2 = RoomMemberEntity.builder()
+                .id(101L)
+                .room(room)
+                .userId(11L)
+                .isPrimary(false)
+                .build();
+
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of(member1, member2));
+
+        BaseResponse<List<RoomMemberResponse>> result = roomMemberService.getRoomMembersByRoomId(1L);
+
+        assertNotNull(result);
+        assertNotNull(result.getData());
+        assertEquals(2, result.getData().size());
+        assertEquals(100L, result.getData().get(0).getId());
+        assertEquals(10L, result.getData().get(0).getUserId());
+        assertEquals(101L, result.getData().get(1).getId());
+        assertEquals(11L, result.getData().get(1).getUserId());
+
+        verify(roomMemberRepository, times(1)).findByRoomId(1L);
+    }
 }

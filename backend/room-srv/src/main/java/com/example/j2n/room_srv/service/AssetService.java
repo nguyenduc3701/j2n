@@ -64,7 +64,6 @@ public class AssetService {
         AssetEntity entity = AssetEntity.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .quantity(request.getQuantity())
                 .isDeleted(false)
                 .build();
         return ResponseFactory.success(mapToResponse(assetRepository.save(entity)));
@@ -104,10 +103,12 @@ public class AssetService {
             throw new DataNotFoundException(MessageEnum.ASSET_NOT_FOUND.withArgs("multiple IDs"));
         }
 
+        Integer qty = request.getQuantity() != null ? request.getQuantity() : 1;
         List<RoomAssetEntity> assetsToSave = assets.stream()
                 .map(asset -> RoomAssetEntity.builder()
                         .room(room)
                         .asset(asset)
+                        .quantity(qty)
                         .build())
                 .collect(java.util.stream.Collectors.toList());
 
@@ -129,7 +130,6 @@ public class AssetService {
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
-                .quantity(entity.getQuantity())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -160,12 +160,6 @@ public class AssetService {
         log.info("Updating entity from request: {}", request);
         request.getName().ifPresent(entity::setName);
         request.getDescription().ifPresent(entity::setDescription);
-        request.getQuantity().ifPresent(q -> {
-            if (q < 1) {
-                throw new InvalidInputException(MessageEnum.INVALID_QUANTITY);
-            }
-            entity.setQuantity(q);
-        });
     }
 
     private void validateAssetNameUnique(String name) {

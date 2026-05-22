@@ -136,6 +136,13 @@ public class RoomService {
     }
 
     // --- Member methods ---
+    public Object getRoomMembersByRoomId(Long roomId) {
+        String path = String.format(GatewayPath.ROOM_MEMBER_BY_ROOM_ID_PATH, roomId);
+        return restClientUtil.request(path, HttpMethod.GET, null,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
+
     public Object mapMemberToRoom(MapMemberToRoomRequest request) {
         return restClientUtil.request(GatewayPath.ROOM_MEMBER_MAP_ROOM_PATH, HttpMethod.POST, request,
                 new ParameterizedTypeReference<Object>() {

@@ -36,10 +36,6 @@ export const initialSearchValues = {
   room_number: "",
   floor: "",
   status: null,
-  min_price: "",
-  max_price: "",
-  area: "",
-  max_people: "",
 };
 
 export const ROOM_STATUS_OPTIONS = [

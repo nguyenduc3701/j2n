@@ -80,7 +80,11 @@ public class RoomService {
 
     private List<AssetResponse> getRoomAssets(Long roomId) {
         return roomAssetService.getAssetsByRoomId(roomId).stream()
-                .map(ra -> assetService.mapToResponse(ra.getAsset()))
+                .map(ra -> {
+                    AssetResponse response = assetService.mapToResponse(ra.getAsset());
+                    response.setQuantity(ra.getQuantity());
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 

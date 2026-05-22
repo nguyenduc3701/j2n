@@ -31,7 +31,8 @@
   "back_to_login": "Quay lại đăng nhập",
   "common": {
     "confirm": "Xác nhận",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "no_data": "Không có dữ liệu"
   },
   "System": "Hệ thống",
   "Users": "Người dùng",
@@ -103,7 +104,8 @@
       "create": "Thêm tài sản mới",
       "name": "Tên tài sản",
       "serial": "Số sê-ri",
-      "map_to_room": "Gán tài sản vào phòng"
+      "map_to_room": "Gán tài sản vào phòng",
+      "quantity": "Số lượng"
     },
     "bills": {
       "calculate": "Tính hóa đơn",
@@ -113,7 +115,9 @@
       "status": {
         "paid": "Đã thanh toán",
         "unpaid": "Chưa thanh toán"
-      }
+      },
+      "confirm_calculate_all": "Bạn có chắc chắn muốn tính hóa đơn cho tất cả các phòng đang có người ở không?",
+      "confirm_pay": "Bạn có chắc chắn muốn xác nhận hóa đơn này đã thanh toán không?"
     },
     "fees": {
       "create": "Thêm chi phí mới",
@@ -471,9 +475,100 @@
   "not_updated": "Chưa cập nhật",
   "permissions": "Quyền",
   "joined_at": "Ngày tham gia",
+  "created_at": "Ngày tạo",
   "no": "STT.",
   "permission_name": "Tên quyền",
   "description": "Mô tả",
   "failed_to_load_profile": "Không thể tải thông tin hồ sơ.",
-  "loading_profile": "Đang tải hồ sơ..."
+  "loading_profile": "Đang tải hồ sơ...",
+  "travelManagement": {
+    "title": "Quản lý du lịch",
+    "create": "Thêm tour mới",
+    "tabs": {
+      "tours": "Danh sách Tour",
+      "categories": "Danh mục"
+    },
+    "table": {
+      "title": "Tên tour",
+      "category": "Danh mục",
+      "price": "Giá",
+      "duration": "Thời gian",
+      "start_location": "Điểm khởi hành",
+      "actions": "Hành động"
+    },
+    "search": {
+      "title": "Tên tour",
+      "category": "Danh mục"
+    },
+    "modal": {
+      "create_title": "Thêm tour mới",
+      "edit_title": "Chỉnh sửa tour",
+      "view_title": "Chi tiết tour",
+      "tabs": {
+        "general": "Thông tin chung",
+        "itinerary": "Lịch trình",
+        "gallery": "Album ảnh"
+      },
+      "fields": {
+        "title": "Tên tour",
+        "category": "Danh mục",
+        "price": "Giá (VND)",
+        "duration": "Thời gian (vd: 3 ngày 2 đêm)",
+        "start_location": "Điểm xuất phát",
+        "description": "Mô tả chi tiết",
+        "thumbnail": "Ảnh đại diện (URL)"
+      },
+      "itinerary": {
+        "day_number": "Ngày {number}",
+        "add_day": "Thêm ngày lịch trình",
+        "day_title": "Tiêu đề ngày",
+        "day_content": "Nội dung hoạt động",
+        "hotel": "Khách sạn / Nơi lưu trú",
+        "breakfast": "Bữa sáng",
+        "lunch": "Bữa trưa",
+        "dinner": "Bữa tối",
+        "delete_day": "Xóa ngày này",
+        "no_schedules": "Chưa có lịch trình nào"
+      },
+      "gallery": {
+        "add_image": "Thêm ảnh",
+        "image_url": "Đường dẫn ảnh (URL)",
+        "set_primary": "Đặt làm ảnh chính",
+        "delete_image": "Xóa ảnh",
+        "no_images": "Chưa có ảnh nào",
+        "primary_badge": "Ảnh chính"
+      },
+      "cancel": "Hủy bỏ",
+      "save": "Lưu lại",
+      "confirm_delete": "Bạn có chắc chắn muốn xóa tour này không?"
+    },
+    "categories": {
+      "create": "Thêm danh mục",
+      "create_title": "Thêm danh mục mới",
+      "edit_title": "Chỉnh sửa danh mục",
+      "name": "Tên danh mục",
+      "slug": "Slug (đường dẫn)",
+      "type": "Loại",
+      "table": {
+        "name": "Tên danh mục",
+        "slug": "Slug",
+        "type": "Loại",
+        "actions": "Hành động"
+      },
+      "confirm_delete": "Bạn có chắc chắn muốn xóa danh mục này không?",
+      "validation": {
+        "name_required": "Tên danh mục là bắt buộc",
+        "slug_required": "Slug là bắt buộc",
+        "type_required": "Loại là bắt buộc"
+      }
+    },
+    "validation": {
+      "title_required": "Tên tour là bắt buộc",
+      "price_required": "Giá là bắt buộc",
+      "price_min": "Giá phải lớn hơn 0",
+      "category_required": "Danh mục là bắt buộc",
+      "day_title_required": "Tiêu đề ngày là bắt buộc",
+      "image_url_required": "Đường dẫn ảnh là bắt buộc"
+    }
+  }
 }

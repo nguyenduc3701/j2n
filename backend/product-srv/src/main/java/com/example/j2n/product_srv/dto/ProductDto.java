@@ -31,9 +31,9 @@ public class ProductDto {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     private BigDecimal price;
 
-    @NotNull(message = "Stock is required")
+    @Builder.Default
     @Min(value = 0, message = "Stock must be greater than or equal to 0")
-    private Integer stock;
+    private Integer stock = 0;
 
     private String thumbnail;
 

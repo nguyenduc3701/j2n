@@ -273,6 +273,18 @@ class RoomControllerTest {
     // --- Member Endpoints Tests ---
 
     @Test
+    void getRoomMembersByRoomId_ShouldReturnSuccess() throws Exception {
+        Long roomId = 1L;
+        when(roomService.getRoomMembersByRoomId(roomId)).thenReturn(Collections.singletonMap("data", "list"));
+
+        mockMvc.perform(get(BASE_URL + "/members/room/{roomId}", roomId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(roomService, times(1)).getRoomMembersByRoomId(roomId);
+    }
+
+    @Test
     void mapMemberToRoom_ShouldReturnSuccess() throws Exception {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)

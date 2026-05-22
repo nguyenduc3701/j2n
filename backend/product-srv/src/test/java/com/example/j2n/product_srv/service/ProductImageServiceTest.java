@@ -106,7 +106,7 @@ class ProductImageServiceTest {
 
     @Test
     void addImageToProduct_Fail_ProductNotFound() {
-        when(productService.getProductByIdOrThrow(1L)).thenThrow(new DataNotFoundException(null));
+        when(productService.getProductByIdOrThrow(1L)).thenThrow(new DataNotFoundException(com.example.j2n.product_srv.constant.MessageEnum.PRODUCT_NOT_FOUND));
 
         assertThrows(DataNotFoundException.class, () -> productImageService.addImageToProduct(mockDto));
     }
@@ -120,7 +120,7 @@ class ProductImageServiceTest {
 
         BaseResponse<Boolean> response = productImageService.deleteProductImage(1L);
 
-        assertNull(response.getData());
+        assertTrue(response.getData());
         assertTrue(mockImage.getIsDeleted());
         assertNull(mockProduct.getThumbnail());
         verify(productImageRepository, times(1)).save(mockImage);
@@ -131,7 +131,6 @@ class ProductImageServiceTest {
         when(productImageRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockImage));
         when(productImageRepository.findAllByProductIdAndIsPrimaryTrueAndIsDeletedFalse(1L)).thenReturn(Collections.emptyList());
         when(productImageRepository.save(any(ProductImageEntity.class))).thenReturn(mockImage);
-        when(productImageRepository.saveAll(anyList())).thenReturn(Collections.emptyList());
 
         BaseResponse<ProductImageEntity> response = productImageService.setPrimaryImage(1L);
 

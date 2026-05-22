@@ -1,23 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useQuery } from "@repo/query";
-import {
-  Grid,
-  Group,
-  Select,
-  TextInput,
-  Textarea,
-  PasswordInput,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useTranslation } from "@repo/ui/src/providers";
-import { IUser } from "@/types/user";
 import { roomService } from "@/services/roomServices";
 import { IRoom } from "@/types/room";
+import { IUser } from "@/types/user";
+import { Grid, Group, PasswordInput, Select, TextInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useQuery } from "@repo/query";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
+import J2NModal from "@repo/ui/src/components/atoms/J2NModal";
+import { useTranslation } from "@repo/ui/src/providers";
+import { useEffect } from "react";
 import {
   ModalMode,
   ROLE_MAPPING,
@@ -25,8 +19,6 @@ import {
   USER_STATUS_OPTIONS,
   UserModalProps,
 } from "./user.types";
-import { IconEdit } from "@tabler/icons-react";
-import J2NModal from "@repo/ui/src/components/atoms/J2NModal";
 
 const UserModal = ({
   opened,

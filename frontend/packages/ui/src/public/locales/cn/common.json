@@ -31,7 +31,8 @@
   "back_to_login": "返回登录",
   "common": {
     "confirm": "确认",
-    "cancel": "取消"
+    "cancel": "取消",
+    "no_data": "暂无数据"
   },
   "System": "系统",
   "Users": "用户",
@@ -103,7 +104,8 @@
       "create": "添加新资产",
       "name": "资产名称",
       "serial": "序列号",
-      "map_to_room": "分配资产到房间"
+      "map_to_room": "分配资产到房间",
+      "quantity": "数量"
     },
     "bills": {
       "calculate": "计算账单",
@@ -113,7 +115,9 @@
       "status": {
         "paid": "已付",
         "unpaid": "未付"
-      }
+      },
+      "confirm_calculate_all": "您确定要计算所有已入住房间的的账单吗？",
+      "confirm_pay": "您确定要将此账单标记为已支付吗？"
     },
     "fees": {
       "create": "添加新费用",
@@ -471,9 +475,100 @@
   "not_updated": "未更新",
   "permissions": "权限",
   "joined_at": "加入时间",
+  "created_at": "创建时间",
   "no": "序号",
   "permission_name": "权限名称",
   "description": "描述",
   "failed_to_load_profile": "无法加载个人资料信息。",
-  "loading_profile": "正在加载个人资料..."
+  "loading_profile": "正在加载个人资料...",
+  "travelManagement": {
+    "title": "旅游管理",
+    "create": "添加新旅游团",
+    "tabs": {
+      "tours": "旅游团列表",
+      "categories": "分类"
+    },
+    "table": {
+      "title": "旅游团名称",
+      "category": "分类",
+      "price": "价格",
+      "duration": "行程时长",
+      "start_location": "出发地",
+      "actions": "操作"
+    },
+    "search": {
+      "title": "旅游团名称",
+      "category": "分类"
+    },
+    "modal": {
+      "create_title": "添加新旅游团",
+      "edit_title": "编辑旅游团",
+      "view_title": "旅游团详情",
+      "tabs": {
+        "general": "基本信息",
+        "itinerary": "行程安排",
+        "gallery": "相册"
+      },
+      "fields": {
+        "title": "旅游团名称",
+        "category": "分类",
+        "price": "价格（越南盾）",
+        "duration": "行程时长（例如：3天2晚）",
+        "start_location": "出发地点",
+        "description": "详细描述",
+        "thumbnail": "封面图片（URL）"
+      },
+      "itinerary": {
+        "day_number": "第{number}天",
+        "add_day": "添加行程日",
+        "day_title": "当日标题",
+        "day_content": "活动详情",
+        "hotel": "酒店 / 住宿",
+        "breakfast": "早餐",
+        "lunch": "午餐",
+        "dinner": "晚餐",
+        "delete_day": "删除此天",
+        "no_schedules": "暂无行程安排"
+      },
+      "gallery": {
+        "add_image": "添加图片",
+        "image_url": "图片网址",
+        "set_primary": "设为主图",
+        "delete_image": "删除图片",
+        "no_images": "暂无图片",
+        "primary_badge": "主图"
+      },
+      "cancel": "取消",
+      "save": "保存",
+      "confirm_delete": "确定要删除此旅游团吗？"
+    },
+    "categories": {
+      "create": "添加分类",
+      "create_title": "添加新分类",
+      "edit_title": "编辑分类",
+      "name": "分类名称",
+      "slug": "别名",
+      "type": "类型",
+      "table": {
+        "name": "分类名称",
+        "slug": "别名",
+        "type": "类型",
+        "actions": "操作"
+      },
+      "confirm_delete": "确定要删除此分类吗？",
+      "validation": {
+        "name_required": "分类名称为必填项",
+        "slug_required": "别名为必填项",
+        "type_required": "类型为必填项"
+      }
+    },
+    "validation": {
+      "title_required": "旅游团名称为必填项",
+      "price_required": "价格为必填项",
+      "price_min": "价格必须大于0",
+      "category_required": "分类为必填项",
+      "day_title_required": "当日标题为必填项",
+      "image_url_required": "图片网址为必填项"
+    }
+  }
 }

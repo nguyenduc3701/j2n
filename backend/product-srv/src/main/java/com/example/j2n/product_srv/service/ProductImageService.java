@@ -106,8 +106,10 @@ public class ProductImageService {
         log.info("Unmarking current primary images for product id: {}", productId);
         List<ProductImageEntity> primaries = productImageRepository
                 .findAllByProductIdAndIsPrimaryTrueAndIsDeletedFalse(productId);
-        primaries.forEach(img -> img.setIsPrimary(false));
-        productImageRepository.saveAll(primaries);
+        if (!primaries.isEmpty()) {
+            primaries.forEach(img -> img.setIsPrimary(false));
+            productImageRepository.saveAll(primaries);
+        }
     }
 
     @Transactional

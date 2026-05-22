@@ -25,8 +25,7 @@ export interface IRoomResponse {
 export interface IAsset {
   id: number;
   name: string;
-  serial_number?: string;
-  status: string;
+  quantity: number;
   description?: string;
   created_at?: string;
   updated_at?: string;

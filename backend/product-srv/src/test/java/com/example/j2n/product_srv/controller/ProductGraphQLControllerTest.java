@@ -2,9 +2,8 @@ package com.example.j2n.product_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.product_srv.dto.ProductDto;
-import com.example.j2n.product_srv.repository.entity.CategoryEntity;
-import com.example.j2n.product_srv.repository.entity.ProductEntity;
 import com.example.j2n.product_srv.service.ProductService;
+import com.example.j2n.product_srv.service.response.ProductResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,22 +27,14 @@ class ProductGraphQLControllerTest {
     @InjectMocks
     private ProductGraphQLController productGraphQLController;
 
-    private ProductEntity mockProduct;
+    private ProductResponse mockProductResponse;
     private ProductDto mockDto;
-    private BaseResponse<ProductEntity> mockResponse;
+    private BaseResponse<ProductResponse> mockResponse;
 
     @BeforeEach
     void setUp() {
-        CategoryEntity mockCategory = CategoryEntity.builder()
+        mockProductResponse = ProductResponse.builder()
                 .id(1L)
-                .name("Du lịch biển")
-                .slug("du-lich-bien")
-                .isDeleted(false)
-                .build();
-
-        mockProduct = ProductEntity.builder()
-                .id(1L)
-                .category(mockCategory)
                 .title("Product Nha Trang 3N2Đ")
                 .description("Khám phá Nha Trang")
                 .price(new BigDecimal("2500000.00"))
@@ -51,6 +42,12 @@ class ProductGraphQLControllerTest {
                 .duration("3 ngày 2 đêm")
                 .startLocation("Hà Nội")
                 .isDeleted(false)
+                .category(ProductResponse.CategoryInfo.builder()
+                        .id(1L)
+                        .name("Du lịch biển")
+                        .slug("du-lich-bien")
+                        .isDeleted(false)
+                        .build())
                 .build();
 
         mockDto = ProductDto.builder()
@@ -64,16 +61,16 @@ class ProductGraphQLControllerTest {
                 .build();
 
         mockResponse = new BaseResponse<>();
-        mockResponse.setData(mockProduct);
+        mockResponse.setData(mockProductResponse);
     }
 
     @Test
     void getAllProducts_CallsService() {
-        BaseResponse<List<ProductEntity>> listResponse = new BaseResponse<>();
-        listResponse.setData(Collections.singletonList(mockProduct));
+        BaseResponse<List<ProductResponse>> listResponse = new BaseResponse<>();
+        listResponse.setData(Collections.singletonList(mockProductResponse));
         when(productService.getAllProducts()).thenReturn(listResponse);
 
-        BaseResponse<List<ProductEntity>> result = productGraphQLController.getAllProducts();
+        BaseResponse<List<ProductResponse>> result = productGraphQLController.getAllProducts();
 
         assertEquals(listResponse, result);
         verify(productService).getAllProducts();
@@ -83,7 +80,7 @@ class ProductGraphQLControllerTest {
     void getProductById_CallsService() {
         when(productService.getProductById(1L)).thenReturn(mockResponse);
 
-        BaseResponse<ProductEntity> result = productGraphQLController.getProductById(1L);
+        BaseResponse<ProductResponse> result = productGraphQLController.getProductById(1L);
 
         assertEquals(mockResponse, result);
         verify(productService).getProductById(1L);
@@ -91,11 +88,11 @@ class ProductGraphQLControllerTest {
 
     @Test
     void getProductsByCategory_CallsService() {
-        BaseResponse<List<ProductEntity>> listResponse = new BaseResponse<>();
-        listResponse.setData(Collections.singletonList(mockProduct));
+        BaseResponse<List<ProductResponse>> listResponse = new BaseResponse<>();
+        listResponse.setData(Collections.singletonList(mockProductResponse));
         when(productService.getProductsByCategory(1L)).thenReturn(listResponse);
 
-        BaseResponse<List<ProductEntity>> result = productGraphQLController.getProductsByCategory(1L);
+        BaseResponse<List<ProductResponse>> result = productGraphQLController.getProductsByCategory(1L);
 
         assertEquals(listResponse, result);
         verify(productService).getProductsByCategory(1L);
@@ -103,11 +100,11 @@ class ProductGraphQLControllerTest {
 
     @Test
     void getProductsByType_CallsService() {
-        BaseResponse<List<ProductEntity>> listResponse = new BaseResponse<>();
-        listResponse.setData(Collections.singletonList(mockProduct));
+        BaseResponse<List<ProductResponse>> listResponse = new BaseResponse<>();
+        listResponse.setData(Collections.singletonList(mockProductResponse));
         when(productService.getProductsByType("TOUR")).thenReturn(listResponse);
 
-        BaseResponse<List<ProductEntity>> result = productGraphQLController.getProductsByType("TOUR");
+        BaseResponse<List<ProductResponse>> result = productGraphQLController.getProductsByType("TOUR");
 
         assertEquals(listResponse, result);
         verify(productService).getProductsByType("TOUR");
@@ -117,7 +114,7 @@ class ProductGraphQLControllerTest {
     void createProduct_CallsService() {
         when(productService.createProduct(mockDto)).thenReturn(mockResponse);
 
-        BaseResponse<ProductEntity> result = productGraphQLController.createProduct(mockDto);
+        BaseResponse<ProductResponse> result = productGraphQLController.createProduct(mockDto);
 
         assertEquals(mockResponse, result);
         verify(productService).createProduct(mockDto);
@@ -127,7 +124,7 @@ class ProductGraphQLControllerTest {
     void updateProduct_CallsService() {
         when(productService.updateProduct(1L, mockDto)).thenReturn(mockResponse);
 
-        BaseResponse<ProductEntity> result = productGraphQLController.updateProduct(1L, mockDto);
+        BaseResponse<ProductResponse> result = productGraphQLController.updateProduct(1L, mockDto);
 
         assertEquals(mockResponse, result);
         verify(productService).updateProduct(1L, mockDto);

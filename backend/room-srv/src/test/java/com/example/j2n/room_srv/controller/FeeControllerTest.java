@@ -3,8 +3,8 @@ package com.example.j2n.room_srv.controller;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.CreateFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateFeeRequest;
-import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.service.FeeService;
+import com.example.j2n.room_srv.service.response.FeeResponse;
 import com.example.j2n.utils.ResponseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ class FeeControllerTest {
 
     @Test
     void getActiveFees_Success() throws Exception {
-        List<FeeEntity> fees = List.of(new FeeEntity());
+        List<FeeResponse> fees = List.of(new FeeResponse());
         when(feeService.getActiveFees()).thenReturn(fees);
 
         mockMvc.perform(get("/fees"))
@@ -63,8 +63,8 @@ class FeeControllerTest {
                 .unitPrice(BigDecimal.valueOf(200000))
                 .unitName("month")
                 .build();
-        FeeEntity feeEntity = new FeeEntity();
-        when(feeService.createFee(any(CreateFeeRequest.class))).thenReturn(ResponseFactory.success(feeEntity));
+        FeeResponse feeResponse = new FeeResponse();
+        when(feeService.createFee(any(CreateFeeRequest.class))).thenReturn(ResponseFactory.success(feeResponse));
 
         mockMvc.perform(post("/fees")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -80,8 +80,8 @@ class FeeControllerTest {
         UpdateFeeRequest request = UpdateFeeRequest.builder()
                 .name(java.util.Optional.of("Internet"))
                 .build();
-        FeeEntity feeEntity = new FeeEntity();
-        when(feeService.updateFee(eq(feeId), any(UpdateFeeRequest.class))).thenReturn(ResponseFactory.success(feeEntity));
+        FeeResponse feeResponse = new FeeResponse();
+        when(feeService.updateFee(eq(feeId), any(UpdateFeeRequest.class))).thenReturn(ResponseFactory.success(feeResponse));
 
         // Use PUT here to match the updated controller
         mockMvc.perform(put("/fees/" + feeId)

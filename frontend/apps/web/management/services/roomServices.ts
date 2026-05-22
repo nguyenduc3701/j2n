@@ -97,12 +97,12 @@ export const roomService = {
     page?: number;
     size?: number;
     name?: string;
-    status?: string;
+    description?: string;
   }) {
-    const { page = 1, size = 10, name, status } = params;
+    const { page = 1, size = 10, name, description } = params;
     const options = {
       method: HTTP_METHODS.POST,
-      data: { page, size, name, status },
+      data: { page, size, name, description },
     };
     const response = await request<BaseResponse<IAssetResponse>>(
       "/api/bff/rooms/assets/search",
@@ -158,7 +158,7 @@ export const roomService = {
     };
   },
 
-  async mapAssetToRoom(data: { room_id: number; asset_ids: number[] }) {
+  async mapAssetToRoom(data: { room_id: number; asset_ids: number[]; quantity?: number }) {
     const options = {
       method: HTTP_METHODS.POST,
       data,

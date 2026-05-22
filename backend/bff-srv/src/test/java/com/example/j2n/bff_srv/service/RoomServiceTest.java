@@ -249,6 +249,19 @@ class RoomServiceTest {
     }
 
     @Test
+    void getRoomMembersByRoomId_Success() {
+        Long roomId = 1L;
+        String expectedPath = String.format(GatewayPath.ROOM_MEMBER_BY_ROOM_ID_PATH, roomId);
+        when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class)))
+                .thenReturn(new Object());
+
+        Object result = roomService.getRoomMembersByRoomId(roomId);
+
+        assertNotNull(result);
+        verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
     void mapMemberToRoom_Success() {
         MapMemberToRoomRequest request = new MapMemberToRoomRequest();
         when(restClientUtil.request(eq(GatewayPath.ROOM_MEMBER_MAP_ROOM_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class)))

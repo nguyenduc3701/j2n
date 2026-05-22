@@ -35,7 +35,7 @@ class ProductScheduleServiceTest {
     private ProductScheduleRepository productScheduleRepository;
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @InjectMocks
     private ProductScheduleService productScheduleService;
@@ -91,14 +91,14 @@ class ProductScheduleServiceTest {
 
     @Test
     void addScheduleToProduct_Success() {
-        when(productRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockProduct));
+        when(productService.getProductByIdOrThrow(1L)).thenReturn(mockProduct);
         when(productScheduleRepository.save(any(ProductScheduleEntity.class))).thenReturn(mockSchedule);
 
         BaseResponse<ProductScheduleEntity> response = productScheduleService.addScheduleToProduct(mockDto);
 
         assertNotNull(response.getData());
         assertEquals(mockSchedule.getTitle(), response.getData().getTitle());
-        verify(productRepository, times(1)).findByIdAndIsDeletedFalse(1L);
+        verify(productService, times(1)).getProductByIdOrThrow(1L);
         verify(productScheduleRepository, times(1)).save(any(ProductScheduleEntity.class));
     }
 

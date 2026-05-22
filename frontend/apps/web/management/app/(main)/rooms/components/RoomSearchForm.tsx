@@ -50,29 +50,6 @@ const RoomSearchForm = ({ onSearch, onClear }: RoomSearchFormProps) => {
             clearable
             {...form.getInputProps("status")}
           />
-          <TextInput
-            label={t("rooms.table.price") + " (Min)"}
-            placeholder="Min Price"
-            type="number"
-            {...form.getInputProps("min_price")}
-          />
-          <TextInput
-            label={t("rooms.table.price") + " (Max)"}
-            placeholder="Max Price"
-            type="number"
-            {...form.getInputProps("max_price")}
-          />
-          <TextInput
-            label={t("rooms.table.area")}
-            placeholder={t("rooms.table.area")}
-            {...form.getInputProps("area")}
-          />
-          <TextInput
-            label={t("rooms.table.capacity")}
-            placeholder={t("rooms.table.capacity")}
-            type="number"
-            {...form.getInputProps("max_people")}
-          />
         </SimpleGrid>
         <Group justify="flex-end" mt="md">
           <J2NButton

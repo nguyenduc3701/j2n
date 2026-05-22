@@ -10,12 +10,12 @@ import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
-import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
 import com.example.j2n.room_srv.service.response.BillResponse;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.messaging.room.event.BillsCalculatedEvent;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
+import com.example.j2n.room_srv.service.response.FeeResponse;
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.SearchFactory;
@@ -102,16 +102,16 @@ public class BillingService {
 
     private void publishBillsCalculatedEvent(List<BillEntity> savedBills, Integer month) {
         log.info("Aggregating billing data for event publishing");
-        List<FeeEntity> configs = feeService.getActiveFees();
+        List<FeeResponse> configs = feeService.getActiveFees();
         BigDecimal electricUnitPrice = configs.stream()
                 .filter(f -> "ELECTRIC".equals(f.getName()))
-                .map(FeeEntity::getUnitPrice)
+                .map(FeeResponse::getUnitPrice)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
 
         BigDecimal waterUnitPrice = configs.stream()
                 .filter(f -> "WATER".equals(f.getName()))
-                .map(FeeEntity::getUnitPrice)
+                .map(FeeResponse::getUnitPrice)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
 
@@ -159,14 +159,14 @@ public class BillingService {
     private BigDecimal calculateTotalAmount(BillRequest request, RoomEntity room, Integer electricOld) {
         log.info("Calculating total amount for room {}", room.getRoomNumber());
         BigDecimal totalAmount = room.getBasePrice();
-        List<FeeEntity> configs = feeService.getActiveFees();
+        List<FeeResponse> configs = feeService.getActiveFees();
 
         int electricUsage = 0;
         if (request.getElectricityNewIndex() != null && request.getElectricityNewIndex() > electricOld) {
             electricUsage = request.getElectricityNewIndex() - electricOld;
         }
 
-        for (FeeEntity config : configs) {
+        for (FeeResponse config : configs) {
             if ("ELECTRIC".equals(config.getName())) {
                 totalAmount = totalAmount.add(config.getUnitPrice().multiply(BigDecimal.valueOf(electricUsage)));
             }

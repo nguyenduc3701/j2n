@@ -26,10 +26,6 @@ public class AssetEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "quantity", nullable = false)
-    @Builder.Default
-    private Integer quantity = 1;
-
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

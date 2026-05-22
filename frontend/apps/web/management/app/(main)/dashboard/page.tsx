@@ -211,7 +211,7 @@ const DashboardPage = ({ isWarning = true }: { isWarning: boolean }) => {
                       </Text>
                       <J2NTransText
                         fw={500}
-                        className="text-j2n-plum-dark-500!"
+                        className="text-j2n-plum-dark-500! text-center"
                         tKey="total_users"
                       />
                     </div>
@@ -298,7 +298,9 @@ const DashboardPage = ({ isWarning = true }: { isWarning: boolean }) => {
                         </Stack>
                       </Flex>
                       <Text size="xs" className="text-j2n-ink-300">
-                        {user.date.startsWith(new Date().toISOString().split("T")[0]) ? (
+                        {user.date.startsWith(
+                          new Date().toISOString().split("T")[0],
+                        ) ? (
                           <J2NTransText tKey="today" />
                         ) : (
                           user.date
@@ -312,7 +314,7 @@ const DashboardPage = ({ isWarning = true }: { isWarning: boolean }) => {
           </Grid>
         </J2NSection>
         <J2NSection name="rooms" className="py-5">
-          <DashboardTitle icon={<IconBed size={24} />} title="rooms" />
+          <DashboardTitle icon={<IconBed size={24} />} title="Rooms" />
           <Grid mt="md">
             <GridCol span={3}>
               <DashboardCard
@@ -333,7 +335,7 @@ const DashboardPage = ({ isWarning = true }: { isWarning: boolean }) => {
                     className="text-j2n-grape-deep-500"
                   />
                   <Text size="xs" className="text-j2n-ink-300">
-                    4 <J2NTransText tKey="rooms" className="inline" />
+                    4 <J2NTransText tKey="Rooms" className="inline" />
                   </Text>
                 </Stack>
               </DashboardCard>

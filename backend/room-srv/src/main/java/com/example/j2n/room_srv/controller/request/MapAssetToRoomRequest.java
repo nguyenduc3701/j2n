@@ -24,4 +24,7 @@ public class MapAssetToRoomRequest {
     @Schema(description = "List of asset IDs to map", example = "[5, 6, 7]", requiredMode = Schema.RequiredMode.REQUIRED)
     private java.util.List<Long> assetIds;
 
+    @Schema(description = "Quantity of the assets being mapped", example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    private Integer quantity;
+
 }

@@ -63,20 +63,6 @@ query Op_getCategoriesByType($type: String!) {
   }
 }
 
-
-query Op_getCategoriesByType($type: String!) {
-  getCategoriesByType(type: $type) {
-    code
-    message
-    data {
-      id
-      name
-      slug
-      type
-    }
-  }
-}
-
 mutation Op_createCategory($input: CategoryInput!) {
   createCategory(input: $input) {
     code

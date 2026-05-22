@@ -42,8 +42,9 @@ public class ProductEntity {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal price;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer stock;
+    private Integer stock = 0;
 
     @Builder.Default
     @Column(name = "locked_stock", nullable = false)

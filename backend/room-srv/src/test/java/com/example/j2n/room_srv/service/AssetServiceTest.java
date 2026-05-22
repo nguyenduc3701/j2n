@@ -59,8 +59,8 @@ class AssetServiceTest {
 
     @Test
     void createAsset_Success() {
-        CreateAssetRequest request = CreateAssetRequest.builder().name("New Asset").description("Desc").quantity(3).build();
-        AssetEntity entity = AssetEntity.builder().id(1L).name("New Asset").description("Desc").quantity(3).build();
+        CreateAssetRequest request = CreateAssetRequest.builder().name("New Asset").description("Desc").build();
+        AssetEntity entity = AssetEntity.builder().id(1L).name("New Asset").description("Desc").build();
 
         when(assetRepository.findByName("New Asset")).thenReturn(Optional.empty());
         when(assetRepository.save(any(AssetEntity.class))).thenReturn(entity);
@@ -69,7 +69,6 @@ class AssetServiceTest {
 
         assertNotNull(result);
         assertEquals("New Asset", result.getData().getName());
-        assertEquals(3, result.getData().getQuantity());
         verify(assetRepository, times(1)).save(any());
     }
 
@@ -88,9 +87,8 @@ class AssetServiceTest {
     void updateAsset_Success() {
         UpdateAssetRequest request = UpdateAssetRequest.builder()
                 .name(Optional.of("Updated"))
-                .quantity(Optional.of(5))
                 .build();
-        AssetEntity entity = AssetEntity.builder().id(1L).name("Old").quantity(2).isDeleted(false).build();
+        AssetEntity entity = AssetEntity.builder().id(1L).name("Old").isDeleted(false).build();
 
         when(assetRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(assetRepository.save(any(AssetEntity.class))).thenAnswer(i -> i.getArguments()[0]);
@@ -98,20 +96,6 @@ class AssetServiceTest {
         BaseResponse<AssetResponse> result = assetService.updateAsset(1L, request);
 
         assertEquals("Updated", result.getData().getName());
-        assertEquals(5, result.getData().getQuantity());
-    }
-
-    @Test
-    void updateAsset_InvalidQuantity() {
-        UpdateAssetRequest request = UpdateAssetRequest.builder()
-                .quantity(Optional.of(0))
-                .build();
-        AssetEntity entity = AssetEntity.builder().id(1L).name("Old").quantity(2).isDeleted(false).build();
-
-        when(assetRepository.findById(1L)).thenReturn(Optional.of(entity));
-
-        assertThrows(InvalidInputException.class, () -> assetService.updateAsset(1L, request));
-        verify(assetRepository, never()).save(any());
     }
 
     @Test

@@ -24,6 +24,7 @@ export interface IJ2NTableProps<T = any> extends Omit<TableProps, "data"> {
   activePage?: number;
   fontSize?: string | number;
   loading?: boolean;
+  emptyState?: React.ReactNode;
 }
 
 export interface IRenderedRow<T> {

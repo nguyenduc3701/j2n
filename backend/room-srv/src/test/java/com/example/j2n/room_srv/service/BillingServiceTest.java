@@ -5,7 +5,7 @@ import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
-import com.example.j2n.room_srv.repository.entity.FeeEntity;
+import com.example.j2n.room_srv.service.response.FeeResponse;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
 import com.example.j2n.room_srv.utils.RoomSecurityUtil;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
@@ -72,12 +72,12 @@ class BillingServiceTest {
                 .basePrice(BigDecimal.valueOf(2000000))
                 .build();
 
-        FeeEntity electricConfig = FeeEntity.builder()
+        FeeResponse electricConfig = FeeResponse.builder()
                 .name("ELECTRIC")
                 .unitPrice(BigDecimal.valueOf(3500))
                 .build();
 
-        FeeEntity waterConfig = FeeEntity.builder()
+        FeeResponse waterConfig = FeeResponse.builder()
                 .name("WATER")
                 .unitPrice(BigDecimal.valueOf(15000))
                 .build();

@@ -218,6 +218,17 @@ public class RoomController {
 
     // --- Member Endpoints ---
 
+    @GetMapping("/members/room/{roomId}")
+    @Operation(summary = "Get room members by room id", description = "Get all members mapped to a specific room")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> getRoomMembersByRoomId(@PathVariable Long roomId) {
+        return ResponseEntity.ok(roomService.getRoomMembersByRoomId(roomId));
+    }
+
     @PostMapping("/members/mapping")
     @Operation(summary = "Map members to room", description = "Assign users as members of a room")
     @J2NApiResponses({

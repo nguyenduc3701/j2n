@@ -53,3 +53,4 @@ setting-j2n.xml
 
 # Agent files
 .agents/
+.m2/

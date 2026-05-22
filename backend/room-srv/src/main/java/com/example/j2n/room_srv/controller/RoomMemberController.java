@@ -27,6 +27,15 @@ public class RoomMemberController {
 
     private final RoomMemberService roomMemberService;
 
+    @GetMapping("/room/{roomId}")
+    @Operation(summary = "Get room members by room id", description = "Get all members mapped to a specific room")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public ResponseEntity<BaseResponse<List<RoomMemberResponse>>> getRoomMembersByRoomId(@PathVariable Long roomId) {
+        return ResponseEntity.ok(roomMemberService.getRoomMembersByRoomId(roomId));
+    }
+
     @PostMapping("/mapping")
     @Operation(summary = "Map member to room", description = "Assign a user as a member to a specific room")
     @J2NApiResponses({

@@ -7,6 +7,7 @@ import com.example.j2n.product_srv.dto.ProductDto;
 import com.example.j2n.product_srv.repository.ProductRepository;
 import com.example.j2n.product_srv.repository.entity.CategoryEntity;
 import com.example.j2n.product_srv.repository.entity.ProductEntity;
+import com.example.j2n.product_srv.service.response.ProductResponse;
 import com.example.j2n.product_srv.messaging.product.event.ProductCreatedEvent;
 import com.example.j2n.product_srv.messaging.product.event.ProductDeletedEvent;
 import com.example.j2n.product_srv.messaging.product.publisher.ProductEventPublisher;
@@ -85,7 +86,7 @@ class ProductServiceTest {
     void getAllProducts_Success() {
         when(productRepository.findAllByIsDeletedFalse()).thenReturn(Collections.singletonList(mockProduct));
 
-        BaseResponse<List<ProductEntity>> response = productService.getAllProducts();
+        BaseResponse<List<ProductResponse>> response = productService.getAllProducts();
 
         assertNotNull(response.getData());
         assertEquals(1, response.getData().size());
@@ -98,7 +99,7 @@ class ProductServiceTest {
     void getProductById_Success() {
         when(productRepository.findByIdAndIsDeletedFalse(1L)).thenReturn(Optional.of(mockProduct));
 
-        BaseResponse<ProductEntity> response = productService.getProductById(1L);
+        BaseResponse<ProductResponse> response = productService.getProductById(1L);
 
         assertNotNull(response.getData());
         assertEquals(mockProduct.getTitle(), response.getData().getTitle());
@@ -133,7 +134,7 @@ class ProductServiceTest {
     void getProductsByCategory_Success() {
         when(productRepository.findByCategoryIdAndIsDeletedFalse(1L)).thenReturn(Collections.singletonList(mockProduct));
 
-        BaseResponse<List<ProductEntity>> response = productService.getProductsByCategory(1L);
+        BaseResponse<List<ProductResponse>> response = productService.getProductsByCategory(1L);
 
         assertNotNull(response.getData());
         assertEquals(1, response.getData().size());
@@ -161,7 +162,7 @@ class ProductServiceTest {
     void getProductsByType_Success() {
         when(productRepository.findByTypeAndIsDeletedFalse("TOUR")).thenReturn(Collections.singletonList(mockProduct));
 
-        BaseResponse<List<ProductEntity>> response = productService.getProductsByType("TOUR");
+        BaseResponse<List<ProductResponse>> response = productService.getProductsByType("TOUR");
 
         assertNotNull(response.getData());
         assertEquals(1, response.getData().size());
@@ -187,13 +188,42 @@ class ProductServiceTest {
         when(categoryService.getCategoryByIdOrThrow(1L)).thenReturn(mockCategory);
         when(productRepository.save(any(ProductEntity.class))).thenReturn(mockProduct);
 
-        BaseResponse<ProductEntity> response = productService.createProduct(mockDto);
+        BaseResponse<ProductResponse> response = productService.createProduct(mockDto);
 
         assertNotNull(response.getData());
         assertEquals(mockProduct.getTitle(), response.getData().getTitle());
         verify(categoryService, times(1)).getCategoryByIdOrThrow(1L);
         verify(productRepository, times(1)).save(any(ProductEntity.class));
         verify(productEventPublisher, times(1)).publishProductCreated(any(ProductCreatedEvent.class));
+    }
+
+    @Test
+    void createProduct_WithNullStock_DefaultsToZero() {
+        ProductDto dtoWithNullStock = ProductDto.builder()
+                .categoryId(1L)
+                .title("Product Nha Trang 3N2Đ")
+                .description("Khám phá Nha Trang tuyệt vời")
+                .price(new BigDecimal("2500000.00"))
+                .thumbnail("thumbnail.jpg")
+                .duration("3 ngày 2 đêm")
+                .startLocation("Hà Nội")
+                .type("TOUR")
+                .stock(null)
+                .build();
+
+        when(categoryService.getCategoryByIdOrThrow(1L)).thenReturn(mockCategory);
+        when(productRepository.save(any(ProductEntity.class))).thenAnswer(invocation -> {
+            ProductEntity savedEntity = invocation.getArgument(0);
+            assertEquals(0, savedEntity.getStock());
+            return savedEntity;
+        });
+
+        BaseResponse<ProductResponse> response = productService.createProduct(dtoWithNullStock);
+
+        assertNotNull(response.getData());
+        assertEquals(0, response.getData().getStock());
+        verify(categoryService, times(1)).getCategoryByIdOrThrow(1L);
+        verify(productRepository, times(1)).save(any(ProductEntity.class));
     }
 
     @Test
@@ -238,7 +268,7 @@ class ProductServiceTest {
         when(categoryService.getCategoryByIdOrThrow(1L)).thenReturn(mockCategory);
         when(productRepository.save(any(ProductEntity.class))).thenReturn(mockProduct);
 
-        BaseResponse<ProductEntity> response = productService.updateProduct(1L, mockDto);
+        BaseResponse<ProductResponse> response = productService.updateProduct(1L, mockDto);
 
         assertNotNull(response.getData());
         verify(productRepository, times(1)).findByIdAndIsDeletedFalse(1L);
@@ -303,7 +333,7 @@ class ProductServiceTest {
         when(categoryService.getCategoryByIdOrThrow(1L)).thenReturn(mockCategory);
         when(productRepository.save(any(ProductEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        BaseResponse<ProductEntity> response = productService.updateProduct(1L, dto);
+        BaseResponse<ProductResponse> response = productService.updateProduct(1L, dto);
 
         assertEquals("EXISTING_TYPE", response.getData().getType());
         verify(productRepository).save(mockProduct);

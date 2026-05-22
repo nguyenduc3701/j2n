@@ -31,7 +31,8 @@
   "back_to_login": "ログインに戻る",
   "common": {
     "confirm": "確認",
-    "cancel": "キャンセル"
+    "cancel": "キャンセル",
+    "no_data": "データがありません"
   },
   "System": "システム",
   "Users": "ユーザー",
@@ -103,7 +104,8 @@
       "create": "新しい資産を追加",
       "name": "資産名",
       "serial": "シリアル番号",
-      "map_to_room": "資産を部屋に割り当てる"
+      "map_to_room": "資産を部屋に割り当てる",
+      "quantity": "数量"
     },
     "bills": {
       "calculate": "請求書を計算",
@@ -113,7 +115,9 @@
       "status": {
         "paid": "支払い済み",
         "unpaid": "未払い"
-      }
+      },
+      "confirm_calculate_all": "入居中のすべての部屋の請求書を計算してもよろしいですか？",
+      "confirm_pay": "この請求書を支払い済みとしてマークしますか？"
     },
     "fees": {
       "create": "新しい料金を追加",
@@ -471,9 +475,100 @@
   "not_updated": "未更新",
   "permissions": "権限",
   "joined_at": "参加日",
+  "created_at": "作成日時",
   "no": "番号",
   "permission_name": "権限名",
   "description": "説明",
   "failed_to_load_profile": "プロファイル情報の読み込みに失敗しました。",
-  "loading_profile": "プロファイルを読み込んでいます..."
+  "loading_profile": "プロファイルを読み込んでいます...",
+  "travelManagement": {
+    "title": "旅行管理",
+    "create": "新しいツアーを追加",
+    "tabs": {
+      "tours": "ツアーリスト",
+      "categories": "カテゴリー"
+    },
+    "table": {
+      "title": "ツアー名",
+      "category": "カテゴリー",
+      "price": "料金",
+      "duration": "期間",
+      "start_location": "出発地",
+      "actions": "アクション"
+    },
+    "search": {
+      "title": "ツアー名",
+      "category": "カテゴリー"
+    },
+    "modal": {
+      "create_title": "新しいツアーを追加",
+      "edit_title": "ツアーを編集",
+      "view_title": "ツアーの詳細",
+      "tabs": {
+        "general": "基本情報",
+        "itinerary": "旅程",
+        "gallery": "フォトギャラリー"
+      },
+      "fields": {
+        "title": "ツアー名",
+        "category": "カテゴリー",
+        "price": "料金（ベトナムドン）",
+        "duration": "期間（例：3日間2泊）",
+        "start_location": "出発地点",
+        "description": "詳細説明",
+        "thumbnail": "サムネイル画像（URL）"
+      },
+      "itinerary": {
+        "day_number": "{number}日目",
+        "add_day": "旅程日を追加",
+        "day_title": "当日タイトル",
+        "day_content": "アクティビティの詳細",
+        "hotel": "ホテル / 宿泊施設",
+        "breakfast": "朝食",
+        "lunch": "昼食",
+        "dinner": "夕食",
+        "delete_day": "この日を削除",
+        "no_schedules": "旅程がまだありません"
+      },
+      "gallery": {
+        "add_image": "画像を追加",
+        "image_url": "画像URL",
+        "set_primary": "メイン画像に設定",
+        "delete_image": "画像を削除",
+        "no_images": "画像がまだありません",
+        "primary_badge": "メイン画像"
+      },
+      "cancel": "キャンセル",
+      "save": "保存",
+      "confirm_delete": "このツアーを削除してもよろしいですか？"
+    },
+    "categories": {
+      "create": "カテゴリーを追加",
+      "create_title": "新しいカテゴリーを追加",
+      "edit_title": "カテゴリーを編集",
+      "name": "カテゴリー名",
+      "slug": "スラッグ",
+      "type": "タイプ",
+      "table": {
+        "name": "カテゴリー名",
+        "slug": "スラッグ",
+        "type": "タイプ",
+        "actions": "アクション"
+      },
+      "confirm_delete": "このカテゴリーを削除してもよろしいですか？",
+      "validation": {
+        "name_required": "カテゴリー名は必須です",
+        "slug_required": "スラッグは必須です",
+        "type_required": "タイプは必須です"
+      }
+    },
+    "validation": {
+      "title_required": "ツアー名は必須です",
+      "price_required": "料金は必須です",
+      "price_min": "料金は0より大きくなければなりません",
+      "category_required": "カテゴリーは必須です",
+      "day_title_required": "当日タイトルは必須です",
+      "image_url_required": "画像URLは必須です"
+    }
+  }
 }

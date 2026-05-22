@@ -102,7 +102,7 @@ input ProductInput {
   title: String!
   description: String
   price: Float!
-  stock: Int!
+  stock: Int
   thumbnail: String
   duration: String
   startLocation: String

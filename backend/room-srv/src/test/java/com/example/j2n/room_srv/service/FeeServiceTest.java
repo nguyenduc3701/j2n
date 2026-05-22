@@ -7,6 +7,7 @@ import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.repository.FeeRepository;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
+import com.example.j2n.room_srv.service.response.FeeResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,7 +37,7 @@ class FeeServiceTest {
         FeeEntity fee = FeeEntity.builder().id(1L).isActive(true).build();
         when(feeRepository.findAll()).thenReturn(List.of(fee));
 
-        List<FeeEntity> result = feeService.getActiveFees();
+        List<FeeResponse> result = feeService.getActiveFees();
 
         assertEquals(1, result.size());
         assertTrue(result.get(0).getIsActive());
@@ -100,7 +101,7 @@ class FeeServiceTest {
             return saved;
         });
 
-        BaseResponse<FeeEntity> response = feeService.createFee(request);
+        BaseResponse<FeeResponse> response = feeService.createFee(request);
 
         assertNotNull(response);
         assertNotNull(response.getData());
@@ -127,7 +128,7 @@ class FeeServiceTest {
         when(feeRepository.findById(id)).thenReturn(Optional.of(fee));
         when(feeRepository.save(any(FeeEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        BaseResponse<FeeEntity> response = feeService.updateFee(id, request);
+        BaseResponse<FeeResponse> response = feeService.updateFee(id, request);
 
         assertNotNull(response);
         assertEquals(BigDecimal.valueOf(4000), response.getData().getUnitPrice());

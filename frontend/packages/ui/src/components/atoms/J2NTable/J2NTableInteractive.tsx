@@ -12,8 +12,11 @@ import {
   TableThead,
   TableTr,
   LoadingOverlay,
+  Text,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { IconInbox } from "@tabler/icons-react";
 import { IJ2NTableInteractiveProps } from "./J2NTable.type";
 
 const J2NTableInteractive = <T extends Record<string, any>>({
@@ -34,8 +37,10 @@ const J2NTableInteractive = <T extends Record<string, any>>({
   onPageChange,
   loading,
   activePage: externalPage,
+  emptyState,
   ...props
 }: IJ2NTableInteractiveProps<T>) => {
+  const { t } = useTranslation();
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [internalPage, setInternalPage] = useState(1);
 
@@ -80,9 +85,10 @@ const J2NTableInteractive = <T extends Record<string, any>>({
   };
 
   // Paginate rows locally only if pagination is not handled externally (server-side)
-  const paginatedRows = (pageSize && !onPageChange)
-    ? renderedRows.slice((activePage - 1) * pageSize, activePage * pageSize)
-    : renderedRows;
+  const paginatedRows =
+    pageSize && !onPageChange
+      ? renderedRows.slice((activePage - 1) * pageSize, activePage * pageSize)
+      : renderedRows;
 
   const totalPages = pageSize
     ? Math.ceil((total || renderedRows.length) / pageSize)
@@ -92,7 +98,19 @@ const J2NTableInteractive = <T extends Record<string, any>>({
 
   return (
     <Flex direction="column" gap="md" style={{ position: "relative" }}>
-      <LoadingOverlay visible={loading} zIndex={100} overlayProps={{ radius: "sm", blur: 1, backgroundOpacity: 0 }} />
+      <LoadingOverlay
+        visible={loading}
+        zIndex={100}
+        overlayProps={{
+          radius: "sm",
+          blur: 1,
+          backgroundOpacity: 0.2,
+          color: "var(--color-j2n-mauve-500)",
+        }}
+        loaderProps={{
+          color: "var(--color-j2n-mauve-500)",
+        }}
+      />
       <TableScrollContainer minWidth={minWidth || "100%"}>
         <Table
           highlightOnHover={highlightOnHover}
@@ -138,21 +156,51 @@ const J2NTableInteractive = <T extends Record<string, any>>({
             </TableTr>
           </TableThead>
           <TableTbody>
-            {paginatedRows.map((row) => (
-              <TableTr key={row.id}>
-                {useCheckbox && (
-                  <TableTd>
-                    <Checkbox
-                      checked={selectedIds.includes(row.id)}
-                      onChange={() => toggleRow(row.id)}
-                    />
-                  </TableTd>
-                )}
-                {row.cells.map((cell, cellIdx) => (
-                  <TableTd key={cellIdx}>{cell}</TableTd>
-                ))}
+            {paginatedRows.length === 0 ? (
+              <TableTr>
+                <TableTd colSpan={headers.length + (useCheckbox ? 1 : 0)}>
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    py={40}
+                    gap="xs"
+                    className="text-center w-full"
+                  >
+                    {emptyState ? (
+                      emptyState
+                    ) : (
+                      <>
+                        <IconInbox
+                          size={48}
+                          stroke={1.2}
+                          className="text-j2n-mauve-300 animate-pulse"
+                        />
+                        <Text className="text-j2n-mauve-300! text-sm">
+                          {t("common.no_data")}
+                        </Text>
+                      </>
+                    )}
+                  </Flex>
+                </TableTd>
               </TableTr>
-            ))}
+            ) : (
+              paginatedRows.map((row) => (
+                <TableTr key={row.id}>
+                  {useCheckbox && (
+                    <TableTd>
+                      <Checkbox
+                        checked={selectedIds.includes(row.id)}
+                        onChange={() => toggleRow(row.id)}
+                      />
+                    </TableTd>
+                  )}
+                  {row.cells.map((cell, cellIdx) => (
+                    <TableTd key={cellIdx}>{cell}</TableTd>
+                  ))}
+                </TableTr>
+              ))
+            )}
           </TableTbody>
         </Table>
       </TableScrollContainer>

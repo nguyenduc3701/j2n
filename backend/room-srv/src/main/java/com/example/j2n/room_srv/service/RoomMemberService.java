@@ -69,7 +69,18 @@ public class RoomMemberService {
         return ResponseFactory.success(null);
     }
 
+    @Transactional(readOnly = true)
+    @LogAround(message = "Get room members by room id")
+    public BaseResponse<List<RoomMemberResponse>> getRoomMembersByRoomId(Long roomId) {
+        log.info("Getting room members by room ID: {}", roomId);
+        List<RoomMemberResponse> responses = roomMemberRepository.findByRoomId(roomId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+        return ResponseFactory.success(responses);
+    }
+
     private void validateCapacity(RoomEntity room, MapMemberToRoomRequest request) {
+        log.info("Validating capacity for room ID: {}", room.getId());
         if (room.getMaxPeople() != null) {
             int currentMemberCount = roomMemberRepository.findByRoomId(room.getId()).size();
             int newMembersCount = request.getUserIds().size();
@@ -83,6 +94,7 @@ public class RoomMemberService {
     }
 
     private void validateMappingRequest(MapMemberToRoomRequest request) {
+        log.info("Validating mapping request for room ID: {}", request.getRoomId());
         for (Long userId : request.getUserIds()) {
             roomMemberRepository.findByUserId(userId).ifPresent(mapping -> {
                 if (mapping.getRoom().getId().equals(request.getRoomId())) {
@@ -114,6 +126,7 @@ public class RoomMemberService {
     }
 
     private void applyMemberUpdates(RoomMemberEntity entity, UpdateRoomMemberRequest request) {
+        log.info("Applying member updates for member ID: {}", entity.getId());
         request.getIsPrimary().ifPresent(newIsPrimary -> {
             if (newIsPrimary && !Boolean.TRUE.equals(entity.getIsPrimary())) {
                 demoteExistingPrimaryMembers(entity.getRoom().getId());
@@ -123,6 +136,7 @@ public class RoomMemberService {
     }
 
     private void demoteExistingPrimaryMembers(Long roomId) {
+        log.info("Demoting existing primary members for room ID: {}", roomId);
         List<RoomMemberEntity> members = roomMemberRepository.findByRoomId(roomId);
         members.forEach(member -> {
             if (Boolean.TRUE.equals(member.getIsPrimary())) {

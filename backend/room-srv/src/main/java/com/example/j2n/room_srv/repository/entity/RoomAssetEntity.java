@@ -25,8 +25,12 @@ public class RoomAssetEntity {
     private RoomEntity room;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "object_id", nullable = false)
+    @JoinColumn(name = "asset_id", nullable = false)
     private AssetEntity asset;
+
+    @Column(name = "quantity", nullable = false)
+    @Builder.Default
+    private Integer quantity = 1;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

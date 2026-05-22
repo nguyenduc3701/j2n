@@ -1,32 +1,37 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { roomService } from "@/services/roomServices";
+import { userService } from "@/services/userServices";
+import { IAsset, IBill, IRoomMember } from "@/types/room";
+import { IUser } from "@/types/user";
 import {
-  Tabs,
-  TextInput,
-  Select,
-  Textarea,
-  SimpleGrid,
-  Group,
-  Table,
-  Badge,
   ActionIcon,
-  Tooltip,
+  Badge,
+  Group,
+  NumberInput,
+  Select,
+  SimpleGrid,
+  Table,
+  Tabs,
   Text,
-  Divider,
+  Textarea,
+  TextInput,
+  Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconTrash, IconUserPlus, IconPlus, IconRefresh, IconUserStar } from "@tabler/icons-react";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
 import J2NModal from "@repo/ui/src/components/atoms/J2NModal";
 import { useTranslation } from "@repo/ui/src/providers";
-import { ModalMode, RoomModalProps, ROOM_STATUS_OPTIONS } from "./room.types";
-import { roomService } from "@/services/roomServices";
-import { userService } from "@/services/userServices";
-import { IAsset, IBill, IRoomFee, IRoomMember } from "@/types/room";
-import { IUser } from "@/types/user";
+import {
+  IconPlus,
+  IconRefresh,
+  IconTrash,
+  IconUserPlus,
+} from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { ModalMode, ROOM_STATUS_OPTIONS, RoomModalProps } from "./room.types";
 
 const RoomModal = ({
   opened,
@@ -47,6 +52,7 @@ const RoomModal = ({
   const [selectedRenterId, setSelectedRenterId] = useState<string | null>(null);
   const [availableAssets, setAvailableAssets] = useState<IAsset[]>([]);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
+  const [mapQuantity, setMapQuantity] = useState<number>(1);
   const [tabLoading, setTabLoading] = useState(false);
 
   const form = useForm({
@@ -124,7 +130,9 @@ const RoomModal = ({
       const res = await userService.getUsers({ size: 100, status: "ACTIVE" });
       if (res.data?.users) {
         // Filter users who are renters
-        const renters = res.data.users.filter(u => u.role_id?.toUpperCase() === "RENTER");
+        const renters = res.data.users.filter(
+          (u) => u.role_id?.toUpperCase() === "RENTER",
+        );
         setAvailableRenters(renters);
       }
     } catch (e) {
@@ -134,7 +142,7 @@ const RoomModal = ({
 
   const fetchAvailableAssets = async () => {
     try {
-      const res = await roomService.searchAssets({ size: 100, status: "AVAILABLE" });
+      const res = await roomService.searchAssets({ size: 100 });
       if (res.data?.assets) {
         setAvailableAssets(res.data.assets);
       }
@@ -172,7 +180,9 @@ const RoomModal = ({
       const detailedRoomRes = await roomService.getRoomById(room.id);
       const detailedRoom = detailedRoomRes.data;
       if (detailedRoom && detailedRoom.members) {
-        const memberMapping = detailedRoom.members.find((m: IRoomMember) => m.user_id === userId);
+        const memberMapping = detailedRoom.members.find(
+          (m: IRoomMember) => m.user_id === userId,
+        );
         if (memberMapping) {
           await roomService.deleteRoomMember(memberMapping.id);
           fetchOccupants();
@@ -185,16 +195,23 @@ const RoomModal = ({
     }
   };
 
-  const handleTogglePrimary = async (userId: number, currentPrimary: boolean) => {
+  const handleTogglePrimary = async (
+    userId: number,
+    currentPrimary: boolean,
+  ) => {
     if (!room) return;
     try {
       setTabLoading(true);
       const detailedRoomRes = await roomService.getRoomById(room.id);
       const detailedRoom = detailedRoomRes.data;
       if (detailedRoom && detailedRoom.members) {
-        const memberMapping = detailedRoom.members.find((m: IRoomMember) => m.user_id === userId);
+        const memberMapping = detailedRoom.members.find(
+          (m: IRoomMember) => m.user_id === userId,
+        );
         if (memberMapping) {
-          await roomService.updateRoomMember(memberMapping.id, { is_primary: !currentPrimary });
+          await roomService.updateRoomMember(memberMapping.id, {
+            is_primary: !currentPrimary,
+          });
           fetchOccupants();
         }
       }
@@ -212,8 +229,10 @@ const RoomModal = ({
       await roomService.mapAssetToRoom({
         room_id: room.id,
         asset_ids: [Number(selectedAssetId)],
+        quantity: mapQuantity,
       });
       setSelectedAssetId(null);
+      setMapQuantity(1);
       // Refresh room assets
       if (room.id) {
         const detailedRoomRes = await roomService.getRoomById(room.id);
@@ -264,8 +283,14 @@ const RoomModal = ({
       onClose={onClose}
       title={
         isView
-          ? t("rooms.modal.view_title").replace("{number}", room?.room_number || "")
-          : t("rooms.modal.edit_title").replace("{number}", room?.room_number || "")
+          ? t("rooms.modal.view_title").replace(
+              "{number}",
+              room?.room_number || "",
+            )
+          : t("rooms.modal.edit_title").replace(
+              "{number}",
+              room?.room_number || "",
+            )
       }
       size="lg"
       centered
@@ -330,8 +355,8 @@ const RoomModal = ({
                     room?.status === "AVAILABLE"
                       ? "green"
                       : room?.status === "OCCUPIED"
-                      ? "blue"
-                      : "red"
+                        ? "blue"
+                        : "red"
                   }
                 >
                   {room?.status}
@@ -346,7 +371,10 @@ const RoomModal = ({
             </SimpleGrid>
             {onModeChange && (
               <Group justify="flex-end" mt="xl">
-                <J2NButton onClick={() => onModeChange(ModalMode.EDIT)} j2nType={J2NButtonTypes.PRIMARY}>
+                <J2NButton
+                  onClick={() => onModeChange(ModalMode.EDIT)}
+                  j2nType={J2NButtonTypes.PRIMARY}
+                >
                   {t("users.actions.edit")}
                 </J2NButton>
               </Group>
@@ -358,7 +386,7 @@ const RoomModal = ({
               <Group gap="xs">
                 <Select
                   placeholder={t("users.search_placeholder")}
-                  data={availableRenters.map(u => ({
+                  data={availableRenters.map((u) => ({
                     value: String(u.id),
                     label: `${u.full_name} (${u.email || u.user_name})`,
                   }))}
@@ -387,7 +415,9 @@ const RoomModal = ({
                   <Table.Th>{t("email")}</Table.Th>
                   <Table.Th>{t("phone_number")}</Table.Th>
                   <Table.Th>Primary</Table.Th>
-                  <Table.Th style={{ width: 100 }}>{t("rooms.table.actions")}</Table.Th>
+                  <Table.Th style={{ width: 100 }}>
+                    {t("rooms.table.actions")}
+                  </Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -401,7 +431,9 @@ const RoomModal = ({
                       <Table.Td>{u.phone_number || "-"}</Table.Td>
                       <Table.Td>
                         {/* We don't have isPrimary inside IUser, but we can query room.members */}
-                        <Badge color="blue" variant="light">Renter</Badge>
+                        <Badge color="blue" variant="light">
+                          Renter
+                        </Badge>
                       </Table.Td>
                       <Table.Td>
                         <Group gap="xs">
@@ -434,13 +466,20 @@ const RoomModal = ({
             <Group gap="xs" mb="md">
               <Select
                 placeholder={t("rooms.assets.name")}
-                data={availableAssets.map(a => ({
+                data={availableAssets.map((a) => ({
                   value: String(a.id),
-                  label: `${a.name} (${a.serial_number || "No serial"})`,
+                  label: a.name,
                 }))}
                 value={selectedAssetId}
                 onChange={setSelectedAssetId}
                 searchable
+              />
+              <NumberInput
+                placeholder={t("rooms.assets.quantity")}
+                value={mapQuantity}
+                onChange={(val) => setMapQuantity(Number(val) || 1)}
+                min={1}
+                style={{ width: 100 }}
               />
               <J2NButton
                 leftSection={<IconPlus size={16} />}
@@ -456,18 +495,16 @@ const RoomModal = ({
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>{t("rooms.assets.name")}</Table.Th>
-                  <Table.Th>{t("rooms.assets.serial")}</Table.Th>
-                  <Table.Th>{t("rooms.table.status")}</Table.Th>
+                  <Table.Th>{t("rooms.assets.quantity")}</Table.Th>
+                  <Table.Th>{t("description")}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {room?.assets?.map((asset) => (
                   <Table.Tr key={asset.id}>
                     <Table.Td>{asset.name}</Table.Td>
-                    <Table.Td>{asset.serial_number || "-"}</Table.Td>
-                    <Table.Td>
-                      <Badge color="green">{asset.status}</Badge>
-                    </Table.Td>
+                    <Table.Td>{asset.quantity}</Table.Td>
+                    <Table.Td>{asset.description || "-"}</Table.Td>
                   </Table.Tr>
                 ))}
                 {(!room?.assets || room.assets.length === 0) && (
@@ -483,7 +520,10 @@ const RoomModal = ({
 
           <Tabs.Panel value="billing" pt="md">
             <Group justify="space-between" mb="md">
-              <J2NButton onClick={handleCalculateBill} j2nType={J2NButtonTypes.PRIMARY}>
+              <J2NButton
+                onClick={handleCalculateBill}
+                j2nType={J2NButtonTypes.PRIMARY}
+              >
                 {t("rooms.bills.calculate")}
               </J2NButton>
               <ActionIcon variant="subtle" onClick={fetchBills}>
@@ -572,10 +612,18 @@ const RoomModal = ({
             />
           </SimpleGrid>
           <Group justify="flex-end" mt="xl">
-            <J2NButton type="button" onClick={onClose} j2nType={J2NButtonTypes.SECONDARY}>
+            <J2NButton
+              type="button"
+              onClick={onClose}
+              j2nType={J2NButtonTypes.SECONDARY}
+            >
               {t("rooms.modal.cancel")}
             </J2NButton>
-            <J2NButton type="submit" loading={loading} j2nType={J2NButtonTypes.PRIMARY}>
+            <J2NButton
+              type="submit"
+              loading={loading}
+              j2nType={J2NButtonTypes.PRIMARY}
+            >
               {t("rooms.modal.save")}
             </J2NButton>
           </Group>

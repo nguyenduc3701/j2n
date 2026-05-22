@@ -5,13 +5,11 @@ import {
   Box,
   Group,
   TextInput,
-  Select,
   ActionIcon,
   Tooltip,
-  Badge,
   SimpleGrid,
   Textarea,
-  Pagination,
+  NumberInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconPlus, IconSearch, IconX, IconEdit, IconTrash } from "@tabler/icons-react";
@@ -37,14 +35,14 @@ const AssetTab = () => {
   // Search filter state
   const [searchParams, setSearchParams] = useState({
     name: "",
-    status: null as string | null,
+    description: "",
   });
 
   // Search form state
   const searchForm = useForm({
     initialValues: {
       name: "",
-      status: null as string | null,
+      description: "",
     },
   });
 
@@ -56,8 +54,6 @@ const AssetTab = () => {
   const form = useForm({
     initialValues: {
       name: "",
-      serial_number: "",
-      status: "AVAILABLE",
       description: "",
     },
     validate: {
@@ -72,7 +68,7 @@ const AssetTab = () => {
         page,
         size: pageSize,
         name: params.name || undefined,
-        status: params.status || undefined,
+        description: params.description || undefined,
       });
       if (res.data?.assets) {
         setData(res.data.assets);
@@ -96,7 +92,7 @@ const AssetTab = () => {
   };
 
   const handleClear = () => {
-    const initialValues = { name: "", status: null };
+    const initialValues = { name: "", description: "" };
     searchForm.setValues(initialValues);
     setSearchParams(initialValues);
     setActivePage(1);
@@ -113,8 +109,6 @@ const AssetTab = () => {
     setEditingAsset(asset);
     form.setValues({
       name: asset.name || "",
-      serial_number: asset.serial_number || "",
-      status: asset.status || "AVAILABLE",
       description: asset.description || "",
     });
     setModalOpened(true);
@@ -150,17 +144,13 @@ const AssetTab = () => {
 
   const columns = [
     { key: "name", title: t("rooms.assets.name") },
-    { key: "serial_number", title: t("rooms.assets.serial"), render: (r: IAsset) => r.serial_number || "-" },
-    {
-      key: "status",
-      title: t("rooms.table.status"),
-      render: (r: IAsset) => (
-        <Badge color={r.status === "AVAILABLE" ? "green" : r.status === "IN_USE" ? "blue" : "orange"}>
-          {r.status}
-        </Badge>
-      ),
-    },
     { key: "description", title: t("description"), render: (r: IAsset) => r.description || "-" },
+    {
+      key: "created_at",
+      title: t("created_at"),
+      render: (r: IAsset) =>
+        r.created_at ? new Date(r.created_at).toLocaleDateString() : "-",
+    },
     {
       key: "actions",
       title: t("rooms.table.actions"),
@@ -197,12 +187,10 @@ const AssetTab = () => {
               placeholder={t("rooms.assets.name")}
               {...searchForm.getInputProps("name")}
             />
-            <Select
-              label={t("rooms.table.status")}
-              placeholder={t("rooms.table.status")}
-              data={["AVAILABLE", "IN_USE", "MAINTENANCE"]}
-              clearable
-              {...searchForm.getInputProps("status")}
+            <TextInput
+              label={t("description")}
+              placeholder={t("description")}
+              {...searchForm.getInputProps("description")}
             />
           </SimpleGrid>
           <Group justify="flex-end" mt="md">
@@ -247,16 +235,6 @@ const AssetTab = () => {
               label={t("rooms.assets.name")}
               required
               {...form.getInputProps("name")}
-            />
-            <TextInput
-              label={t("rooms.assets.serial")}
-              {...form.getInputProps("serial_number")}
-            />
-            <Select
-              label={t("rooms.table.status")}
-              data={["AVAILABLE", "IN_USE", "MAINTENANCE"]}
-              required
-              {...form.getInputProps("status")}
             />
             <Textarea
               label={t("description")}

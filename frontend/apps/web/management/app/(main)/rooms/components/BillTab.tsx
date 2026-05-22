@@ -11,7 +11,9 @@ import {
   Badge,
   Table,
   SimpleGrid,
+  Text,
 } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { useForm } from "@mantine/form";
 import { IconSearch, IconEye, IconReceipt, IconPlayerPlay, IconX } from "@tabler/icons-react";
 import J2NButton, {
@@ -92,28 +94,52 @@ const BillTab = () => {
     fetchBills(1, initialValues);
   };
 
-  const handleCalculateAll = async () => {
-    if (!confirm("Are you sure you want to calculate bills for all occupied rooms?")) return;
-    setBulkLoading(true);
-    try {
-      const today = new Date();
-      await roomService.calculateAllBills(today.getMonth() + 1);
-      fetchBills();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setBulkLoading(false);
-    }
+  const handleCalculateAll = () => {
+    modals.openConfirmModal({
+      title: t("rooms.bills.calculate_all"),
+      centered: true,
+      children: (
+        <Text size="sm">
+          {t("rooms.bills.confirm_calculate_all")}
+        </Text>
+      ),
+      labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
+      confirmProps: { color: "#75616a" },
+      onConfirm: async () => {
+        setBulkLoading(true);
+        try {
+          const today = new Date();
+          await roomService.calculateAllBills(today.getMonth() + 1);
+          fetchBills();
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setBulkLoading(false);
+        }
+      },
+    });
   };
 
-  const handlePay = async (billId: string) => {
-    if (!confirm("Proceed with marking this invoice as paid?")) return;
-    try {
-      await roomService.payBill(billId);
-      fetchBills();
-    } catch (e) {
-      console.error(e);
-    }
+  const handlePay = (billId: string) => {
+    modals.openConfirmModal({
+      title: t("rooms.bills.status.paid"),
+      centered: true,
+      children: (
+        <Text size="sm">
+          {t("rooms.bills.confirm_pay")}
+        </Text>
+      ),
+      labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
+      confirmProps: { color: "#75616a" },
+      onConfirm: async () => {
+        try {
+          await roomService.payBill(billId);
+          fetchBills();
+        } catch (e) {
+          console.error(e);
+        }
+      },
+    });
   };
 
   const formatCurrency = (amount: number) => {

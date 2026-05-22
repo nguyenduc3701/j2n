@@ -53,6 +53,7 @@ public class GatewayPath {
     public static final String ROOM_FEE_BASE_PATH = "/api/room/fees";
     public static final String ROOM_FEE_ID_PATH = "/api/room/fees/%s";
 
+    public static final String ROOM_MEMBER_BY_ROOM_ID_PATH = "/api/room/members/room/%s";
     public static final String ROOM_MEMBER_MAP_ROOM_PATH = "/api/room/members/mapping";
     public static final String ROOM_MEMBER_ID_PATH = "/api/room/members/%s";
 }
