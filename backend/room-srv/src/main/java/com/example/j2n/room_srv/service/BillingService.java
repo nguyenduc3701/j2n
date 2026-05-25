@@ -11,6 +11,7 @@ import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
+import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.BillResponse;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.messaging.room.event.BillsCalculatedEvent;
@@ -202,6 +203,50 @@ public class BillingService {
     public BaseResponse<SearchBillsResponse> searchBills(SearchBillsRequest request) {
         RoomEntity room = roomService.findRoomByIdOrThrow(request.getRoomId());
         List<SearchCriteria> criteriaList = buildSearchCriteria(request, room);
+        Page<BillResponse> pageData = searchFactory.searchAndMap(
+                billRepository,
+                criteriaList,
+                request,
+                this::mapToResponse);
+
+        SearchBillsResponse response = SearchBillsResponse.builder()
+                .bills(pageData.getContent())
+                .page(PageUtil.buildPagingMeta(pageData))
+                .build();
+        return ResponseFactory.success(response);
+    }
+
+    @LogAround(message = "Search bills (Admin)")
+    public BaseResponse<SearchBillsResponse> searchBillsAdmin(SearchBillsAdminRequest request) {
+        List<SearchCriteria> criteriaList = new ArrayList<>();
+
+        if (request.getRoomId() != null && request.getRoomId().isPresent()) {
+            RoomEntity room = roomService.findRoomByIdOrThrow(request.getRoomId().get());
+            criteriaList.add(SearchCriteria.builder()
+                    .fieldName("room")
+                    .value(room)
+                    .operation(EQUAL)
+                    .build());
+        }
+
+        request.getRenterId().ifPresent(renterId -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("renterId")
+                .value(renterId)
+                .operation(EQUAL)
+                .build()));
+
+        request.getBillingMonth().ifPresent(month -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("billingMonth")
+                .value(month)
+                .operation(EQUAL)
+                .build()));
+
+        request.getStatus().ifPresent(status -> criteriaList.add(SearchCriteria.builder()
+                .fieldName("status")
+                .value(status)
+                .operation(EQUAL)
+                .build()));
+
         Page<BillResponse> pageData = searchFactory.searchAndMap(
                 billRepository,
                 criteriaList,

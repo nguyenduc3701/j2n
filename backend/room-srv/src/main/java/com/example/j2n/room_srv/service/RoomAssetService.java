@@ -28,4 +28,21 @@ public class RoomAssetService {
     public List<RoomAssetEntity> getAssetsByRoomId(Long roomId) {
         return roomAssetRepository.findByRoomId(roomId);
     }
+
+    @Transactional
+    @LogAround(message = "Unmap asset from room")
+    public void unmapAsset(Long roomId, Long assetId) {
+        log.info("Unmapping asset id: {} from room id: {}", assetId, roomId);
+        roomAssetRepository.findByRoomIdAndAssetId(roomId, assetId)
+                .ifPresent(roomAssetRepository::delete);
+    }
+
+    @Transactional
+    @LogAround(message = "Update room assets")
+    public void updateRoomAssets(Long roomId, List<RoomAssetEntity> newAssets) {
+        log.info("Updating assets for room id: {}", roomId);
+        List<RoomAssetEntity> existing = roomAssetRepository.findByRoomId(roomId);
+        roomAssetRepository.deleteAll(existing);
+        roomAssetRepository.saveAll(newAssets);
+    }
 }

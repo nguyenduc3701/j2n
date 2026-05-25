@@ -95,7 +95,8 @@
         "general": "Thông tin chung",
         "members": "Thành viên thuê",
         "assets": "Tài sản phòng",
-        "billing": "Lịch sử hóa đơn"
+        "billing": "Lịch sử hóa đơn",
+        "fees": "Chi phí"
       },
       "cancel": "Hủy bỏ",
       "save": "Lưu lại"

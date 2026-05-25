@@ -95,7 +95,8 @@
         "general": "基本详情",
         "members": "居住者",
         "assets": "资产清单",
-        "billing": "计费历史"
+        "billing": "计费历史",
+        "fees": "费用"
       },
       "cancel": "取消",
       "save": "保存"

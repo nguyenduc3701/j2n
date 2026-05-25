@@ -3,6 +3,7 @@ package com.example.j2n.room_srv.controller;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.BillRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
+import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.service.BillingService;
@@ -36,6 +37,16 @@ public class BillController {
         public ResponseEntity<BaseResponse<SearchBillsResponse>> searchBills(
                         @Valid @RequestBody SearchBillsRequest request) {
                 return ResponseEntity.ok(billingService.searchBills(request));
+        }
+
+        @PostMapping("/admin/search")
+        @Operation(summary = "Search all bills (Admin)", description = "Retrieve a list of all bills matching the search criteria")
+        @J2NApiResponses({
+                        @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+        })
+        public ResponseEntity<BaseResponse<SearchBillsResponse>> searchBillsAdmin(
+                        @Valid @RequestBody SearchBillsAdminRequest request) {
+                return ResponseEntity.ok(billingService.searchBillsAdmin(request));
         }
 
         @PostMapping("/calculate")

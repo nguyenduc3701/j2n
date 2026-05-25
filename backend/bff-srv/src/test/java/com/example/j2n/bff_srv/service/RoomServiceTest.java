@@ -129,23 +129,23 @@ class RoomServiceTest {
     }
 
     @Test
-    void mapAssetWithRoom_Success() {
-        MapAssetToRoomRequest request = new MapAssetToRoomRequest();
-        when(restClientUtil.request(eq(GatewayPath.ROOM_ASSET_MAP_ROOM_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class)))
-                .thenReturn(new Object());
-
-        Object result = roomService.mapAssetWithRoom(request);
-
-        assertNotNull(result);
-    }
-
-    @Test
     void searchBills_Success() {
         SearchBillsRequest request = new SearchBillsRequest();
         when(restClientUtil.request(eq(GatewayPath.ROOM_BILL_SEARCH_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class)))
                 .thenReturn(new Object());
 
         Object result = roomService.searchBills(request);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void searchBillsAdmin_Success() {
+        SearchBillsAdminRequest request = new SearchBillsAdminRequest();
+        when(restClientUtil.request(eq(GatewayPath.ROOM_BILL_ADMIN_SEARCH_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class)))
+                .thenReturn(new Object());
+
+        Object result = roomService.searchBillsAdmin(request);
 
         assertNotNull(result);
     }
@@ -295,5 +295,19 @@ class RoomServiceTest {
         Object result = roomService.deleteRoomMember(id);
 
         assertNotNull(result);
+    }
+
+    @Test
+    void updateRoomAssets_Success() {
+        Long id = 1L;
+        UpdateRoomAssetRequest request = new UpdateRoomAssetRequest();
+        String expectedPath = String.format(GatewayPath.ROOM_UPDATE_ASSETS_PATH, id);
+        when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any(ParameterizedTypeReference.class)))
+                .thenReturn(new Object());
+
+        Object result = roomService.updateRoomAssets(id, request);
+
+        assertNotNull(result);
+        verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any(ParameterizedTypeReference.class));
     }
 }

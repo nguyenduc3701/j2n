@@ -67,6 +67,17 @@ public class RoomController {
         return ResponseEntity.ok(roomService.updateRoomFees(id, request));
     }
 
+    @PutMapping("/{id}/assets")
+    @Operation(summary = "Update room assets", description = "Update asset configurations for a specific room in bulk")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> updateRoomAssets(@PathVariable Long id, @Valid @RequestBody UpdateRoomAssetRequest request) {
+        return ResponseEntity.ok(roomService.updateRoomAssets(id, request));
+    }
+
     // --- Asset Endpoints ---
 
     @PostMapping("/assets/search")
@@ -113,17 +124,6 @@ public class RoomController {
         return ResponseEntity.ok(roomService.deleteAsset(id));
     }
 
-    @PostMapping("/assets/map-room")
-    @Operation(summary = "Map assets to room", description = "Assign assets to a room")
-    @J2NApiResponses({
-            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
-                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
-            })
-    })
-    public ResponseEntity<Object> mapAssetWithRoom(@Valid @RequestBody MapAssetToRoomRequest request) {
-        return ResponseEntity.ok(roomService.mapAssetWithRoom(request));
-    }
-
     // --- Bill Endpoints ---
 
     @PostMapping("/bills/search")
@@ -135,6 +135,17 @@ public class RoomController {
     })
     public ResponseEntity<Object> searchBills(@Valid @RequestBody SearchBillsRequest request) {
         return ResponseEntity.ok(roomService.searchBills(request));
+    }
+
+    @PostMapping("/bills/admin/search")
+    @Operation(summary = "Search all bills (Admin)", description = "Search for all bills matching criteria (admin)")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> searchBillsAdmin(@Valid @RequestBody SearchBillsAdminRequest request) {
+        return ResponseEntity.ok(roomService.searchBillsAdmin(request));
     }
 
     @PostMapping("/bills/calculate")

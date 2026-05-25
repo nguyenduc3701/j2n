@@ -89,33 +89,6 @@ public class AssetService {
         return ResponseFactory.success(null);
     }
 
-    @Transactional
-    @LogAround(message = "Map assets with room")
-    public BaseResponse<String> mapAssetWithRoom(MapAssetToRoomRequest request) {
-        log.info("Mapping asset ids: {} to room id: {}", request.getAssetIds(), request.getRoomId());
-        RoomEntity room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new DataNotFoundException(MessageEnum.ROOM_NOT_FOUND.withArgs(request.getRoomId())));
-
-        List<AssetEntity> assets = assetRepository.findAllById(request.getAssetIds());
-        boolean hasDeleted = assets.stream().anyMatch(asset -> Boolean.TRUE.equals(asset.getIsDeleted()));
-        if (assets.size() != request.getAssetIds().size() || hasDeleted) {
-            log.error("Some assets not found or are deleted. Requested: {}, Found: {}", request.getAssetIds().size(), assets.size());
-            throw new DataNotFoundException(MessageEnum.ASSET_NOT_FOUND.withArgs("multiple IDs"));
-        }
-
-        Integer qty = request.getQuantity() != null ? request.getQuantity() : 1;
-        List<RoomAssetEntity> assetsToSave = assets.stream()
-                .map(asset -> RoomAssetEntity.builder()
-                        .room(room)
-                        .asset(asset)
-                        .quantity(qty)
-                        .build())
-                .collect(java.util.stream.Collectors.toList());
-
-        roomAssetService.saveAll(assetsToSave);
-        return ResponseFactory.success(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage());
-    }
-
     public AssetEntity findByIdOrThrow(Long id) {
         AssetEntity entity = assetRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.ASSET_NOT_FOUND.withArgs(id)));

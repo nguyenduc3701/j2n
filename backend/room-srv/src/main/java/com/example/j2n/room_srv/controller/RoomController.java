@@ -4,6 +4,7 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
+import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
 import com.example.j2n.room_srv.service.response.RoomResponse;
 import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
@@ -73,5 +74,18 @@ public class RoomController {
     public ResponseEntity<BaseResponse<List<RoomFeeResponse>>> updateRoomFees(
             @PathVariable Long id, @Valid @RequestBody UpdateRoomFeeRequest request) {
         return ResponseEntity.ok(roomService.updateRoomFees(id, request));
+    }
+
+    @PutMapping("/{id}/assets")
+    @Operation(summary = "Update room assets", description = "Update the list of mapped assets and their quantities for a specific room")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS),
+            @J2NApiResponse(httpCode = 400, description = BaseMessageEnum.BaseMessageConstants.BAD_REQUEST, examples = {
+                    @J2NApiExample(status = MessageEnum.MessageConstants.ROOM_NOT_FOUND)
+            })
+    })
+    public ResponseEntity<BaseResponse<String>> updateRoomAssets(
+            @PathVariable Long id, @Valid @RequestBody UpdateRoomAssetRequest request) {
+        return ResponseEntity.ok(roomService.updateRoomAssets(id, request));
     }
 }

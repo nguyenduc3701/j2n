@@ -8,7 +8,6 @@ export interface IRoom {
   area?: string;
   max_people?: number;
   status: string;
-  current_electric_index?: number;
   description?: string;
   created_at?: string;
   updated_at?: string;

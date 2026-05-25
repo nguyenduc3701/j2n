@@ -45,6 +45,13 @@ public class RoomService {
                 });
     }
 
+    public Object updateRoomAssets(Long id, UpdateRoomAssetRequest request) {
+        String path = String.format(GatewayPath.ROOM_UPDATE_ASSETS_PATH, id);
+        return restClientUtil.request(path, HttpMethod.PUT, request,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
+
     // --- Asset methods ---
     public Object searchAssets(SearchAssetsRequest request) {
         return restClientUtil.request(GatewayPath.ROOM_ASSET_SEARCH_PATH, HttpMethod.POST, request,
@@ -72,15 +79,15 @@ public class RoomService {
                 });
     }
 
-    public Object mapAssetWithRoom(MapAssetToRoomRequest request) {
-        return restClientUtil.request(GatewayPath.ROOM_ASSET_MAP_ROOM_PATH, HttpMethod.POST, request,
+    // --- Bill methods ---
+    public Object searchBills(SearchBillsRequest request) {
+        return restClientUtil.request(GatewayPath.ROOM_BILL_SEARCH_PATH, HttpMethod.POST, request,
                 new ParameterizedTypeReference<Object>() {
                 });
     }
 
-    // --- Bill methods ---
-    public Object searchBills(SearchBillsRequest request) {
-        return restClientUtil.request(GatewayPath.ROOM_BILL_SEARCH_PATH, HttpMethod.POST, request,
+    public Object searchBillsAdmin(SearchBillsAdminRequest request) {
+        return restClientUtil.request(GatewayPath.ROOM_BILL_ADMIN_SEARCH_PATH, HttpMethod.POST, request,
                 new ParameterizedTypeReference<Object>() {
                 });
     }

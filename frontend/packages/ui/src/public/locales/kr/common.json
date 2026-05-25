@@ -95,7 +95,8 @@
         "general": "일반 세부 정보",
         "members": "입주자",
         "assets": "자산 목록",
-        "billing": "청구 내역"
+        "billing": "청구 내역",
+        "fees": "요금"
       },
       "cancel": "취소",
       "save": "저장"

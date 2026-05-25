@@ -7,6 +7,9 @@ import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
+import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
+import com.example.j2n.room_srv.repository.entity.RoomAssetEntity;
+import com.example.j2n.room_srv.repository.entity.AssetEntity;
 import com.example.j2n.room_srv.service.response.AssetResponse;
 import com.example.j2n.room_srv.service.response.RoomResponse;
 import com.example.j2n.room_srv.service.response.RoomFeeResponse;
@@ -115,6 +118,24 @@ public class RoomService {
         RoomEntity room = findRoomByIdOrThrow(roomId);
         List<RoomFeeResponse> response = roomFeeService.updateRoomFees(room, request.getFeeIds());
         return ResponseFactory.success(response);
+    }
+
+    @Transactional
+    @LogAround(message = "Update room assets")
+    public BaseResponse<String> updateRoomAssets(Long roomId, UpdateRoomAssetRequest request) {
+        RoomEntity room = findRoomByIdOrThrow(roomId);
+        List<RoomAssetEntity> assetsToSave = request.getAssets().stream()
+                .map(mapping -> {
+                    AssetEntity asset = assetService.findByIdOrThrow(mapping.getAssetId());
+                    return RoomAssetEntity.builder()
+                            .room(room)
+                            .asset(asset)
+                            .quantity(mapping.getQuantity())
+                            .build();
+                })
+                .collect(Collectors.toList());
+        roomAssetService.updateRoomAssets(roomId, assetsToSave);
+        return ResponseFactory.success(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage());
     }
 
     public RoomEntity findRoomByIdOrThrow(Long roomId) {

@@ -25,6 +25,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
+
 @WebMvcTest(RoomController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class RoomControllerTest {
@@ -94,5 +96,24 @@ class RoomControllerTest {
                 .andExpect(status().isOk());
 
         verify(roomService, times(1)).updateRoomFees(eq(roomId), any(UpdateRoomFeeRequest.class));
+    }
+
+    @Test
+    void updateRoomAssets_Success() throws Exception {
+        Long roomId = 1L;
+        UpdateRoomAssetRequest request = UpdateRoomAssetRequest.builder()
+                .assets(List.of(UpdateRoomAssetRequest.AssetMapping.builder()
+                        .assetId(2L)
+                        .quantity(5)
+                        .build()))
+                .build();
+        when(roomService.updateRoomAssets(eq(roomId), any(UpdateRoomAssetRequest.class))).thenReturn(ResponseFactory.success(null));
+
+        mockMvc.perform(put("/rooms/" + roomId + "/assets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(roomService, times(1)).updateRoomAssets(eq(roomId), any(UpdateRoomAssetRequest.class));
     }
 }

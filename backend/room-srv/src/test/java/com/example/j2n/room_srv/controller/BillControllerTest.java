@@ -2,6 +2,7 @@ package com.example.j2n.room_srv.controller;
 
 import com.example.j2n.room_srv.controller.request.BillRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
+import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.service.BillingService;
@@ -54,6 +55,20 @@ class BillControllerTest {
                 .andExpect(status().isOk());
 
         verify(billingService, times(1)).searchBills(any(SearchBillsRequest.class));
+    }
+
+    @Test
+    void searchBillsAdmin_Success() throws Exception {
+        SearchBillsAdminRequest request = new SearchBillsAdminRequest();
+        SearchBillsResponse response = new SearchBillsResponse();
+        when(billingService.searchBillsAdmin(any(SearchBillsAdminRequest.class))).thenReturn(ResponseFactory.success(response));
+
+        mockMvc.perform(post("/room/bills/admin/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(billingService, times(1)).searchBillsAdmin(any(SearchBillsAdminRequest.class));
     }
 
     @Test

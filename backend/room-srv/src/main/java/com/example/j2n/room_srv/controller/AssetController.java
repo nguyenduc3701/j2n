@@ -65,17 +65,5 @@ public class AssetController {
     public ResponseEntity<BaseResponse<Void>> deleteAsset(@PathVariable Long id) {
         return ResponseEntity.ok(assetService.deleteAsset(id));
     }
-
-    @PostMapping("/map-room")
-    @Operation(summary = "Map asset to room", description = "Assign an asset to a specific room")
-    @J2NApiResponses({
-            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS),
-            @J2NApiResponse(httpCode = 400, description = BaseMessageEnum.BaseMessageConstants.BAD_REQUEST, examples = {
-                    @J2NApiExample(status = MessageEnum.MessageConstants.ROOM_NOT_FOUND),
-                    @J2NApiExample(status = MessageEnum.MessageConstants.ASSET_NOT_FOUND)
-            })
-    })
-    public ResponseEntity<BaseResponse<String>> mapAssetWithRoom(@Valid @RequestBody MapAssetToRoomRequest request) {
-        return ResponseEntity.ok(assetService.mapAssetWithRoom(request));
-    }
 }
+

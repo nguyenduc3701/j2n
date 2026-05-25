@@ -44,4 +44,27 @@ class RoomAssetServiceTest {
         assertEquals(expectedAssets, actualAssets);
         verify(roomAssetRepository, times(1)).findByRoomId(roomId);
     }
+
+    @Test
+    void unmapAsset_Success() {
+        Long roomId = 1L;
+        Long assetId = 2L;
+        RoomAssetEntity entity = new RoomAssetEntity();
+        when(roomAssetRepository.findByRoomIdAndAssetId(roomId, assetId)).thenReturn(java.util.Optional.of(entity));
+
+        roomAssetService.unmapAsset(roomId, assetId);
+
+        verify(roomAssetRepository, times(1)).delete(entity);
+    }
+
+    @Test
+    void unmapAsset_NotFound() {
+        Long roomId = 1L;
+        Long assetId = 2L;
+        when(roomAssetRepository.findByRoomIdAndAssetId(roomId, assetId)).thenReturn(java.util.Optional.empty());
+
+        roomAssetService.unmapAsset(roomId, assetId);
+
+        verify(roomAssetRepository, never()).delete(any());
+    }
 }

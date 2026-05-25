@@ -92,6 +92,23 @@ export const roomService = {
     };
   },
 
+  async updateRoomAssets(roomId: string | number, assets: { asset_id: number; quantity: number }[]) {
+    const options = {
+      method: HTTP_METHODS.PUT,
+      data: {
+        assets,
+      },
+    };
+    const response = await request<BaseResponse<void>>(
+      `/api/bff/rooms/${roomId}/assets`,
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
   // --- Assets APIs ---
   async searchAssets(params: {
     page?: number;
@@ -158,21 +175,6 @@ export const roomService = {
     };
   },
 
-  async mapAssetToRoom(data: { room_id: number; asset_ids: number[]; quantity?: number }) {
-    const options = {
-      method: HTTP_METHODS.POST,
-      data,
-    };
-    const response = await request<BaseResponse<string>>(
-      "/api/bff/rooms/assets/map-room",
-      options,
-    );
-    return {
-      ...response.data,
-      status: response.status,
-    };
-  },
-
   // --- Bills APIs ---
   async searchBills(params: {
     page?: number;
@@ -189,6 +191,29 @@ export const roomService = {
     };
     const response = await request<BaseResponse<IBillResponse>>(
       "/api/bff/rooms/bills/search",
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async searchBillsAdmin(params: {
+    page?: number;
+    size?: number;
+    room_id?: number;
+    month?: number;
+    year?: number;
+    status?: string;
+  }) {
+    const { page = 1, size = 10, ...rest } = params;
+    const options = {
+      method: HTTP_METHODS.POST,
+      data: { page, size, ...rest },
+    };
+    const response = await request<BaseResponse<IBillResponse>>(
+      "/api/bff/rooms/bills/admin/search",
       options,
     );
     return {

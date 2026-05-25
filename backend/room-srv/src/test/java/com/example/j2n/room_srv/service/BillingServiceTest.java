@@ -7,6 +7,7 @@ import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
 import com.example.j2n.room_srv.service.response.FeeResponse;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
+import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.utils.RoomSecurityUtil;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 import com.example.j2n.room_srv.service.response.BillResponse;
@@ -147,6 +148,43 @@ class BillingServiceTest {
         doReturn(page).when(searchFactory).searchAndMap(any(), anyList(), any(), any());
 
         BaseResponse<SearchBillsResponse> response = billingService.searchBills(request);
+
+        assertNotNull(response);
+        assertEquals(1, response.getData().getBills().size());
+        assertEquals("bill-1", response.getData().getBills().get(0).getId());
+    }
+
+    @Test
+    void searchBillsAdmin_WithRoomId_Success() {
+        SearchBillsAdminRequest request = new SearchBillsAdminRequest();
+        request.setRoomId(Optional.of(1L));
+
+        RoomEntity room = RoomEntity.builder().id(1L).roomNumber("101").build();
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+
+        Page<BillResponse> page = new PageImpl<>(List.of(
+                BillResponse.builder().id("bill-1").roomNumber("101").build()), PageRequest.of(0, 10), 1);
+
+        doReturn(page).when(searchFactory).searchAndMap(any(), anyList(), any(), any());
+
+        BaseResponse<SearchBillsResponse> response = billingService.searchBillsAdmin(request);
+
+        assertNotNull(response);
+        assertEquals(1, response.getData().getBills().size());
+        assertEquals("bill-1", response.getData().getBills().get(0).getId());
+    }
+
+    @Test
+    void searchBillsAdmin_WithoutRoomId_Success() {
+        SearchBillsAdminRequest request = new SearchBillsAdminRequest();
+        request.setRoomId(Optional.empty());
+
+        Page<BillResponse> page = new PageImpl<>(List.of(
+                BillResponse.builder().id("bill-1").roomNumber("101").build()), PageRequest.of(0, 10), 1);
+
+        doReturn(page).when(searchFactory).searchAndMap(any(), anyList(), any(), any());
+
+        BaseResponse<SearchBillsResponse> response = billingService.searchBillsAdmin(request);
 
         assertNotNull(response);
         assertEquals(1, response.getData().getBills().size());

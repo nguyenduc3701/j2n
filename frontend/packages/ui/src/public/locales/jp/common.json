@@ -95,7 +95,8 @@
         "general": "基本詳細",
         "members": "入居者",
         "assets": "資産リスト",
-        "billing": "請求履歴"
+        "billing": "請求履歴",
+        "fees": "料金"
       },
       "cancel": "キャンセル",
       "save": "保存"

@@ -38,13 +38,14 @@ public class GatewayPath {
     public static final String ROOM_DETAIL_PATH = "/api/room/%s";
     public static final String ROOM_UPDATE_PATH = "/api/room/%s";
     public static final String ROOM_UPDATE_FEES_PATH = "/api/room/%s/fees";
+    public static final String ROOM_UPDATE_ASSETS_PATH = "/api/room/%s/assets";
     
     public static final String ROOM_ASSET_SEARCH_PATH = "/api/room/assets/search";
     public static final String ROOM_ASSET_BASE_PATH = "/api/room/assets";
     public static final String ROOM_ASSET_ID_PATH = "/api/room/assets/%s";
-    public static final String ROOM_ASSET_MAP_ROOM_PATH = "/api/room/assets/map-room";
 
     public static final String ROOM_BILL_SEARCH_PATH = "/api/room/bills/search";
+    public static final String ROOM_BILL_ADMIN_SEARCH_PATH = "/api/room/bills/admin/search";
     public static final String ROOM_BILL_CALCULATE_PATH = "/api/room/bills/calculate";
     public static final String ROOM_BILL_CALCULATE_ALL_PATH = "/api/room/bills/calculate-all";
     public static final String ROOM_BILL_BY_ROOM_ID_PATH = "/api/room/bills/room/%s";

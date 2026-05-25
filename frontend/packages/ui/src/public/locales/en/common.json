@@ -95,7 +95,8 @@
         "general": "General Details",
         "members": "Occupants",
         "assets": "Assets Inventory",
-        "billing": "Billing History"
+        "billing": "Billing History",
+        "fees": "Fees"
       },
       "cancel": "Cancel",
       "save": "Save"

@@ -142,6 +142,24 @@ class RoomControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void updateRoomAssets_ShouldReturnSuccess() throws Exception {
+        Long id = 1L;
+        UpdateRoomAssetRequest request = UpdateRoomAssetRequest.builder()
+                .assets(List.of(UpdateRoomAssetRequest.AssetMapping.builder()
+                        .assetId(2L)
+                        .quantity(5)
+                        .build()))
+                .build();
+        when(roomService.updateRoomAssets(eq(id), any(UpdateRoomAssetRequest.class))).thenReturn(Collections.singletonMap("data", "updated"));
+
+        mockMvc.perform(put(BASE_URL + "/{id}/assets", id)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
     // --- Asset Endpoints Tests ---
 
     @Test
@@ -195,21 +213,6 @@ class RoomControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void mapAssetWithRoom_ShouldReturnSuccess() throws Exception {
-        MapAssetToRoomRequest request = MapAssetToRoomRequest.builder()
-                .roomId(1L)
-                .assetIds(List.of(5L))
-                .build();
-        when(roomService.mapAssetWithRoom(any(MapAssetToRoomRequest.class))).thenReturn(Collections.singletonMap("data", "mapped"));
-
-        mockMvc.perform(post(BASE_URL + "/assets/map-room")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-    }
-
     // --- Bill Endpoints Tests ---
 
     @Test
@@ -219,6 +222,18 @@ class RoomControllerTest {
         when(roomService.searchBills(any(SearchBillsRequest.class))).thenReturn(Collections.singletonMap("data", "list"));
 
         mockMvc.perform(post(BASE_URL + "/bills/search")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void searchBillsAdmin_ShouldReturnSuccess() throws Exception {
+        SearchBillsAdminRequest request = new SearchBillsAdminRequest();
+        when(roomService.searchBillsAdmin(any(SearchBillsAdminRequest.class))).thenReturn(Collections.singletonMap("data", "list"));
+
+        mockMvc.perform(post(BASE_URL + "/bills/admin/search")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))

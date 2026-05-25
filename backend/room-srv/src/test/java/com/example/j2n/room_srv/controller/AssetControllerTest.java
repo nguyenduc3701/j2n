@@ -32,6 +32,12 @@ class AssetControllerTest {
     @MockitoBean
     private AssetService assetService;
 
+    @MockitoBean
+    private org.springframework.data.redis.connection.RedisConnectionFactory redisConnectionFactory;
+
+    @MockitoBean
+    private org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -41,6 +47,7 @@ class AssetControllerTest {
         when(assetService.searchAssets(any(SearchAssetsRequest.class))).thenReturn(ResponseFactory.success(new SearchAssetsResponse()));
 
         mockMvc.perform(post("/room/assets/search")
+                .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -50,10 +57,13 @@ class AssetControllerTest {
 
     @Test
     void createAsset_Success() throws Exception {
-        CreateAssetRequest request = new CreateAssetRequest();
+        CreateAssetRequest request = CreateAssetRequest.builder()
+                .name("Water Heater")
+                .build();
         when(assetService.createAsset(any(CreateAssetRequest.class))).thenReturn(ResponseFactory.success(new AssetResponse()));
 
         mockMvc.perform(post("/room/assets")
+                .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -63,11 +73,14 @@ class AssetControllerTest {
 
     @Test
     void updateAsset_Success() throws Exception {
-        UpdateAssetRequest request = new UpdateAssetRequest();
+        UpdateAssetRequest request = UpdateAssetRequest.builder()
+                .name(java.util.Optional.of("New Name"))
+                .build();
         when(assetService.updateAsset(eq(1L), any(UpdateAssetRequest.class))).thenReturn(ResponseFactory.success(new AssetResponse()));
 
         // We use PUT here as per the updated REST rules
         mockMvc.perform(put("/room/assets/1")
+                .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -79,23 +92,9 @@ class AssetControllerTest {
     void deleteAsset_Success() throws Exception {
         when(assetService.deleteAsset(1L)).thenReturn(ResponseFactory.success(null));
 
-        mockMvc.perform(delete("/room/assets/1"))
+        mockMvc.perform(delete("/room/assets/1")
+                .contextPath("/room"))
                 .andExpect(status().isOk());
-
         verify(assetService, times(1)).deleteAsset(1L);
-    }
-
-    @Test
-    void mapAssetWithRoom_Success() throws Exception {
-        MapAssetToRoomRequest request = new MapAssetToRoomRequest();
-        when(assetService.mapAssetWithRoom(any(MapAssetToRoomRequest.class)))
-                .thenReturn(ResponseFactory.success(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage()));
-
-        mockMvc.perform(post("/room/assets/map-room")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-
-        verify(assetService, times(1)).mapAssetWithRoom(any(MapAssetToRoomRequest.class));
     }
 }

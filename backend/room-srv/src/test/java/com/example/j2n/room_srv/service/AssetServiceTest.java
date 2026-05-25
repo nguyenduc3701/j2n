@@ -126,44 +126,4 @@ class AssetServiceTest {
         assertTrue(entity.getIsDeleted());
         verify(assetRepository, times(1)).save(entity);
     }
-
-    @Test
-    void mapAssetWithRoom_Success() {
-        MapAssetToRoomRequest request = MapAssetToRoomRequest.builder()
-                .roomId(1L).assetIds(List.of(2L, 3L)).build();
-        RoomEntity room = RoomEntity.builder().id(1L).build();
-        AssetEntity asset2 = AssetEntity.builder().id(2L).isDeleted(false).build();
-        AssetEntity asset3 = AssetEntity.builder().id(3L).isDeleted(false).build();
-
-        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
-        when(assetRepository.findAllById(List.of(2L, 3L))).thenReturn(List.of(asset2, asset3));
-
-        BaseResponse<String> result = assetService.mapAssetWithRoom(request);
-
-        assertNotNull(result);
-        assertEquals(MessageEnum.MAP_ASSET_TO_ROOM_SUCCESS.getMessage(), result.getData());
-        verify(roomAssetService, times(1)).saveAll(anyList());
-    }
-
-    @Test
-    void mapAssetWithRoom_RoomNotFound() {
-        MapAssetToRoomRequest request = MapAssetToRoomRequest.builder().roomId(1L).assetIds(List.of(2L)).build();
-        when(roomRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(DataNotFoundException.class, () -> assetService.mapAssetWithRoom(request));
-    }
-
-    @Test
-    void mapAssetWithRoom_AssetDeleted() {
-        MapAssetToRoomRequest request = MapAssetToRoomRequest.builder()
-                .roomId(1L).assetIds(List.of(2L, 3L)).build();
-        RoomEntity room = RoomEntity.builder().id(1L).build();
-        AssetEntity asset2 = AssetEntity.builder().id(2L).isDeleted(false).build();
-        AssetEntity asset3 = AssetEntity.builder().id(3L).isDeleted(true).build();
-
-        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
-        when(assetRepository.findAllById(List.of(2L, 3L))).thenReturn(List.of(asset2, asset3));
-
-        assertThrows(DataNotFoundException.class, () -> assetService.mapAssetWithRoom(request));
-    }
 }

@@ -29,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
+import com.example.j2n.room_srv.repository.entity.AssetEntity;
+
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
 
@@ -37,6 +40,12 @@ class RoomServiceTest {
 
         @Mock
         private RoomFeeService roomFeeService;
+
+        @Mock
+        private RoomAssetService roomAssetService;
+
+        @Mock
+        private AssetService assetService;
 
         @Mock
         private SearchFactory searchFactory;
@@ -139,5 +148,40 @@ class RoomServiceTest {
                 when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
 
                 assertThrows(DataNotFoundException.class, () -> roomService.updateRoomFees(roomId, request));
+        }
+
+        @Test
+        void updateRoomAssets_Success() {
+                Long roomId = 1L;
+                Long assetId = 2L;
+                UpdateRoomAssetRequest request = UpdateRoomAssetRequest.builder()
+                                .assets(List.of(UpdateRoomAssetRequest.AssetMapping.builder()
+                                                .assetId(assetId)
+                                                .quantity(5)
+                                                .build()))
+                                .build();
+
+                RoomEntity room = RoomEntity.builder().id(roomId).build();
+                AssetEntity asset = AssetEntity.builder().id(assetId).build();
+
+                when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+                when(assetService.findByIdOrThrow(assetId)).thenReturn(asset);
+
+                BaseResponse<String> response = roomService.updateRoomAssets(roomId, request);
+
+                assertNotNull(response);
+                verify(roomAssetService, times(1)).updateRoomAssets(eq(roomId), anyList());
+        }
+
+        @Test
+        void updateRoomAssets_RoomNotFound() {
+                Long roomId = 1L;
+                UpdateRoomAssetRequest request = UpdateRoomAssetRequest.builder()
+                                .assets(List.of())
+                                .build();
+
+                when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
+
+                assertThrows(DataNotFoundException.class, () -> roomService.updateRoomAssets(roomId, request));
         }
 }

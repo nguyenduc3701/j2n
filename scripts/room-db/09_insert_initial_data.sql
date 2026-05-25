@@ -29,7 +29,7 @@ INSERT INTO assets (name) VALUES
 ('Toilet');
 
 -- Insert Room Assets (Linking rooms with master assets)
-INSERT INTO room_assets (room_id, object_id)
+INSERT INTO room_assets (room_id, asset_id)
 SELECT r.id, a.id
 FROM rooms r
 CROSS JOIN assets a;

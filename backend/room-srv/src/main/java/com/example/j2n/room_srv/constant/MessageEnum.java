@@ -24,7 +24,9 @@ public enum MessageEnum implements BaseMessage {
     ROOM_MAX_PEOPLE_EXCEEDED("400913", HttpStatusCode.BAD_REQUEST, MessageConstants.ROOM_MAX_PEOPLE_EXCEEDED),
     MAP_MEMBER_TO_ROOM_SUCCESS("200902", HttpStatusCode.OK, MessageConstants.MAP_MEMBER_TO_ROOM_SUCCESS),
     DELETE_MEMBER_SUCCESS("200903", HttpStatusCode.OK, MessageConstants.DELETE_MEMBER_SUCCESS),
-    UPDATE_MEMBER_SUCCESS("200904", HttpStatusCode.OK, MessageConstants.UPDATE_MEMBER_SUCCESS);
+    UPDATE_MEMBER_SUCCESS("200904", HttpStatusCode.OK, MessageConstants.UPDATE_MEMBER_SUCCESS),
+    ROOM_ID_REQUIRED("400914", HttpStatusCode.BAD_REQUEST, MessageConstants.ROOM_ID_REQUIRED),
+    UNMAP_ASSET_FROM_ROOM_SUCCESS("200905", HttpStatusCode.OK, MessageConstants.UNMAP_ASSET_FROM_ROOM_SUCCESS);
 
     private final String code;
     private final HttpStatusCode httpStatus;
@@ -60,5 +62,7 @@ public enum MessageEnum implements BaseMessage {
         public static final String MAP_MEMBER_TO_ROOM_SUCCESS = "Mapped member to room successfully";
         public static final String DELETE_MEMBER_SUCCESS = "Deleted room member successfully";
         public static final String UPDATE_MEMBER_SUCCESS = "Updated room member successfully";
+        public static final String ROOM_ID_REQUIRED = "Room ID is required";
+        public static final String UNMAP_ASSET_FROM_ROOM_SUCCESS = "Unmapped asset from room successfully";
     }
 }

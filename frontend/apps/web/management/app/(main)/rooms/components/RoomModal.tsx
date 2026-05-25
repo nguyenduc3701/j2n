@@ -2,12 +2,12 @@
 
 import { roomService } from "@/services/roomServices";
 import { userService } from "@/services/userServices";
-import { IAsset, IBill, IRoomMember } from "@/types/room";
-import { IUser } from "@/types/user";
+import { IAsset, IRoomMember } from "@/types/room";
 import {
   ActionIcon,
   Badge,
   Group,
+  MultiSelect,
   NumberInput,
   Select,
   SimpleGrid,
@@ -19,6 +19,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useQuery } from "@repo/query";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
@@ -45,15 +46,69 @@ const RoomModal = ({
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string | null>("general");
 
-  // Local state for tabs data
-  const [occupants, setOccupants] = useState<IUser[]>([]);
-  const [roomBills, setRoomBills] = useState<IBill[]>([]);
-  const [availableRenters, setAvailableRenters] = useState<IUser[]>([]);
+  // Local state for tab controls and editable items
   const [selectedRenterId, setSelectedRenterId] = useState<string | null>(null);
-  const [availableAssets, setAvailableAssets] = useState<IAsset[]>([]);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [mapQuantity, setMapQuantity] = useState<number>(1);
   const [tabLoading, setTabLoading] = useState(false);
+  const [selectedFeeIds, setSelectedFeeIds] = useState<string[]>([]);
+  const [localAssets, setLocalAssets] = useState<IAsset[]>([]);
+
+  // React Query for lazy loading tabs data
+  const { data: occupants = [], refetch: refetchOccupants } = useQuery({
+    queryKey: ["room-occupants", room?.id],
+    queryFn: async () => {
+      if (!room?.id) return [];
+      const res = await userService.getUsers({ room_id: room.id, size: 50 });
+      return res.data?.users || [];
+    },
+    enabled: opened && !!room?.id && activeTab === "members",
+  });
+
+  const { data: roomBills = [], refetch: refetchBills } = useQuery({
+    queryKey: ["room-bills", room?.id],
+    queryFn: async () => {
+      if (!room?.id) return [];
+      const res = await roomService.getBillsByRoomId(room.id);
+      return res.data || [];
+    },
+    enabled: opened && !!room?.id && activeTab === "billing",
+  });
+
+  const { data: availableRenters = [] } = useQuery({
+    queryKey: ["available-renters"],
+    queryFn: async () => {
+      const res = await userService.getUsers({ size: 100, status: "ACTIVE" });
+      if (res.data?.users) {
+        return res.data.users.filter(
+          (u) => u.role_id?.toUpperCase() === "RENTER",
+        );
+      }
+      return [];
+    },
+    enabled: opened && !!room?.id && activeTab === "members",
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: availableAssets = [] } = useQuery({
+    queryKey: ["available-assets"],
+    queryFn: async () => {
+      const res = await roomService.searchAssets({ size: 100 });
+      return res.data?.assets || [];
+    },
+    enabled: opened && !!room?.id && activeTab === "assets",
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: availableFees = [] } = useQuery({
+    queryKey: ["available-fees"],
+    queryFn: async () => {
+      const res = await roomService.getActiveFees();
+      return res.data || [];
+    },
+    enabled: opened && !!room?.id && activeTab === "fees",
+    staleTime: 5 * 60 * 1000,
+  });
 
   const form = useForm({
     initialValues: {
@@ -63,7 +118,6 @@ const RoomModal = ({
       area: "",
       max_people: 1,
       status: "AVAILABLE",
-      current_electric_index: 0,
       description: "",
     },
     validate: {
@@ -81,73 +135,42 @@ const RoomModal = ({
         area: room.area || "",
         max_people: room.max_people || 1,
         status: room.status || "AVAILABLE",
-        current_electric_index: room.current_electric_index || 0,
         description: room.description || "",
       });
       // Load tabs data if in VIEW mode
       if (mode === ModalMode.VIEW) {
-        fetchOccupants();
-        fetchBills();
-        fetchAvailableRenters();
-        fetchAvailableAssets();
+        if (room.fees) {
+          setSelectedFeeIds(room.fees.map((rf) => String(rf.fee_id)));
+        } else {
+          setSelectedFeeIds([]);
+        }
+        setLocalAssets(room.assets || []);
       }
     } else {
       form.reset();
+      setSelectedFeeIds([]);
+      setLocalAssets([]);
     }
     setActiveTab("general");
   }, [room, mode]);
 
-  const fetchOccupants = async () => {
+  const handleUpdateRoomFees = async () => {
     if (!room) return;
     try {
       setTabLoading(true);
-      const res = await userService.getUsers({ room_id: room.id, size: 50 });
-      if (res.data?.users) {
-        setOccupants(res.data.users);
+      const feeIds = selectedFeeIds.map(Number);
+      await roomService.updateRoomFees(room.id, feeIds);
+      const detailedRoomRes = await roomService.getRoomById(room.id);
+      if (detailedRoomRes.data) {
+        room.fees = detailedRoomRes.data.fees;
+        if (room.fees) {
+          setSelectedFeeIds(room.fees.map((rf) => String(rf.fee_id)));
+        }
       }
     } catch (e) {
-      console.error("Error fetching occupants", e);
+      console.error("Failed to update room fees", e);
     } finally {
       setTabLoading(false);
-    }
-  };
-
-  const fetchBills = async () => {
-    if (!room) return;
-    try {
-      const res = await roomService.getBillsByRoomId(room.id);
-      if (res.data) {
-        setRoomBills(res.data);
-      }
-    } catch (e) {
-      console.error("Error fetching bills", e);
-    }
-  };
-
-  const fetchAvailableRenters = async () => {
-    try {
-      // Fetch users with RENTER role who are ACTIVE and not already assigned if possible
-      const res = await userService.getUsers({ size: 100, status: "ACTIVE" });
-      if (res.data?.users) {
-        // Filter users who are renters
-        const renters = res.data.users.filter(
-          (u) => u.role_id?.toUpperCase() === "RENTER",
-        );
-        setAvailableRenters(renters);
-      }
-    } catch (e) {
-      console.error("Error fetching available renters", e);
-    }
-  };
-
-  const fetchAvailableAssets = async () => {
-    try {
-      const res = await roomService.searchAssets({ size: 100 });
-      if (res.data?.assets) {
-        setAvailableAssets(res.data.assets);
-      }
-    } catch (e) {
-      console.error("Error fetching assets", e);
     }
   };
 
@@ -161,7 +184,7 @@ const RoomModal = ({
         is_primary: false,
       });
       setSelectedRenterId(null);
-      fetchOccupants();
+      refetchOccupants();
     } catch (e) {
       console.error("Failed to map renter", e);
     } finally {
@@ -185,7 +208,7 @@ const RoomModal = ({
         );
         if (memberMapping) {
           await roomService.deleteRoomMember(memberMapping.id);
-          fetchOccupants();
+          refetchOccupants();
         }
       }
     } catch (e) {
@@ -212,7 +235,7 @@ const RoomModal = ({
           await roomService.updateRoomMember(memberMapping.id, {
             is_primary: !currentPrimary,
           });
-          fetchOccupants();
+          refetchOccupants();
         }
       }
     } catch (e) {
@@ -222,30 +245,70 @@ const RoomModal = ({
     }
   };
 
-  const handleMapAsset = async () => {
-    if (!room || !selectedAssetId) return;
+  const handleMapAsset = () => {
+    if (!selectedAssetId) return;
+    const assetToAdd = availableAssets.find(
+      (a) => Number(a.id) === Number(selectedAssetId),
+    );
+    if (!assetToAdd) return;
+
+    setLocalAssets((prev) => {
+      const existing = prev.find((la) => Number(la.id) === Number(assetToAdd.id));
+      if (existing) {
+        return prev.map((la) =>
+          Number(la.id) === Number(assetToAdd.id)
+            ? { ...la, quantity: la.quantity + mapQuantity }
+            : la,
+        );
+      }
+      return [...prev, { ...assetToAdd, quantity: mapQuantity }];
+    });
+    setSelectedAssetId(null);
+    setMapQuantity(1);
+  };
+
+  const handleUnmapAsset = (index: number) => {
+    setLocalAssets((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateLocalQuantity = (index: number, quantity: number) => {
+    setLocalAssets((prev) =>
+      prev.map((a, i) => (i === index ? { ...a, quantity } : a)),
+    );
+  };
+
+  const handleSaveAssets = async () => {
+    if (!room) return;
     try {
       setTabLoading(true);
-      await roomService.mapAssetToRoom({
-        room_id: room.id,
-        asset_ids: [Number(selectedAssetId)],
-        quantity: mapQuantity,
-      });
-      setSelectedAssetId(null);
-      setMapQuantity(1);
+      const payload = localAssets.map((asset) => ({
+        asset_id: asset.id,
+        quantity: asset.quantity,
+      }));
+
+      await roomService.updateRoomAssets(room.id, payload);
+
       // Refresh room assets
-      if (room.id) {
-        const detailedRoomRes = await roomService.getRoomById(room.id);
-        if (detailedRoomRes.data && room) {
-          room.assets = detailedRoomRes.data.assets;
-        }
+      const detailedRoomRes = await roomService.getRoomById(room.id);
+      if (detailedRoomRes.data) {
+        room.assets = detailedRoomRes.data.assets;
+        setLocalAssets(detailedRoomRes.data.assets || []);
       }
-      fetchAvailableAssets();
     } catch (e) {
-      console.error("Failed to map asset", e);
+      console.error("Failed to save room assets", e);
     } finally {
       setTabLoading(false);
     }
+  };
+
+  const hasAssetChanges = () => {
+    const original = room?.assets || [];
+    if (original.length !== localAssets.length) return true;
+    for (const local of localAssets) {
+      const orig = original.find((o) => Number(o.id) === Number(local.id));
+      if (!orig || orig.quantity !== local.quantity) return true;
+    }
+    return false;
   };
 
   const handleCalculateBill = async () => {
@@ -257,10 +320,10 @@ const RoomModal = ({
         room_id: room.id,
         month: today.getMonth() + 1,
         year: today.getFullYear(),
-        current_electric_index: form.values.current_electric_index || 0,
+        current_electric_index: 0,
         current_water_index: 0,
       });
-      fetchBills();
+      refetchBills();
     } catch (e) {
       console.error("Failed to calculate bill", e);
     } finally {
@@ -276,6 +339,8 @@ const RoomModal = ({
   };
 
   const isView = mode === ModalMode.VIEW;
+
+  console.log(localAssets, "localAssets");
 
   return (
     <J2NModal
@@ -301,6 +366,7 @@ const RoomModal = ({
             <Tabs.Tab value="general">{t("rooms.modal.tabs.general")}</Tabs.Tab>
             <Tabs.Tab value="members">{t("rooms.modal.tabs.members")}</Tabs.Tab>
             <Tabs.Tab value="assets">{t("rooms.modal.tabs.assets")}</Tabs.Tab>
+            <Tabs.Tab value="fees">{t("rooms.modal.tabs.fees")}</Tabs.Tab>
             <Tabs.Tab value="billing">{t("rooms.modal.tabs.billing")}</Tabs.Tab>
           </Tabs.List>
 
@@ -403,7 +469,7 @@ const RoomModal = ({
                   {t("rooms.assets.map_to_room")}
                 </J2NButton>
               </Group>
-              <ActionIcon variant="subtle" onClick={fetchOccupants}>
+              <ActionIcon variant="subtle" onClick={() => refetchOccupants()}>
                 <IconRefresh size={18} />
               </ActionIcon>
             </Group>
@@ -466,10 +532,12 @@ const RoomModal = ({
             <Group gap="xs" mb="md">
               <Select
                 placeholder={t("rooms.assets.name")}
-                data={availableAssets.map((a) => ({
-                  value: String(a.id),
-                  label: a.name,
-                }))}
+                data={availableAssets
+                  .filter((a) => !localAssets.some((la) => la.id === a.id))
+                  .map((a) => ({
+                    value: String(a.id),
+                    label: a.name,
+                  }))}
                 value={selectedAssetId}
                 onChange={setSelectedAssetId}
                 searchable
@@ -497,20 +565,112 @@ const RoomModal = ({
                   <Table.Th>{t("rooms.assets.name")}</Table.Th>
                   <Table.Th>{t("rooms.assets.quantity")}</Table.Th>
                   <Table.Th>{t("description")}</Table.Th>
+                  <Table.Th style={{ width: 100 }}>
+                    {t("rooms.table.actions")}
+                  </Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {room?.assets?.map((asset) => (
-                  <Table.Tr key={asset.id}>
+                {localAssets.map((asset, index) => (
+                  <Table.Tr key={`asset-${asset.id || 'new'}-${index}`}>
                     <Table.Td>{asset.name}</Table.Td>
-                    <Table.Td>{asset.quantity}</Table.Td>
+                    <Table.Td>
+                      <NumberInput
+                        value={asset.quantity}
+                        onChange={(val) =>
+                          handleUpdateLocalQuantity(index, Number(val) || 1)
+                        }
+                        min={1}
+                        size="xs"
+                        style={{ width: 80 }}
+                      />
+                    </Table.Td>
                     <Table.Td>{asset.description || "-"}</Table.Td>
+                    <Table.Td>
+                      <Tooltip label={t("users.actions.delete")}>
+                        <ActionIcon
+                          type="button"
+                          color="red"
+                          variant="subtle"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUnmapAsset(index);
+                          }}
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Table.Td>
                   </Table.Tr>
                 ))}
-                {(!room?.assets || room.assets.length === 0) && (
+                {localAssets.length === 0 && (
+                  <Table.Tr>
+                    <Table.Td colSpan={4} style={{ textAlign: "center" }}>
+                      No assets assigned to this room
+                    </Table.Td>
+                  </Table.Tr>
+                )}
+              </Table.Tbody>
+            </Table>
+
+            <Group justify="flex-end" mt="md">
+              <J2NButton
+                onClick={handleSaveAssets}
+                loading={tabLoading}
+                disabled={!hasAssetChanges()}
+                j2nType={J2NButtonTypes.PRIMARY}
+              >
+                {t("rooms.modal.save")}
+              </J2NButton>
+            </Group>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="fees" pt="md">
+            <Group gap="xs" mb="md" align="flex-end">
+              <MultiSelect
+                label={t("rooms.tabs.fees")}
+                placeholder={t("rooms.fees.create")}
+                data={availableFees.map((f) => ({
+                  value: String(f.id),
+                  label: `${f.name} (${formatCurrency(f.unit_price)} / ${f.unit_name})`,
+                }))}
+                value={selectedFeeIds}
+                onChange={setSelectedFeeIds}
+                searchable
+                style={{ flexGrow: 1 }}
+              />
+              <J2NButton
+                onClick={handleUpdateRoomFees}
+                loading={tabLoading}
+                j2nType={J2NButtonTypes.PRIMARY}
+              >
+                {t("rooms.modal.save")}
+              </J2NButton>
+            </Group>
+
+            <Table>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>{t("rooms.fees.name")}</Table.Th>
+                  <Table.Th>{t("rooms.fees.price")}</Table.Th>
+                  <Table.Th>{t("rooms.fees.unit")}</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {room?.fees?.map((rf) => (
+                  <Table.Tr key={rf.id}>
+                    <Table.Td>{rf.fee_name}</Table.Td>
+                    <Table.Td>{formatCurrency(rf.price)}</Table.Td>
+                    <Table.Td>
+                      {availableFees.find((f) => f.id === rf.fee_id)
+                        ?.unit_name || "-"}
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+                {(!room?.fees || room.fees.length === 0) && (
                   <Table.Tr>
                     <Table.Td colSpan={3} style={{ textAlign: "center" }}>
-                      No assets assigned to this room
+                      No fees configured for this room
                     </Table.Td>
                   </Table.Tr>
                 )}
@@ -526,7 +686,7 @@ const RoomModal = ({
               >
                 {t("rooms.bills.calculate")}
               </J2NButton>
-              <ActionIcon variant="subtle" onClick={fetchBills}>
+              <ActionIcon variant="subtle" onClick={() => refetchBills()}>
                 <IconRefresh size={18} />
               </ActionIcon>
             </Group>
@@ -599,11 +759,6 @@ const RoomModal = ({
                 label: t(opt.labelKey),
               }))}
               {...form.getInputProps("status")}
-            />
-            <TextInput
-              label={t("rooms.table.electric_index")}
-              type="number"
-              {...form.getInputProps("current_electric_index")}
             />
             <Textarea
               label={t("description")}

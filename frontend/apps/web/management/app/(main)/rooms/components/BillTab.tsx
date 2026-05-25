@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Group,
@@ -24,14 +24,13 @@ import J2NTable from "@repo/ui/src/components/atoms/J2NTable";
 import { useTranslation } from "@repo/ui/src/providers";
 import { roomService } from "@/services/roomServices";
 import { IBill } from "@/types/room";
+import { useQuery, useMutation, useQueryClient } from "@repo/query";
 
 const ICON_COLOR = "#75616A";
 
 const BillTab = () => {
   const { t } = useTranslation();
-  const [data, setData] = useState<IBill[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
+  const queryClient = useQueryClient();
   const [activePage, setActivePage] = useState(1);
   const pageSize = 10;
 
@@ -53,37 +52,43 @@ const BillTab = () => {
 
   // Bill detail Modal state
   const [selectedBill, setSelectedBill] = useState<IBill | null>(null);
-  const [bulkLoading, setBulkLoading] = useState(false);
 
-  const fetchBills = async (page = activePage, params = searchParams) => {
-    setLoading(true);
-    try {
-      const res = await roomService.searchBills({
-        page,
+  // --- React Query Fetching ---
+  const { data: billsData, isLoading: loading } = useQuery({
+    queryKey: ["bills", activePage, searchParams],
+    queryFn: async () => {
+      const res = await roomService.searchBillsAdmin({
+        page: activePage,
         size: pageSize,
-        room_id: params.room_id ? Number(params.room_id) : undefined,
-        month: params.month ? Number(params.month) : undefined,
-        status: params.status || undefined,
+        room_id: searchParams.room_id ? Number(searchParams.room_id) : undefined,
+        month: searchParams.month ? Number(searchParams.month) : undefined,
+        status: searchParams.status || undefined,
       });
-      if (res.data?.bills) {
-        setData(res.data.bills);
-        setTotal(res.data.page?.total || 0);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data;
+    },
+  });
 
-  useEffect(() => {
-    fetchBills(activePage, searchParams);
-  }, [activePage]);
+  const data = billsData?.bills || [];
+  const total = billsData?.page?.total || 0;
+
+  // --- Mutations ---
+  const calculateAllMutation = useMutation({
+    mutationFn: (month: number) => roomService.calculateAllBills(month),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bills"] });
+    },
+  });
+
+  const payBillMutation = useMutation({
+    mutationFn: (billId: string) => roomService.payBill(billId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bills"] });
+    },
+  });
 
   const handleSearch = (values: typeof searchForm.values) => {
     setSearchParams(values);
     setActivePage(1);
-    fetchBills(1, values);
   };
 
   const handleClear = () => {
@@ -91,7 +96,6 @@ const BillTab = () => {
     searchForm.setValues(initialValues);
     setSearchParams(initialValues);
     setActivePage(1);
-    fetchBills(1, initialValues);
   };
 
   const handleCalculateAll = () => {
@@ -106,15 +110,11 @@ const BillTab = () => {
       labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
       confirmProps: { color: "#75616a" },
       onConfirm: async () => {
-        setBulkLoading(true);
         try {
           const today = new Date();
-          await roomService.calculateAllBills(today.getMonth() + 1);
-          fetchBills();
+          await calculateAllMutation.mutateAsync(today.getMonth() + 1);
         } catch (e) {
           console.error(e);
-        } finally {
-          setBulkLoading(false);
         }
       },
     });
@@ -133,14 +133,15 @@ const BillTab = () => {
       confirmProps: { color: "#75616a" },
       onConfirm: async () => {
         try {
-          await roomService.payBill(billId);
-          fetchBills();
+          await payBillMutation.mutateAsync(billId);
         } catch (e) {
           console.error(e);
         }
       },
     });
   };
+
+  const bulkLoading = calculateAllMutation.isPending;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN", {
