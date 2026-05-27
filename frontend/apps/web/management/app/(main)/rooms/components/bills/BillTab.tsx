@@ -12,10 +12,13 @@ import {
   Table,
   SimpleGrid,
   Text,
+  NumberInput,
+  Stack,
+  Divider,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { useForm } from "@mantine/form";
-import { IconSearch, IconEye, IconReceipt, IconPlayerPlay, IconX } from "@tabler/icons-react";
+import { IconSearch, IconEye, IconReceipt, IconPlayerPlay, IconX, IconBolt } from "@tabler/icons-react";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
@@ -23,10 +26,65 @@ import J2NModal from "@repo/ui/src/components/atoms/J2NModal";
 import J2NTable from "@repo/ui/src/components/atoms/J2NTable";
 import { useTranslation } from "@repo/ui/src/providers";
 import { roomService } from "@/services/roomServices";
-import { IBill } from "@/types/room";
+import { IBill, IRoom } from "@/types/room";
 import { useQuery, useMutation, useQueryClient } from "@repo/query";
 
 const ICON_COLOR = "#75616A";
+
+// --- Electric Index Input Modal Content ---
+interface ElectricIndexModalProps {
+  occupiedRooms: IRoom[];
+  onConfirm: (indices: Record<number, number>) => void;
+  onCancel: () => void;
+  loading: boolean;
+  t: (key: string) => string;
+}
+
+const ElectricIndexModalContent = ({ occupiedRooms, onConfirm, onCancel, loading, t }: ElectricIndexModalProps) => {
+  const [indices, setIndices] = useState<Record<number, number>>(() => {
+    const initial: Record<number, number> = {};
+    occupiedRooms.forEach((r) => { initial[r.id] = 0; });
+    return initial;
+  });
+
+  const handleChange = (roomId: number, value: number | string) => {
+    setIndices((prev) => ({ ...prev, [roomId]: Number(value) || 0 }));
+  };
+
+  return (
+    <Stack gap="md">
+      <Text size="sm" c="dimmed">
+        {t("rooms.bills.enter_electric_indices")}
+      </Text>
+      <Divider />
+      {occupiedRooms.map((room) => (
+        <Group key={room.id} justify="space-between" align="center">
+          <Text fw={500} size="sm">
+            {t("rooms.table.room_number")} {room.room_number}
+          </Text>
+          <NumberInput
+            id={`electric-index-room-${room.id}`}
+            placeholder="0"
+            min={0}
+            value={indices[room.id] ?? 0}
+            onChange={(val) => handleChange(room.id, val)}
+            leftSection={<IconBolt size={14} />}
+            style={{ width: 150 }}
+          />
+        </Group>
+      ))}
+      <Divider />
+      <Group justify="flex-end" mt="xs">
+        <J2NButton j2nType={J2NButtonTypes.SECONDARY} onClick={onCancel}>
+          {t("common.cancel")}
+        </J2NButton>
+        <J2NButton j2nType={J2NButtonTypes.PRIMARY} loading={loading} onClick={() => onConfirm(indices)}>
+          {t("common.confirm")}
+        </J2NButton>
+      </Group>
+    </Stack>
+  );
+};
 
 const BillTab = () => {
   const { t } = useTranslation();
@@ -53,6 +111,9 @@ const BillTab = () => {
   // Bill detail Modal state
   const [selectedBill, setSelectedBill] = useState<IBill | null>(null);
 
+  // Electric index modal state
+  const [electricModalOpen, setElectricModalOpen] = useState(false);
+
   // --- React Query Fetching ---
   const { data: billsData, isLoading: loading } = useQuery({
     queryKey: ["bills", activePage, searchParams],
@@ -68,12 +129,25 @@ const BillTab = () => {
     },
   });
 
+  // Fetch occupied rooms (only when modal is opened)
+  const { data: occupiedRoomsData, isLoading: roomsLoading } = useQuery({
+    queryKey: ["rooms", "occupied"],
+    queryFn: async () => {
+      const res = await roomService.searchRooms({ page: 1, size: 100, status: "OCCUPIED" });
+      return res.data;
+    },
+    enabled: electricModalOpen,
+  });
+
+  const occupiedRooms: IRoom[] = occupiedRoomsData?.rooms ?? [];
+
   const data = billsData?.bills || [];
   const total = billsData?.page?.total || 0;
 
   // --- Mutations ---
   const calculateAllMutation = useMutation({
-    mutationFn: (month: number) => roomService.calculateAllBills(month),
+    mutationFn: (payload: { month?: number; electric_indices: Record<number, number> }) =>
+      roomService.calculateAllBills(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bills"] });
     },
@@ -99,25 +173,20 @@ const BillTab = () => {
   };
 
   const handleCalculateAll = () => {
-    modals.openConfirmModal({
-      title: t("rooms.bills.calculate_all"),
-      centered: true,
-      children: (
-        <Text size="sm">
-          {t("rooms.bills.confirm_calculate_all")}
-        </Text>
-      ),
-      labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
-      confirmProps: { color: "#75616a" },
-      onConfirm: async () => {
-        try {
-          const today = new Date();
-          await calculateAllMutation.mutateAsync(today.getMonth() + 1);
-        } catch (e) {
-          console.error(e);
-        }
-      },
-    });
+    setElectricModalOpen(true);
+  };
+
+  const handleElectricConfirm = async (indices: Record<number, number>) => {
+    try {
+      const today = new Date();
+      await calculateAllMutation.mutateAsync({
+        month: today.getMonth() + 1,
+        electric_indices: indices,
+      });
+      setElectricModalOpen(false);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handlePay = (billId: string) => {
@@ -329,6 +398,29 @@ const BillTab = () => {
         <Group justify="flex-end" mt="xl">
           <J2NButton onClick={() => setSelectedBill(null)} j2nType={J2NButtonTypes.SECONDARY}>{t("common.cancel")}</J2NButton>
         </Group>
+      </J2NModal>
+
+      {/* Electric Index Input Modal */}
+      <J2NModal
+        opened={electricModalOpen}
+        onClose={() => setElectricModalOpen(false)}
+        title={t("rooms.bills.calculate_all")}
+        centered
+        size="md"
+      >
+        {roomsLoading ? (
+          <Text size="sm" c="dimmed" ta="center">{t("rooms.bills.loading_rooms")}</Text>
+        ) : occupiedRooms.length === 0 ? (
+          <Text size="sm" c="dimmed" ta="center">{t("rooms.bills.no_occupied_rooms")}</Text>
+        ) : (
+          <ElectricIndexModalContent
+            occupiedRooms={occupiedRooms}
+            onConfirm={handleElectricConfirm}
+            onCancel={() => setElectricModalOpen(false)}
+            loading={calculateAllMutation.isPending}
+            t={t}
+          />
+        )}
       </J2NModal>
     </Box>
   );

@@ -20,6 +20,9 @@ export interface RoomTableProps {
   activePage?: number;
   onView: (room: IRoom) => void;
   onEdit: (room: IRoom) => void;
+  onCalculate: (room: IRoom) => void;
+  onConfiguration: (room: IRoom) => void;
+  onDelete: (room: IRoom) => void;
 }
 
 export interface RoomModalProps {

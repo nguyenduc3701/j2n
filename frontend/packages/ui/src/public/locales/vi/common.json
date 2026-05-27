@@ -101,6 +101,15 @@
       "cancel": "Hủy bỏ",
       "save": "Lưu lại"
     },
+    "actions": {
+      "more": "Tùy chọn thêm",
+      "calculate": "Tính hóa đơn",
+      "configuration": "Cấu hình",
+      "calculate_title": "Tính hóa đơn phòng {number}",
+      "configuration_title": "Cấu hình - Phòng {number}",
+      "delete": "Xóa phòng",
+      "confirm_delete": "Bạn có chắc chắn muốn xóa phòng {number} không?"
+    },
     "assets": {
       "create": "Thêm tài sản mới",
       "name": "Tên tài sản",
@@ -118,7 +127,12 @@
         "unpaid": "Chưa thanh toán"
       },
       "confirm_calculate_all": "Bạn có chắc chắn muốn tính hóa đơn cho tất cả các phòng đang có người ở không?",
-      "confirm_pay": "Bạn có chắc chắn muốn xác nhận hóa đơn này đã thanh toán không?"
+      "confirm_pay": "Bạn có chắc chắn muốn xác nhận hóa đơn này đã thanh toán không?",
+      "enter_electric_indices": "Nhập chỉ số điện mới của từng phòng đang thuê bên dưới.",
+      "loading_rooms": "Đang tải danh sách phòng đang thuê...",
+      "no_occupied_rooms": "Không tìm thấy phòng đang thuê. Vui lòng kiểm tra trạng thái phòng và thử lại.",
+      "enter_electric_index_single": "Nhập chỉ số điện mới nhất cho phòng này.",
+      "calculate_error": "Tính hóa đơn thất bại. Vui lòng thử lại."
     },
     "fees": {
       "create": "Thêm chi phí mới",

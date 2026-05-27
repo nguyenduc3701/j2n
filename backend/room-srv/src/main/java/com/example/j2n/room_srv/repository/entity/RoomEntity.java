@@ -54,6 +54,12 @@ public class RoomEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDeleted = false;
+
+    @Column(name = "is_immutable", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isImmutable = false;
+
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     private List<RoomAssetEntity> assets;
 

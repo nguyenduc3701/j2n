@@ -101,6 +101,15 @@
       "cancel": "取消",
       "save": "保存"
     },
+    "actions": {
+      "more": "更多选项",
+      "calculate": "计算账单",
+      "configuration": "配置",
+      "calculate_title": "计算 {number} 号房账单",
+      "configuration_title": "配置 - {number} 号房",
+      "delete": "删除房间",
+      "confirm_delete": "您确定要删除 {number} 号房吗？"
+    },
     "assets": {
       "create": "添加新资产",
       "name": "资产名称",
@@ -118,7 +127,12 @@
         "unpaid": "未付"
       },
       "confirm_calculate_all": "您确定要计算所有已入住房间的的账单吗？",
-      "confirm_pay": "您确定要将此账单标记为已支付吗？"
+      "confirm_pay": "您确定要将此账单标记为已支付吗？",
+      "enter_electric_indices": "请在下方输入每个已入住房间的最新电表读数。",
+      "loading_rooms": "正在加载已入住房间...",
+      "no_occupied_rooms": "未找到已入住房间，请检查房间状态后重试。",
+      "enter_electric_index_single": "请输入此房间的最新电表读数。",
+      "calculate_error": "计算账单失败，请重试。"
     },
     "fees": {
       "create": "添加新费用",

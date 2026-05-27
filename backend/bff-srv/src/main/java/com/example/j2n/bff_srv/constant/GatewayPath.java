@@ -35,8 +35,10 @@ public class GatewayPath {
     public static final String ORDER_BY_USER_ID_PATH = "/api/order/orders/%s";
     // room-srv
     public static final String ROOM_SEARCH_PATH = "/api/room/search";
+    public static final String ROOM_BASE_PATH = "/api/room/";
     public static final String ROOM_DETAIL_PATH = "/api/room/%s";
     public static final String ROOM_UPDATE_PATH = "/api/room/%s";
+    public static final String ROOM_DELETE_PATH = "/api/room/%s";
     public static final String ROOM_UPDATE_FEES_PATH = "/api/room/%s/fees";
     public static final String ROOM_UPDATE_ASSETS_PATH = "/api/room/%s/assets";
     

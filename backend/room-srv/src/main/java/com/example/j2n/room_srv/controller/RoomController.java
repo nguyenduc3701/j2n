@@ -1,6 +1,7 @@
 package com.example.j2n.room_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.room_srv.controller.request.CreateRoomRequest;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
@@ -87,5 +88,27 @@ public class RoomController {
     public ResponseEntity<BaseResponse<String>> updateRoomAssets(
             @PathVariable Long id, @Valid @RequestBody UpdateRoomAssetRequest request) {
         return ResponseEntity.ok(roomService.updateRoomAssets(id, request));
+    }
+
+    @PostMapping("/")
+    @Operation(summary = "Create a new room", description = "Create a new room with the provided details. The room will be created with is_immutable=false by default")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
+    })
+    public ResponseEntity<BaseResponse<RoomResponse>> createRoom(@Valid @RequestBody CreateRoomRequest request) {
+        return ResponseEntity.ok(roomService.createRoom(request));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Soft delete a room", description = "Soft delete a room by setting is_deleted=true. Only rooms with is_immutable=false can be deleted")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS),
+            @J2NApiResponse(httpCode = 400, description = BaseMessageEnum.BaseMessageConstants.BAD_REQUEST, examples = {
+                    @J2NApiExample(status = MessageEnum.MessageConstants.ROOM_NOT_FOUND),
+                    @J2NApiExample(status = MessageEnum.MessageConstants.ROOM_IS_IMMUTABLE)
+            })
+    })
+    public ResponseEntity<BaseResponse<String>> deleteRoom(@PathVariable Long id) {
+        return ResponseEntity.ok(roomService.deleteRoom(id));
     }
 }

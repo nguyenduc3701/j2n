@@ -160,6 +160,35 @@ class RoomControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void createRoom_ShouldReturnSuccess() throws Exception {
+        CreateRoomRequest request = CreateRoomRequest.builder()
+                .roomNumber("301")
+                .basePrice(new BigDecimal("2000000"))
+                .build();
+        when(roomService.createRoom(any(CreateRoomRequest.class))).thenReturn(Collections.singletonMap("data", "created"));
+
+        mockMvc.perform(post(BASE_URL + "/")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(roomService, times(1)).createRoom(any(CreateRoomRequest.class));
+    }
+
+    @Test
+    void deleteRoom_ShouldReturnSuccess() throws Exception {
+        Long id = 1L;
+        when(roomService.deleteRoom(id)).thenReturn(Collections.singletonMap("data", "deleted"));
+
+        mockMvc.perform(delete(BASE_URL + "/{id}", id)
+                .with(csrf()))
+                .andExpect(status().isOk());
+
+        verify(roomService, times(1)).deleteRoom(id);
+    }
+
     // --- Asset Endpoints Tests ---
 
     @Test
@@ -256,12 +285,16 @@ class RoomControllerTest {
 
     @Test
     void calculateAllBills_ShouldReturnSuccess() throws Exception {
-        Integer month = 5;
-        when(roomService.calculateAllBills(month)).thenReturn(Collections.singletonMap("data", "calculated"));
+        CalculateAllBillsRequest request = CalculateAllBillsRequest.builder()
+                .month(5)
+                .electricIndices(Collections.singletonMap(1L, 100))
+                .build();
+        when(roomService.calculateAllBills(any(CalculateAllBillsRequest.class))).thenReturn(Collections.singletonMap("data", "calculated"));
 
         mockMvc.perform(post(BASE_URL + "/bills/calculate-all")
-                .param("month", String.valueOf(month))
-                .with(csrf()))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
     }
 

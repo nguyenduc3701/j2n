@@ -50,4 +50,10 @@ public class SimpleRoomResponse {
 
     @Schema(description = "Last update timestamp", example = "2024-05-11T10:00:00")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "Indicates if the room has been soft-deleted", example = "false")
+    private Boolean isDeleted;
+
+    @Schema(description = "Indicates if the room is immutable (seed data, cannot be deleted by users)", example = "false")
+    private Boolean isImmutable;
 }

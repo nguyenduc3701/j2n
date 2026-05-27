@@ -1,5 +1,6 @@
 package com.example.j2n.room_srv.service;
 
+import com.example.j2n.room_srv.controller.request.CreateRoomRequest;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
@@ -8,6 +9,7 @@ import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
 import com.example.j2n.room_srv.repository.RoomRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
+import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.utils.SearchFactory;
@@ -31,6 +33,8 @@ import static org.mockito.Mockito.*;
 
 import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
 import com.example.j2n.room_srv.repository.entity.AssetEntity;
+import com.example.j2n.room_srv.utils.RoomSecurityUtil;
+import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
@@ -49,6 +53,12 @@ class RoomServiceTest {
 
         @Mock
         private SearchFactory searchFactory;
+
+        @Mock
+        private RoomEventPublisher roomEventPublisher;
+
+        @Mock
+        private RoomSecurityUtil roomSecurityUtil;
 
         @InjectMocks
         private RoomService roomService;
@@ -183,5 +193,103 @@ class RoomServiceTest {
                 when(roomRepository.findById(roomId)).thenReturn(Optional.empty());
 
                 assertThrows(DataNotFoundException.class, () -> roomService.updateRoomAssets(roomId, request));
+        }
+
+        @Test
+        void createRoom_Success() {
+                CreateRoomRequest request = CreateRoomRequest.builder()
+                                .roomNumber("201")
+                                .basePrice(BigDecimal.valueOf(3000000))
+                                .floor(2)
+                                .maxPeople(2)
+                                .build();
+
+                RoomEntity savedRoom = RoomEntity.builder()
+                                .id(1L)
+                                .roomNumber("201")
+                                .basePrice(BigDecimal.valueOf(3000000))
+                                .floor(2)
+                                .maxPeople(2)
+                                .isDeleted(false)
+                                .isImmutable(false)
+                                .build();
+
+                when(roomRepository.save(any(RoomEntity.class))).thenReturn(savedRoom);
+
+                BaseResponse<?> response = roomService.createRoom(request);
+
+                assertNotNull(response);
+                assertNotNull(response.getData());
+                verify(roomRepository, times(1)).save(any(RoomEntity.class));
+        }
+
+        @Test
+        void createRoom_SavesCorrectDefaults() {
+                CreateRoomRequest request = CreateRoomRequest.builder()
+                                .roomNumber("202")
+                                .basePrice(BigDecimal.valueOf(2500000))
+                                .build();
+
+                RoomEntity savedRoom = RoomEntity.builder()
+                                .id(2L)
+                                .roomNumber("202")
+                                .basePrice(BigDecimal.valueOf(2500000))
+                                .isDeleted(false)
+                                .isImmutable(false)
+                                .build();
+
+                when(roomRepository.save(any(RoomEntity.class))).thenAnswer(inv -> {
+                        RoomEntity entity = inv.getArgument(0);
+                        assertFalse(entity.getIsDeleted(), "isDeleted should default to false");
+                        assertFalse(entity.getIsImmutable(), "isImmutable should default to false");
+                        return savedRoom;
+                });
+
+                roomService.createRoom(request);
+
+                verify(roomRepository, times(1)).save(any(RoomEntity.class));
+        }
+
+        @Test
+        void deleteRoom_Success() {
+                Long roomId = 1L;
+                RoomEntity room = RoomEntity.builder()
+                                .id(roomId)
+                                .roomNumber("101")
+                                .isImmutable(false)
+                                .isDeleted(false)
+                                .build();
+
+                when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+                when(roomRepository.save(any(RoomEntity.class))).thenReturn(room);
+
+                BaseResponse<String> response = roomService.deleteRoom(roomId);
+
+                assertNotNull(response);
+                assertTrue(room.getIsDeleted(), "isDeleted should be set to true after soft delete");
+                verify(roomRepository, times(1)).save(room);
+        }
+
+        @Test
+        void deleteRoom_ThrowsWhenImmutable() {
+                Long roomId = 1L;
+                RoomEntity room = RoomEntity.builder()
+                                .id(roomId)
+                                .roomNumber("101")
+                                .isImmutable(true)
+                                .isDeleted(false)
+                                .build();
+
+                when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+                assertThrows(InvalidInputException.class, () -> roomService.deleteRoom(roomId));
+                verify(roomRepository, never()).save(any());
+        }
+
+        @Test
+        void deleteRoom_NotFound() {
+                when(roomRepository.findById(99L)).thenReturn(Optional.empty());
+
+                assertThrows(DataNotFoundException.class, () -> roomService.deleteRoom(99L));
         }
 }

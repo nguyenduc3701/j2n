@@ -52,6 +52,19 @@ public class RoomService {
                 });
     }
 
+    public Object createRoom(CreateRoomRequest request) {
+        return restClientUtil.request(GatewayPath.ROOM_BASE_PATH, HttpMethod.POST, request,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
+
+    public Object deleteRoom(Long id) {
+        String path = String.format(GatewayPath.ROOM_DELETE_PATH, id);
+        return restClientUtil.request(path, HttpMethod.DELETE, null,
+                new ParameterizedTypeReference<Object>() {
+                });
+    }
+
     // --- Asset methods ---
     public Object searchAssets(SearchAssetsRequest request) {
         return restClientUtil.request(GatewayPath.ROOM_ASSET_SEARCH_PATH, HttpMethod.POST, request,
@@ -98,12 +111,8 @@ public class RoomService {
                 });
     }
 
-    public Object calculateAllBills(Integer month) {
-        String path = GatewayPath.ROOM_BILL_CALCULATE_ALL_PATH;
-        if (month != null) {
-            path += "?month=" + month;
-        }
-        return restClientUtil.request(path, HttpMethod.POST, null,
+    public Object calculateAllBills(CalculateAllBillsRequest request) {
+        return restClientUtil.request(GatewayPath.ROOM_BILL_CALCULATE_ALL_PATH, HttpMethod.POST, request,
                 new ParameterizedTypeReference<Object>() {
                 });
     }

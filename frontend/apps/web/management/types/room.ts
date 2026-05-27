@@ -9,6 +9,7 @@ export interface IRoom {
   max_people?: number;
   status: string;
   description?: string;
+  is_immutable?: boolean;
   created_at?: string;
   updated_at?: string;
   assets?: IAsset[];

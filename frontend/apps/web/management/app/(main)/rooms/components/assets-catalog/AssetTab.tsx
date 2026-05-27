@@ -9,7 +9,6 @@ import {
   Tooltip,
   SimpleGrid,
   Textarea,
-  NumberInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconPlus, IconSearch, IconX, IconEdit, IconTrash } from "@tabler/icons-react";

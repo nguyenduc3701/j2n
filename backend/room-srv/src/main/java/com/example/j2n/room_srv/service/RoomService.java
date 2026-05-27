@@ -2,9 +2,11 @@ package com.example.j2n.room_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.RoomRequest;
+import com.example.j2n.room_srv.controller.request.CreateRoomRequest;
 import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
@@ -143,6 +145,45 @@ public class RoomService {
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.ROOM_NOT_FOUND.withArgs(roomId)));
     }
 
+    @Transactional
+    @LogAround(message = "Create room")
+    public BaseResponse<RoomResponse> createRoom(CreateRoomRequest request) {
+        RoomEntity room = buildRoomEntityFromRequest(request);
+        RoomEntity savedRoom = roomRepository.save(room);
+        return ResponseFactory.of(MessageEnum.CREATE_ROOM_SUCCESS, mapToResponse(savedRoom));
+    }
+
+    private RoomEntity buildRoomEntityFromRequest(CreateRoomRequest request) {
+        return RoomEntity.builder()
+                .roomNumber(request.getRoomNumber())
+                .floor(request.getFloor())
+                .basePrice(request.getBasePrice())
+                .area(request.getArea())
+                .maxPeople(request.getMaxPeople())
+                .status(request.getStatus())
+                .currentElectricIndex(request.getCurrentElectricIndex())
+                .description(request.getDescription())
+                .isDeleted(false)
+                .isImmutable(false)
+                .build();
+    }
+
+    @Transactional
+    @LogAround(message = "Delete room (soft delete)")
+    public BaseResponse<String> deleteRoom(Long id) {
+        RoomEntity room = findRoomByIdOrThrow(id);
+        validateRoomIsDeletable(room);
+        room.setIsDeleted(true);
+        roomRepository.save(room);
+        return ResponseFactory.of(MessageEnum.DELETE_ROOM_SUCCESS, null);
+    }
+
+    private void validateRoomIsDeletable(RoomEntity room) {
+        if (Boolean.TRUE.equals(room.getIsImmutable())) {
+            throw new InvalidInputException(MessageEnum.ROOM_IS_IMMUTABLE.withArgs(room.getId()));
+        }
+    }
+
     private RoomResponse mapToResponse(RoomEntity entity) {
         return RoomResponse.builder()
                 .id(entity.getId())
@@ -156,6 +197,8 @@ public class RoomService {
                 .description(entity.getDescription())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .isDeleted(entity.getIsDeleted())
+                .isImmutable(entity.getIsImmutable())
                 .build();
     }
 
@@ -172,6 +215,8 @@ public class RoomService {
                 .description(entity.getDescription())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .isDeleted(entity.getIsDeleted())
+                .isImmutable(entity.getIsImmutable())
                 .build();
     }
 

@@ -78,6 +78,28 @@ public class RoomController {
         return ResponseEntity.ok(roomService.updateRoomAssets(id, request));
     }
 
+    @PostMapping("/")
+    @Operation(summary = "Create a new room", description = "Create a new room with the provided details. The room will be created with is_immutable=false by default")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> createRoom(@Valid @RequestBody CreateRoomRequest request) {
+        return ResponseEntity.ok(roomService.createRoom(request));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Soft delete a room", description = "Soft delete a room by setting is_deleted=true. Only rooms with is_immutable=false can be deleted")
+    @J2NApiResponses({
+            @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
+                    @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
+            })
+    })
+    public ResponseEntity<Object> deleteRoom(@PathVariable Long id) {
+        return ResponseEntity.ok(roomService.deleteRoom(id));
+    }
+
     // --- Asset Endpoints ---
 
     @PostMapping("/assets/search")
@@ -160,14 +182,14 @@ public class RoomController {
     }
 
     @PostMapping("/bills/calculate-all")
-    @Operation(summary = "Calculate all bills", description = "Generate bills for all rooms for a specific month")
+    @Operation(summary = "Calculate all bills", description = "Generate bills for all occupied rooms for a specific month using the provided new electricity indices")
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             })
     })
-    public ResponseEntity<Object> calculateAllBills(@RequestParam(required = false) Integer month) {
-        return ResponseEntity.ok(roomService.calculateAllBills(month));
+    public ResponseEntity<Object> calculateAllBills(@Valid @RequestBody CalculateAllBillsRequest request) {
+        return ResponseEntity.ok(roomService.calculateAllBills(request));
     }
 
     @GetMapping("/bills/room/{roomId}")

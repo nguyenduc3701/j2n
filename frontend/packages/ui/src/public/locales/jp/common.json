@@ -101,6 +101,15 @@
       "cancel": "キャンセル",
       "save": "保存"
     },
+    "actions": {
+      "more": "その他のオプション",
+      "calculate": "請求書を計算",
+      "configuration": "設定",
+      "calculate_title": "{number}号室の請求書を計算",
+      "configuration_title": "設定 - {number}号室",
+      "delete": "客室を削除",
+      "confirm_delete": "{number}号室を削除してもよろしいですか？"
+    },
     "assets": {
       "create": "新しい資産を追加",
       "name": "資産名",
@@ -118,7 +127,12 @@
         "unpaid": "未払い"
       },
       "confirm_calculate_all": "入居中のすべての部屋の請求書を計算してもよろしいですか？",
-      "confirm_pay": "この請求書を支払い済みとしてマークしますか？"
+      "confirm_pay": "この請求書を支払い済みとしてマークしますか？",
+      "enter_electric_indices": "以下に各入居中の部屋の新しい電気メーター読み取り値を入力してください。",
+      "loading_rooms": "入居中の部屋を読み込み中...",
+      "no_occupied_rooms": "入居中の部屋が見つかりません。部屋の状態を確認して再試行してください。",
+      "enter_electric_index_single": "この部屋の新しい電気メーター読み取り値を入力してください。",
+      "calculate_error": "請求書の計算に失敗しました。再試行してください。"
     },
     "fees": {
       "create": "新しい料金を追加",

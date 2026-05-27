@@ -7,13 +7,13 @@ INSERT INTO fees (name, unit_price, unit_name) VALUES
 ('Electric vehicle', 100000, 'Vehicle');
 
 -- Insert Rooms (Floor 3 to 5, each floor has "Inside" and "Outside")
-INSERT INTO rooms (room_number, floor, base_price, area, max_people, status, description) VALUES
-('P301', 3, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 3 Inside'),
-('P302', 3, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 3 Outside'),
-('P401', 4, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 4 Inside'),
-('P402', 4, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 4 Outside'),
-('P501', 5, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 5 Inside'),
-('P502', 5, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 5 Outside');
+INSERT INTO rooms (room_number, floor, base_price, area, max_people, status, description, is_immutable) VALUES
+('P301', 3, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 3 Inside', TRUE),
+('P302', 3, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 3 Outside', TRUE),
+('P401', 4, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 4 Inside', TRUE),
+('P402', 4, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 4 Outside', TRUE),
+('P501', 5, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 5 Inside', TRUE),
+('P502', 5, 2500000, '20m2', 2, 'AVAILABLE', 'Floor 5 Outside', TRUE);
 
 -- Insert Master Assets
 INSERT INTO assets (name) VALUES

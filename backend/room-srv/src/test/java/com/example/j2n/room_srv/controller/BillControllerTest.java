@@ -1,6 +1,7 @@
 package com.example.j2n.room_srv.controller;
 
 import com.example.j2n.room_srv.controller.request.BillRequest;
+import com.example.j2n.room_srv.controller.request.CalculateAllBillsRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
@@ -18,9 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -87,14 +88,19 @@ class BillControllerTest {
 
     @Test
     void calculateAllBills_Success() throws Exception {
+        CalculateAllBillsRequest request = CalculateAllBillsRequest.builder()
+                .month(5)
+                .electricIndices(Map.of(1L, 1250))
+                .build();
         List<BillEntity> bills = List.of(new BillEntity());
-        when(billingService.calculateAllBills(any())).thenReturn(ResponseFactory.success(bills));
+        when(billingService.calculateAllBills(any(CalculateAllBillsRequest.class))).thenReturn(ResponseFactory.success(bills));
 
         mockMvc.perform(post("/room/bills/calculate-all")
-                .param("month", "5"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(billingService, times(1)).calculateAllBills(anyInt());
+        verify(billingService, times(1)).calculateAllBills(any(CalculateAllBillsRequest.class));
     }
 
     @Test

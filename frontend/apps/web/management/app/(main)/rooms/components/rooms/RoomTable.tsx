@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { ActionIcon, Badge, Group, Tooltip } from "@mantine/core";
-import { IconEdit, IconEye } from "@tabler/icons-react";
+import { ActionIcon, Badge, Group, Menu, Tooltip } from "@mantine/core";
+import { IconEdit, IconEye, IconDotsVertical, IconBolt, IconSettings, IconTrash } from "@tabler/icons-react";
 import J2NTable from "@repo/ui/src/components/atoms/J2NTable";
 import { IRoom } from "@/types/room";
 import { useTranslation } from "@repo/ui/src/providers";
@@ -19,6 +19,9 @@ const RoomTable = ({
   onPageChange,
   onView,
   onEdit,
+  onCalculate,
+  onConfiguration,
+  onDelete,
 }: RoomTableProps) => {
   const { t } = useTranslation();
 
@@ -116,6 +119,41 @@ const RoomTable = ({
               <IconEdit size={18} />
             </ActionIcon>
           </Tooltip>
+          <Menu shadow="md" width={180} position="bottom-end" withArrow>
+            <Menu.Target>
+              <Tooltip label={t("rooms.actions.more")}>
+                <ActionIcon variant="subtle" style={{ color: ICON_COLOR }}>
+                  <IconDotsVertical size={18} />
+                </ActionIcon>
+              </Tooltip>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconBolt size={16} />}
+                onClick={() => onCalculate(record)}
+              >
+                {t("rooms.actions.calculate")}
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconSettings size={16} />}
+                onClick={() => onConfiguration(record)}
+              >
+                {t("rooms.actions.configuration")}
+              </Menu.Item>
+              {!record.is_immutable && (
+                <>
+                  <Menu.Divider />
+                  <Menu.Item
+                    leftSection={<IconTrash size={16} />}
+                    color="red"
+                    onClick={() => onDelete(record)}
+                  >
+                    {t("rooms.actions.delete")}
+                  </Menu.Item>
+                </>
+              )}
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       ),
     },

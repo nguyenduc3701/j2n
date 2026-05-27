@@ -1,6 +1,7 @@
 package com.example.j2n.room_srv.service;
 
 import com.example.j2n.room_srv.controller.request.BillRequest;
+import com.example.j2n.room_srv.controller.request.CalculateAllBillsRequest;
 import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
@@ -29,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -230,11 +232,16 @@ class BillingServiceTest {
                 .members(List.of(member))
                 .build();
 
+        CalculateAllBillsRequest request = CalculateAllBillsRequest.builder()
+                .month(5)
+                .electricIndices(Map.of(1L, 100))
+                .build();
+
         when(roomService.getAllRooms()).thenReturn(List.of(room));
         when(feeService.getActiveFees()).thenReturn(List.of());
         when(billRepository.saveAll(anyList())).thenAnswer(i -> i.getArguments()[0]);
 
-        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(5);
+        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(request);
 
         assertNotNull(response);
         assertEquals(1, response.getData().size());
@@ -249,9 +256,14 @@ class BillingServiceTest {
                 .members(List.of())
                 .build();
 
+        CalculateAllBillsRequest request = CalculateAllBillsRequest.builder()
+                .month(5)
+                .electricIndices(Map.of())
+                .build();
+
         when(roomService.getAllRooms()).thenReturn(List.of(room));
 
-        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(5);
+        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(request);
 
         assertNotNull(response);
         assertTrue(response.getData().isEmpty());

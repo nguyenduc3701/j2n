@@ -6,6 +6,7 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.BillRequest;
+import com.example.j2n.room_srv.controller.request.CalculateAllBillsRequest;
 import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
@@ -33,6 +34,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,7 +74,9 @@ public class BillingService {
 
     @Transactional
     @LogAround(message = "Calculate bills for all rooms")
-    public BaseResponse<List<BillEntity>> calculateAllBills(Integer month) {
+    public BaseResponse<List<BillEntity>> calculateAllBills(CalculateAllBillsRequest request) {
+        Integer month = request.getMonth();
+        Map<Long, Integer> electricIndices = request.getElectricIndices();
         log.info("Calculating bills for all rooms for month {}", month);
         Integer billingMonth = month != null ? month : LocalDate.now().getMonthValue();
         List<RoomEntity> rooms = roomService.getAllRooms();
@@ -86,7 +90,8 @@ public class BillingService {
                 continue;
             }
 
-            billsToSave.add(buildBillForRoom(room, primaryRenterId, billingMonth));
+            Integer newElectricIndex = electricIndices.getOrDefault(room.getId(), null);
+            billsToSave.add(buildBillForRoom(room, primaryRenterId, billingMonth, newElectricIndex));
         }
 
         if (billsToSave.isEmpty()) {
@@ -144,13 +149,14 @@ public class BillingService {
                 .orElse(null);
     }
 
-    private BillEntity buildBillForRoom(RoomEntity room, Long renterId, Integer month) {
+    private BillEntity buildBillForRoom(RoomEntity room, Long renterId, Integer month, Integer newElectricIndex) {
         log.info("Building bill for room {}", room.getRoomNumber());
         Integer validMonth = validateMonth(month, room.getId());
         BillRequest request = BillRequest.builder()
                 .roomId(room.getId())
                 .renterId(renterId)
                 .month(Optional.of(validMonth))
+                .electricityNewIndex(newElectricIndex)
                 .build();
         Integer electricOld = room.getCurrentElectricIndex() != null ? room.getCurrentElectricIndex() : 0;
         BigDecimal totalAmount = calculateTotalAmount(request, room, electricOld);

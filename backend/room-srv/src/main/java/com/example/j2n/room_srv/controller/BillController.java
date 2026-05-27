@@ -2,6 +2,7 @@ package com.example.j2n.room_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.BillRequest;
+import com.example.j2n.room_srv.controller.request.CalculateAllBillsRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
@@ -59,13 +60,13 @@ public class BillController {
         }
 
         @PostMapping("/calculate-all")
-        @Operation(summary = "Calculate and create monthly bills for all rooms", description = "Generate bills for all existing rooms for a specific month")
+        @Operation(summary = "Calculate and create monthly bills for all rooms", description = "Generate bills for all occupied rooms for a specific month, using the provided new electricity indices per room")
         @J2NApiResponses({
                         @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
         })
         public ResponseEntity<BaseResponse<List<BillEntity>>> calculateAllBills(
-                        @RequestParam(required = false) Integer month) {
-                return ResponseEntity.ok(billingService.calculateAllBills(month));
+                        @Valid @RequestBody CalculateAllBillsRequest request) {
+                return ResponseEntity.ok(billingService.calculateAllBills(request));
         }
 
         @GetMapping("/room/{roomId}")

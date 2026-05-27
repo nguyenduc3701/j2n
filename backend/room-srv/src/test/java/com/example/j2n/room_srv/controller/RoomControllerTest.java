@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
+import com.example.j2n.room_srv.controller.request.CreateRoomRequest;
 
 @WebMvcTest(RoomController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -115,5 +116,32 @@ class RoomControllerTest {
                 .andExpect(status().isOk());
 
         verify(roomService, times(1)).updateRoomAssets(eq(roomId), any(UpdateRoomAssetRequest.class));
+    }
+
+    @Test
+    void createRoom_Success() throws Exception {
+        CreateRoomRequest request = CreateRoomRequest.builder()
+                .roomNumber("301")
+                .basePrice(new java.math.BigDecimal("2000000"))
+                .build();
+        when(roomService.createRoom(any(CreateRoomRequest.class))).thenReturn(ResponseFactory.success(new RoomResponse()));
+
+        mockMvc.perform(post("/rooms/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        verify(roomService, times(1)).createRoom(any(CreateRoomRequest.class));
+    }
+
+    @Test
+    void deleteRoom_Success() throws Exception {
+        Long roomId = 1L;
+        when(roomService.deleteRoom(roomId)).thenReturn(ResponseFactory.success(null));
+
+        mockMvc.perform(delete("/rooms/" + roomId))
+                .andExpect(status().isOk());
+
+        verify(roomService, times(1)).deleteRoom(roomId);
     }
 }

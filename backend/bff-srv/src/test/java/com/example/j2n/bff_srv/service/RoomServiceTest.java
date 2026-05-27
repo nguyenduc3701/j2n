@@ -162,24 +162,15 @@ class RoomServiceTest {
     }
 
     @Test
-    void calculateAllBills_WithMonth_Success() {
-        Integer month = 5;
-        String expectedPath = GatewayPath.ROOM_BILL_CALCULATE_ALL_PATH + "?month=" + month;
-        when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.POST), eq(null), any(ParameterizedTypeReference.class)))
+    void calculateAllBills_Success() {
+        CalculateAllBillsRequest request = CalculateAllBillsRequest.builder()
+                .month(5)
+                .electricIndices(java.util.Collections.singletonMap(1L, 100))
+                .build();
+        when(restClientUtil.request(eq(GatewayPath.ROOM_BILL_CALCULATE_ALL_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class)))
                 .thenReturn(new Object());
 
-        Object result = roomService.calculateAllBills(month);
-
-        assertNotNull(result);
-    }
-
-    @Test
-    void calculateAllBills_NullMonth_Success() {
-        String expectedPath = GatewayPath.ROOM_BILL_CALCULATE_ALL_PATH;
-        when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.POST), eq(null), any(ParameterizedTypeReference.class)))
-                .thenReturn(new Object());
-
-        Object result = roomService.calculateAllBills(null);
+        Object result = roomService.calculateAllBills(request);
 
         assertNotNull(result);
     }
@@ -309,5 +300,30 @@ class RoomServiceTest {
 
         assertNotNull(result);
         verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void createRoom_Success() {
+        CreateRoomRequest request = new CreateRoomRequest();
+        when(restClientUtil.request(eq(GatewayPath.ROOM_BASE_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class)))
+                .thenReturn(new Object());
+
+        Object result = roomService.createRoom(request);
+
+        assertNotNull(result);
+        verify(restClientUtil, times(1)).request(eq(GatewayPath.ROOM_BASE_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void deleteRoom_Success() {
+        Long id = 1L;
+        String expectedPath = String.format(GatewayPath.ROOM_DELETE_PATH, id);
+        when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), any(ParameterizedTypeReference.class)))
+                .thenReturn(new Object());
+
+        Object result = roomService.deleteRoom(id);
+
+        assertNotNull(result);
+        verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), any(ParameterizedTypeReference.class));
     }
 }

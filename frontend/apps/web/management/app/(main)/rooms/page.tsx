@@ -9,19 +9,26 @@ import {
   IconReceipt,
   IconSettings,
   IconSmartHome,
+  IconPlus,
 } from "@tabler/icons-react";
+import J2NButton, {
+  J2NButtonTypes,
+} from "@repo/ui/src/components/atoms/J2NButton";
+import { modals } from "@mantine/modals";
 import { useEffect, useState } from "react";
 
-import AssetTab from "./components/AssetTab";
-import BillTab from "./components/BillTab";
-import FeeTab from "./components/FeeTab";
-import RoomModal from "./components/RoomModal";
-import RoomSearchForm from "./components/RoomSearchForm";
-import RoomTable from "./components/RoomTable";
+import AssetTab from "./components/assets-catalog/AssetTab";
+import BillTab from "./components/bills/BillTab";
+import CalculateRoomModal from "./components/rooms/CalculateRoomModal";
+import ConfigurationModal from "./components/rooms/ConfigurationModal";
+import FeeTab from "./components/fees/FeeTab";
+import RoomModal from "./components/rooms/RoomModal";
+import RoomSearchForm from "./components/rooms/RoomSearchForm";
+import RoomTable from "./components/rooms/RoomTable";
 
 import { roomService } from "@/services/roomServices";
 import { IRoom } from "@/types/room";
-import { ModalMode } from "./components/room.types";
+import { ModalMode } from "./components/rooms/room.types";
 
 const RoomsPage = () => {
   const { t } = useTranslation();
@@ -40,6 +47,14 @@ const RoomsPage = () => {
   const [modalMode, setModalMode] = useState<ModalMode>(ModalMode.VIEW);
   const [selectedRoom, setSelectedRoom] = useState<IRoom | null>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  // Calculate modal state
+  const [calculateModalOpened, setCalculateModalOpened] = useState(false);
+  const [calculateRoom, setCalculateRoom] = useState<IRoom | null>(null);
+
+  // Configuration modal state
+  const [configModalOpened, setConfigModalOpened] = useState(false);
+  const [configRoom, setConfigRoom] = useState<IRoom | null>(null);
 
   const fetchRooms = async (page = activePage, params = searchParams) => {
     setLoading(true);
@@ -93,17 +108,69 @@ const RoomsPage = () => {
     }
   };
 
+  const handleCreateRoom = () => {
+    setSelectedRoom(null);
+    setModalMode(ModalMode.CREATE);
+    setModalOpened(true);
+  };
+
   const handleEditRoom = (room: IRoom) => {
     setModalMode(ModalMode.EDIT);
     setSelectedRoom(room);
     setModalOpened(true);
   };
 
+  const handleCalculateRoom = (room: IRoom) => {
+    setCalculateRoom(room);
+    setCalculateModalOpened(true);
+  };
+
+  const handleConfigureRoom = async (room: IRoom) => {
+    setConfigRoom(room);
+    setConfigModalOpened(true);
+    try {
+      const detailRes = await roomService.getRoomById(room.id);
+      if (detailRes.data) {
+        setConfigRoom(detailRes.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteRoom = (room: IRoom) => {
+    modals.openConfirmModal({
+      title: t("rooms.actions.delete"),
+      centered: true,
+      children: (
+        <span style={{ fontSize: "14px" }}>
+          {t("rooms.actions.confirm_delete").replace("{number}", room.room_number)}
+        </span>
+      ),
+      labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
+      confirmProps: { color: "#75616a" },
+      onConfirm: async () => {
+        try {
+          const res = await roomService.deleteRoom(room.id);
+          if (res && res.status === 200) {
+            fetchRooms(activePage, searchParams);
+          }
+        } catch (e) {
+          console.error("Failed to delete room", e);
+        }
+      },
+    });
+  };
+
   const handleModalSubmit = async (values: Partial<IRoom>) => {
-    if (!selectedRoom) return;
     setSubmitLoading(true);
     try {
-      await roomService.updateRoom(selectedRoom.id, values);
+      if (modalMode === ModalMode.CREATE) {
+        await roomService.createRoom(values);
+      } else {
+        if (!selectedRoom) return;
+        await roomService.updateRoom(selectedRoom.id, values);
+      }
       setModalOpened(false);
       fetchRooms(activePage, searchParams);
     } catch (e) {
@@ -142,6 +209,15 @@ const RoomsPage = () => {
 
           <Tabs.Panel value="rooms">
             <Paper shadow="sm" radius="md" p="md" withBorder>
+              <Group justify="flex-end" mb="md">
+                <J2NButton
+                  onClick={handleCreateRoom}
+                  leftSection={<IconPlus size={16} />}
+                  j2nType={J2NButtonTypes.PRIMARY}
+                >
+                  {t("rooms.create")}
+                </J2NButton>
+              </Group>
               <RoomSearchForm onSearch={handleSearch} onClear={handleClear} />
               <Box mt="md">
                 <RoomTable
@@ -153,6 +229,9 @@ const RoomsPage = () => {
                   onPageChange={setActivePage}
                   onView={handleViewRoom}
                   onEdit={handleEditRoom}
+                  onCalculate={handleCalculateRoom}
+                  onConfiguration={handleConfigureRoom}
+                  onDelete={handleDeleteRoom}
                 />
               </Box>
             </Paper>
@@ -185,6 +264,18 @@ const RoomsPage = () => {
           onSubmit={handleModalSubmit}
           loading={submitLoading}
           onModeChange={setModalMode}
+        />
+
+        <CalculateRoomModal
+          opened={calculateModalOpened}
+          onClose={() => setCalculateModalOpened(false)}
+          room={calculateRoom}
+        />
+
+        <ConfigurationModal
+          opened={configModalOpened}
+          onClose={() => setConfigModalOpened(false)}
+          room={configRoom}
         />
       </div>
     </J2NMotionFade>

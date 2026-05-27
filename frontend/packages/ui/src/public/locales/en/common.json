@@ -101,6 +101,15 @@
       "cancel": "Cancel",
       "save": "Save"
     },
+    "actions": {
+      "more": "More options",
+      "calculate": "Calculate Bill",
+      "configuration": "Configuration",
+      "calculate_title": "Calculate Bill for Room {number}",
+      "configuration_title": "Configuration - Room {number}",
+      "delete": "Delete Room",
+      "confirm_delete": "Are you sure you want to delete room {number}?"
+    },
     "assets": {
       "create": "Add New Asset",
       "name": "Asset Name",
@@ -118,7 +127,12 @@
         "unpaid": "Unpaid"
       },
       "confirm_calculate_all": "Are you sure you want to calculate bills for all occupied rooms?",
-      "confirm_pay": "Proceed with marking this invoice as paid?"
+      "confirm_pay": "Proceed with marking this invoice as paid?",
+      "enter_electric_indices": "Enter the new electricity meter reading for each occupied room below.",
+      "loading_rooms": "Loading occupied rooms...",
+      "no_occupied_rooms": "No occupied rooms found. Please check room statuses and try again.",
+      "enter_electric_index_single": "Enter the new electricity meter reading for this room.",
+      "calculate_error": "Failed to calculate bill. Please try again."
     },
     "fees": {
       "create": "Add New Fee",

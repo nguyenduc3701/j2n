@@ -75,6 +75,35 @@ export const roomService = {
     };
   },
 
+  async createRoom(data: Partial<IRoom>) {
+    const options = {
+      method: HTTP_METHODS.POST,
+      data,
+    };
+    const response = await request<BaseResponse<IRoom>>(
+      "/api/bff/rooms/",
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async deleteRoom(id: string | number) {
+    const options = {
+      method: HTTP_METHODS.DELETE,
+    };
+    const response = await request<BaseResponse<void>>(
+      `/api/bff/rooms/${id}`,
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
   async updateRoomFees(roomId: string | number, feeIds: number[]) {
     const options = {
       method: HTTP_METHODS.PUT,
@@ -243,13 +272,13 @@ export const roomService = {
     };
   },
 
-  async calculateAllBills(month?: number) {
+  async calculateAllBills(data: { month?: number; electric_indices: Record<number, number> }) {
     const options = {
       method: HTTP_METHODS.POST,
+      data,
     };
-    const query = month ? `?month=${month}` : "";
     const response = await request<BaseResponse<IBill[]>>(
-      `/api/bff/rooms/bills/calculate-all${query}`,
+      `/api/bff/rooms/bills/calculate-all`,
       options,
     );
     return {

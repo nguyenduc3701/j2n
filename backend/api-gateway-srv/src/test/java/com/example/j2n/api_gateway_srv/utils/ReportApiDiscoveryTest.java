@@ -4,7 +4,6 @@ import com.example.j2n.lib.proto.ApiCatalogResponse;
 import com.example.j2n.lib.proto.ReportServiceGrpc;
 import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -4,10 +4,12 @@ CREATE TABLE IF NOT EXISTS rooms (
     floor INT,
     base_price DECIMAL(19, 2) NOT NULL,
     area VARCHAR(100),
-    max_people INT DEFAULT 1, -- Maximum capacity of the room
-    status VARCHAR(50) DEFAULT 'AVAILABLE', -- AVAILABLE, OCCUPIED, MAINTENANCE
+    max_people INT DEFAULT 1,                         -- Maximum capacity of the room
+    status VARCHAR(50) DEFAULT 'AVAILABLE',           -- AVAILABLE, OCCUPIED, MAINTENANCE
     current_electric_index INT DEFAULT 0,
     description TEXT,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    is_immutable BOOLEAN NOT NULL DEFAULT FALSE,      -- TRUE for seed data, cannot be deleted by users
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
