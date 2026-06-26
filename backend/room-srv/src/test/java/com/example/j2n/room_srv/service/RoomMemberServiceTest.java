@@ -10,6 +10,11 @@ import com.example.j2n.room_srv.service.RoomService;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
 import com.example.j2n.room_srv.service.response.RoomMemberResponse;
+import com.example.j2n.room_srv.messaging.user.event.UserRegisteredEvent;
+import com.example.j2n.room_srv.messaging.user.event.UserUpdatedEvent;
+import com.example.j2n.room_srv.messaging.user.event.UserDeletedEvent;
+import com.example.j2n.room_srv.messaging.room.event.RoomMemberMappedEvent;
+import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +36,9 @@ class RoomMemberServiceTest {
 
     @Mock
     private RoomService roomService;
+
+    @Mock
+    private RoomEventPublisher roomEventPublisher;
 
     @InjectMocks
     private RoomMemberService roomMemberService;
@@ -69,6 +77,7 @@ class RoomMemberServiceTest {
         verify(roomMemberRepository, times(1)).findByUserId(10L);
         verify(roomMemberRepository, never()).findByRoomId(anyLong());
         verify(roomMemberRepository, times(1)).saveAll(anyList());
+        verify(roomEventPublisher, times(1)).publishRoomMemberMapped(any(RoomMemberMappedEvent.class));
     }
 
     @Test
@@ -119,6 +128,7 @@ class RoomMemberServiceTest {
         verify(roomMemberRepository, times(1)).findByUserId(10L);
         verify(roomMemberRepository, times(1)).findByRoomId(1L);
         verify(roomMemberRepository, times(1)).saveAll(anyList());
+        verify(roomEventPublisher, times(1)).publishRoomMemberMapped(any(RoomMemberMappedEvent.class));
     }
 
     @Test
@@ -283,37 +293,6 @@ class RoomMemberServiceTest {
     }
 
     @Test
-    void deleteRoomMember_Success() {
-        RoomEntity room = RoomEntity.builder().id(1L).build();
-        RoomMemberEntity existingMember = RoomMemberEntity.builder()
-                .id(100L)
-                .room(room)
-                .userId(10L)
-                .isPrimary(true)
-                .build();
-
-        when(roomMemberRepository.findById(100L)).thenReturn(Optional.of(existingMember));
-
-        BaseResponse<Void> result = roomMemberService.deleteRoomMember(100L);
-
-        assertNotNull(result);
-        assertNull(result.getData());
-
-        verify(roomMemberRepository, times(1)).findById(100L);
-        verify(roomMemberRepository, times(1)).delete(existingMember);
-    }
-
-    @Test
-    void deleteRoomMember_NotFound() {
-        when(roomMemberRepository.findById(100L)).thenReturn(Optional.empty());
-
-        assertThrows(DataNotFoundException.class, () -> roomMemberService.deleteRoomMember(100L));
-
-        verify(roomMemberRepository, times(1)).findById(100L);
-        verify(roomMemberRepository, never()).delete(any());
-    }
-
-    @Test
     void getRoomMembersByRoomId_Success() {
         RoomEntity room = RoomEntity.builder().id(1L).build();
         RoomMemberEntity member1 = RoomMemberEntity.builder()
@@ -342,5 +321,223 @@ class RoomMemberServiceTest {
         assertEquals(11L, result.getData().get(1).getUserId());
 
         verify(roomMemberRepository, times(1)).findByRoomId(1L);
+    }
+
+    @Test
+    void mapMemberToRoom_TriggersOccupiedStatus() {
+        MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
+                .roomId(1L)
+                .userIds(List.of(10L))
+                .isPrimary(false)
+                .build();
+
+        RoomEntity room = RoomEntity.builder()
+                .id(1L)
+                .maxPeople(1)
+                .status("AVAILABLE")
+                .build();
+
+        RoomMemberEntity savedEntity = RoomMemberEntity.builder()
+                .id(100L)
+                .room(room)
+                .userId(10L)
+                .isPrimary(false)
+                .build();
+
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.empty());
+        when(roomMemberRepository.findByRoomId(1L))
+                .thenReturn(List.of()) // first call (capacity check)
+                .thenReturn(List.of(savedEntity)); // second call (status update check)
+        when(roomMemberRepository.saveAll(anyList())).thenReturn(List.of(savedEntity));
+
+        BaseResponse<List<RoomMemberResponse>> result = roomMemberService.mapMemberToRoom(request);
+
+        assertNotNull(result);
+        verify(roomService, times(1)).updateRoomStatus(room, "OCCUPIED");
+    }
+
+    @Test
+    void handleUserRegisteredEvent_TriggersOccupiedStatus() {
+        UserRegisteredEvent event = UserRegisteredEvent.builder()
+                .userId("10")
+                .roomId("1")
+                .role("RENTER")
+                .build();
+
+        RoomEntity room = RoomEntity.builder()
+                .id(1L)
+                .maxPeople(1)
+                .status("AVAILABLE")
+                .build();
+
+        RoomMemberEntity savedEntity = RoomMemberEntity.builder()
+                .id(100L)
+                .room(room)
+                .userId(10L)
+                .build();
+
+        when(roomMemberRepository.existsByRoomIdAndUserId(1L, 10L)).thenReturn(false);
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of(savedEntity));
+
+        roomMemberService.handleUserRegisteredEvent(event);
+
+        verify(roomMemberRepository, times(1)).save(any(RoomMemberEntity.class));
+        verify(roomService, times(1)).updateRoomStatus(room, "OCCUPIED");
+    }
+
+    @Test
+    void deleteRoomMemberByUserId_Success() {
+        RoomEntity room = RoomEntity.builder().id(1L).build();
+        RoomMemberEntity existingMember = RoomMemberEntity.builder()
+                .id(100L)
+                .room(room)
+                .userId(10L)
+                .isPrimary(false)
+                .build();
+
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(existingMember));
+
+        BaseResponse<Void> result = roomMemberService.deleteRoomMemberByUserId(10L);
+
+        assertNotNull(result);
+        assertNull(result.getData());
+
+        verify(roomMemberRepository, times(1)).findByUserId(10L);
+        verify(roomMemberRepository, times(1)).delete(existingMember);
+        verify(roomMemberRepository, times(1)).flush();
+        verify(roomEventPublisher, times(1)).publishRoomMemberRemoved(any());
+    }
+
+    @Test
+    void deleteRoomMemberByUserId_NotFound() {
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.empty());
+
+        assertThrows(DataNotFoundException.class, () -> roomMemberService.deleteRoomMemberByUserId(10L));
+
+        verify(roomMemberRepository, times(1)).findByUserId(10L);
+        verify(roomMemberRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteRoomMemberByUserId_TriggersAvailableStatus() {
+        RoomEntity room = RoomEntity.builder()
+                .id(1L)
+                .maxPeople(2)
+                .status("OCCUPIED")
+                .build();
+
+        RoomMemberEntity existingMember = RoomMemberEntity.builder()
+                .id(100L)
+                .room(room)
+                .userId(10L)
+                .isPrimary(false)
+                .build();
+
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(existingMember));
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of()); // 0 members left after delete
+
+        roomMemberService.deleteRoomMemberByUserId(10L);
+
+        verify(roomMemberRepository, times(1)).delete(existingMember);
+        verify(roomMemberRepository, times(1)).flush();
+        verify(roomService, times(1)).updateRoomStatus(room, "AVAILABLE");
+        verify(roomEventPublisher, times(1)).publishRoomMemberRemoved(any());
+    }
+
+    // ==================== User Event Handling Tests ====================
+
+    @Test
+    void handleUserUpdatedEvent_RoleNotRenter() {
+        UserUpdatedEvent event = UserUpdatedEvent.builder()
+                .userId("10")
+                .role("ADMIN")
+                .build();
+
+        RoomEntity room = RoomEntity.builder().id(1L).build();
+        RoomMemberEntity member = RoomMemberEntity.builder().id(100L).room(room).userId(10L).build();
+
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(member));
+
+        roomMemberService.handleUserUpdatedEvent(event);
+
+        verify(roomMemberRepository, times(1)).delete(member);
+        verify(roomMemberRepository, times(1)).flush();
+    }
+
+    @Test
+    void handleUserUpdatedEvent_RoomChanged() {
+        UserUpdatedEvent event = UserUpdatedEvent.builder()
+                .userId("10")
+                .role("RENTER")
+                .roomId("2")
+                .oldRoomId("1")
+                .build();
+
+        RoomEntity oldRoom = RoomEntity.builder().id(1L).build();
+        RoomEntity newRoom = RoomEntity.builder().id(2L).build();
+        RoomMemberEntity oldMember = RoomMemberEntity.builder().id(100L).room(oldRoom).userId(10L).build();
+
+        // When processing oldRoomId: find by user and delete
+        when(roomMemberRepository.findByUserId(10L))
+                .thenReturn(Optional.of(oldMember)) // for oldRoomId check
+                .thenReturn(Optional.empty()); // for newRoomId check (not exists in new room yet)
+
+        when(roomMemberRepository.existsByRoomIdAndUserId(2L, 10L)).thenReturn(false);
+        when(roomService.findRoomByIdOrThrow(2L)).thenReturn(newRoom);
+
+        roomMemberService.handleUserUpdatedEvent(event);
+
+        verify(roomMemberRepository, times(2)).findByUserId(10L);
+        verify(roomMemberRepository, times(1)).delete(oldMember);
+        verify(roomMemberRepository, times(1)).save(any(RoomMemberEntity.class));
+    }
+
+    @Test
+    void handleUserUpdatedEvent_RoomRemoved() {
+        UserUpdatedEvent event = UserUpdatedEvent.builder()
+                .userId("10")
+                .role("RENTER")
+                .roomId(null)
+                .oldRoomId("1")
+                .build();
+
+        RoomEntity oldRoom = RoomEntity.builder().id(1L).build();
+        RoomMemberEntity oldMember = RoomMemberEntity.builder().id(100L).room(oldRoom).userId(10L).build();
+
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(oldMember));
+
+        roomMemberService.handleUserUpdatedEvent(event);
+
+        verify(roomMemberRepository, times(2)).findByUserId(10L); // once for oldRoomId block, once for else branch (delete quietly)
+        verify(roomMemberRepository, times(2)).delete(oldMember);
+    }
+
+    @Test
+    void handleUserDeletedEvent_Success() {
+        UserDeletedEvent event = UserDeletedEvent.builder()
+                .userId("10")
+                .build();
+
+        RoomEntity room = RoomEntity.builder().id(1L).build();
+        RoomMemberEntity member = RoomMemberEntity.builder().id(100L).room(room).userId(10L).build();
+
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(member));
+
+        roomMemberService.handleUserDeletedEvent(event);
+
+        verify(roomMemberRepository, times(1)).delete(member);
+        verify(roomMemberRepository, times(1)).flush();
+    }
+
+    @Test
+    void deleteRoomMemberByUserIdQuietly_NotFound() {
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.empty());
+
+        roomMemberService.deleteRoomMemberByUserIdQuietly(10L);
+
+        verify(roomMemberRepository, never()).delete(any());
+        verify(roomMemberRepository, never()).flush();
     }
 }

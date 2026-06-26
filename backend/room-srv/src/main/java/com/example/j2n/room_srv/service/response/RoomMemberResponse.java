@@ -32,4 +32,13 @@ public class RoomMemberResponse {
 
     @Schema(description = "Timestamp when the user joined the room")
     private LocalDateTime joinedAt;
+
+    @Schema(description = "Full name of the member")
+    private String fullName;
+
+    @Schema(description = "Phone number of the member")
+    private String phoneNumber;
+
+    @Schema(description = "Email of the member")
+    private String email;
 }

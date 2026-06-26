@@ -12,6 +12,8 @@ public class RoomEventConstants {
 
     // Routing keys
     public static final String RK_ROOM_STATUS_UPDATED = "room.status.updated";
+    public static final String RK_ROOM_MEMBER_REMOVED = "room.member.removed";
+    public static final String RK_ROOM_MEMBER_MAPPED = "room.member.mapped";
     public static final String RK_BILLS_CALCULATED = "room.bills_calculated";
     public static final String RK_ROOM_REVENUE = "room.revenue";
 }

@@ -108,7 +108,8 @@
       "calculate_title": "Calculate Bill for Room {number}",
       "configuration_title": "Configuration - Room {number}",
       "delete": "Delete Room",
-      "confirm_delete": "Are you sure you want to delete room {number}?"
+      "confirm_delete": "Are you sure you want to delete room {number}?",
+      "confirm_remove_member": "Are you sure you want to remove occupant {name} from this room?"
     },
     "assets": {
       "create": "Add New Asset",

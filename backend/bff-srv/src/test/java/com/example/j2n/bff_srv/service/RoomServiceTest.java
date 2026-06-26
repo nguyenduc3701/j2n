@@ -277,13 +277,13 @@ class RoomServiceTest {
     }
 
     @Test
-    void deleteRoomMember_Success() {
-        Long id = 1L;
-        String expectedPath = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, id);
+    void deleteRoomMemberByUserId_Success() {
+        Long userId = 1L;
+        String expectedPath = String.format(GatewayPath.ROOM_MEMBER_BY_USER_ID_PATH, userId);
         when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), any(ParameterizedTypeReference.class)))
                 .thenReturn(new Object());
 
-        Object result = roomService.deleteRoomMember(id);
+        Object result = roomService.deleteRoomMemberByUserId(userId);
 
         assertNotNull(result);
     }

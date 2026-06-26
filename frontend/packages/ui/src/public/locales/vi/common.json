@@ -108,7 +108,8 @@
       "calculate_title": "Tính hóa đơn phòng {number}",
       "configuration_title": "Cấu hình - Phòng {number}",
       "delete": "Xóa phòng",
-      "confirm_delete": "Bạn có chắc chắn muốn xóa phòng {number} không?"
+      "confirm_delete": "Bạn có chắc chắn muốn xóa phòng {number} không?",
+      "confirm_remove_member": "Bạn có chắc chắn muốn xóa người thuê {name} khỏi phòng này không?"
     },
     "assets": {
       "create": "Thêm tài sản mới",

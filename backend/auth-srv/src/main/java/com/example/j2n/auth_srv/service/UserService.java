@@ -20,8 +20,12 @@ import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.UnknowFieldException;
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
+import static com.example.j2n.utils.CommonUtils.safeTrim;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.example.j2n.auth_srv.messaging.user.event.UserUpdatedEvent;
+import com.example.j2n.auth_srv.messaging.user.event.UserDeletedEvent;
+import com.example.j2n.auth_srv.messaging.user.publisher.UserEventPublisher;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -44,6 +48,7 @@ public class UserService {
     private final PasswordUtil passwordUtil;
     private final CurrentUser currentUser;
     private final SearchFactory searchFactory;
+    private final UserEventPublisher userEventPublisher;
 
     @LogAround(message = "Fetching user list")
     public BaseResponse<UserResponse> searchUsers(SearchUsersRequest request) {
@@ -100,11 +105,14 @@ public class UserService {
             throw new AccessDeniedException(MessageEnum.ROLE_NOT_ALLOW_ACTION);
         }
         UserEntity user = findUserByIdOrThrow(userId);
+        Long oldRoomId = user.getRoomId();
+        String oldRole = mapRoleIdToText(user.getRoleId());
         if (request.getRoleId() != null && !CommonConst.ROLE_ADMIN_ID.equals(user.getRoleId())) {
             validateAllowRoleInRequest(request.getRoleId());
         }
         applyUpdateFields(user, request);
         userRepository.save(user);
+        publishUserUpdatedEvent(user, oldRoomId, oldRole);
         return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
     }
 
@@ -115,6 +123,7 @@ public class UserService {
         user.setStatus(UserEntity.Status.INACTIVE);
         user.setIsDeleted(true);
         userRepository.save(user);
+        publishUserDeletedEvent(user.getId());
         return ResponseFactory.of(MessageEnum.DELETE_USER_SUCCESS, new DeleteUserReponse(userId));
     }
 
@@ -124,6 +133,14 @@ public class UserService {
         user.setImageUrl(imageUrl);
         userRepository.save(user);
         return ResponseFactory.of(MessageEnum.UPDATE_USER_SUCCESS, authService.buildUserItemResponse(user));
+    }
+
+    @LogAround(message = "Update user room ID")
+    public void updateUserRoomId(Long userId, Long roomId) {
+        log.info("[AUTH-SRV] Updating room ID for user {} to {}", userId, roomId);
+        UserEntity user = findUserByIdOrThrow(userId.toString());
+        user.setRoomId(roomId);
+        userRepository.save(user);
     }
 
     private UserEntity findUserByIdOrThrow(String userId) {
@@ -141,13 +158,13 @@ public class UserService {
 
     private UserEntity buildUserFromCreateRequest(CreateUserRequest request) {
         UserEntity user = new UserEntity();
-        user.setUsername(request.getUserName().trim());
-        user.setPassword(passwordUtil.encode(request.getPassword().trim()));
-        user.setEmail(request.getEmail().trim());
-        user.setFullName(request.getFullName().trim());
-        user.setPhoneNumber(request.getPhoneNumber().trim());
-        user.setAddress(request.getAddress().trim());
-        user.setCompany(request.getCompany().trim());
+        user.setUsername(safeTrim(request.getUserName()));
+        user.setPassword(passwordUtil.encode(safeTrim(request.getPassword())));
+        user.setEmail(safeTrim(request.getEmail()));
+        user.setFullName(safeTrim(request.getFullName()));
+        user.setPhoneNumber(safeTrim(request.getPhoneNumber()));
+        user.setAddress(safeTrim(request.getAddress()));
+        user.setCompany(safeTrim(request.getCompany()));
         user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
         user.setStatus(UserEntity.Status.INACTIVE);
         user.setRoomId(request.getRoomId());
@@ -157,16 +174,16 @@ public class UserService {
 
     private void applyUpdateFields(UserEntity user, UpdateUserRequest request) {
         if (request.getFullName() != null) {
-            user.setFullName(request.getFullName());
+            user.setFullName(safeTrim(request.getFullName()));
         }
         if (request.getPhoneNumber() != null) {
-            user.setPhoneNumber(request.getPhoneNumber());
+            user.setPhoneNumber(safeTrim(request.getPhoneNumber()));
         }
         if (request.getAddress() != null) {
-            user.setAddress(request.getAddress());
+            user.setAddress(safeTrim(request.getAddress()));
         }
         if (request.getCompany() != null) {
-            user.setCompany(request.getCompany());
+            user.setCompany(safeTrim(request.getCompany()));
         }
         if (request.getBirth() != null) {
             user.setBirth(request.getBirth());
@@ -315,5 +332,27 @@ public class UserService {
             log.error("[AUTH-SRV] Unknown fields in request: {}", request.getUnknownFields());
             throw new UnknowFieldException(BaseMessageEnum.UNKNOWN_FIELDS);
         }
+    }
+
+    private void publishUserUpdatedEvent(UserEntity user, Long oldRoomId, String oldRole) {
+        if (user.getId() == null) {
+            log.error("[AUTH-SRV] User id is null, cannot publish UserUpdatedEvent");
+            return;
+        }
+        UserUpdatedEvent event = UserUpdatedEvent.builder()
+                .userId(user.getId().toString())
+                .role(mapRoleIdToText(user.getRoleId()))
+                .status(user.getStatus().name())
+                .roomId(user.getRoomId() != null ? user.getRoomId().toString() : null)
+                .oldRoomId(oldRoomId != null ? oldRoomId.toString() : null)
+                .build();
+        userEventPublisher.publishUserUpdated(event);
+    }
+
+    private void publishUserDeletedEvent(Long userId) {
+        UserDeletedEvent event = UserDeletedEvent.builder()
+                .userId(userId.toString())
+                .build();
+        userEventPublisher.publishUserDeleted(event);
     }
 }

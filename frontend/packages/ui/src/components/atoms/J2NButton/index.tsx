@@ -16,6 +16,7 @@ export interface J2NButtonProps extends ButtonProps {
   j2nType?: J2NButtonTypes;
   type?: "submit" | "reset" | "button";
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  id?: string;
 }
 
 const J2NButton: React.FC<J2NButtonProps> = ({

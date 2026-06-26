@@ -218,6 +218,41 @@ class AuthServiceTest {
     }
 
     @Test
+    void register_ShouldReturnUser_WhenRequestHasNullOptionalFields() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest();
+        request.setUserName("newuser");
+        request.setPassword("password");
+        request.setEmail("test@example.com");
+        request.setFullName(null);
+        request.setPhoneNumber(null);
+        request.setAddress(null);
+        request.setCompany(null);
+
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(userRepository.existsByUsername("newuser")).thenReturn(false);
+        when(passwordUtil.encode("password")).thenReturn("encodedPassword");
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
+            UserEntity user = invocation.getArgument(0);
+            user.setId(1L);
+            user.setCreatedAt(LocalDateTime.now());
+            return user;
+        });
+
+        // Act
+        BaseResponse<UserItemResponse> response = authService.register(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals("newuser", response.getData().getUserName());
+        verify(userRepository).save(org.mockito.ArgumentMatchers.argThat(
+                user -> user.getFullName() == null &&
+                        user.getPhoneNumber() == null &&
+                        user.getAddress() == null &&
+                        user.getCompany() == null));
+    }
+
+    @Test
     void register_ShouldDefaultToVisitorRole_WhenRoleIsNull() {
         // Arrange
         RegisterRequest request = new RegisterRequest();

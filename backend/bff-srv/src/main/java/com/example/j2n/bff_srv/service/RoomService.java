@@ -10,6 +10,8 @@ import com.example.j2n.bff_srv.controller.request.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -172,8 +174,8 @@ public class RoomService {
                 });
     }
 
-    public Object deleteRoomMember(Long id) {
-        String path = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, id);
+    public Object deleteRoomMemberByUserId(Long userId) {
+        String path = String.format(GatewayPath.ROOM_MEMBER_BY_USER_ID_PATH, userId);
         return restClientUtil.request(path, HttpMethod.DELETE, null,
                 new ParameterizedTypeReference<Object>() {
                 });

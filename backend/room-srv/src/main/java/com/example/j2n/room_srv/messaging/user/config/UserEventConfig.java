@@ -25,4 +25,30 @@ public class UserEventConfig {
                 .to(userExchange())
                 .with(UserEventConstants.RK_USER_REGISTERED);
     }
+
+    @Bean
+    public Queue roomUserUpdatedQueue() {
+        return QueueBuilder.durable(UserEventConstants.QUEUE_ROOM_USER_UPDATED).build();
+    }
+
+    @Bean
+    public Binding roomUserUpdatedBinding() {
+        return BindingBuilder
+                .bind(roomUserUpdatedQueue())
+                .to(userExchange())
+                .with(UserEventConstants.RK_USER_UPDATED);
+    }
+
+    @Bean
+    public Queue roomUserDeletedQueue() {
+        return QueueBuilder.durable(UserEventConstants.QUEUE_ROOM_USER_DELETED).build();
+    }
+
+    @Bean
+    public Binding roomUserDeletedBinding() {
+        return BindingBuilder
+                .bind(roomUserDeletedQueue())
+                .to(userExchange())
+                .with(UserEventConstants.RK_USER_DELETED);
+    }
 }

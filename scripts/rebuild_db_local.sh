@@ -11,6 +11,12 @@ MYSQL_PORT="3306"
 
 echo "🚀 Starting Master Database Rebuild..."
 
+echo "🗑️  Dropping all existing j2n_* databases to ensure a clean slate..."
+for db in $(mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES LIKE 'j2n_%';" -B -N); do
+    echo "  [Dropping] $db..."
+    mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD -e "DROP DATABASE \`$db\`;"
+done
+
 DB_DIRS=("auth-db" "image-db" "report-db" "config-db" "product-db" "payment-db" "order-db" "room-db")
 
 for dir in "${DB_DIRS[@]}"; do

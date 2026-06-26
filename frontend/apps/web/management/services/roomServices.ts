@@ -395,12 +395,26 @@ export const roomService = {
     };
   },
 
-  async deleteRoomMember(id: string | number) {
+  async deleteRoomMemberByUserId(userId: string | number) {
     const options = {
       method: HTTP_METHODS.DELETE,
     };
     const response = await request<BaseResponse<void>>(
-      `/api/bff/rooms/members/${id}`,
+      `/api/bff/rooms/members/user/${userId}`,
+      options,
+    );
+    return {
+      ...response.data,
+      status: response.status,
+    };
+  },
+
+  async getRoomMembersByRoomId(roomId: string | number) {
+    const options = {
+      method: HTTP_METHODS.GET,
+    };
+    const response = await request<BaseResponse<IRoomMember[]>>(
+      `/api/bff/rooms/members/room/${roomId}`,
       options,
     );
     return {

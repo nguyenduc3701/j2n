@@ -284,14 +284,14 @@ public class RoomController {
         return ResponseEntity.ok(roomService.updateRoomMember(id, request));
     }
 
-    @DeleteMapping("/members/{id}")
-    @Operation(summary = "Delete room member", description = "Remove a member from a room")
+    @DeleteMapping("/members/user/{userId}")
+    @Operation(summary = "Delete room member by user id", description = "Remove a member from a room by user ID")
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS, examples = {
                     @J2NApiExample(baseResponseStatus = BaseMessageEnum.SUCCESS)
             })
     })
-    public ResponseEntity<Object> deleteRoomMember(@PathVariable Long id) {
-        return ResponseEntity.ok(roomService.deleteRoomMember(id));
+    public ResponseEntity<Object> deleteRoomMemberByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(roomService.deleteRoomMemberByUserId(userId));
     }
 }

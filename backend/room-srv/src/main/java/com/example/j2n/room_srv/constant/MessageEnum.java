@@ -29,7 +29,8 @@ public enum MessageEnum implements BaseMessage {
     UNMAP_ASSET_FROM_ROOM_SUCCESS("200905", HttpStatusCode.OK, MessageConstants.UNMAP_ASSET_FROM_ROOM_SUCCESS),
     CREATE_ROOM_SUCCESS("200906", HttpStatusCode.OK, MessageConstants.CREATE_ROOM_SUCCESS),
     DELETE_ROOM_SUCCESS("200907", HttpStatusCode.OK, MessageConstants.DELETE_ROOM_SUCCESS),
-    ROOM_IS_IMMUTABLE("400915", HttpStatusCode.BAD_REQUEST, MessageConstants.ROOM_IS_IMMUTABLE);
+    ROOM_IS_IMMUTABLE("400915", HttpStatusCode.BAD_REQUEST, MessageConstants.ROOM_IS_IMMUTABLE),
+    MEMBER_NOT_FOUND_BY_USER_ID("400916", HttpStatusCode.BAD_REQUEST, MessageConstants.MEMBER_NOT_FOUND_BY_USER_ID);
 
     private final String code;
     private final HttpStatusCode httpStatus;
@@ -70,5 +71,6 @@ public enum MessageEnum implements BaseMessage {
         public static final String CREATE_ROOM_SUCCESS = "Room created successfully";
         public static final String DELETE_ROOM_SUCCESS = "Room deleted successfully";
         public static final String ROOM_IS_IMMUTABLE = "Cannot delete room with ID: %s because it is immutable";
+        public static final String MEMBER_NOT_FOUND_BY_USER_ID = "Room member mapping not found for User ID: %s";
     }
 }

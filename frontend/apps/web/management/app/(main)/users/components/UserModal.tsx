@@ -71,11 +71,31 @@ const UserModal = ({
   });
 
   const { data: rooms = [], isLoading: loadingRooms } = useQuery({
-    queryKey: ["rooms", { page: 1, size: 100 }],
+    queryKey: ["rooms", { page: 1, size: 100, currentRoomId: user?.room_id }],
     queryFn: async () => {
-      const response = await roomService.searchRooms({ page: 1, size: 100 });
+      const response = await roomService.searchRooms({
+        page: 1,
+        size: 100,
+        status: "AVAILABLE",
+      });
+      const availableRooms = response?.data?.rooms || [];
+
+      if (user?.room_id) {
+        const hasCurrentRoom = availableRooms.some((r: IRoom) => String(r.id) === String(user.room_id));
+        if (!hasCurrentRoom) {
+          try {
+            const currentRoomRes = await roomService.getRoomById(user.room_id);
+            if (currentRoomRes?.data) {
+              availableRooms.push(currentRoomRes.data);
+            }
+          } catch (e) {
+            console.error("Failed to fetch user's current room:", e);
+          }
+        }
+      }
+
       return (
-        response?.data?.rooms?.map((r: IRoom) => ({
+        availableRooms.map((r: IRoom) => ({
           value: r.id.toString(),
           label: r.room_number,
         })) || []

@@ -2,9 +2,10 @@
 
 import { roomService } from "@/services/roomServices";
 import { userService } from "@/services/userServices";
-import { IRoom, IRoomMember } from "@/types/room";
-import { ActionIcon, Badge, Group, Select, Table, Tooltip } from "@mantine/core";
-import { useQuery } from "@repo/query";
+import { IRoom } from "@/types/room";
+import { ActionIcon, Badge, Group, Select, Table, Text, Tooltip } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import { useQuery, useMutation, useQueryClient } from "@repo/query";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
@@ -15,17 +16,22 @@ import { useState } from "react";
 interface MembersTabProps {
   room: IRoom;
   opened: boolean;
+  onRoomUpdate?: (updatedRoom: IRoom) => void;
 }
 
-const MembersTab = ({ room, opened }: MembersTabProps) => {
+const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [selectedRenterId, setSelectedRenterId] = useState<string | null>(null);
-  const [tabLoading, setTabLoading] = useState(false);
 
   const { data: occupants = [], refetch: refetchOccupants } = useQuery({
     queryKey: ["room-occupants", room.id],
     queryFn: async () => {
-      const res = await userService.getUsers({ room_id: room.id, size: 50 });
+      const res = await userService.getUsers({
+        room_id: room.id,
+        role_id: "3", // 3 is the RENTER role ID
+        size: 50,
+      });
       return res.data?.users || [];
     },
     enabled: opened && !!room.id,
@@ -46,43 +52,62 @@ const MembersTab = ({ room, opened }: MembersTabProps) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const handleMapRenter = async () => {
-    if (!selectedRenterId) return;
-    try {
-      setTabLoading(true);
-      await roomService.mapMemberToRoom({
+  const mapMemberMutation = useMutation({
+    mutationFn: (userIds: number[]) =>
+      roomService.mapMemberToRoom({
         room_id: room.id,
-        user_ids: [Number(selectedRenterId)],
+        user_ids: userIds,
         is_primary: false,
-      });
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["room-occupants", room.id] });
+      queryClient.invalidateQueries({ queryKey: ["available-renters"] });
       setSelectedRenterId(null);
-      refetchOccupants();
-    } catch (e) {
+    },
+    onError: (e) => {
       console.error("Failed to map renter", e);
-    } finally {
-      setTabLoading(false);
-    }
+    },
+  });
+
+  const removeMemberMutation = useMutation({
+    mutationFn: (userId: number) => roomService.deleteRoomMemberByUserId(userId),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["room-occupants", room.id] });
+      queryClient.invalidateQueries({ queryKey: ["available-renters"] });
+      try {
+        const res = await roomService.getRoomById(room.id);
+        if (res.data && onRoomUpdate) {
+          onRoomUpdate(res.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch updated room details", e);
+      }
+    },
+    onError: (e) => {
+      console.error("Failed to remove renter", e);
+    },
+  });
+
+  const handleMapRenter = () => {
+    if (!selectedRenterId) return;
+    mapMemberMutation.mutate([Number(selectedRenterId)]);
   };
 
-  const handleRemoveRenter = async (userId: number) => {
-    try {
-      setTabLoading(true);
-      const detailedRoomRes = await roomService.getRoomById(room.id);
-      const detailedRoom = detailedRoomRes.data;
-      if (detailedRoom?.members) {
-        const memberMapping = detailedRoom.members.find(
-          (m: IRoomMember) => m.user_id === userId,
-        );
-        if (memberMapping) {
-          await roomService.deleteRoomMember(memberMapping.id);
-          refetchOccupants();
-        }
-      }
-    } catch (e) {
-      console.error("Failed to remove renter", e);
-    } finally {
-      setTabLoading(false);
-    }
+  const handleRemoveRenter = (userId: number, fullName: string) => {
+    modals.openConfirmModal({
+      title: t("rooms.actions.delete"),
+      centered: true,
+      children: (
+        <Text size="sm">
+          {t("rooms.actions.confirm_remove_member").replace("{name}", fullName)}
+        </Text>
+      ),
+      labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
+      confirmProps: { color: "red" },
+      onConfirm: () => {
+        removeMemberMutation.mutate(userId);
+      },
+    });
   };
 
   return (
@@ -90,6 +115,7 @@ const MembersTab = ({ room, opened }: MembersTabProps) => {
       <Group justify="space-between" mb="md">
         <Group gap="xs">
           <Select
+            id="rooms.membersTab.selectRenter"
             placeholder={t("users.search_placeholder")}
             data={availableRenters.map((u) => ({
               value: String(u.id),
@@ -100,15 +126,20 @@ const MembersTab = ({ room, opened }: MembersTabProps) => {
             searchable
           />
           <J2NButton
+            id="rooms.membersTab.btnMapRenter"
             leftSection={<IconUserPlus size={16} />}
             onClick={handleMapRenter}
-            disabled={!selectedRenterId || tabLoading}
+            disabled={!selectedRenterId || mapMemberMutation.isPending}
             j2nType={J2NButtonTypes.PRIMARY}
           >
             {t("rooms.assets.map_to_room")}
           </J2NButton>
         </Group>
-        <ActionIcon variant="subtle" onClick={() => refetchOccupants()}>
+        <ActionIcon
+          id="rooms.membersTab.btnRefreshOccupants"
+          variant="subtle"
+          onClick={() => refetchOccupants()}
+        >
           <IconRefresh size={18} />
         </ActionIcon>
       </Group>
@@ -140,10 +171,11 @@ const MembersTab = ({ room, opened }: MembersTabProps) => {
                 <Group gap="xs">
                   <Tooltip label="Remove mapping">
                     <ActionIcon
+                      id={`rooms.membersTab.btnRemoveRenter.${u.id}`}
                       color="red"
                       variant="subtle"
-                      loading={tabLoading}
-                      onClick={() => handleRemoveRenter(u.id)}
+                      loading={removeMemberMutation.isPending && removeMemberMutation.variables === u.id}
+                      onClick={() => handleRemoveRenter(u.id, u.full_name)}
                     >
                       <IconTrash size={16} />
                     </ActionIcon>

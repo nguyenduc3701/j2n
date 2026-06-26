@@ -5,9 +5,16 @@ import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
+import com.example.j2n.room_srv.constant.RoomStatus;
 import com.example.j2n.room_srv.controller.request.MapMemberToRoomRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomMemberRequest;
+import com.example.j2n.room_srv.messaging.room.event.RoomMemberMappedEvent;
+import com.example.j2n.room_srv.messaging.room.event.RoomMemberRemovedEvent;
+import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 import com.example.j2n.room_srv.messaging.user.event.UserRegisteredEvent;
+import com.example.j2n.room_srv.messaging.user.event.UserUpdatedEvent;
+import com.example.j2n.room_srv.messaging.user.event.UserDeletedEvent;
+import java.util.Objects;
 import com.example.j2n.room_srv.repository.RoomMemberRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
@@ -28,6 +35,7 @@ public class RoomMemberService {
 
     private final RoomMemberRepository roomMemberRepository;
     private final RoomService roomService;
+    private final RoomEventPublisher roomEventPublisher;
 
     @Transactional
     @LogAround(message = "Map member to room")
@@ -44,6 +52,8 @@ public class RoomMemberService {
                 .map(userId -> buildRoomMemberEntity(room, userId, request.getIsPrimary()))
                 .collect(Collectors.toList());
         List<RoomMemberEntity> savedEntities = roomMemberRepository.saveAll(entitiesToSave);
+        updateRoomStatusBasedOnCapacity(room);
+        publishRoomMemberMappedEvent(room.getId(), request.getUserIds());
         List<RoomMemberResponse> responses = savedEntities.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -61,11 +71,15 @@ public class RoomMemberService {
     }
 
     @Transactional
-    @LogAround(message = "Delete room member")
-    public BaseResponse<Void> deleteRoomMember(Long id) {
-        log.info("Deleting room member with ID: {}", id);
-        RoomMemberEntity entity = findRoomMemberByIdOrThrow(id);
+    @LogAround(message = "Delete room member by user id")
+    public BaseResponse<Void> deleteRoomMemberByUserId(Long userId) {
+        log.info("Deleting room member by user ID: {}", userId);
+        RoomMemberEntity entity = findRoomMemberByUserIdOrThrow(userId);
+        RoomEntity room = entity.getRoom();
         roomMemberRepository.delete(entity);
+        roomMemberRepository.flush();
+        updateRoomStatusBasedOnCapacity(room);
+        publishRoomMemberRemovedEvent(room, userId);
         return ResponseFactory.success(null);
     }
 
@@ -125,6 +139,11 @@ public class RoomMemberService {
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.MEMBER_NOT_FOUND.withArgs(id)));
     }
 
+    private RoomMemberEntity findRoomMemberByUserIdOrThrow(Long userId) {
+        return roomMemberRepository.findByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException(MessageEnum.MEMBER_NOT_FOUND_BY_USER_ID.withArgs(userId)));
+    }
+
     private void applyMemberUpdates(RoomMemberEntity entity, UpdateRoomMemberRequest request) {
         log.info("Applying member updates for member ID: {}", entity.getId());
         request.getIsPrimary().ifPresent(newIsPrimary -> {
@@ -169,6 +188,7 @@ public class RoomMemberService {
                     RoomMemberEntity newMember = buildRoomMemberEntity(room, userId, false);
                     roomMemberRepository.save(newMember);
                     log.info("Successfully created RoomMember for user {} in room {}", userId, roomId);
+                    updateRoomStatusBasedOnCapacity(room);
                 } else {
                     log.info("User {} already mapped to room {}", userId, roomId);
                 }
@@ -178,5 +198,117 @@ public class RoomMemberService {
                 log.error("Error handling UserRegisteredEvent: {}", e.getMessage(), e);
             }
         }
+    }
+
+    @Transactional
+    public void handleUserUpdatedEvent(UserUpdatedEvent event) {
+        log.info("Handling UserUpdatedEvent for user ID: {}", event.getUserId());
+        try {
+            Long userId = Long.parseLong(event.getUserId());
+            
+            if (!"RENTER".equals(event.getRole())) {
+                deleteRoomMemberByUserIdQuietly(userId);
+                return;
+            }
+            
+            Long newRoomId = (event.getRoomId() != null && !event.getRoomId().trim().isEmpty() && !"null".equalsIgnoreCase(event.getRoomId().trim()))
+                    ? Long.parseLong(event.getRoomId().trim()) : null;
+            Long oldRoomId = (event.getOldRoomId() != null && !event.getOldRoomId().trim().isEmpty() && !"null".equalsIgnoreCase(event.getOldRoomId().trim()))
+                    ? Long.parseLong(event.getOldRoomId().trim()) : null;
+                    
+            if (Objects.equals(newRoomId, oldRoomId)) {
+                return;
+            }
+            
+            if (oldRoomId != null) {
+                roomMemberRepository.findByUserId(userId).ifPresent(entity -> {
+                    if (entity.getRoom().getId().equals(oldRoomId)) {
+                        RoomEntity oldRoom = entity.getRoom();
+                        roomMemberRepository.delete(entity);
+                        roomMemberRepository.flush();
+                        updateRoomStatusBasedOnCapacity(oldRoom);
+                    }
+                });
+            }
+            
+            if (newRoomId != null) {
+                if (!roomMemberRepository.existsByRoomIdAndUserId(newRoomId, userId)) {
+                    roomMemberRepository.findByUserId(userId).ifPresent(entity -> {
+                        RoomEntity oldRoom = entity.getRoom();
+                        roomMemberRepository.delete(entity);
+                        roomMemberRepository.flush();
+                        updateRoomStatusBasedOnCapacity(oldRoom);
+                    });
+                    
+                    RoomEntity room = roomService.findRoomByIdOrThrow(newRoomId);
+                    RoomMemberEntity newMember = buildRoomMemberEntity(room, userId, false);
+                    roomMemberRepository.save(newMember);
+                    updateRoomStatusBasedOnCapacity(room);
+                    log.info("Successfully moved/added user {} to room {}", userId, newRoomId);
+                }
+            } else {
+                deleteRoomMemberByUserIdQuietly(userId);
+            }
+        } catch (NumberFormatException e) {
+            log.error("Invalid roomId or userId format in UserUpdatedEvent: {}", event);
+        } catch (Exception e) {
+            log.error("Error handling UserUpdatedEvent: {}", e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public void handleUserDeletedEvent(UserDeletedEvent event) {
+        try {
+            Long userId = Long.parseLong(event.getUserId());
+            log.info("Handling UserDeletedEvent for user ID: {}", userId);
+            deleteRoomMemberByUserIdQuietly(userId);
+        } catch (NumberFormatException e) {
+            log.error("Invalid userId format in UserDeletedEvent: {}", event);
+        } catch (Exception e) {
+            log.error("Error handling UserDeletedEvent: {}", e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public void deleteRoomMemberByUserIdQuietly(Long userId) {
+        log.info("Deleting room member quietly by user ID: {}", userId);
+        roomMemberRepository.findByUserId(userId).ifPresent(entity -> {
+            RoomEntity room = entity.getRoom();
+            roomMemberRepository.delete(entity);
+            roomMemberRepository.flush();
+            updateRoomStatusBasedOnCapacity(room);
+        });
+    }
+
+    private void updateRoomStatusBasedOnCapacity(RoomEntity room) {
+        if (room.getMaxPeople() != null) {
+            int currentMemberCount = roomMemberRepository.findByRoomId(room.getId()).size();
+            log.info("Checking room status for room {}: current members = {}, max people = {}, current status = {}",
+                    room.getId(), currentMemberCount, room.getMaxPeople(), room.getStatus());
+            if (currentMemberCount >= room.getMaxPeople()) {
+                if (RoomStatus.AVAILABLE.getValue().equals(room.getStatus())) {
+                    roomService.updateRoomStatus(room, RoomStatus.OCCUPIED.getValue());
+                }
+            } else {
+                if (RoomStatus.OCCUPIED.getValue().equals(room.getStatus())) {
+                    roomService.updateRoomStatus(room, RoomStatus.AVAILABLE.getValue());
+                }
+            }
+        }
+    }
+
+    private void publishRoomMemberRemovedEvent(RoomEntity room, Long userId) {
+        roomEventPublisher.publishRoomMemberRemoved(RoomMemberRemovedEvent.builder()
+                .roomId(room.getId())
+                .userId(userId)
+                .roomNumber(room.getRoomNumber())
+                .build());
+    }
+
+    private void publishRoomMemberMappedEvent(Long roomId, List<Long> userIds) {
+        roomEventPublisher.publishRoomMemberMapped(RoomMemberMappedEvent.builder()
+                .roomId(roomId)
+                .userIds(userIds)
+                .build());
     }
 }

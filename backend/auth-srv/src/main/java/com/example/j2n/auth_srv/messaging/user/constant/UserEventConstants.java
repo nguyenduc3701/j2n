@@ -8,7 +8,9 @@ public class UserEventConstants {
     // Queue
     public static final String QUEUE_AUTH_AVATAR = "auth.user.avatar.queue";
     public static final String QUEUE_AUTH_REGISTERED = "auth.user.registered.queue";
-    // Routing key
-    public static final String RK_AVATAR_UPLOADED = "user.avatar.uploaded";
+    // Routing keys
     public static final String RK_USER_REGISTERED = "user.registered";
+    public static final String RK_USER_UPDATED = "user.updated";
+    public static final String RK_USER_DELETED = "user.deleted";
+    public static final String RK_AVATAR_UPLOADED = "user.avatar.uploaded";
 }

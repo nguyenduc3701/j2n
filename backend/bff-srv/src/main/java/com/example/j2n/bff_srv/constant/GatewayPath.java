@@ -59,4 +59,5 @@ public class GatewayPath {
     public static final String ROOM_MEMBER_BY_ROOM_ID_PATH = "/api/room/members/room/%s";
     public static final String ROOM_MEMBER_MAP_ROOM_PATH = "/api/room/members/mapping";
     public static final String ROOM_MEMBER_ID_PATH = "/api/room/members/%s";
+    public static final String ROOM_MEMBER_BY_USER_ID_PATH = "/api/room/members/user/%s";
 }

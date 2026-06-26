@@ -108,7 +108,8 @@
       "calculate_title": "计算 {number} 号房账单",
       "configuration_title": "配置 - {number} 号房",
       "delete": "删除房间",
-      "confirm_delete": "您确定要删除 {number} 号房吗？"
+      "confirm_delete": "您确定要删除 {number} 号房吗？",
+      "confirm_remove_member": "您确定要从该房间中移除住户 {name} 吗？"
     },
     "assets": {
       "create": "添加新资产",

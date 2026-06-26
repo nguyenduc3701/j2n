@@ -38,6 +38,12 @@ class RoomControllerTest {
     @MockitoBean
     private RoomService roomService;
 
+    @MockitoBean
+    private org.springframework.data.redis.connection.RedisConnectionFactory redisConnectionFactory;
+
+    @MockitoBean
+    private org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -47,7 +53,7 @@ class RoomControllerTest {
         SearchRoomsResponse responseData = new SearchRoomsResponse();
         when(roomService.searchRooms(any(SearchRoomsRequest.class))).thenReturn(ResponseFactory.success(responseData));
 
-        mockMvc.perform(post("/rooms/search")
+        mockMvc.perform(post("/search")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -61,7 +67,7 @@ class RoomControllerTest {
         RoomResponse responseData = new RoomResponse();
         when(roomService.getRoomById(roomId)).thenReturn(ResponseFactory.success(responseData));
 
-        mockMvc.perform(get("/rooms/" + roomId))
+        mockMvc.perform(get("/" + roomId))
                 .andExpect(status().isOk());
 
         verify(roomService, times(1)).getRoomById(roomId);
@@ -70,11 +76,13 @@ class RoomControllerTest {
     @Test
     void updateRoom_Success() throws Exception {
         Long roomId = 1L;
-        RoomRequest request = new RoomRequest();
+        RoomRequest request = RoomRequest.builder()
+                .roomNumber(java.util.Optional.of("101"))
+                .build();
         RoomResponse responseData = new RoomResponse();
         when(roomService.updateRoom(eq(roomId), any(RoomRequest.class))).thenReturn(ResponseFactory.success(responseData));
 
-        mockMvc.perform(put("/rooms/" + roomId)
+        mockMvc.perform(put("/" + roomId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -91,7 +99,7 @@ class RoomControllerTest {
         List<RoomFeeResponse> responseData = List.of(new RoomFeeResponse());
         when(roomService.updateRoomFees(eq(roomId), any(UpdateRoomFeeRequest.class))).thenReturn(ResponseFactory.success(responseData));
 
-        mockMvc.perform(put("/rooms/" + roomId + "/fees")
+        mockMvc.perform(put("/" + roomId + "/fees")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -110,7 +118,7 @@ class RoomControllerTest {
                 .build();
         when(roomService.updateRoomAssets(eq(roomId), any(UpdateRoomAssetRequest.class))).thenReturn(ResponseFactory.success(null));
 
-        mockMvc.perform(put("/rooms/" + roomId + "/assets")
+        mockMvc.perform(put("/" + roomId + "/assets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -126,7 +134,7 @@ class RoomControllerTest {
                 .build();
         when(roomService.createRoom(any(CreateRoomRequest.class))).thenReturn(ResponseFactory.success(new RoomResponse()));
 
-        mockMvc.perform(post("/rooms/")
+        mockMvc.perform(post("/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -139,7 +147,7 @@ class RoomControllerTest {
         Long roomId = 1L;
         when(roomService.deleteRoom(roomId)).thenReturn(ResponseFactory.success(null));
 
-        mockMvc.perform(delete("/rooms/" + roomId))
+        mockMvc.perform(delete("/" + roomId))
                 .andExpect(status().isOk());
 
         verify(roomService, times(1)).deleteRoom(roomId);

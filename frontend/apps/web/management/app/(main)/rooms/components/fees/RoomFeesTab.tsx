@@ -1,14 +1,15 @@
 "use client";
 
 import { roomService } from "@/services/roomServices";
-import { IRoom } from "@/types/room";
-import { Group, MultiSelect, Table } from "@mantine/core";
+import { IRoom, IRoomFee } from "@/types/room";
+import { Group, MultiSelect } from "@mantine/core";
 import { useQuery } from "@repo/query";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
+import J2NTable from "@repo/ui/src/components/atoms/J2NTable";
 import { useTranslation } from "@repo/ui/src/providers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface RoomFeesTabProps {
   room: IRoom;
@@ -21,6 +22,12 @@ const RoomFeesTab = ({ room, opened }: RoomFeesTabProps) => {
   const [selectedFeeIds, setSelectedFeeIds] = useState<string[]>(
     room.fees ? room.fees.map((rf) => String(rf.fee_id)) : [],
   );
+
+  useEffect(() => {
+    if (opened) {
+      setSelectedFeeIds(room.fees ? room.fees.map((rf) => String(rf.fee_id)) : []);
+    }
+  }, [opened, room.fees, room.id]);
 
   const { data: availableFees = [] } = useQuery({
     queryKey: ["available-fees"],
@@ -57,10 +64,27 @@ const RoomFeesTab = ({ room, opened }: RoomFeesTabProps) => {
     }
   };
 
+  const columns = [
+    {
+      key: "name",
+      title: t("rooms.fees.name"),
+    },
+    {
+      key: "unit_price",
+      title: t("rooms.fees.price"),
+      render: (rf: IRoomFee) => formatCurrency(rf.unit_price),
+    },
+    {
+      key: "unit_name",
+      title: t("rooms.fees.unit"),
+    },
+  ];
+
   return (
     <>
       <Group gap="xs" mb="md" align="flex-end">
         <MultiSelect
+          id="roomFeesTab.multiSelectFees"
           label={t("rooms.tabs.fees")}
           placeholder={t("rooms.fees.create")}
           data={availableFees.map((f) => ({
@@ -73,6 +97,7 @@ const RoomFeesTab = ({ room, opened }: RoomFeesTabProps) => {
           style={{ flexGrow: 1 }}
         />
         <J2NButton
+          id="roomFeesTab.btnSave"
           onClick={handleUpdateRoomFees}
           loading={tabLoading}
           j2nType={J2NButtonTypes.PRIMARY}
@@ -81,34 +106,15 @@ const RoomFeesTab = ({ room, opened }: RoomFeesTabProps) => {
         </J2NButton>
       </Group>
 
-      <Table>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>{t("rooms.fees.name")}</Table.Th>
-            <Table.Th>{t("rooms.fees.price")}</Table.Th>
-            <Table.Th>{t("rooms.fees.unit")}</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {room.fees?.map((rf) => (
-            <Table.Tr key={rf.id}>
-              <Table.Td>{rf.fee_name}</Table.Td>
-              <Table.Td>{formatCurrency(rf.price)}</Table.Td>
-              <Table.Td>
-                {availableFees.find((f) => f.id === rf.fee_id)?.unit_name ||
-                  "-"}
-              </Table.Td>
-            </Table.Tr>
-          ))}
-          {(!room.fees || room.fees.length === 0) && (
-            <Table.Tr>
-              <Table.Td colSpan={3} style={{ textAlign: "center" }}>
-                No fees configured for this room
-              </Table.Td>
-            </Table.Tr>
-          )}
-        </Table.Tbody>
-      </Table>
+      <J2NTable<IRoomFee>
+        id="roomFeesTab.tableFees"
+        columns={columns}
+        data={room.fees || []}
+        highlightOnHover
+        verticalSpacing="sm"
+        horizontalSpacing="md"
+        withTableBorder={false}
+      />
     </>
   );
 };

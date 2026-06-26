@@ -4,6 +4,7 @@ import { userService } from "@/services/userServices";
 import { IUser } from "@/types/user";
 import { Box, Flex, Paper, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
+import { useQueryClient } from "@repo/query";
 import J2NMotionFade from "@repo/components/atoms/J2NMotionTransition/J2NMotionFade";
 import TransTitle from "@repo/components/molecules/J2NTitle/TransTitle";
 import J2NButton, {
@@ -20,6 +21,7 @@ import { ModalMode } from "./components/user.types";
 
 const UsersPage = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -49,6 +51,10 @@ const UsersPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshRooms = () => {
+    queryClient.invalidateQueries({ queryKey: ["rooms"] });
   };
 
   useEffect(() => {
@@ -99,6 +105,7 @@ const UsersPage = () => {
           const response = await userService.deleteUser(user.id.toString());
           if (response && response.status === 200) {
             fetchUsers();
+            refreshRooms();
           }
         } catch (error) {
           console.error("Failed to delete user:", error);
@@ -122,6 +129,7 @@ const UsersPage = () => {
       if (response && (response.status === 200 || response.status === 201)) {
         setModalOpened(false);
         fetchUsers();
+        refreshRooms();
       }
     } catch (error) {
       console.error("Failed to submit user form:", error);

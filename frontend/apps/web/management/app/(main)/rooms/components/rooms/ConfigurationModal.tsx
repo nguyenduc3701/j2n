@@ -14,12 +14,14 @@ interface ConfigurationModalProps {
   opened: boolean;
   onClose: () => void;
   room: IRoom | null;
+  onRoomUpdate?: (updatedRoom: IRoom) => void;
 }
 
 const ConfigurationModal = ({
   opened,
   onClose,
   room,
+  onRoomUpdate,
 }: ConfigurationModalProps) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string | null>("members");
@@ -50,7 +52,7 @@ const ConfigurationModal = ({
           </Tabs.List>
 
           <Tabs.Panel value="members" pt="md">
-            <MembersTab room={room} opened={opened} />
+            <MembersTab room={room} opened={opened} onRoomUpdate={onRoomUpdate} />
           </Tabs.Panel>
 
           <Tabs.Panel value="assets" pt="md">

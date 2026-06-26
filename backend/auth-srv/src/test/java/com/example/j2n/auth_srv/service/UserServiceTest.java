@@ -36,6 +36,7 @@ import com.example.j2n.auth_srv.utils.PasswordUtil;
 import com.example.j2n.auth_srv.utils.common.CurrentUser;
 import com.example.j2n.utils.SearchFactory;
 import com.example.j2n.utils.SearchPredicateBuilder.SearchCriteria;
+import com.example.j2n.auth_srv.messaging.user.publisher.UserEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -57,6 +58,9 @@ class UserServiceTest {
 
     @Mock
     private SearchFactory searchFactory;
+
+    @Mock
+    private UserEventPublisher userEventPublisher;
 
     @InjectMocks
     private UserService userService;
@@ -205,6 +209,34 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_SuccessWithNullOptionalFields() {
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUserName("user");
+        request.setPassword("pass");
+        request.setEmail("e@t.com");
+        request.setFullName("Name");
+        request.setPhoneNumber(null);
+        request.setAddress(null);
+        request.setCompany(null);
+        request.setRoleId(3L);
+
+        when(currentUser.getRoleId()).thenReturn(CommonConst.ROLE_ADMIN_ID.toString());
+        when(passwordUtil.encode(anyString())).thenReturn("enc");
+        when(authService.buildUserItemResponse(any())).thenReturn(new UserItemResponse());
+
+        BaseResponse<UserItemResponse> response = userService.createUser(request);
+
+        assertNotNull(response);
+        ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userRepository).save(captor.capture());
+        UserEntity savedUser = captor.getValue();
+        assertNull(savedUser.getPhoneNumber());
+        assertNull(savedUser.getAddress());
+        assertNull(savedUser.getCompany());
+        verify(authService).publishUserRegisteredEvent(any());
+    }
+
+    @Test
     void createUser_VisitorLacksPermission() {
         when(currentUser.getRoleId()).thenReturn(CommonConst.ROLE_VISITOR_ID.toString());
         assertThrows(AccessDeniedException.class, () -> userService.createUser(new CreateUserRequest()));
@@ -255,6 +287,7 @@ class UserServiceTest {
 
         assertEquals("New Name", user.getFullName());
         verify(userRepository).save(user);
+        verify(userEventPublisher).publishUserUpdated(any());
     }
 
     @Test
@@ -270,6 +303,7 @@ class UserServiceTest {
 
         userService.updateUser("2", request);
         verify(userRepository).save(user);
+        verify(userEventPublisher).publishUserUpdated(any());
     }
 
     @Test
@@ -284,6 +318,10 @@ class UserServiceTest {
     void updateUser_ForbiddenAssignAdminRole() {
         UpdateUserRequest request = new UpdateUserRequest();
         request.setRoleId(CommonConst.ROLE_ADMIN_ID);
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setRoleId(CommonConst.ROLE_RECRUITER_ID);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(currentUser.getId()).thenReturn("1");
         when(currentUser.getRoleId()).thenReturn(CommonConst.ROLE_ADMIN_ID.toString());
 
@@ -316,6 +354,7 @@ class UserServiceTest {
         assertEquals(2L, user.getRoleId());
         assertEquals("I", user.getImageUrl());
         assertEquals(10L, user.getRoomId());
+        verify(userEventPublisher).publishUserUpdated(any());
     }
 
     // ==================== deleteUser Tests ====================
@@ -333,6 +372,7 @@ class UserServiceTest {
         assertEquals(UserEntity.Status.INACTIVE, user.getStatus());
         assertTrue(user.getIsDeleted());
         verify(userRepository).save(user);
+        verify(userEventPublisher).publishUserDeleted(any());
     }
 
     // ==================== updateUserImageUrl Tests ====================
@@ -347,7 +387,7 @@ class UserServiceTest {
 
         userService.updateUserImageUrl("1", "img123");
 
-        assertEquals("/api/bff/image/user/img123", user.getImageUrl());
+        assertEquals("img123", user.getImageUrl());
         verify(userRepository).save(user);
     }
 
@@ -382,5 +422,28 @@ class UserServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         assertEquals("500", userService.getUserById("1").getData().getRoomId());
+    }
+
+    // ==================== updateUserRoomId Tests ====================
+
+    @Test
+    void updateUserRoomId_Success() {
+        UserEntity user = new UserEntity();
+        user.setId(1L);
+        user.setRoomId(100L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.updateUserRoomId(1L, null);
+
+        assertNull(user.getRoomId());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateUserRoomId_UserNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(DataNotFoundException.class, () -> userService.updateUserRoomId(1L, null));
     }
 }

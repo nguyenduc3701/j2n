@@ -119,13 +119,13 @@ class RoomMemberControllerTest {
     }
 
     @Test
-    void deleteRoomMember_Success() throws Exception {
-        when(roomMemberService.deleteRoomMember(100L)).thenReturn(ResponseFactory.success(null));
+    void deleteRoomMemberByUserId_Success() throws Exception {
+        when(roomMemberService.deleteRoomMemberByUserId(10L)).thenReturn(ResponseFactory.success(null));
 
-        mockMvc.perform(delete("/room/members/100")
+        mockMvc.perform(delete("/room/members/user/10")
                 .contextPath("/room"))
                 .andExpect(status().isOk());
 
-        verify(roomMemberService, times(1)).deleteRoomMember(100L);
+        verify(roomMemberService, times(1)).deleteRoomMemberByUserId(10L);
     }
 }

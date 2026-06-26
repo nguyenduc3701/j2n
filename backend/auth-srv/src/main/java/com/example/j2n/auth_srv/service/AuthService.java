@@ -22,6 +22,7 @@ import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.exception.UnauthorizedException;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.RedisUtil;
+import static com.example.j2n.utils.CommonUtils.safeTrim;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,18 @@ public class AuthService {
 
     @LogAround(message = "Login attempt")
     public BaseResponse<LoginResponse> login(LoginRequest request) {
+        if (request == null) {
+            throw new InvalidInputException(MessageEnum.FIELD_REQUIRED.withArgs("request"));
+        }
+        if (request.getUserName() == null || request.getUserName().trim().isEmpty()) {
+            throw new InvalidInputException(MessageEnum.FIELD_REQUIRED.withArgs("username"));
+        }
+        if (request.getPassword() == null || request.getPassword().isEmpty()) {
+            throw new InvalidInputException(MessageEnum.FIELD_REQUIRED.withArgs("password"));
+        }
+        if (request.getPassword().length() < 8) {
+            throw new InvalidInputException(MessageEnum.PASSWORD_TOO_SHORT);
+        }
         UserEntity user = findUserByUsername(request.getUserName());
         validateMatchedPassword(request.getPassword(), user.getPassword());
         return ResponseFactory.success(buildLoginResponse(user, generateRandomUUID()));
@@ -83,6 +96,12 @@ public class AuthService {
 
     @LogAround(message = "Logout attempt")
     public BaseResponse<String> logout(String accessToken, String refreshToken) {
+        if (accessToken == null) {
+            throw new InvalidInputException(MessageEnum.FIELD_REQUIRED.withArgs("accessToken"));
+        }
+        if (refreshToken == null) {
+            throw new InvalidInputException(MessageEnum.FIELD_REQUIRED.withArgs("refreshToken"));
+        }
         String token = accessToken.substring(7);
         Claims claims;
         try {
@@ -107,6 +126,9 @@ public class AuthService {
 
     @LogAround(message = "Refresh token attempt")
     public BaseResponse<LoginResponse> refreshToken(String token) {
+        if (token == null) {
+            throw new InvalidInputException(MessageEnum.FIELD_REQUIRED.withArgs("token"));
+        }
         String refreshKey = CommonConst.AUTH_REFRESH_PREFIX + token;
         if (!redisUtil.hasKey(refreshKey)) {
             throw new InvalidRefreshTokenException();
@@ -188,13 +210,13 @@ public class AuthService {
 
     private UserEntity createUserFromRequest(RegisterRequest request) {
         UserEntity user = new UserEntity();
-        user.setUsername(request.getUserName().trim());
-        user.setPassword(passwordUtil.encode(request.getPassword().trim()));
-        user.setEmail(request.getEmail().trim());
-        user.setFullName(request.getFullName().trim());
-        user.setPhoneNumber(request.getPhoneNumber().trim());
-        user.setAddress(request.getAddress().trim());
-        user.setCompany(request.getCompany().trim());
+        user.setUsername(safeTrim(request.getUserName()));
+        user.setPassword(passwordUtil.encode(safeTrim(request.getPassword())));
+        user.setEmail(safeTrim(request.getEmail()));
+        user.setFullName(safeTrim(request.getFullName()));
+        user.setPhoneNumber(safeTrim(request.getPhoneNumber()));
+        user.setAddress(safeTrim(request.getAddress()));
+        user.setCompany(safeTrim(request.getCompany()));
         user.setRoleId(Objects.requireNonNullElse(request.getRoleId(), CommonConst.ROLE_VISITOR_ID));
         user.setStatus(UserEntity.Status.ACTIVE);
         return user;

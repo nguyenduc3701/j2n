@@ -104,6 +104,17 @@ public class RoomService {
         return ResponseFactory.success(mapToResponse(updatedRoom));
     }
 
+    @Transactional
+    public void updateRoomStatus(RoomEntity room, String newStatus) {
+        log.info("Updating status of room {} from {} to {}", room.getId(), room.getStatus(), newStatus);
+        String oldStatus = room.getStatus();
+        if (!Objects.equals(oldStatus, newStatus)) {
+            room.setStatus(newStatus);
+            RoomEntity savedRoom = roomRepository.save(room);
+            publishRoomStatusUpdatedEvent(savedRoom, oldStatus);
+        }
+    }
+
     private void publishRoomStatusUpdatedEvent(RoomEntity room, String oldStatus) {
         if (!Objects.equals(oldStatus, room.getStatus())) {
             roomEventPublisher.publishRoomStatusUpdated(RoomStatusUpdatedEvent.builder()

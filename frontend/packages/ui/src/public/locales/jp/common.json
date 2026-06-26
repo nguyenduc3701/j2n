@@ -108,7 +108,8 @@
       "calculate_title": "{number}号室の請求書を計算",
       "configuration_title": "設定 - {number}号室",
       "delete": "客室を削除",
-      "confirm_delete": "{number}号室を削除してもよろしいですか？"
+      "confirm_delete": "{number}号室を削除してもよろしいですか？",
+      "confirm_remove_member": "この部屋から入居者 {name} を削除してもよろしいですか？"
     },
     "assets": {
       "create": "新しい資産を追加",

@@ -53,7 +53,7 @@ export interface IBill {
   room_amount: number;
   other_fees_amount: number;
   total_amount: number;
-  status: 'PAID' | 'UNPAID';
+  status: "PAID" | "UNPAID";
   payment_link?: string;
   created_at?: string;
   updated_at?: string;
@@ -76,10 +76,10 @@ export interface IFee {
 
 export interface IRoomFee {
   id: number;
-  room_id: number;
   fee_id: number;
-  fee_name: string;
-  price: number;
+  name: string;
+  unit_price: number;
+  unit_name: string;
 }
 
 export interface IRoomMember {

@@ -363,11 +363,11 @@ class RoomControllerTest {
     }
 
     @Test
-    void deleteRoomMember_ShouldReturnSuccess() throws Exception {
-        Long id = 1L;
-        when(roomService.deleteRoomMember(id)).thenReturn(Collections.singletonMap("data", "deleted"));
+    void deleteRoomMemberByUserId_ShouldReturnSuccess() throws Exception {
+        Long userId = 1L;
+        when(roomService.deleteRoomMemberByUserId(userId)).thenReturn(Collections.singletonMap("data", "deleted"));
 
-        mockMvc.perform(delete(BASE_URL + "/members/{id}", id)
+        mockMvc.perform(delete(BASE_URL + "/members/user/{userId}", userId)
                 .with(csrf()))
                 .andExpect(status().isOk());
     }

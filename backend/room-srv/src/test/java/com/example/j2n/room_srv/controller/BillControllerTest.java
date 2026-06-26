@@ -41,16 +41,24 @@ class BillControllerTest {
     @MockitoBean
     private PaymentService paymentService;
 
+    @MockitoBean
+    private org.springframework.data.redis.connection.RedisConnectionFactory redisConnectionFactory;
+
+    @MockitoBean
+    private org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
     void searchBills_Success() throws Exception {
         SearchBillsRequest request = new SearchBillsRequest();
+        request.setRoomId(1L);
         SearchBillsResponse response = new SearchBillsResponse();
         when(billingService.searchBills(any(SearchBillsRequest.class))).thenReturn(ResponseFactory.success(response));
 
         mockMvc.perform(post("/room/bills/search")
+                .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -65,6 +73,7 @@ class BillControllerTest {
         when(billingService.searchBillsAdmin(any(SearchBillsAdminRequest.class))).thenReturn(ResponseFactory.success(response));
 
         mockMvc.perform(post("/room/bills/admin/search")
+                .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -74,11 +83,12 @@ class BillControllerTest {
 
     @Test
     void calculateBillByRoomId_Success() throws Exception {
-        BillRequest request = new BillRequest();
+        BillRequest request = BillRequest.builder().roomId(1L).build();
         BillEntity billEntity = new BillEntity();
         when(billingService.calculateBill(any(BillRequest.class))).thenReturn(ResponseFactory.success(billEntity));
 
         mockMvc.perform(post("/room/bills/calculate")
+                .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -96,6 +106,7 @@ class BillControllerTest {
         when(billingService.calculateAllBills(any(CalculateAllBillsRequest.class))).thenReturn(ResponseFactory.success(bills));
 
         mockMvc.perform(post("/room/bills/calculate-all")
+                .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -109,7 +120,8 @@ class BillControllerTest {
         List<BillEntity> bills = List.of(new BillEntity());
         when(billingService.getBillsByRoomId(roomId)).thenReturn(ResponseFactory.success(bills));
 
-        mockMvc.perform(get("/room/bills/room/" + roomId))
+        mockMvc.perform(get("/room/bills/room/" + roomId)
+                .contextPath("/room"))
                 .andExpect(status().isOk());
 
         verify(billingService, times(1)).getBillsByRoomId(roomId);
@@ -118,9 +130,10 @@ class BillControllerTest {
     @Test
     void payBill_Success() throws Exception {
         String billId = "bill-1";
-        when(paymentService.initiatePayment(billId)).thenReturn(ResponseFactory.success(new Object()));
+        when(paymentService.initiatePayment(billId)).thenReturn(ResponseFactory.success("Success"));
 
-        mockMvc.perform(post("/room/bills/" + billId + "/pay"))
+        mockMvc.perform(post("/room/bills/" + billId + "/pay")
+                .contextPath("/room"))
                 .andExpect(status().isOk());
 
         verify(paymentService, times(1)).initiatePayment(billId);

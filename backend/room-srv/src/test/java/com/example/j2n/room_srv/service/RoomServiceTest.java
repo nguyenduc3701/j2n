@@ -292,4 +292,34 @@ class RoomServiceTest {
 
                 assertThrows(DataNotFoundException.class, () -> roomService.deleteRoom(99L));
         }
+
+        @Test
+        void updateRoomStatus_StatusChanged() {
+                RoomEntity room = RoomEntity.builder()
+                                .id(1L)
+                                .status("AVAILABLE")
+                                .build();
+
+                when(roomRepository.save(any(RoomEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+                roomService.updateRoomStatus(room, "OCCUPIED");
+
+                assertEquals("OCCUPIED", room.getStatus());
+                verify(roomRepository, times(1)).save(room);
+                verify(roomEventPublisher, times(1)).publishRoomStatusUpdated(any());
+        }
+
+        @Test
+        void updateRoomStatus_StatusUnchanged() {
+                RoomEntity room = RoomEntity.builder()
+                                .id(1L)
+                                .status("AVAILABLE")
+                                .build();
+
+                roomService.updateRoomStatus(room, "AVAILABLE");
+
+                assertEquals("AVAILABLE", room.getStatus());
+                verify(roomRepository, never()).save(any());
+                verify(roomEventPublisher, never()).publishRoomStatusUpdated(any());
+        }
 }

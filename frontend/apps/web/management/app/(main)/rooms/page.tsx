@@ -274,8 +274,12 @@ const RoomsPage = () => {
 
         <ConfigurationModal
           opened={configModalOpened}
-          onClose={() => setConfigModalOpened(false)}
+          onClose={() => {
+            setConfigModalOpened(false);
+            fetchRooms(activePage, searchParams);
+          }}
           room={configRoom}
+          onRoomUpdate={setConfigRoom}
         />
       </div>
     </J2NMotionFade>

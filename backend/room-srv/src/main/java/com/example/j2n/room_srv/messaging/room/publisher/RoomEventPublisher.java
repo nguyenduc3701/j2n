@@ -2,6 +2,8 @@ package com.example.j2n.room_srv.messaging.room.publisher;
 
 import com.example.j2n.room_srv.messaging.room.constant.RoomEventConstants;
 import com.example.j2n.room_srv.messaging.room.event.BillsCalculatedEvent;
+import com.example.j2n.room_srv.messaging.room.event.RoomMemberRemovedEvent;
+import com.example.j2n.room_srv.messaging.room.event.RoomMemberMappedEvent;
 import com.example.j2n.room_srv.messaging.room.event.RoomStatusUpdatedEvent;
 import com.example.j2n.room_srv.messaging.report.event.RoomRevenueEvent;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,24 @@ public class RoomEventPublisher {
         rabbitTemplate.convertAndSend(
                 RoomEventConstants.EXCHANGE_ROOM,
                 RoomEventConstants.RK_ROOM_STATUS_UPDATED,
+                event
+        );
+    }
+
+    public void publishRoomMemberRemoved(RoomMemberRemovedEvent event) {
+        log.info("Publishing room member removed event: {}", event);
+        rabbitTemplate.convertAndSend(
+                RoomEventConstants.EXCHANGE_ROOM,
+                RoomEventConstants.RK_ROOM_MEMBER_REMOVED,
+                event
+        );
+    }
+
+    public void publishRoomMemberMapped(RoomMemberMappedEvent event) {
+        log.info("Publishing room member mapped event: {}", event);
+        rabbitTemplate.convertAndSend(
+                RoomEventConstants.EXCHANGE_ROOM,
+                RoomEventConstants.RK_ROOM_MEMBER_MAPPED,
                 event
         );
     }
