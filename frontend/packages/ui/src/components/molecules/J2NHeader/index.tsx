@@ -38,8 +38,8 @@ const J2NHeader = (props: IHeaderProps) => {
         { name: t("About me"), href: "/about-me", target: Target.CURRENT_TAB },
         { name: t("System"), href: "/system", target: Target.CURRENT_TAB },
         { name: t("room"), href: "/room", target: Target.NEW_TAB },
-        { name: t("store"), href: "/store", target: Target.NEW_TAB },
-        { name: t("Travel"), href: "/travel", target: Target.NEW_TAB },
+        // { name: t("store"), href: "/store", target: Target.NEW_TAB },
+        // { name: t("Travel"), href: "/travel", target: Target.NEW_TAB },
         {
           name: t("Management"),
           href: configurations?.["management-portal.base-url"] || "http://localhost:3101/",

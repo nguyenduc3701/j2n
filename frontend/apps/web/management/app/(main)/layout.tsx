@@ -21,8 +21,8 @@ export default function MainLayout({
   const menuItems = [
     { name: t("Users"), href: "/users" },
     { name: t("Rooms"), href: "/rooms" },
-    { name: t("Stores"), href: "/stores" },
-    { name: t("Travel"), href: "/travel" },
+    // { name: t("Stores"), href: "/stores" },
+    // { name: t("Travel"), href: "/travel" },
   ];
 
   useEffect(() => {
