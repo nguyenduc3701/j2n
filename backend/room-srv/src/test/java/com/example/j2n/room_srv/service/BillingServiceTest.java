@@ -69,31 +69,51 @@ class BillingServiceTest {
                 .renterId(123L)
                 .build();
 
+        RoomMemberEntity member = new RoomMemberEntity();
+        member.setUserId(123L);
+
+        com.example.j2n.room_srv.repository.entity.FeeEntity electricConfig = com.example.j2n.room_srv.repository.entity.FeeEntity.builder()
+                .name("Electricity")
+                .unitName("Unit")
+                .unitPrice(BigDecimal.valueOf(3500))
+                .isActive(true)
+                .build();
+
+        com.example.j2n.room_srv.repository.entity.RoomFeeEntity roomElectric = com.example.j2n.room_srv.repository.entity.RoomFeeEntity.builder()
+                .fee(electricConfig)
+                .build();
+
+        com.example.j2n.room_srv.repository.entity.FeeEntity waterConfig = com.example.j2n.room_srv.repository.entity.FeeEntity.builder()
+                .name("Water")
+                .unitName("Person")
+                .unitPrice(BigDecimal.valueOf(15000))
+                .isActive(true)
+                .build();
+
+        com.example.j2n.room_srv.repository.entity.RoomFeeEntity roomWater = com.example.j2n.room_srv.repository.entity.RoomFeeEntity.builder()
+                .fee(waterConfig)
+                .build();
+
         RoomEntity room = RoomEntity.builder()
                 .id(1L)
                 .roomNumber("101")
                 .basePrice(BigDecimal.valueOf(2000000))
-                .build();
-
-        FeeResponse electricConfig = FeeResponse.builder()
-                .name("ELECTRIC")
-                .unitPrice(BigDecimal.valueOf(3500))
-                .build();
-
-        FeeResponse waterConfig = FeeResponse.builder()
-                .name("WATER")
-                .unitPrice(BigDecimal.valueOf(15000))
+                .currentElectricIndex(0)
+                .members(List.of(member))
+                .fees(List.of(roomElectric, roomWater))
                 .build();
 
         when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
-        when(feeService.getActiveFees()).thenReturn(List.of(electricConfig, waterConfig));
         when(billRepository.save(any(BillEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
         BaseResponse<BillEntity> response = billingService.calculateBill(request);
 
         assertNotNull(response);
-        // 2,000,000 + (100 * 3,500) = 2,350,000
-        assertEquals(0, response.getData().getTotalAmount().compareTo(BigDecimal.valueOf(2350000)));
+        // Base Price: 2,000,000
+        // Electric Usage: 100 * 3,500 = 350,000
+        // Member Count: 1 * 15,000 = 15,000
+        // Total: 2,365,000
+        assertEquals(0, response.getData().getTotalAmount().compareTo(BigDecimal.valueOf(2365000)));
     }
 
     @Test

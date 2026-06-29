@@ -11,6 +11,9 @@ import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
+import com.example.j2n.room_srv.repository.entity.FeeEntity;
+import com.example.j2n.room_srv.repository.entity.RoomFeeEntity;
+import com.example.j2n.room_srv.constant.FeeConstant;
 import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.BillResponse;
@@ -110,13 +113,13 @@ public class BillingService {
         log.info("Aggregating billing data for event publishing");
         List<FeeResponse> configs = feeService.getActiveFees();
         BigDecimal electricUnitPrice = configs.stream()
-                .filter(f -> "ELECTRIC".equals(f.getName()))
+                .filter(f -> FeeConstant.FEE_ELECTRICITY.equalsIgnoreCase(f.getName()))
                 .map(FeeResponse::getUnitPrice)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
 
         BigDecimal waterUnitPrice = configs.stream()
-                .filter(f -> "WATER".equals(f.getName()))
+                .filter(f -> FeeConstant.FEE_WATER.equalsIgnoreCase(f.getName()))
                 .map(FeeResponse::getUnitPrice)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
@@ -166,16 +169,30 @@ public class BillingService {
     private BigDecimal calculateTotalAmount(BillRequest request, RoomEntity room, Integer electricOld) {
         log.info("Calculating total amount for room {}", room.getRoomNumber());
         BigDecimal totalAmount = room.getBasePrice();
-        List<FeeResponse> configs = feeService.getActiveFees();
 
         int electricUsage = 0;
         if (request.getElectricityNewIndex() != null && request.getElectricityNewIndex() > electricOld) {
             electricUsage = request.getElectricityNewIndex() - electricOld;
         }
 
-        for (FeeResponse config : configs) {
-            if ("ELECTRIC".equals(config.getName())) {
-                totalAmount = totalAmount.add(config.getUnitPrice().multiply(BigDecimal.valueOf(electricUsage)));
+        int memberCount = room.getMembers() != null ? room.getMembers().size() : 0;
+
+        if (room.getFees() != null) {
+            BigDecimal electricUsageMultiplier = BigDecimal.valueOf(electricUsage);
+            BigDecimal memberCountMultiplier = BigDecimal.valueOf(memberCount);
+
+            for (RoomFeeEntity roomFee : room.getFees()) {
+                FeeEntity config = roomFee.getFee();
+                if (config == null || Boolean.FALSE.equals(config.getIsActive())) {
+                    continue;
+                }
+                if (FeeConstant.FEE_ELECTRICITY.equalsIgnoreCase(config.getName())) {
+                    totalAmount = totalAmount.add(config.getUnitPrice().multiply(electricUsageMultiplier));
+                } else if (FeeConstant.UNIT_PERSON.equalsIgnoreCase(config.getUnitName())) {
+                    totalAmount = totalAmount.add(config.getUnitPrice().multiply(memberCountMultiplier));
+                } else {
+                    totalAmount = totalAmount.add(config.getUnitPrice());
+                }
             }
         }
 

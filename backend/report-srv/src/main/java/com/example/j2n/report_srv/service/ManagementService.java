@@ -16,6 +16,7 @@ import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.lib.proto.*;
 import com.example.j2n.report_srv.constant.MessageEnum;
 import com.example.j2n.report_srv.constant.ReportApiMapping;
+import static com.example.j2n.report_srv.constant.ReportConstant.*;
 import com.example.j2n.report_srv.messaging.payment.event.PaymentConfirmedEvent;
 import com.example.j2n.report_srv.messaging.room.event.RoomStatusUpdatedEvent;
 import com.example.j2n.report_srv.messaging.user.event.UserRegisteredEvent;
@@ -48,23 +49,6 @@ import java.time.format.DateTimeFormatter;
 @GrpcService
 @RequiredArgsConstructor
 public class ManagementService extends ReportServiceGrpc.ReportServiceImplBase {
-    private final static String ACTIVE_USERS_METRIC_KEY = "active_users";
-    private final static String INACTIVE_USERS_METRIC_KEY = "inactive_users";
-    private final static String TOTAL_TOURS_METRIC_KEY = "total_products";
-    private final static String EMPTY_ROOMS_METRIC_KEY = "empty_rooms";
-    private final static String TOTAL_BILLS_METRIC_KEY = "total_bills_this_month";
-    private final static String UNPAID_AMOUNT_METRIC_KEY = "remaining_unpaid_amount_this_month";
-    private final static String ELECTRIC_AMOUNT_METRIC_KEY = "total_electricity_amount_this_month";
-    private final static String WATER_AMOUNT_METRIC_KEY = "total_water_amount_this_month";
-
-    private final static String ROOM_CATEGORY = "ROOM";
-    private final static String ACCOUNT_CATEGORY = "ACCOUNT";
-    private final static String PRODUCT_CATEGORY = "PRODUCT";
-    private final static String FINANCE_CATEGORY = "FINANCE";
-    private final static String UTILITY_CATEGORY = "UTILITY";
-
-    private final static String USER_TYPE_CHART = "USER_TYPE";
-    private final static String STATUS_AVAILABLE = "AVAILABLE";
 
     @Lazy
     @Autowired

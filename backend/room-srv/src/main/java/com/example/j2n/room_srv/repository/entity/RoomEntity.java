@@ -65,4 +65,7 @@ public class RoomEntity {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     private List<RoomMemberEntity> members;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    private List<RoomFeeEntity> fees;
 }

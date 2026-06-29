@@ -1,33 +1,34 @@
 package com.example.j2n.room_srv.service;
 
+import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.EQUAL;
+import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.LIKE;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
-import com.example.j2n.room_srv.controller.request.*;
+import com.example.j2n.room_srv.controller.request.CreateAssetRequest;
+import com.example.j2n.room_srv.controller.request.SearchAssetsRequest;
+import com.example.j2n.room_srv.controller.request.UpdateAssetRequest;
+import com.example.j2n.room_srv.repository.AssetRepository;
+import com.example.j2n.room_srv.repository.entity.AssetEntity;
 import com.example.j2n.room_srv.service.response.AssetResponse;
 import com.example.j2n.room_srv.service.response.SearchAssetsResponse;
-import com.example.j2n.room_srv.repository.AssetRepository;
-import com.example.j2n.room_srv.repository.RoomRepository;
-import com.example.j2n.room_srv.repository.entity.AssetEntity;
-import com.example.j2n.room_srv.repository.entity.RoomAssetEntity;
-import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.SearchFactory;
 import com.example.j2n.utils.SearchPredicateBuilder.SearchCriteria;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.EQUAL;
-import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.LIKE;
 
 @Service
 @Slf4j
@@ -35,8 +36,6 @@ import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.LIKE;
 public class AssetService {
 
     private final AssetRepository assetRepository;
-    private final RoomRepository roomRepository;
-    private final RoomAssetService roomAssetService;
     private final SearchFactory searchFactory;
 
     @LogAround(message = "Search assets")
