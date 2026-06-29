@@ -8,7 +8,8 @@
     "room_required": "Vui lòng chọn phòng",
     "company_required": "Vui lòng nhập tên công ty",
     "username_required": "Vui lòng nhập tên đăng nhập",
-    "fullname_required": "Vui lòng nhập họ và tên"
+    "fullname_required": "Vui lòng nhập họ và tên",
+    "electric_index_required": "Vui lòng nhập chỉ số điện"
   },
   "username": "Tên đăng nhập",
   "password": "Mật khẩu",
@@ -81,6 +82,7 @@
       "capacity": "Sức chứa tối đa",
       "status": "Trạng thái",
       "electric_index": "Chỉ số điện",
+      "primary_renter": "Người thuê chính",
       "actions": "Hành động"
     },
     "status": {
@@ -109,14 +111,17 @@
       "configuration_title": "Cấu hình - Phòng {number}",
       "delete": "Xóa phòng",
       "confirm_delete": "Bạn có chắc chắn muốn xóa phòng {number} không?",
-      "confirm_remove_member": "Bạn có chắc chắn muốn xóa người thuê {name} khỏi phòng này không?"
+      "confirm_remove_member": "Bạn có chắc chắn muốn xóa người thuê {name} khỏi phòng này không?",
+      "confirm_set_primary": "Bạn có chắc chắn muốn đặt {name} làm người thuê chính không?",
+      "set_primary": "Đặt làm người thuê chính"
     },
     "assets": {
       "create": "Thêm tài sản mới",
       "name": "Tên tài sản",
       "serial": "Số sê-ri",
       "map_to_room": "Gán tài sản vào phòng",
-      "quantity": "Số lượng"
+      "quantity": "Số lượng",
+      "no_assets": "Chưa có tài sản nào được gán cho phòng này"
     },
     "bills": {
       "calculate": "Tính hóa đơn",

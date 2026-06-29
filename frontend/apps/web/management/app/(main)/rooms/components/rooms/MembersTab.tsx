@@ -2,7 +2,7 @@
 
 import { roomService } from "@/services/roomServices";
 import { userService } from "@/services/userServices";
-import { IRoom } from "@/types/room";
+import { IRoom, IRoomMember } from "@/types/room";
 import { ActionIcon, Badge, Group, Select, Table, Text, Tooltip } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { useQuery, useMutation, useQueryClient } from "@repo/query";
@@ -10,7 +10,7 @@ import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
 import { useTranslation } from "@repo/ui/src/providers";
-import { IconRefresh, IconTrash, IconUserPlus } from "@tabler/icons-react";
+import { IconRefresh, IconTrash, IconUserPlus, IconStar, IconStarFilled } from "@tabler/icons-react";
 import { useState } from "react";
 
 interface MembersTabProps {
@@ -24,15 +24,11 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
   const queryClient = useQueryClient();
   const [selectedRenterId, setSelectedRenterId] = useState<string | null>(null);
 
-  const { data: occupants = [], refetch: refetchOccupants } = useQuery({
+  const { data: occupants = [], refetch: refetchOccupants } = useQuery<IRoomMember[]>({
     queryKey: ["room-occupants", room.id],
     queryFn: async () => {
-      const res = await userService.getUsers({
-        room_id: room.id,
-        role_id: "3", // 3 is the RENTER role ID
-        size: 50,
-      });
-      return res.data?.users || [];
+      const res = await roomService.getRoomMembersByRoomId(room.id);
+      return res.data || [];
     },
     enabled: opened && !!room.id,
   });
@@ -69,6 +65,25 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
     },
   });
 
+  const setPrimaryMutation = useMutation({
+    mutationFn: (memberId: number) =>
+      roomService.updateRoomMember(memberId, { is_primary: true }),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["room-occupants", room.id] });
+      try {
+        const res = await roomService.getRoomById(room.id);
+        if (res.data && onRoomUpdate) {
+          onRoomUpdate(res.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch updated room details", e);
+      }
+    },
+    onError: (e) => {
+      console.error("Failed to set primary renter", e);
+    },
+  });
+
   const removeMemberMutation = useMutation({
     mutationFn: (userId: number) => roomService.deleteRoomMemberByUserId(userId),
     onSuccess: async () => {
@@ -91,6 +106,22 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
   const handleMapRenter = () => {
     if (!selectedRenterId) return;
     mapMemberMutation.mutate([Number(selectedRenterId)]);
+  };
+
+  const handleSetPrimary = (memberId: number, fullName: string) => {
+    modals.openConfirmModal({
+      title: t("rooms.actions.set_primary"),
+      centered: true,
+      children: (
+        <Text size="sm">
+          {t("rooms.actions.confirm_set_primary").replace("{name}", fullName)}
+        </Text>
+      ),
+      labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
+      onConfirm: () => {
+        setPrimaryMutation.mutate(memberId);
+      },
+    });
   };
 
   const handleRemoveRenter = (userId: number, fullName: string) => {
@@ -150,8 +181,8 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
             <Table.Th>{t("fullname")}</Table.Th>
             <Table.Th>{t("email")}</Table.Th>
             <Table.Th>{t("phone_number")}</Table.Th>
-            <Table.Th>Primary</Table.Th>
-            <Table.Th style={{ width: 100 }}>
+            <Table.Th>{t("rooms.table.primary_renter")}</Table.Th>
+            <Table.Th style={{ width: 120 }}>
               {t("rooms.table.actions")}
             </Table.Th>
           </Table.Tr>
@@ -163,19 +194,50 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
               <Table.Td>{u.email || "-"}</Table.Td>
               <Table.Td>{u.phone_number || "-"}</Table.Td>
               <Table.Td>
-                <Badge color="blue" variant="light">
-                  Renter
-                </Badge>
+                {u.is_primary ? (
+                  <Badge color="grape" variant="filled">
+                    {t("rooms.table.primary_renter")}
+                  </Badge>
+                ) : (
+                  <Badge color="gray" variant="light">
+                    {t("renter")}
+                  </Badge>
+                )}
               </Table.Td>
               <Table.Td>
                 <Group gap="xs">
+                  {!u.is_primary && (
+                    <Tooltip label={t("rooms.actions.set_primary")}>
+                      <ActionIcon
+                        id={`rooms.membersTab.btnSetPrimary.${u.id}`}
+                        color="yellow"
+                        variant="subtle"
+                        loading={setPrimaryMutation.isPending && setPrimaryMutation.variables === u.id}
+                        onClick={() => handleSetPrimary(u.id, u.full_name)}
+                      >
+                        <IconStar size={16} />
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
+                  {u.is_primary && (
+                    <Tooltip label={t("rooms.table.primary_renter")}>
+                      <ActionIcon
+                        id={`rooms.membersTab.btnSetPrimary.${u.id}`}
+                        color="yellow"
+                        variant="transparent"
+                        style={{ cursor: "default" }}
+                      >
+                        <IconStarFilled size={16} />
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
                   <Tooltip label="Remove mapping">
                     <ActionIcon
                       id={`rooms.membersTab.btnRemoveRenter.${u.id}`}
                       color="red"
                       variant="subtle"
-                      loading={removeMemberMutation.isPending && removeMemberMutation.variables === u.id}
-                      onClick={() => handleRemoveRenter(u.id, u.full_name)}
+                      loading={removeMemberMutation.isPending && removeMemberMutation.variables === u.user_id}
+                      onClick={() => handleRemoveRenter(u.user_id, u.full_name)}
                     >
                       <IconTrash size={16} />
                     </ActionIcon>

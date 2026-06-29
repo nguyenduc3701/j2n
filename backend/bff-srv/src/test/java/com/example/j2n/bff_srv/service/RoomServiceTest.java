@@ -152,7 +152,10 @@ class RoomServiceTest {
 
     @Test
     void calculateBill_Success() {
-        BillRequest request = new BillRequest();
+        BillRequest request = BillRequest.builder()
+                .roomId(1L)
+                .electricityNewIndex(1000)
+                .build();
         when(restClientUtil.request(eq(GatewayPath.ROOM_BILL_CALCULATE_PATH), eq(HttpMethod.POST), eq(request), any(ParameterizedTypeReference.class)))
                 .thenReturn(new Object());
 

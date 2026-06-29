@@ -8,7 +8,8 @@
     "room_required": "部屋は必須です",
     "company_required": "会社名は必須です",
     "username_required": "ユーザー名は必須です",
-    "fullname_required": "フルネームは必須です"
+    "fullname_required": "フルネームは必須です",
+    "electric_index_required": "電気メーターの数値は必須です"
   },
   "username": "ユーザー名",
   "password": "パスワード",
@@ -78,9 +79,10 @@
       "floor": "階",
       "price": "基本料金",
       "area": "面積",
-      "capacity": "定員",
+      "capacity": "定员",
       "status": "ステータス",
       "electric_index": "電気メーター",
+      "primary_renter": "代表者",
       "actions": "アクション"
     },
     "status": {
@@ -109,14 +111,17 @@
       "configuration_title": "設定 - {number}号室",
       "delete": "客室を削除",
       "confirm_delete": "{number}号室を削除してもよろしいですか？",
-      "confirm_remove_member": "この部屋から入居者 {name} を削除してもよろしいですか？"
+      "confirm_remove_member": "この部屋から入居者 {name} を削除してもよろしいですか？",
+      "confirm_set_primary": "本当に {name} を代表者に設定しますか？",
+      "set_primary": "代表者に設定"
     },
     "assets": {
       "create": "新しい資産を追加",
       "name": "資産名",
       "serial": "シリアル番号",
       "map_to_room": "資産を部屋に割り当てる",
-      "quantity": "数量"
+      "quantity": "数量",
+      "no_assets": "この部屋に割り当てられた資産はありません"
     },
     "bills": {
       "calculate": "請求書を計算",

@@ -102,7 +102,7 @@ const UserModal = ({
       );
     },
     enabled: opened && form.values.role_id === ROLE_MAPPING.RENTER,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   useEffect(() => {
@@ -145,6 +145,7 @@ const UserModal = ({
         <Grid>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
+              id="userModal.inputUserName"
               label={t("users.modal.username")}
               placeholder={t("users.modal.username")}
               disabled={mode !== ModalMode.CREATE}
@@ -154,6 +155,7 @@ const UserModal = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
+              id="userModal.inputEmail"
               label={t("users.modal.email")}
               placeholder={t("users.modal.email")}
               disabled={mode !== ModalMode.CREATE}
@@ -164,6 +166,7 @@ const UserModal = ({
           {mode === ModalMode.CREATE && (
             <Grid.Col span={{ base: 12, md: 6 }}>
               <PasswordInput
+                id="userModal.inputPassword"
                 label={t("password")}
                 placeholder={t("password")}
                 {...form.getInputProps("password")}
@@ -173,6 +176,7 @@ const UserModal = ({
           )}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
+              id="userModal.inputFullName"
               label={t("users.modal.fullname")}
               placeholder={t("users.modal.fullname")}
               readOnly={isView}
@@ -182,6 +186,7 @@ const UserModal = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
+              id="userModal.inputPhoneNumber"
               label={t("users.modal.phone")}
               placeholder={t("users.modal.phone")}
               readOnly={isView}
@@ -190,6 +195,7 @@ const UserModal = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
+              id="userModal.inputBirth"
               label={t("users.modal.birth")}
               placeholder="YYYY-MM-DD"
               readOnly={isView}
@@ -198,6 +204,7 @@ const UserModal = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Select
+              id="userModal.selectRoleId"
               label={t("users.modal.role")}
               placeholder={t("users.modal.role")}
               disabled={isView}
@@ -210,6 +217,7 @@ const UserModal = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Select
+              id="userModal.selectStatus"
               label={t("users.modal.status")}
               placeholder={t("users.modal.status")}
               disabled={isView || mode === ModalMode.CREATE}
@@ -222,6 +230,7 @@ const UserModal = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
+              id="userModal.inputAddress"
               label={t("users.modal.address")}
               placeholder={t("users.modal.address")}
               readOnly={isView}
@@ -231,6 +240,7 @@ const UserModal = ({
           {form.values.role_id === ROLE_MAPPING.RENTER && (
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Select
+                id="userModal.selectRoomId"
                 label={t("users.modal.room")}
                 placeholder={t("users.modal.room")}
                 disabled={isView || loadingRooms}
@@ -244,6 +254,7 @@ const UserModal = ({
           {form.values.role_id === ROLE_MAPPING.RECRUITER && (
             <Grid.Col span={{ base: 12, md: 6 }}>
               <TextInput
+                id="userModal.inputCompany"
                 label={t("users.modal.company")}
                 placeholder={t("users.modal.company")}
                 readOnly={isView}
@@ -256,6 +267,7 @@ const UserModal = ({
 
         <Group justify="flex-end" mt="xl">
           <J2NButton
+            id="userModal.btnCancel"
             type="button"
             j2nType={J2NButtonTypes.SECONDARY}
             onClick={onClose}
@@ -264,6 +276,7 @@ const UserModal = ({
           </J2NButton>
           {isView ? (
             <J2NButton
+              id="userModal.btnEdit"
               type="button"
               j2nType={J2NButtonTypes.PRIMARY}
               onClick={(e) => {
@@ -276,6 +289,7 @@ const UserModal = ({
             </J2NButton>
           ) : (
             <J2NButton
+              id="userModal.btnSave"
               type="submit"
               j2nType={J2NButtonTypes.PRIMARY}
               loading={loading}

@@ -16,21 +16,37 @@ import J2NButton, {
 } from "@repo/ui/src/components/atoms/J2NButton";
 import { useTranslation } from "@repo/ui/src/providers";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface RoomAssetsTabProps {
   room: IRoom;
   opened: boolean;
+  onRoomUpdate?: (updatedRoom: IRoom) => void;
 }
 
-const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
+const RoomAssetsTab = ({ room, opened, onRoomUpdate }: RoomAssetsTabProps) => {
   const { t } = useTranslation();
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [mapQuantity, setMapQuantity] = useState<number>(1);
   const [tabLoading, setTabLoading] = useState(false);
-  const [localAssets, setLocalAssets] = useState<IAsset[]>(
-    room.assets || [],
-  );
+  const [localAssets, setLocalAssets] = useState<IAsset[]>(room.assets || []);
+
+  const { data: roomDetail, refetch: refetchRoomDetail } = useQuery({
+    queryKey: ["room-detail-assets", room.id],
+    queryFn: async () => {
+      const res = await roomService.getRoomById(room.id);
+      return res.data;
+    },
+    enabled: opened && !!room.id,
+    initialData: room.assets ? room : undefined,
+    staleTime: 5000,
+  });
+
+  useEffect(() => {
+    if (opened && roomDetail) {
+      setLocalAssets(roomDetail.assets || []);
+    }
+  }, [opened, roomDetail]);
 
   const { data: availableAssets = [] } = useQuery({
     queryKey: ["available-assets"],
@@ -39,7 +55,6 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
       return res.data?.assets || [];
     },
     enabled: opened && !!room.id,
-    staleTime: 5 * 60 * 1000,
   });
 
   const handleMapAsset = () => {
@@ -86,10 +101,11 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
 
       await roomService.updateRoomAssets(room.id, payload);
 
-      const detailedRoomRes = await roomService.getRoomById(room.id);
+      const detailedRoomRes = await refetchRoomDetail();
       if (detailedRoomRes.data) {
-        room.assets = detailedRoomRes.data.assets;
-        setLocalAssets(detailedRoomRes.data.assets || []);
+        if (onRoomUpdate) {
+          onRoomUpdate(detailedRoomRes.data);
+        }
       }
     } catch (e) {
       console.error("Failed to save room assets", e);
@@ -99,7 +115,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
   };
 
   const hasAssetChanges = () => {
-    const original = room.assets || [];
+    const original = roomDetail?.assets || room.assets || [];
     if (original.length !== localAssets.length) return true;
     for (const local of localAssets) {
       const orig = original.find((o) => Number(o.id) === Number(local.id));
@@ -112,6 +128,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
     <>
       <Group gap="xs" mb="md">
         <Select
+          id="roomAssetsTab.selectAsset"
           placeholder={t("rooms.assets.name")}
           data={availableAssets
             .filter((a) => !localAssets.some((la) => la.id === a.id))
@@ -124,6 +141,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
           searchable
         />
         <NumberInput
+          id="roomAssetsTab.inputMapQuantity"
           placeholder={t("rooms.assets.quantity")}
           value={mapQuantity}
           onChange={(val) => setMapQuantity(Number(val) || 1)}
@@ -131,6 +149,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
           style={{ width: 100 }}
         />
         <J2NButton
+          id="roomAssetsTab.btnMapAsset"
           leftSection={<IconPlus size={16} />}
           onClick={handleMapAsset}
           disabled={!selectedAssetId}
@@ -157,6 +176,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
               <Table.Td>{asset.name}</Table.Td>
               <Table.Td>
                 <NumberInput
+                  id={`roomAssetsTab.inputQuantity.${asset.id}`}
                   value={asset.quantity}
                   onChange={(val) =>
                     handleUpdateLocalQuantity(index, Number(val) || 1)
@@ -170,6 +190,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
               <Table.Td>
                 <Tooltip label={t("users.actions.delete")}>
                   <ActionIcon
+                    id={`roomAssetsTab.btnDeleteAsset.${asset.id}`}
                     type="button"
                     color="red"
                     variant="subtle"
@@ -187,7 +208,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
           {localAssets.length === 0 && (
             <Table.Tr>
               <Table.Td colSpan={4} style={{ textAlign: "center" }}>
-                No assets assigned to this room
+                {t("rooms.assets.no_assets")}
               </Table.Td>
             </Table.Tr>
           )}
@@ -196,6 +217,7 @@ const RoomAssetsTab = ({ room, opened }: RoomAssetsTabProps) => {
 
       <Group justify="flex-end" mt="md">
         <J2NButton
+          id="roomAssetsTab.btnSave"
           onClick={handleSaveAssets}
           loading={tabLoading}
           disabled={!hasAssetChanges()}

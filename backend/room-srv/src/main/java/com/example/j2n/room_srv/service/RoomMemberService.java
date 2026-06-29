@@ -43,14 +43,14 @@ public class RoomMemberService {
         log.info("Mapping user IDs {} to room ID {}, isPrimary: {}", request.getUserIds(), request.getRoomId(),
                 request.getIsPrimary());
         RoomEntity room = roomService.findRoomByIdOrThrow(request.getRoomId());
-        validateCapacity(room, request);
+        List<RoomMemberEntity> existingMembers = roomMemberRepository.findByRoomId(room.getId());
+        validateCapacity(room, existingMembers, request);
         validateMappingRequest(request);
         if (Boolean.TRUE.equals(request.getIsPrimary())) {
-            demoteExistingPrimaryMembers(request.getRoomId());
+            demoteExistingPrimaryMembers(existingMembers);
         }
-        List<RoomMemberEntity> entitiesToSave = request.getUserIds().stream()
-                .map(userId -> buildRoomMemberEntity(room, userId, request.getIsPrimary()))
-                .collect(Collectors.toList());
+        
+        List<RoomMemberEntity> entitiesToSave = buildRoomMemberEntities(room, request.getUserIds(), existingMembers.isEmpty(), request.getIsPrimary());
         List<RoomMemberEntity> savedEntities = roomMemberRepository.saveAll(entitiesToSave);
         updateRoomStatusBasedOnCapacity(room);
         publishRoomMemberMappedEvent(room.getId(), request.getUserIds());
@@ -58,6 +58,22 @@ public class RoomMemberService {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
         return ResponseFactory.success(responses);
+    }
+
+    private List<RoomMemberEntity> buildRoomMemberEntities(RoomEntity room, List<Long> userIds, boolean isRoomEmpty, Boolean requestIsPrimary) {
+        log.info("Building room member entities for room ID: {}, user IDs: {}, isRoomEmpty: {}, requestIsPrimary: {}", room.getId(), userIds, isRoomEmpty, requestIsPrimary);
+        List<RoomMemberEntity> entitiesToSave = new java.util.ArrayList<>();
+        for (int i = 0; i < userIds.size(); i++) {
+            Long userId = userIds.get(i);
+            boolean isPrimary;
+            if (isRoomEmpty) {
+                isPrimary = (i == 0);
+            } else {
+                isPrimary = Boolean.TRUE.equals(requestIsPrimary);
+            }
+            entitiesToSave.add(buildRoomMemberEntity(room, userId, isPrimary));
+        }
+        return entitiesToSave;
     }
 
     @Transactional
@@ -93,10 +109,10 @@ public class RoomMemberService {
         return ResponseFactory.success(responses);
     }
 
-    private void validateCapacity(RoomEntity room, MapMemberToRoomRequest request) {
+    private void validateCapacity(RoomEntity room, List<RoomMemberEntity> existingMembers, MapMemberToRoomRequest request) {
         log.info("Validating capacity for room ID: {}", room.getId());
         if (room.getMaxPeople() != null) {
-            int currentMemberCount = roomMemberRepository.findByRoomId(room.getId()).size();
+            int currentMemberCount = existingMembers.size();
             int newMembersCount = request.getUserIds().size();
             if (currentMemberCount + newMembersCount > room.getMaxPeople()) {
                 log.error(
@@ -157,6 +173,10 @@ public class RoomMemberService {
     private void demoteExistingPrimaryMembers(Long roomId) {
         log.info("Demoting existing primary members for room ID: {}", roomId);
         List<RoomMemberEntity> members = roomMemberRepository.findByRoomId(roomId);
+        demoteExistingPrimaryMembers(members);
+    }
+
+    private void demoteExistingPrimaryMembers(List<RoomMemberEntity> members) {
         members.forEach(member -> {
             if (Boolean.TRUE.equals(member.getIsPrimary())) {
                 member.setIsPrimary(false);
@@ -185,7 +205,8 @@ public class RoomMemberService {
                 log.info("Handling RENTER registered event for user {} and room {}", userId, roomId);
                 if (!roomMemberRepository.existsByRoomIdAndUserId(roomId, userId)) {
                     RoomEntity room = roomService.findRoomByIdOrThrow(roomId);
-                    RoomMemberEntity newMember = buildRoomMemberEntity(room, userId, false);
+                    boolean isRoomEmpty = roomMemberRepository.findByRoomId(roomId).isEmpty();
+                    RoomMemberEntity newMember = buildRoomMemberEntity(room, userId, isRoomEmpty);
                     roomMemberRepository.save(newMember);
                     log.info("Successfully created RoomMember for user {} in room {}", userId, roomId);
                     updateRoomStatusBasedOnCapacity(room);
@@ -241,7 +262,8 @@ public class RoomMemberService {
                     });
                     
                     RoomEntity room = roomService.findRoomByIdOrThrow(newRoomId);
-                    RoomMemberEntity newMember = buildRoomMemberEntity(room, userId, false);
+                    boolean isRoomEmpty = roomMemberRepository.findByRoomId(newRoomId).isEmpty();
+                    RoomMemberEntity newMember = buildRoomMemberEntity(room, userId, isRoomEmpty);
                     roomMemberRepository.save(newMember);
                     updateRoomStatusBasedOnCapacity(room);
                     log.info("Successfully moved/added user {} to room {}", userId, newRoomId);

@@ -253,10 +253,9 @@ export const roomService = {
 
   async calculateBill(data: {
     room_id: number;
-    month: number;
-    year: number;
-    current_electric_index: number;
-    current_water_index: number;
+    month?: number;
+    electricity_new_index: number;
+    renter_id?: number;
   }) {
     const options = {
       method: HTTP_METHODS.POST,

@@ -56,7 +56,7 @@ const ConfigurationModal = ({
           </Tabs.Panel>
 
           <Tabs.Panel value="assets" pt="md">
-            <RoomAssetsTab room={room} opened={opened} />
+            <RoomAssetsTab room={room} opened={opened} onRoomUpdate={onRoomUpdate} />
           </Tabs.Panel>
 
           <Tabs.Panel value="fees" pt="md">

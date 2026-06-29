@@ -42,9 +42,7 @@ const RoomBillingTab = ({ room, opened }: RoomBillingTabProps) => {
       await roomService.calculateBill({
         room_id: room.id,
         month: today.getMonth() + 1,
-        year: today.getFullYear(),
-        current_electric_index: 0,
-        current_water_index: 0,
+        electricity_new_index: 0,
       });
       refetchBills();
     } catch (e) {

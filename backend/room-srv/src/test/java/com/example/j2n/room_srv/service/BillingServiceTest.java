@@ -98,7 +98,10 @@ class BillingServiceTest {
 
     @Test
     void calculateBill_RoomNotFound() {
-        BillRequest request = BillRequest.builder().roomId(1L).build();
+        BillRequest request = BillRequest.builder()
+                .roomId(1L)
+                .electricityNewIndex(100)
+                .build();
         when(roomService.findRoomByIdOrThrow(1L))
                 .thenThrow(new DataNotFoundException(com.example.j2n.room_srv.constant.MessageEnum.ROOM_NOT_FOUND));
 

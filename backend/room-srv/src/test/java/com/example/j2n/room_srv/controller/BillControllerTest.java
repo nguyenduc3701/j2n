@@ -83,7 +83,7 @@ class BillControllerTest {
 
     @Test
     void calculateBillByRoomId_Success() throws Exception {
-        BillRequest request = BillRequest.builder().roomId(1L).build();
+        BillRequest request = BillRequest.builder().roomId(1L).electricityNewIndex(1250).build();
         BillEntity billEntity = new BillEntity();
         when(billingService.calculateBill(any(BillRequest.class))).thenReturn(ResponseFactory.success(billEntity));
 
@@ -94,6 +94,17 @@ class BillControllerTest {
                 .andExpect(status().isOk());
 
         verify(billingService, times(1)).calculateBill(any(BillRequest.class));
+    }
+
+    @Test
+    void calculateBillByRoomId_ValidationError_ElectricityNewIndexRequired() throws Exception {
+        BillRequest request = BillRequest.builder().roomId(1L).build(); // missing electricityNewIndex
+
+        mockMvc.perform(post("/room/bills/calculate")
+                .contextPath("/room")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -8,7 +8,8 @@
     "room_required": "房间为必填项",
     "company_required": "公司为必填项",
     "username_required": "用户名是必填项",
-    "fullname_required": "全名是必填项"
+    "fullname_required": "全名是必填项",
+    "electric_index_required": "电表指数是必填项"
   },
   "username": "用户名",
   "password": "密码",
@@ -81,6 +82,7 @@
       "capacity": "容量",
       "status": "状态",
       "electric_index": "电表指数",
+      "primary_renter": "主要租客",
       "actions": "操作"
     },
     "status": {
@@ -109,14 +111,17 @@
       "configuration_title": "配置 - {number} 号房",
       "delete": "删除房间",
       "confirm_delete": "您确定要删除 {number} 号房吗？",
-      "confirm_remove_member": "您确定要从该房间中移除住户 {name} 吗？"
+      "confirm_remove_member": "您确定要从该房间中移除住户 {name} 吗？",
+      "confirm_set_primary": "您确定要将 {name} 设为主要租客吗？",
+      "set_primary": "设为主要租客"
     },
     "assets": {
       "create": "添加新资产",
       "name": "资产名称",
       "serial": "序列号",
       "map_to_room": "分配资产到房间",
-      "quantity": "数量"
+      "quantity": "数量",
+      "no_assets": "此房间未分配任何资产"
     },
     "bills": {
       "calculate": "计算账单",

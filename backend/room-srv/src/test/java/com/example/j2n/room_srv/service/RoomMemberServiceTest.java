@@ -52,6 +52,12 @@ class RoomMemberServiceTest {
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(1L).build();
+        RoomMemberEntity existingMember = RoomMemberEntity.builder()
+                .id(99L)
+                .room(room)
+                .userId(5L)
+                .isPrimary(true)
+                .build();
         RoomMemberEntity savedEntity = RoomMemberEntity.builder()
                 .id(100L)
                 .room(room)
@@ -61,6 +67,7 @@ class RoomMemberServiceTest {
 
         when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
         when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.empty());
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of(existingMember));
         when(roomMemberRepository.saveAll(anyList())).thenReturn(List.of(savedEntity));
 
         BaseResponse<List<RoomMemberResponse>> result = roomMemberService.mapMemberToRoom(request);
@@ -75,7 +82,46 @@ class RoomMemberServiceTest {
 
         verify(roomService, times(1)).findRoomByIdOrThrow(1L);
         verify(roomMemberRepository, times(1)).findByUserId(10L);
-        verify(roomMemberRepository, never()).findByRoomId(anyLong());
+        verify(roomMemberRepository, times(1)).findByRoomId(1L);
+        verify(roomMemberRepository, times(1)).saveAll(anyList());
+        verify(roomEventPublisher, times(1)).publishRoomMemberMapped(any(RoomMemberMappedEvent.class));
+    }
+
+    @Test
+    void mapMemberToRoom_Success_EmptyRoom_DefaultToPrimary() {
+        MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
+                .roomId(1L)
+                .userIds(List.of(10L))
+                .isPrimary(false)
+                .build();
+
+        RoomEntity room = RoomEntity.builder().id(1L).build();
+        RoomMemberEntity savedEntity = RoomMemberEntity.builder()
+                .id(100L)
+                .room(room)
+                .userId(10L)
+                .isPrimary(true)
+                .build();
+
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.empty());
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of());
+        when(roomMemberRepository.saveAll(anyList())).thenAnswer(i -> {
+            List<RoomMemberEntity> entities = i.getArgument(0);
+            assertTrue(entities.get(0).getIsPrimary());
+            return List.of(savedEntity);
+        });
+
+        BaseResponse<List<RoomMemberResponse>> result = roomMemberService.mapMemberToRoom(request);
+
+        assertNotNull(result);
+        assertNotNull(result.getData());
+        assertEquals(1, result.getData().size());
+        assertTrue(result.getData().get(0).getIsPrimary());
+
+        verify(roomService, times(1)).findRoomByIdOrThrow(1L);
+        verify(roomMemberRepository, times(1)).findByUserId(10L);
+        verify(roomMemberRepository, times(1)).findByRoomId(1L);
         verify(roomMemberRepository, times(1)).saveAll(anyList());
         verify(roomEventPublisher, times(1)).publishRoomMemberMapped(any(RoomMemberMappedEvent.class));
     }
@@ -164,11 +210,13 @@ class RoomMemberServiceTest {
 
         when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
         when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(existing));
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of());
 
         assertThrows(InvalidInputException.class, () -> roomMemberService.mapMemberToRoom(request));
 
         verify(roomService, times(1)).findRoomByIdOrThrow(1L);
         verify(roomMemberRepository, times(1)).findByUserId(10L);
+        verify(roomMemberRepository, times(1)).findByRoomId(1L);
         verify(roomMemberRepository, never()).saveAll(any());
     }
 
@@ -190,11 +238,13 @@ class RoomMemberServiceTest {
 
         when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
         when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(existing));
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of());
 
         assertThrows(InvalidInputException.class, () -> roomMemberService.mapMemberToRoom(request));
 
         verify(roomService, times(1)).findRoomByIdOrThrow(1L);
         verify(roomMemberRepository, times(1)).findByUserId(10L);
+        verify(roomMemberRepository, times(1)).findByRoomId(1L);
         verify(roomMemberRepository, never()).saveAll(any());
     }
 
@@ -539,5 +589,61 @@ class RoomMemberServiceTest {
 
         verify(roomMemberRepository, never()).delete(any());
         verify(roomMemberRepository, never()).flush();
+    }
+
+    @Test
+    void handleUserRegisteredEvent_Success_EmptyRoom_DefaultToPrimary() {
+        UserRegisteredEvent event = UserRegisteredEvent.builder()
+                .userId("10")
+                .roomId("1")
+                .role("RENTER")
+                .build();
+
+        RoomEntity room = RoomEntity.builder()
+                .id(1L)
+                .status("AVAILABLE")
+                .build();
+
+        when(roomMemberRepository.existsByRoomIdAndUserId(1L, 10L)).thenReturn(false);
+        when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
+        when(roomMemberRepository.findByRoomId(1L))
+                .thenReturn(List.of())
+                .thenReturn(List.of(RoomMemberEntity.builder().isPrimary(true).build()));
+
+        roomMemberService.handleUserRegisteredEvent(event);
+
+        org.mockito.ArgumentCaptor<RoomMemberEntity> captor = org.mockito.ArgumentCaptor.forClass(RoomMemberEntity.class);
+        verify(roomMemberRepository, times(1)).save(captor.capture());
+        assertTrue(captor.getValue().getIsPrimary());
+    }
+
+    @Test
+    void handleUserUpdatedEvent_MoveToEmptyRoom_DefaultToPrimary() {
+        UserUpdatedEvent event = UserUpdatedEvent.builder()
+                .userId("10")
+                .role("RENTER")
+                .roomId("2")
+                .oldRoomId("1")
+                .build();
+
+        RoomEntity oldRoom = RoomEntity.builder().id(1L).build();
+        RoomEntity newRoom = RoomEntity.builder().id(2L).build();
+        RoomMemberEntity oldMember = RoomMemberEntity.builder().id(100L).room(oldRoom).userId(10L).build();
+
+        when(roomMemberRepository.findByUserId(10L))
+                .thenReturn(Optional.of(oldMember)) // oldRoomId check
+                .thenReturn(Optional.empty()); // newRoomId check
+
+        when(roomMemberRepository.existsByRoomIdAndUserId(2L, 10L)).thenReturn(false);
+        when(roomService.findRoomByIdOrThrow(2L)).thenReturn(newRoom);
+        when(roomMemberRepository.findByRoomId(2L))
+                .thenReturn(List.of())
+                .thenReturn(List.of(RoomMemberEntity.builder().isPrimary(true).build()));
+
+        roomMemberService.handleUserUpdatedEvent(event);
+
+        org.mockito.ArgumentCaptor<RoomMemberEntity> captor = org.mockito.ArgumentCaptor.forClass(RoomMemberEntity.class);
+        verify(roomMemberRepository, times(1)).save(captor.capture());
+        assertTrue(captor.getValue().getIsPrimary());
     }
 }

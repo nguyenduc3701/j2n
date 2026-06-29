@@ -273,6 +273,7 @@ class RoomControllerTest {
     void calculateBill_ShouldReturnSuccess() throws Exception {
         BillRequest request = BillRequest.builder()
                 .roomId(1L)
+                .electricityNewIndex(1000)
                 .build();
         when(roomService.calculateBill(any(BillRequest.class))).thenReturn(Collections.singletonMap("data", "calculated"));
 
@@ -281,6 +282,19 @@ class RoomControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void calculateBill_ValidationError_ElectricityNewIndexRequired() throws Exception {
+        BillRequest request = BillRequest.builder()
+                .roomId(1L)
+                .build();
+
+        mockMvc.perform(post(BASE_URL + "/bills/calculate")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

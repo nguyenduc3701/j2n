@@ -8,7 +8,8 @@
     "room_required": "Room is required",
     "company_required": "Company is required",
     "username_required": "Username is required",
-    "fullname_required": "Full name is required"
+    "fullname_required": "Full name is required",
+    "electric_index_required": "Electric index is required"
   },
   "username": "Username",
   "password": "Password",
@@ -81,6 +82,7 @@
       "capacity": "Capacity",
       "status": "Status",
       "electric_index": "Electric Index",
+      "primary_renter": "Primary Renter",
       "actions": "Actions"
     },
     "status": {
@@ -109,14 +111,17 @@
       "configuration_title": "Configuration - Room {number}",
       "delete": "Delete Room",
       "confirm_delete": "Are you sure you want to delete room {number}?",
-      "confirm_remove_member": "Are you sure you want to remove occupant {name} from this room?"
+      "confirm_remove_member": "Are you sure you want to remove occupant {name} from this room?",
+      "confirm_set_primary": "Are you sure you want to set {name} as the primary renter?",
+      "set_primary": "Set as Primary"
     },
     "assets": {
       "create": "Add New Asset",
       "name": "Asset Name",
       "serial": "Serial Number",
       "map_to_room": "Assign Asset to Room",
-      "quantity": "Quantity"
+      "quantity": "Quantity",
+      "no_assets": "No assets assigned to this room"
     },
     "bills": {
       "calculate": "Calculate Bill",

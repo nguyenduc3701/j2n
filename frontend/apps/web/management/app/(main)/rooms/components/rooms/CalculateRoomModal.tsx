@@ -28,7 +28,15 @@ const CalculateRoomModal = ({
 
   const form = useForm({
     initialValues: {
-      electricity_new_index: 0,
+      electricity_new_index: "" as any,
+    },
+    validate: {
+      electricity_new_index: (value) => {
+        if (value === undefined || value === null || (value as any) === "") {
+          return t("validation.electric_index_required");
+        }
+        return null;
+      },
     },
   });
 
@@ -39,9 +47,7 @@ const CalculateRoomModal = ({
       return roomService.calculateBill({
         room_id: room.id,
         month: today.getMonth() + 1,
-        year: today.getFullYear(),
-        current_electric_index: electricityNewIndex,
-        current_water_index: 0,
+        electricity_new_index: electricityNewIndex,
       });
     },
     onSuccess: () => {
@@ -81,6 +87,7 @@ const CalculateRoomModal = ({
             label={t("rooms.table.electric_index")}
             placeholder="0"
             min={0}
+            required
             leftSection={<IconBolt size={16} />}
             {...form.getInputProps("electricity_new_index")}
           />
@@ -89,7 +96,6 @@ const CalculateRoomModal = ({
               {t("rooms.bills.calculate_error")}
             </Text>
           )}
-          <Divider />
           <Group justify="flex-end">
             <J2NButton
               type="button"
