@@ -11,4 +11,6 @@ public interface RoomFeeRepository extends JpaRepository<RoomFeeEntity, Long> {
     List<RoomFeeEntity> findByRoomId(Long roomId);
 
     void deleteByRoomId(Long roomId);
+
+    void deleteByFeeId(Long feeId);
 }

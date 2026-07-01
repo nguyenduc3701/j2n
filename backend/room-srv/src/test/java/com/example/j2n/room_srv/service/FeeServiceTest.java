@@ -1,11 +1,13 @@
 package com.example.j2n.room_srv.service;
 
+import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.room_srv.controller.request.CreateFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateFeeRequest;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.repository.FeeRepository;
+import com.example.j2n.room_srv.repository.RoomFeeRepository;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.service.response.FeeResponse;
 import org.junit.jupiter.api.Test;
@@ -29,25 +31,28 @@ class FeeServiceTest {
     @Mock
     private FeeRepository feeRepository;
 
+    @Mock
+    private RoomFeeRepository roomFeeRepository;
+
     @InjectMocks
     private FeeService feeService;
 
     @Test
     void getActiveFees_Success() {
-        FeeEntity fee = FeeEntity.builder().id(1L).isActive(true).build();
-        when(feeRepository.findAll()).thenReturn(List.of(fee));
+        FeeEntity fee = FeeEntity.builder().id(1L).isActive(true).isDeleted(false).build();
+        when(feeRepository.findByIsDeletedFalse()).thenReturn(List.of(fee));
 
         List<FeeResponse> result = feeService.getActiveFees();
 
         assertEquals(1, result.size());
         assertTrue(result.get(0).getIsActive());
-        verify(feeRepository, times(1)).findAll();
+        verify(feeRepository, times(1)).findByIsDeletedFalse();
     }
 
     @Test
     void findByIdOrThrow_Success() {
         Long id = 1L;
-        FeeEntity fee = FeeEntity.builder().id(id).name("Electricity").build();
+        FeeEntity fee = FeeEntity.builder().id(id).name("Electricity").isDeleted(false).build();
         when(feeRepository.findById(id)).thenReturn(Optional.of(fee));
 
         FeeEntity result = feeService.findByIdOrThrow(id);
@@ -65,15 +70,38 @@ class FeeServiceTest {
     }
 
     @Test
+    void findByIdOrThrow_SoftDeleted_ThrowsException() {
+        Long id = 1L;
+        FeeEntity fee = FeeEntity.builder().id(id).name("Electricity").isDeleted(true).build();
+        when(feeRepository.findById(id)).thenReturn(Optional.of(fee));
+
+        assertThrows(DataNotFoundException.class, () -> feeService.findByIdOrThrow(id));
+    }
+
+    @Test
     void findAllByIds_Success() {
         List<Long> ids = List.of(1L, 2L);
-        FeeEntity fee1 = FeeEntity.builder().id(1L).build();
-        FeeEntity fee2 = FeeEntity.builder().id(2L).build();
+        FeeEntity fee1 = FeeEntity.builder().id(1L).isDeleted(false).build();
+        FeeEntity fee2 = FeeEntity.builder().id(2L).isDeleted(false).build();
         when(feeRepository.findAllById(ids)).thenReturn(List.of(fee1, fee2));
 
         List<FeeEntity> result = feeService.findAllByIds(ids);
 
         assertEquals(2, result.size());
+        verify(feeRepository, times(1)).findAllById(ids);
+    }
+
+    @Test
+    void findAllByIds_WithSoftDeleted_FiltersOut() {
+        List<Long> ids = List.of(1L, 2L);
+        FeeEntity fee1 = FeeEntity.builder().id(1L).isDeleted(false).build();
+        FeeEntity fee2 = FeeEntity.builder().id(2L).isDeleted(true).build();
+        when(feeRepository.findAllById(ids)).thenReturn(List.of(fee1, fee2));
+
+        List<FeeEntity> result = feeService.findAllByIds(ids);
+
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getId());
         verify(feeRepository, times(1)).findAllById(ids);
     }
 
@@ -123,6 +151,7 @@ class FeeServiceTest {
                 .id(id)
                 .name("Old Name")
                 .unitPrice(BigDecimal.valueOf(3500))
+                .isDeleted(false)
                 .build();
 
         when(feeRepository.findById(id)).thenReturn(Optional.of(fee));
@@ -141,6 +170,37 @@ class FeeServiceTest {
         when(feeRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> feeService.updateFee(1L, request));
+    }
+
+    @Test
+    void deleteFee_Success() {
+        Long id = 1L;
+        FeeEntity fee = FeeEntity.builder().id(id).name("Electricity").isDeleted(false).build();
+        when(feeRepository.findById(id)).thenReturn(Optional.of(fee));
+        when(feeRepository.save(any(FeeEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+        doNothing().when(roomFeeRepository).deleteByFeeId(id);
+
+        BaseResponse<Void> response = feeService.deleteFee(id);
+
+        assertNotNull(response);
+        assertNull(response.getData());
+        assertEquals("200", response.getCode());
+        assertEquals("[200908] Deleted fee configuration successfully", response.getMessage());
+        assertTrue(fee.getIsDeleted());
+        verify(feeRepository, times(1)).findById(id);
+        verify(feeRepository, times(1)).save(fee);
+        verify(roomFeeRepository, times(1)).deleteByFeeId(id);
+    }
+
+    @Test
+    void deleteFee_NotFound() {
+        Long id = 1L;
+        when(feeRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(DataNotFoundException.class, () -> feeService.deleteFee(id));
+        verify(feeRepository, times(1)).findById(id);
+        verify(feeRepository, never()).save(any(FeeEntity.class));
+        verify(roomFeeRepository, never()).deleteByFeeId(anyLong());
     }
 }
 

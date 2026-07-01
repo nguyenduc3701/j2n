@@ -8,6 +8,8 @@ import com.example.j2n.room_srv.service.response.RoomResponse;
 import com.example.j2n.room_srv.service.response.RoomFeeResponse;
 import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
 import com.example.j2n.room_srv.repository.RoomRepository;
+import com.example.j2n.room_srv.repository.RoomMemberRepository;
+import com.example.j2n.room_srv.service.response.RoomMemberResponse;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.exception.DataNotFoundException;
@@ -33,6 +35,7 @@ import static org.mockito.Mockito.*;
 
 import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
 import com.example.j2n.room_srv.repository.entity.AssetEntity;
+import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
 import com.example.j2n.room_srv.utils.RoomSecurityUtil;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 
@@ -41,6 +44,9 @@ class RoomServiceTest {
 
         @Mock
         private RoomRepository roomRepository;
+
+        @Mock
+        private RoomMemberRepository roomMemberRepository;
 
         @Mock
         private RoomFeeService roomFeeService;
@@ -84,6 +90,36 @@ class RoomServiceTest {
         }
 
         @Test
+        void getRoomById_Success() {
+                Long roomId = 1L;
+                RoomEntity room = RoomEntity.builder()
+                                .id(roomId)
+                                .roomNumber("101")
+                                .build();
+
+                RoomMemberEntity member = RoomMemberEntity.builder()
+                                .id(10L)
+                                .room(room)
+                                .userId(100L)
+                                .isPrimary(true)
+                                .build();
+
+                when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+                when(roomFeeService.getRoomFees(roomId)).thenReturn(List.of());
+                when(roomAssetService.getAssetsByRoomId(roomId)).thenReturn(List.of());
+                when(roomMemberRepository.findByRoomId(roomId)).thenReturn(List.of(member));
+
+                BaseResponse<RoomResponse> response = roomService.getRoomById(roomId);
+
+                assertNotNull(response);
+                assertEquals("101", response.getData().getRoomNumber());
+                assertEquals(1, response.getData().getMembers().size());
+                assertEquals(100L, response.getData().getMembers().get(0).getUserId());
+                assertTrue(response.getData().getMembers().get(0).getIsPrimary());
+                verify(roomSecurityUtil).checkRoomAccess(room);
+        }
+
+        @Test
         void getRoomById_NotFound() {
                 when(roomRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -112,6 +148,9 @@ class RoomServiceTest {
 
                 when(roomRepository.findById(id)).thenReturn(Optional.of(existingRoom));
                 when(roomRepository.save(any(RoomEntity.class))).thenReturn(existingRoom);
+                when(roomFeeService.getRoomFees(id)).thenReturn(List.of());
+                when(roomAssetService.getAssetsByRoomId(id)).thenReturn(List.of());
+                when(roomMemberRepository.findByRoomId(id)).thenReturn(List.of());
 
                 BaseResponse<RoomResponse> response = roomService.updateRoom(id, request);
 

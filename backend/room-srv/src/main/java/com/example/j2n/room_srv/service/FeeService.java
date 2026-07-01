@@ -10,6 +10,7 @@ import com.example.j2n.room_srv.controller.request.CreateFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateFeeRequest;
 import com.example.j2n.room_srv.repository.FeeRepository;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
+import com.example.j2n.room_srv.repository.RoomFeeRepository;
 import com.example.j2n.room_srv.service.response.FeeResponse;
 import com.example.j2n.utils.ResponseFactory;
 import lombok.RequiredArgsConstructor;
@@ -26,18 +27,23 @@ import java.util.stream.Collectors;
 public class FeeService {
 
     private final FeeRepository feeRepository;
+    private final RoomFeeRepository roomFeeRepository;
 
     @LogAround(message = "Get all active fees")
     public List<FeeResponse> getActiveFees() {
-        return feeRepository.findAll().stream()
+        return feeRepository.findByIsDeletedFalse().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     @LogAround(message = "Find fee by id")
     public FeeEntity findByIdOrThrow(Long id) {
-        return feeRepository.findById(id)
+        FeeEntity fee = feeRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageEnum.FEE_NOT_FOUND.withArgs(id)));
+        if (Boolean.TRUE.equals(fee.getIsDeleted())) {
+            throw new DataNotFoundException(MessageEnum.FEE_NOT_FOUND.withArgs(id));
+        }
+        return fee;
     }
 
     @LogAround(message = "Find all fees with ids")
@@ -46,7 +52,9 @@ public class FeeService {
         if (ids == null || ids.isEmpty()) {
             throw new InvalidInputException(BaseMessageEnum.INVALID_REQUEST);
         }
-        return feeRepository.findAllById(ids);
+        return feeRepository.findAllById(ids).stream()
+                .filter(fee -> !Boolean.TRUE.equals(fee.getIsDeleted()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -58,6 +66,7 @@ public class FeeService {
                 .unitPrice(request.getUnitPrice())
                 .unitName(request.getUnitName())
                 .isActive(true)
+                .isDeleted(false)
                 .build();
         return ResponseFactory.success(mapToResponse(feeRepository.save(fee)));
     }
@@ -68,6 +77,17 @@ public class FeeService {
         FeeEntity config = findByIdOrThrow(id);
         updateEntityFromRequest(config, request);
         return ResponseFactory.success(mapToResponse(feeRepository.save(config)));
+    }
+
+    @Transactional
+    @LogAround(message = "Delete fee")
+    public BaseResponse<Void> deleteFee(Long id) {
+        log.info("Deleting fee with id: {}", id);
+        FeeEntity fee = findByIdOrThrow(id);
+        fee.setIsDeleted(true);
+        feeRepository.save(fee);
+        roomFeeRepository.deleteByFeeId(id);
+        return ResponseFactory.of(MessageEnum.DELETE_FEE_SUCCESS, null);
     }
 
     public FeeResponse mapToResponse(FeeEntity entity) {

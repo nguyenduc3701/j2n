@@ -56,6 +56,58 @@ class RoomServiceTest {
     }
 
     @Test
+    void getRoomById_WithEnrichment() {
+        Long id = 1L;
+        String expectedPath = String.format(GatewayPath.ROOM_DETAIL_PATH, id);
+        
+        // Prepare mock member data
+        Map<String, Object> mockMember = new java.util.HashMap<>();
+        mockMember.put("id", 1L);
+        mockMember.put("user_id", 10L);
+        mockMember.put("room_id", id);
+        
+        List<Map<String, Object>> memberList = new java.util.ArrayList<>();
+        memberList.add(mockMember);
+        
+        Map<String, Object> mockRoom = new java.util.HashMap<>();
+        mockRoom.put("id", id);
+        mockRoom.put("members", memberList);
+
+        Map<String, Object> mockResponse = new java.util.HashMap<>();
+        mockResponse.put("code", 200);
+        mockResponse.put("data", mockRoom);
+
+        // Prepare mock user data
+        Map<String, Object> mockUser = new java.util.HashMap<>();
+        mockUser.put("id", 10L);
+        mockUser.put("full_name", "John Doe");
+        mockUser.put("phone_number", "0987654321");
+        mockUser.put("email", "john@example.com");
+        
+        Map<String, Object> mockUserResponse = new java.util.HashMap<>();
+        mockUserResponse.put("code", 200);
+        mockUserResponse.put("data", mockUser);
+
+        when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class)))
+                .thenReturn(mockResponse);
+        
+        String expectedUserPath = String.format(GatewayPath.AUTH_USER_ID_PATH, "10");
+        when(restClientUtil.request(eq(expectedUserPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class)))
+                .thenReturn(mockUserResponse);
+
+        Object result = roomService.getRoomById(id);
+
+        assertNotNull(result);
+        verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class));
+        verify(restClientUtil, times(1)).request(eq(expectedUserPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class));
+        
+        // Assert that the member inside the room details has been enriched
+        org.junit.jupiter.api.Assertions.assertEquals("John Doe", mockMember.get("full_name"));
+        org.junit.jupiter.api.Assertions.assertEquals("0987654321", mockMember.get("phone_number"));
+        org.junit.jupiter.api.Assertions.assertEquals("john@example.com", mockMember.get("email"));
+    }
+
+    @Test
     void updateRoom_Success() {
         Long id = 1L;
         RoomRequest request = new RoomRequest();
@@ -67,6 +119,59 @@ class RoomServiceTest {
 
         assertNotNull(result);
         verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void updateRoom_WithEnrichment() {
+        Long id = 1L;
+        RoomRequest request = new RoomRequest();
+        String expectedPath = String.format(GatewayPath.ROOM_UPDATE_PATH, id);
+        
+        // Prepare mock member data
+        Map<String, Object> mockMember = new java.util.HashMap<>();
+        mockMember.put("id", 1L);
+        mockMember.put("user_id", 10L);
+        mockMember.put("room_id", id);
+        
+        List<Map<String, Object>> memberList = new java.util.ArrayList<>();
+        memberList.add(mockMember);
+        
+        Map<String, Object> mockRoom = new java.util.HashMap<>();
+        mockRoom.put("id", id);
+        mockRoom.put("members", memberList);
+
+        Map<String, Object> mockResponse = new java.util.HashMap<>();
+        mockResponse.put("code", 200);
+        mockResponse.put("data", mockRoom);
+
+        // Prepare mock user data
+        Map<String, Object> mockUser = new java.util.HashMap<>();
+        mockUser.put("id", 10L);
+        mockUser.put("full_name", "John Doe");
+        mockUser.put("phone_number", "0987654321");
+        mockUser.put("email", "john@example.com");
+        
+        Map<String, Object> mockUserResponse = new java.util.HashMap<>();
+        mockUserResponse.put("code", 200);
+        mockUserResponse.put("data", mockUser);
+
+        when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any(ParameterizedTypeReference.class)))
+                .thenReturn(mockResponse);
+        
+        String expectedUserPath = String.format(GatewayPath.AUTH_USER_ID_PATH, "10");
+        when(restClientUtil.request(eq(expectedUserPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class)))
+                .thenReturn(mockUserResponse);
+
+        Object result = roomService.updateRoom(id, request);
+
+        assertNotNull(result);
+        verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any(ParameterizedTypeReference.class));
+        verify(restClientUtil, times(1)).request(eq(expectedUserPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class));
+        
+        // Assert that the member inside the updated room details has been enriched
+        org.junit.jupiter.api.Assertions.assertEquals("John Doe", mockMember.get("full_name"));
+        org.junit.jupiter.api.Assertions.assertEquals("0987654321", mockMember.get("phone_number"));
+        org.junit.jupiter.api.Assertions.assertEquals("john@example.com", mockMember.get("email"));
     }
 
     @Test
@@ -269,14 +374,14 @@ class RoomServiceTest {
     }
 
     @Test
-    void updateRoomMember_Success() {
-        Long id = 1L;
+    void updateRoomMemberByUserId_Success() {
+        Long userId = 1L;
         UpdateRoomMemberRequest request = new UpdateRoomMemberRequest();
-        String expectedPath = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, id);
+        String expectedPath = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, userId);
         when(restClientUtil.request(eq(expectedPath), eq(HttpMethod.PUT), eq(request), any(ParameterizedTypeReference.class)))
                 .thenReturn(new Object());
 
-        Object result = roomService.updateRoomMember(id, request);
+        Object result = roomService.updateRoomMemberByUserId(userId, request);
 
         assertNotNull(result);
     }

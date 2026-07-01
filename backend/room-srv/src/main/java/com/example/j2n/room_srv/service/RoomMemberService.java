@@ -40,47 +40,38 @@ public class RoomMemberService {
     @Transactional
     @LogAround(message = "Map member to room")
     public BaseResponse<List<RoomMemberResponse>> mapMemberToRoom(MapMemberToRoomRequest request) {
-        log.info("Mapping user IDs {} to room ID {}, isPrimary: {}", request.getUserIds(), request.getRoomId(),
-                request.getIsPrimary());
+        log.info("Mapping user IDs {} to room ID {}", request.getUsers(), request.getRoomId());
         RoomEntity room = roomService.findRoomByIdOrThrow(request.getRoomId());
         List<RoomMemberEntity> existingMembers = roomMemberRepository.findByRoomId(room.getId());
         validateCapacity(room, existingMembers, request);
         validateMappingRequest(request);
-        if (Boolean.TRUE.equals(request.getIsPrimary())) {
-            demoteExistingPrimaryMembers(existingMembers);
-        }
         
-        List<RoomMemberEntity> entitiesToSave = buildRoomMemberEntities(room, request.getUserIds(), existingMembers.isEmpty(), request.getIsPrimary());
+        List<RoomMemberEntity> entitiesToSave = buildRoomMemberEntities(room, request.getUsers(), existingMembers.isEmpty());
         List<RoomMemberEntity> savedEntities = roomMemberRepository.saveAll(entitiesToSave);
         updateRoomStatusBasedOnCapacity(room);
-        publishRoomMemberMappedEvent(room.getId(), request.getUserIds());
+        publishRoomMemberMappedEvent(room.getId(), request.getUsers());
         List<RoomMemberResponse> responses = savedEntities.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
         return ResponseFactory.success(responses);
     }
 
-    private List<RoomMemberEntity> buildRoomMemberEntities(RoomEntity room, List<Long> userIds, boolean isRoomEmpty, Boolean requestIsPrimary) {
-        log.info("Building room member entities for room ID: {}, user IDs: {}, isRoomEmpty: {}, requestIsPrimary: {}", room.getId(), userIds, isRoomEmpty, requestIsPrimary);
+    private List<RoomMemberEntity> buildRoomMemberEntities(RoomEntity room, List<Long> userIds, boolean isRoomEmpty) {
+        log.info("Building room member entities for room ID: {}, user IDs: {}, isRoomEmpty: {}", room.getId(), userIds, isRoomEmpty);
         List<RoomMemberEntity> entitiesToSave = new java.util.ArrayList<>();
         for (int i = 0; i < userIds.size(); i++) {
             Long userId = userIds.get(i);
-            boolean isPrimary;
-            if (isRoomEmpty) {
-                isPrimary = (i == 0);
-            } else {
-                isPrimary = Boolean.TRUE.equals(requestIsPrimary);
-            }
+            boolean isPrimary = isRoomEmpty && (i == 0);
             entitiesToSave.add(buildRoomMemberEntity(room, userId, isPrimary));
         }
         return entitiesToSave;
     }
 
     @Transactional
-    @LogAround(message = "Update room member")
-    public BaseResponse<RoomMemberResponse> updateRoomMember(Long id, UpdateRoomMemberRequest request) {
-        log.info("Updating room member with ID: {}", id);
-        RoomMemberEntity entity = findRoomMemberByIdOrThrow(id);
+    @LogAround(message = "Update room member by user id")
+    public BaseResponse<RoomMemberResponse> updateRoomMemberByUserId(Long userId, UpdateRoomMemberRequest request) {
+        log.info("Updating room member with user ID: {}", userId);
+        RoomMemberEntity entity = findRoomMemberByUserIdOrThrow(userId);
         applyMemberUpdates(entity, request);
         RoomMemberEntity saved = roomMemberRepository.save(entity);
         return ResponseFactory.success(mapToResponse(saved));
@@ -113,7 +104,7 @@ public class RoomMemberService {
         log.info("Validating capacity for room ID: {}", room.getId());
         if (room.getMaxPeople() != null) {
             int currentMemberCount = existingMembers.size();
-            int newMembersCount = request.getUserIds().size();
+            int newMembersCount = request.getUsers().size();
             if (currentMemberCount + newMembersCount > room.getMaxPeople()) {
                 log.error(
                         "Room capacity exceeded. Room ID: {}, Max allowed: {}, Current members: {}, New members attempted: {}",
@@ -125,7 +116,7 @@ public class RoomMemberService {
 
     private void validateMappingRequest(MapMemberToRoomRequest request) {
         log.info("Validating mapping request for room ID: {}", request.getRoomId());
-        for (Long userId : request.getUserIds()) {
+        for (Long userId : request.getUsers()) {
             roomMemberRepository.findByUserId(userId).ifPresent(mapping -> {
                 if (mapping.getRoom().getId().equals(request.getRoomId())) {
                     log.error("User with ID {} is already mapped to Room with ID {}", userId,

@@ -68,8 +68,7 @@ class RoomMemberControllerTest {
     void mapMemberToRoom_Success() throws Exception {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
-                .isPrimary(true)
+                .users(List.of(10L))
                 .build();
 
         RoomMemberResponse response = RoomMemberResponse.builder()
@@ -93,7 +92,7 @@ class RoomMemberControllerTest {
     }
 
     @Test
-    void updateRoomMember_Success() throws Exception {
+    void updateRoomMemberByUserId_Success() throws Exception {
         UpdateRoomMemberRequest request = UpdateRoomMemberRequest.builder()
                 .isPrimary(Optional.of(true))
                 .build();
@@ -106,16 +105,16 @@ class RoomMemberControllerTest {
                 .joinedAt(LocalDateTime.now())
                 .build();
 
-        when(roomMemberService.updateRoomMember(eq(100L), any(UpdateRoomMemberRequest.class)))
+        when(roomMemberService.updateRoomMemberByUserId(eq(10L), any(UpdateRoomMemberRequest.class)))
                 .thenReturn(ResponseFactory.success(response));
 
-        mockMvc.perform(put("/room/members/100")
+        mockMvc.perform(put("/room/members/10")
                 .contextPath("/room")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(roomMemberService, times(1)).updateRoomMember(eq(100L), any(UpdateRoomMemberRequest.class));
+        verify(roomMemberService, times(1)).updateRoomMemberByUserId(eq(10L), any(UpdateRoomMemberRequest.class));
     }
 
     @Test

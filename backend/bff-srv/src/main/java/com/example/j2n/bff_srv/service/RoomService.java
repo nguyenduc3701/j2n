@@ -28,16 +28,20 @@ public class RoomService {
 
     public Object getRoomById(Long id) {
         String path = String.format(GatewayPath.ROOM_DETAIL_PATH, id);
-        return restClientUtil.request(path, HttpMethod.GET, null,
+        Object response = restClientUtil.request(path, HttpMethod.GET, null,
                 new ParameterizedTypeReference<Object>() {
                 });
+        enrichRoomResponse(response);
+        return response;
     }
 
     public Object updateRoom(Long id, RoomRequest request) {
         String path = String.format(GatewayPath.ROOM_UPDATE_PATH, id);
-        return restClientUtil.request(path, HttpMethod.PUT, request,
+        Object response = restClientUtil.request(path, HttpMethod.PUT, request,
                 new ParameterizedTypeReference<Object>() {
                 });
+        enrichRoomResponse(response);
+        return response;
     }
 
     public Object updateRoomFees(Long id, UpdateRoomFeeRequest request) {
@@ -171,8 +175,8 @@ public class RoomService {
         return response;
     }
 
-    public Object updateRoomMember(Long id, UpdateRoomMemberRequest request) {
-        String path = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, id);
+    public Object updateRoomMemberByUserId(Long userId, UpdateRoomMemberRequest request) {
+        String path = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, userId);
         Object response = restClientUtil.request(path, HttpMethod.PUT, request,
                 new ParameterizedTypeReference<Object>() {
                 });
@@ -237,4 +241,27 @@ public class RoomService {
             }
         }
     }
+
+    @SuppressWarnings("unchecked")
+    private void enrichRoomResponse(Object responseObj) {
+        if (!(responseObj instanceof Map)) {
+            return;
+        }
+        Map<String, Object> responseMap = (Map<String, Object>) responseObj;
+        Object data = responseMap.get("data");
+        if (!(data instanceof Map)) {
+            return;
+        }
+        Map<String, Object> roomData = (Map<String, Object>) data;
+        Object membersObj = roomData.get("members");
+        if (membersObj instanceof List) {
+            List<?> list = (List<?>) membersObj;
+            for (Object item : list) {
+                if (item instanceof Map) {
+                    enrichSingleMember((Map<String, Object>) item);
+                }
+            }
+        }
+    }
 }
+

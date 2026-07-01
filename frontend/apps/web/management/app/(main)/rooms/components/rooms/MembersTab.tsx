@@ -52,8 +52,7 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
     mutationFn: (userIds: number[]) =>
       roomService.mapMemberToRoom({
         room_id: room.id,
-        user_ids: userIds,
-        is_primary: false,
+        users: userIds,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["room-occupants", room.id] });
@@ -66,8 +65,8 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
   });
 
   const setPrimaryMutation = useMutation({
-    mutationFn: (memberId: number) =>
-      roomService.updateRoomMember(memberId, { is_primary: true }),
+    mutationFn: (userId: number) =>
+      roomService.updateRoomMemberByUserId(userId, { is_primary: true }),
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["room-occupants", room.id] });
       try {
@@ -108,7 +107,7 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
     mapMemberMutation.mutate([Number(selectedRenterId)]);
   };
 
-  const handleSetPrimary = (memberId: number, fullName: string) => {
+  const handleSetPrimary = (userId: number, fullName: string) => {
     modals.openConfirmModal({
       title: t("rooms.actions.set_primary"),
       centered: true,
@@ -119,7 +118,7 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
       ),
       labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
       onConfirm: () => {
-        setPrimaryMutation.mutate(memberId);
+        setPrimaryMutation.mutate(userId);
       },
     });
   };
@@ -212,8 +211,8 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
                         id={`rooms.membersTab.btnSetPrimary.${u.id}`}
                         color="yellow"
                         variant="subtle"
-                        loading={setPrimaryMutation.isPending && setPrimaryMutation.variables === u.id}
-                        onClick={() => handleSetPrimary(u.id, u.full_name)}
+                        loading={setPrimaryMutation.isPending && setPrimaryMutation.variables === u.user_id}
+                        onClick={() => handleSetPrimary(u.user_id, u.full_name)}
                       >
                         <IconStar size={16} />
                       </ActionIcon>

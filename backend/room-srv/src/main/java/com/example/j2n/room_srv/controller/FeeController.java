@@ -57,5 +57,17 @@ public class FeeController {
                         @PathVariable Long id, @Valid @RequestBody UpdateFeeRequest request) {
                 return ResponseEntity.ok(feeService.updateFee(id, request));
         }
+
+        @DeleteMapping("/{id}")
+        @Operation(summary = "Delete fee configuration", description = "Delete a fee type and its mappings to rooms")
+        @J2NApiResponses({
+                        @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS),
+                        @J2NApiResponse(httpCode = 400, description = BaseMessageEnum.BaseMessageConstants.BAD_REQUEST, examples = {
+                                        @J2NApiExample(status = MessageEnum.MessageConstants.FEE_NOT_FOUND)
+                        })
+        })
+        public ResponseEntity<BaseResponse<Void>> deleteFee(@PathVariable Long id) {
+                return ResponseEntity.ok(feeService.deleteFee(id));
+        }
 }
 

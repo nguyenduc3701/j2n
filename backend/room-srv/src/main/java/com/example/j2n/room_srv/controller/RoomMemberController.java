@@ -51,17 +51,17 @@ public class RoomMemberController {
         return ResponseEntity.ok(roomMemberService.mapMemberToRoom(request));
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Update room member", description = "Update attributes of a room member (e.g. primary status)")
+    @PutMapping("/{userId}")
+    @Operation(summary = "Update room member by user id", description = "Update attributes of a room member by user ID (e.g. primary status)")
     @J2NApiResponses({
             @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS),
             @J2NApiResponse(httpCode = 400, description = BaseMessageEnum.BaseMessageConstants.BAD_REQUEST, examples = {
-                    @J2NApiExample(status = MessageEnum.MessageConstants.MEMBER_NOT_FOUND)
+                    @J2NApiExample(status = MessageEnum.MessageConstants.MEMBER_NOT_FOUND_BY_USER_ID)
             })
     })
-    public ResponseEntity<BaseResponse<RoomMemberResponse>> updateRoomMember(
-            @PathVariable Long id, @Valid @RequestBody UpdateRoomMemberRequest request) {
-        return ResponseEntity.ok(roomMemberService.updateRoomMember(id, request));
+    public ResponseEntity<BaseResponse<RoomMemberResponse>> updateRoomMemberByUserId(
+            @PathVariable Long userId, @Valid @RequestBody UpdateRoomMemberRequest request) {
+        return ResponseEntity.ok(roomMemberService.updateRoomMemberByUserId(userId, request));
     }
 
     @DeleteMapping("/user/{userId}")

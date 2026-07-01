@@ -21,7 +21,9 @@ import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
 import com.example.j2n.room_srv.messaging.room.event.RoomStatusUpdatedEvent;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
 import com.example.j2n.room_srv.repository.RoomRepository;
+import com.example.j2n.room_srv.repository.RoomMemberRepository;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
+import com.example.j2n.room_srv.service.response.RoomMemberResponse;
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.SearchFactory;
@@ -45,6 +47,7 @@ import static com.example.j2n.utils.SearchPredicateBuilder.SearchOperation.*;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final RoomMemberRepository roomMemberRepository;
     private final RoomFeeService roomFeeService;
     private final RoomAssetService roomAssetService;
     private final AssetService assetService;
@@ -80,6 +83,7 @@ public class RoomService {
         RoomResponse response = mapToResponse(room);
         response.setAssets(getRoomAssets(id));
         response.setFees(roomFeeService.getRoomFees(id));
+        response.setMembers(getRoomMembers(id));
         return ResponseFactory.success(response);
     }
 
@@ -93,6 +97,18 @@ public class RoomService {
                 .collect(Collectors.toList());
     }
 
+    private List<RoomMemberResponse> getRoomMembers(Long roomId) {
+        return roomMemberRepository.findByRoomId(roomId).stream()
+                .map(member -> RoomMemberResponse.builder()
+                        .id(member.getId())
+                        .roomId(member.getRoom().getId())
+                        .userId(member.getUserId())
+                        .isPrimary(member.getIsPrimary())
+                        .joinedAt(member.getJoinedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     @LogAround(message = "Update room")
     public BaseResponse<RoomResponse> updateRoom(Long id, RoomRequest request) {
@@ -101,7 +117,11 @@ public class RoomService {
         updateEntityFromRequest(room, request);
         RoomEntity updatedRoom = roomRepository.save(room);
         publishRoomStatusUpdatedEvent(updatedRoom, oldStatus);
-        return ResponseFactory.success(mapToResponse(updatedRoom));
+        RoomResponse response = mapToResponse(updatedRoom);
+        response.setAssets(getRoomAssets(id));
+        response.setFees(roomFeeService.getRoomFees(id));
+        response.setMembers(getRoomMembers(id));
+        return ResponseFactory.success(response);
     }
 
     @Transactional

@@ -361,8 +361,7 @@ export const roomService = {
   // --- Member Mapping APIs ---
   async mapMemberToRoom(data: {
     room_id: number;
-    user_ids: number[];
-    is_primary?: boolean;
+    users: number[];
   }) {
     const options = {
       method: HTTP_METHODS.POST,
@@ -378,13 +377,13 @@ export const roomService = {
     };
   },
 
-  async updateRoomMember(id: string | number, data: { is_primary: boolean }) {
+  async updateRoomMemberByUserId(userId: string | number, data: { is_primary: boolean }) {
     const options = {
       method: HTTP_METHODS.PUT,
       data,
     };
     const response = await request<BaseResponse<IRoomMember>>(
-      `/api/bff/rooms/members/${id}`,
+      `/api/bff/rooms/members/${userId}`,
       options,
     );
     return {

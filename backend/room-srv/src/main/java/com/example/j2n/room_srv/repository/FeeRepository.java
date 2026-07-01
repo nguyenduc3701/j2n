@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface FeeRepository extends JpaRepository<FeeEntity, Long> {
     List<FeeEntity> findByIsActiveTrue();
+
+    List<FeeEntity> findByIsDeletedFalse();
 }

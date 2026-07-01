@@ -264,7 +264,6 @@ class BillingServiceTest {
                 .build();
 
         when(roomService.getAllRooms()).thenReturn(List.of(room));
-        when(feeService.getActiveFees()).thenReturn(List.of());
         when(billRepository.saveAll(anyList())).thenAnswer(i -> i.getArguments()[0]);
 
         BaseResponse<List<BillResponse>> response = billingService.calculateAllBills(request);

@@ -1,5 +1,6 @@
 package com.example.j2n.room_srv.controller;
 
+import com.example.j2n.room_srv.constant.MessageEnum;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.room_srv.controller.request.CreateFeeRequest;
 import com.example.j2n.room_srv.controller.request.UpdateFeeRequest;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FeeController.class)
@@ -90,6 +92,17 @@ class FeeControllerTest {
                 .andExpect(status().isOk());
 
         verify(feeService, times(1)).updateFee(eq(feeId), any(UpdateFeeRequest.class));
+    }
+
+    @Test
+    void deleteFee_Success() throws Exception {
+        Long feeId = 1L;
+        when(feeService.deleteFee(eq(feeId))).thenReturn(ResponseFactory.of(MessageEnum.DELETE_FEE_SUCCESS, null));
+
+        mockMvc.perform(delete("/fees/" + feeId))
+                .andExpect(status().isOk());
+
+        verify(feeService, times(1)).deleteFee(eq(feeId));
     }
 }
 

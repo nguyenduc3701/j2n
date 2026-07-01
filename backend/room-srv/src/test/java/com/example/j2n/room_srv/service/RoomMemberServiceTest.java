@@ -47,8 +47,7 @@ class RoomMemberServiceTest {
     void mapMemberToRoom_Success_NotPrimary() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
-                .isPrimary(false)
+                .users(List.of(10L))
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(1L).build();
@@ -91,8 +90,7 @@ class RoomMemberServiceTest {
     void mapMemberToRoom_Success_EmptyRoom_DefaultToPrimary() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
-                .isPrimary(false)
+                .users(List.of(10L))
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(1L).build();
@@ -127,51 +125,53 @@ class RoomMemberServiceTest {
     }
 
     @Test
-    void mapMemberToRoom_Success_Primary() {
+    void mapMemberToRoom_Success_MultipleUsers_EmptyRoom() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
-                .isPrimary(true)
+                .users(List.of(10L, 11L))
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(1L).build();
-        RoomMemberEntity existingPrimary = RoomMemberEntity.builder()
-                .id(99L)
-                .room(room)
-                .userId(5L)
-                .isPrimary(true)
-                .build();
-        RoomMemberEntity savedEntity = RoomMemberEntity.builder()
+        RoomMemberEntity savedEntity1 = RoomMemberEntity.builder()
                 .id(100L)
                 .room(room)
                 .userId(10L)
                 .isPrimary(true)
                 .build();
+        RoomMemberEntity savedEntity2 = RoomMemberEntity.builder()
+                .id(101L)
+                .room(room)
+                .userId(11L)
+                .isPrimary(false)
+                .build();
 
         when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
         when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.empty());
-        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of(existingPrimary));
+        when(roomMemberRepository.findByUserId(11L)).thenReturn(Optional.empty());
+        when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of());
         when(roomMemberRepository.saveAll(anyList())).thenAnswer(i -> {
             List<RoomMemberEntity> entities = i.getArgument(0);
-            return entities.stream().map(entity -> {
-                if (entity.getUserId().equals(10L)) {
-                    return savedEntity;
-                }
-                return entity;
-            }).collect(java.util.stream.Collectors.toList());
+            assertEquals(2, entities.size());
+            assertEquals(10L, entities.get(0).getUserId());
+            assertTrue(entities.get(0).getIsPrimary());
+            assertEquals(11L, entities.get(1).getUserId());
+            assertFalse(entities.get(1).getIsPrimary());
+            return List.of(savedEntity1, savedEntity2);
         });
 
         BaseResponse<List<RoomMemberResponse>> result = roomMemberService.mapMemberToRoom(request);
 
         assertNotNull(result);
         assertNotNull(result.getData());
-        assertEquals(1, result.getData().size());
+        assertEquals(2, result.getData().size());
         assertEquals(100L, result.getData().get(0).getId());
         assertTrue(result.getData().get(0).getIsPrimary());
-        assertFalse(existingPrimary.getIsPrimary()); // verifying existing primary demoted
+        assertEquals(101L, result.getData().get(1).getId());
+        assertFalse(result.getData().get(1).getIsPrimary());
 
         verify(roomService, times(1)).findRoomByIdOrThrow(1L);
         verify(roomMemberRepository, times(1)).findByUserId(10L);
+        verify(roomMemberRepository, times(1)).findByUserId(11L);
         verify(roomMemberRepository, times(1)).findByRoomId(1L);
         verify(roomMemberRepository, times(1)).saveAll(anyList());
         verify(roomEventPublisher, times(1)).publishRoomMemberMapped(any(RoomMemberMappedEvent.class));
@@ -181,7 +181,7 @@ class RoomMemberServiceTest {
     void mapMemberToRoom_RoomNotFound() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
+                .users(List.of(10L))
                 .build();
 
         when(roomService.findRoomByIdOrThrow(1L)).thenThrow(new DataNotFoundException(com.example.j2n.room_srv.constant.MessageEnum.ROOM_NOT_FOUND.withArgs(1L)));
@@ -197,7 +197,7 @@ class RoomMemberServiceTest {
     void mapMemberToRoom_AlreadyMember() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
+                .users(List.of(10L))
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(1L).build();
@@ -224,7 +224,7 @@ class RoomMemberServiceTest {
     void mapMemberToRoom_AlreadyMemberOfAnotherRoom() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
+                .users(List.of(10L))
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(1L).build();
@@ -252,7 +252,7 @@ class RoomMemberServiceTest {
     void mapMemberToRoom_CapacityExceeded() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L, 11L))
+                .users(List.of(10L, 11L))
                 .build();
 
         RoomEntity room = RoomEntity.builder().id(1L).maxPeople(1).build();
@@ -269,7 +269,7 @@ class RoomMemberServiceTest {
     }
 
     @Test
-    void updateRoomMember_Success_SetPrimary() {
+    void updateRoomMemberByUserId_Success_SetPrimary() {
         UpdateRoomMemberRequest request = UpdateRoomMemberRequest.builder()
                 .isPrimary(Optional.of(true))
                 .build();
@@ -288,23 +288,23 @@ class RoomMemberServiceTest {
                 .isPrimary(true)
                 .build();
 
-        when(roomMemberRepository.findById(100L)).thenReturn(Optional.of(existingMember));
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(existingMember));
         when(roomMemberRepository.findByRoomId(1L)).thenReturn(List.of(existingMember, existingPrimary));
         when(roomMemberRepository.save(any(RoomMemberEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        BaseResponse<RoomMemberResponse> result = roomMemberService.updateRoomMember(100L, request);
+        BaseResponse<RoomMemberResponse> result = roomMemberService.updateRoomMemberByUserId(10L, request);
 
         assertNotNull(result);
         assertTrue(result.getData().getIsPrimary());
         assertFalse(existingPrimary.getIsPrimary());
 
-        verify(roomMemberRepository, times(1)).findById(100L);
+        verify(roomMemberRepository, times(1)).findByUserId(10L);
         verify(roomMemberRepository, times(1)).findByRoomId(1L);
         verify(roomMemberRepository, times(2)).save(any(RoomMemberEntity.class)); // demoted + saved
     }
 
     @Test
-    void updateRoomMember_Success_NoChange() {
+    void updateRoomMemberByUserId_Success_NoChange() {
         UpdateRoomMemberRequest request = UpdateRoomMemberRequest.builder().build(); // empty optional
 
         RoomEntity room = RoomEntity.builder().id(1L).build();
@@ -315,30 +315,30 @@ class RoomMemberServiceTest {
                 .isPrimary(true)
                 .build();
 
-        when(roomMemberRepository.findById(100L)).thenReturn(Optional.of(existingMember));
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.of(existingMember));
         when(roomMemberRepository.save(any(RoomMemberEntity.class))).thenAnswer(i -> i.getArgument(0));
 
-        BaseResponse<RoomMemberResponse> result = roomMemberService.updateRoomMember(100L, request);
+        BaseResponse<RoomMemberResponse> result = roomMemberService.updateRoomMemberByUserId(10L, request);
 
         assertNotNull(result);
         assertTrue(result.getData().getIsPrimary());
 
-        verify(roomMemberRepository, times(1)).findById(100L);
+        verify(roomMemberRepository, times(1)).findByUserId(10L);
         verify(roomMemberRepository, never()).findByRoomId(anyLong());
         verify(roomMemberRepository, times(1)).save(any(RoomMemberEntity.class));
     }
 
     @Test
-    void updateRoomMember_NotFound() {
+    void updateRoomMemberByUserId_NotFound() {
         UpdateRoomMemberRequest request = UpdateRoomMemberRequest.builder()
                 .isPrimary(Optional.of(true))
                 .build();
 
-        when(roomMemberRepository.findById(100L)).thenReturn(Optional.empty());
+        when(roomMemberRepository.findByUserId(10L)).thenReturn(Optional.empty());
 
-        assertThrows(DataNotFoundException.class, () -> roomMemberService.updateRoomMember(100L, request));
+        assertThrows(DataNotFoundException.class, () -> roomMemberService.updateRoomMemberByUserId(10L, request));
 
-        verify(roomMemberRepository, times(1)).findById(100L);
+        verify(roomMemberRepository, times(1)).findByUserId(10L);
         verify(roomMemberRepository, never()).save(any());
     }
 
@@ -377,8 +377,7 @@ class RoomMemberServiceTest {
     void mapMemberToRoom_TriggersOccupiedStatus() {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
-                .isPrimary(false)
+                .users(List.of(10L))
                 .build();
 
         RoomEntity room = RoomEntity.builder()

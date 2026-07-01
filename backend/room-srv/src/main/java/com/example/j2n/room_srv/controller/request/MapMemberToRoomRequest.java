@@ -17,18 +17,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Schema(description = "Request object to map a user to a specific room as a member")
+@Schema(description = "Request object to map users to a specific room as members")
 public class MapMemberToRoomRequest {
 
     @NotNull(message = "Room ID is required")
     @Schema(description = "ID of the room to map", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long roomId;
 
-    @NotEmpty(message = "User IDs cannot be empty")
+    @NotEmpty(message = "Users cannot be empty")
     @Schema(description = "List of User IDs to map as members", example = "[10, 11]", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<Long> userIds;
-
-    @Schema(description = "Whether this user is the primary member of the room", example = "false")
-    @Builder.Default
-    private Boolean isPrimary = false;
+    private List<Long> users;
 }

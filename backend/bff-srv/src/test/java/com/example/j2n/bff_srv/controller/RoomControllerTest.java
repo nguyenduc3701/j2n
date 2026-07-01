@@ -350,7 +350,7 @@ class RoomControllerTest {
     void mapMemberToRoom_ShouldReturnSuccess() throws Exception {
         MapMemberToRoomRequest request = MapMemberToRoomRequest.builder()
                 .roomId(1L)
-                .userIds(List.of(10L))
+                .users(List.of(10L))
                 .build();
         when(roomService.mapMemberToRoom(any(MapMemberToRoomRequest.class))).thenReturn(Collections.singletonMap("data", "mapped"));
 
@@ -362,14 +362,14 @@ class RoomControllerTest {
     }
 
     @Test
-    void updateRoomMember_ShouldReturnSuccess() throws Exception {
-        Long id = 1L;
+    void updateRoomMemberByUserId_ShouldReturnSuccess() throws Exception {
+        Long userId = 1L;
         UpdateRoomMemberRequest request = UpdateRoomMemberRequest.builder()
                 .isPrimary(Optional.of(true))
                 .build();
-        when(roomService.updateRoomMember(eq(id), any(UpdateRoomMemberRequest.class))).thenReturn(Collections.singletonMap("data", "updated"));
+        when(roomService.updateRoomMemberByUserId(eq(userId), any(UpdateRoomMemberRequest.class))).thenReturn(Collections.singletonMap("data", "updated"));
 
-        mockMvc.perform(put(BASE_URL + "/members/{id}", id)
+        mockMvc.perform(put(BASE_URL + "/members/{userId}", userId)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))

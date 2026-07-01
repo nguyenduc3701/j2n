@@ -168,7 +168,7 @@ public class BillingService {
 
             for (RoomFeeEntity roomFee : room.getFees()) {
                 FeeEntity config = roomFee.getFee();
-                if (config == null || Boolean.FALSE.equals(config.getIsActive())) {
+                if (config == null || Boolean.FALSE.equals(config.getIsActive()) || Boolean.TRUE.equals(config.getIsDeleted())) {
                     continue;
                 }
                 totalAmount = totalAmount.add(calculateSingleFee(config, electricMultiplier, memberMultiplier));
@@ -216,7 +216,7 @@ public class BillingService {
 
             for (RoomFeeEntity roomFee : room.getFees()) {
                 FeeEntity config = roomFee.getFee();
-                if (config == null || Boolean.FALSE.equals(config.getIsActive())) {
+                if (config == null || Boolean.FALSE.equals(config.getIsActive()) || Boolean.TRUE.equals(config.getIsDeleted())) {
                     continue;
                 }
 

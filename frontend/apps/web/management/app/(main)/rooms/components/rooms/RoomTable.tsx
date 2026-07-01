@@ -2,7 +2,14 @@
 
 import React from "react";
 import { ActionIcon, Badge, Group, Menu, Tooltip } from "@mantine/core";
-import { IconEdit, IconEye, IconDotsVertical, IconBolt, IconSettings, IconTrash } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconEye,
+  IconDotsVertical,
+  IconBolt,
+  IconSettings,
+  IconTrash,
+} from "@tabler/icons-react";
 import J2NTable from "@repo/ui/src/components/atoms/J2NTable";
 import { IRoom } from "@/types/room";
 import { useTranslation } from "@repo/ui/src/providers";
@@ -88,7 +95,11 @@ const RoomTable = ({
       key: "max_people",
       title: t("rooms.table.capacity"),
       render: (record: IRoom) => (
-        <span>{record.max_people ? `${record.max_people} ${t("users.modal.role").toLowerCase() === "role" ? "people" : "người"}` : "-"}</span>
+        <span>
+          {record.max_people
+            ? `${record.max_people} ${t("users.modal.role").toLowerCase() === "role" ? "people" : "người"}`
+            : "-"}
+        </span>
       ),
     },
     {

@@ -25,4 +25,8 @@ public class RoomResponse extends SimpleRoomResponse {
 
     @Schema(description = "List of fees associated with the room")
     private List<RoomFeeResponse> fees;
+
+    @Schema(description = "List of members in the room")
+    private List<RoomMemberResponse> members;
 }
+
