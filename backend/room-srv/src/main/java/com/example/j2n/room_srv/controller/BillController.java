@@ -7,6 +7,7 @@ import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
+import com.example.j2n.room_srv.service.response.BillResponse;
 import com.example.j2n.room_srv.service.BillingService;
 import com.example.j2n.room_srv.service.PaymentService;
 import com.example.j2n.enums.BaseMessageEnum;
@@ -55,7 +56,7 @@ public class BillController {
         @J2NApiResponses({
                         @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
         })
-        public ResponseEntity<BaseResponse<BillEntity>> calculateBillByRoomId(@Valid @RequestBody BillRequest request) {
+        public ResponseEntity<BaseResponse<BillResponse>> calculateBillByRoomId(@Valid @RequestBody BillRequest request) {
                 return ResponseEntity.ok(billingService.calculateBill(request));
         }
 
@@ -64,7 +65,7 @@ public class BillController {
         @J2NApiResponses({
                         @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
         })
-        public ResponseEntity<BaseResponse<List<BillEntity>>> calculateAllBills(
+        public ResponseEntity<BaseResponse<List<BillResponse>>> calculateAllBills(
                         @Valid @RequestBody CalculateAllBillsRequest request) {
                 return ResponseEntity.ok(billingService.calculateAllBills(request));
         }
@@ -74,7 +75,7 @@ public class BillController {
         @J2NApiResponses({
                         @J2NApiResponse(httpCode = 200, description = BaseMessageEnum.BaseMessageConstants.SUCCESS)
         })
-        public ResponseEntity<BaseResponse<List<BillEntity>>> getBillsByRoomId(@PathVariable Long roomId) {
+        public ResponseEntity<BaseResponse<List<BillResponse>>> getBillsByRoomId(@PathVariable Long roomId) {
                 return ResponseEntity.ok(billingService.getBillsByRoomId(roomId));
         }
 

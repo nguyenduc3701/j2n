@@ -156,22 +156,28 @@ public class RoomService {
     // --- Member methods ---
     public Object getRoomMembersByRoomId(Long roomId) {
         String path = String.format(GatewayPath.ROOM_MEMBER_BY_ROOM_ID_PATH, roomId);
-        return restClientUtil.request(path, HttpMethod.GET, null,
+        Object response = restClientUtil.request(path, HttpMethod.GET, null,
                 new ParameterizedTypeReference<Object>() {
                 });
+        enrichMemberResponse(response);
+        return response;
     }
 
     public Object mapMemberToRoom(MapMemberToRoomRequest request) {
-        return restClientUtil.request(GatewayPath.ROOM_MEMBER_MAP_ROOM_PATH, HttpMethod.POST, request,
+        Object response = restClientUtil.request(GatewayPath.ROOM_MEMBER_MAP_ROOM_PATH, HttpMethod.POST, request,
                 new ParameterizedTypeReference<Object>() {
                 });
+        enrichMemberResponse(response);
+        return response;
     }
 
     public Object updateRoomMember(Long id, UpdateRoomMemberRequest request) {
         String path = String.format(GatewayPath.ROOM_MEMBER_ID_PATH, id);
-        return restClientUtil.request(path, HttpMethod.PUT, request,
+        Object response = restClientUtil.request(path, HttpMethod.PUT, request,
                 new ParameterizedTypeReference<Object>() {
                 });
+        enrichMemberResponse(response);
+        return response;
     }
 
     public Object deleteRoomMemberByUserId(Long userId) {
@@ -179,5 +185,56 @@ public class RoomService {
         return restClientUtil.request(path, HttpMethod.DELETE, null,
                 new ParameterizedTypeReference<Object>() {
                 });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void enrichMemberResponse(Object responseObj) {
+        if (!(responseObj instanceof Map)) {
+            return;
+        }
+        Map<String, Object> responseMap = (Map<String, Object>) responseObj;
+        Object data = responseMap.get("data");
+        if (data == null) {
+            return;
+        }
+
+        if (data instanceof List) {
+            List<?> list = (List<?>) data;
+            for (Object item : list) {
+                if (item instanceof Map) {
+                    enrichSingleMember((Map<String, Object>) item);
+                }
+            }
+        } else if (data instanceof Map) {
+            enrichSingleMember((Map<String, Object>) data);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void enrichSingleMember(Map<String, Object> member) {
+        Object userIdObj = member.get("user_id");
+        if (userIdObj != null) {
+            try {
+                String userId = userIdObj.toString();
+                Object userResponseObj = restClientUtil.request(
+                        String.format(GatewayPath.AUTH_USER_ID_PATH, userId),
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<Object>() {
+                        });
+                if (userResponseObj instanceof Map) {
+                    Map<String, Object> userResponseMap = (Map<String, Object>) userResponseObj;
+                    Object userData = userResponseMap.get("data");
+                    if (userData instanceof Map) {
+                        Map<String, Object> userItem = (Map<String, Object>) userData;
+                        member.put("full_name", userItem.get("full_name"));
+                        member.put("phone_number", userItem.get("phone_number"));
+                        member.put("email", userItem.get("email"));
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Failed to enrich user details for userId: " + userIdObj, e);
+            }
+        }
     }
 }

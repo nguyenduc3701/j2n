@@ -20,7 +20,7 @@ import com.example.j2n.room_srv.service.response.BillResponse;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.messaging.room.event.BillsCalculatedEvent;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
-import com.example.j2n.room_srv.service.response.FeeResponse;
+
 import com.example.j2n.utils.PageUtil;
 import com.example.j2n.utils.ResponseFactory;
 import com.example.j2n.utils.SearchFactory;
@@ -54,15 +54,17 @@ public class BillingService {
     private final RoomSecurityUtil roomSecurityUtil;
 
     @LogAround(message = "Get bills by room ID")
-    public BaseResponse<List<BillEntity>> getBillsByRoomId(Long roomId) {
+    public BaseResponse<List<BillResponse>> getBillsByRoomId(Long roomId) {
         RoomEntity room = roomService.findRoomByIdOrThrow(roomId);
         roomSecurityUtil.checkRoomAccess(room);
-        return ResponseFactory.success(billRepository.findByRoomId(roomId));
+        List<BillEntity> bills = billRepository.findByRoomId(roomId);
+        List<BillResponse> responses = bills.stream().map(this::mapToResponse).toList();
+        return ResponseFactory.success(responses);
     }
 
     @Transactional
     @LogAround(message = "Calculate monthly bill")
-    public BaseResponse<BillEntity> calculateBill(BillRequest request) {
+    public BaseResponse<BillResponse> calculateBill(BillRequest request) {
         log.info("Calculating monthly bill for room {}", request.getRoomId());
         Integer reqMonth = request.getMonth() != null ? request.getMonth().orElse(null) : null;
         Integer validMonth = validateMonth(reqMonth, request.getRoomId());
@@ -72,12 +74,12 @@ public class BillingService {
         Integer electricOld = room.getCurrentElectricIndex() != null ? room.getCurrentElectricIndex() : 0;
         BigDecimal totalAmount = calculateTotalAmount(request, room, electricOld);
         BillEntity bill = buildBillEntity(request, room, electricOld, totalAmount);
-        return ResponseFactory.success(billRepository.save(bill));
+        return ResponseFactory.success(mapToResponse(billRepository.save(bill)));
     }
 
     @Transactional
     @LogAround(message = "Calculate bills for all rooms")
-    public BaseResponse<List<BillEntity>> calculateAllBills(CalculateAllBillsRequest request) {
+    public BaseResponse<List<BillResponse>> calculateAllBills(CalculateAllBillsRequest request) {
         Integer month = request.getMonth();
         Map<Long, Integer> electricIndices = request.getElectricIndices();
         log.info("Calculating bills for all rooms for month {}", month);
@@ -94,7 +96,7 @@ public class BillingService {
             }
 
             Integer newElectricIndex = electricIndices.getOrDefault(room.getId(), null);
-            billsToSave.add(buildBillForRoom(room, primaryRenterId, billingMonth, newElectricIndex));
+            billsToSave.add(buildBillForRoom(room, billingMonth, newElectricIndex));
         }
 
         if (billsToSave.isEmpty()) {
@@ -106,23 +108,12 @@ public class BillingService {
         // Publish event
         publishBillsCalculatedEvent(savedBills, billingMonth);
 
-        return ResponseFactory.success(savedBills);
+        List<BillResponse> responses = savedBills.stream().map(this::mapToResponse).toList();
+        return ResponseFactory.success(responses);
     }
 
     private void publishBillsCalculatedEvent(List<BillEntity> savedBills, Integer month) {
         log.info("Aggregating billing data for event publishing");
-        List<FeeResponse> configs = feeService.getActiveFees();
-        BigDecimal electricUnitPrice = configs.stream()
-                .filter(f -> FeeConstant.FEE_ELECTRICITY.equalsIgnoreCase(f.getName()))
-                .map(FeeResponse::getUnitPrice)
-                .findFirst()
-                .orElse(BigDecimal.ZERO);
-
-        BigDecimal waterUnitPrice = configs.stream()
-                .filter(f -> FeeConstant.FEE_WATER.equalsIgnoreCase(f.getName()))
-                .map(FeeResponse::getUnitPrice)
-                .findFirst()
-                .orElse(BigDecimal.ZERO);
 
         BigDecimal totalUnpaidAmount = BigDecimal.ZERO;
         BigDecimal totalElectricityAmount = BigDecimal.ZERO;
@@ -130,9 +121,8 @@ public class BillingService {
 
         for (BillEntity bill : savedBills) {
             totalUnpaidAmount = totalUnpaidAmount.add(bill.getTotalAmount());
-            totalElectricityAmount = totalElectricityAmount
-                    .add(electricUnitPrice.multiply(BigDecimal.valueOf(bill.getElectricityUsage())));
-            totalWaterAmount = totalWaterAmount.add(waterUnitPrice.multiply(BigDecimal.valueOf(bill.getWaterUsage())));
+            totalElectricityAmount = totalElectricityAmount.add(BigDecimal.valueOf(bill.getElectricityUsage()));
+            totalWaterAmount = totalWaterAmount.add(BigDecimal.valueOf(bill.getWaterUsage()));
         }
 
         eventPublisher.publishBillsCalculated(BillsCalculatedEvent.builder()
@@ -152,12 +142,11 @@ public class BillingService {
                 .orElse(null);
     }
 
-    private BillEntity buildBillForRoom(RoomEntity room, Long renterId, Integer month, Integer newElectricIndex) {
+    private BillEntity buildBillForRoom(RoomEntity room, Integer month, Integer newElectricIndex) {
         log.info("Building bill for room {}", room.getRoomNumber());
         Integer validMonth = validateMonth(month, room.getId());
         BillRequest request = BillRequest.builder()
                 .roomId(room.getId())
-                .renterId(renterId)
                 .month(Optional.of(validMonth))
                 .electricityNewIndex(newElectricIndex)
                 .build();
@@ -170,57 +159,95 @@ public class BillingService {
         log.info("Calculating total amount for room {}", room.getRoomNumber());
         BigDecimal totalAmount = room.getBasePrice();
 
-        int electricUsage = 0;
-        if (request.getElectricityNewIndex() != null && request.getElectricityNewIndex() > electricOld) {
-            electricUsage = request.getElectricityNewIndex() - electricOld;
-        }
-
+        int electricUsage = calculateElectricUsage(request, electricOld);
         int memberCount = room.getMembers() != null ? room.getMembers().size() : 0;
 
         if (room.getFees() != null) {
-            BigDecimal electricUsageMultiplier = BigDecimal.valueOf(electricUsage);
-            BigDecimal memberCountMultiplier = BigDecimal.valueOf(memberCount);
+            BigDecimal electricMultiplier = BigDecimal.valueOf(electricUsage);
+            BigDecimal memberMultiplier = BigDecimal.valueOf(memberCount);
 
             for (RoomFeeEntity roomFee : room.getFees()) {
                 FeeEntity config = roomFee.getFee();
                 if (config == null || Boolean.FALSE.equals(config.getIsActive())) {
                     continue;
                 }
-                if (FeeConstant.FEE_ELECTRICITY.equalsIgnoreCase(config.getName())) {
-                    totalAmount = totalAmount.add(config.getUnitPrice().multiply(electricUsageMultiplier));
-                } else if (FeeConstant.UNIT_PERSON.equalsIgnoreCase(config.getUnitName())) {
-                    totalAmount = totalAmount.add(config.getUnitPrice().multiply(memberCountMultiplier));
-                } else {
-                    totalAmount = totalAmount.add(config.getUnitPrice());
-                }
+                totalAmount = totalAmount.add(calculateSingleFee(config, electricMultiplier, memberMultiplier));
             }
         }
 
         return totalAmount;
     }
 
-    private BillEntity buildBillEntity(BillRequest request, RoomEntity room, Integer electricOld,
-            BigDecimal totalAmount) {
+    private BillEntity buildBillEntity(BillRequest request, RoomEntity room, Integer electricOld, BigDecimal totalAmount) {
         log.info("Building bill entity for room {}", room.getRoomNumber());
-        int electricUsage = 0;
-        if (request.getElectricityNewIndex() != null && request.getElectricityNewIndex() > electricOld) {
-            electricUsage = request.getElectricityNewIndex() - electricOld;
-        }
+        int electricUsage = calculateElectricUsage(request, electricOld);
+        FeeAmounts feeAmounts = calculateFeeAmounts(room, electricUsage);
 
         return BillEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .room(room)
-                .renterId(request.getRenterId())
                 .billingMonth(request.getMonth() != null ? request.getMonth().orElse(null) : null)
                 .electricityOldIndex(electricOld)
                 .electricityNewIndex(request.getElectricityNewIndex())
-                .electricityUsage(electricUsage)
-                .waterUsage(0)
-                .serviceFees(BigDecimal.ZERO)
+                .electricityUsage(feeAmounts.electricUsageAmount())
+                .waterUsage(feeAmounts.waterUsageAmount())
+                .serviceFees(feeAmounts.serviceFeesAmount())
                 .totalAmount(totalAmount)
                 .status(BillStatus.UNPAID)
                 .build();
     }
+
+    private int calculateElectricUsage(BillRequest request, Integer electricOld) {
+        if (request.getElectricityNewIndex() != null && request.getElectricityNewIndex() > electricOld) {
+            return request.getElectricityNewIndex() - electricOld;
+        }
+        return 0;
+    }
+
+    private FeeAmounts calculateFeeAmounts(RoomEntity room, int electricUsage) {
+        int electricUsageAmount = 0;
+        int waterUsageAmount = 0;
+        BigDecimal serviceFeesAmount = BigDecimal.ZERO;
+
+        if (room.getFees() != null) {
+            int memberCount = room.getMembers() != null ? room.getMembers().size() : 0;
+            BigDecimal electricMultiplier = BigDecimal.valueOf(electricUsage);
+            BigDecimal memberMultiplier = BigDecimal.valueOf(memberCount);
+
+            for (RoomFeeEntity roomFee : room.getFees()) {
+                FeeEntity config = roomFee.getFee();
+                if (config == null || Boolean.FALSE.equals(config.getIsActive())) {
+                    continue;
+                }
+
+                BigDecimal feeAmount = calculateSingleFee(config, electricMultiplier, memberMultiplier);
+
+                if (FeeConstant.FEE_ELECTRICITY.equalsIgnoreCase(config.getName())) {
+                    electricUsageAmount = feeAmount.intValue();
+                } else if (FeeConstant.FEE_WATER.equalsIgnoreCase(config.getName())) {
+                    waterUsageAmount = feeAmount.intValue();
+                } else {
+                    serviceFeesAmount = serviceFeesAmount.add(feeAmount);
+                }
+            }
+        }
+
+        return new FeeAmounts(electricUsageAmount, waterUsageAmount, serviceFeesAmount);
+    }
+
+    private BigDecimal calculateSingleFee(FeeEntity config, BigDecimal electricMultiplier, BigDecimal memberMultiplier) {
+        BigDecimal unitPrice = config.getUnitPrice() != null ? config.getUnitPrice() : BigDecimal.ZERO;
+
+        if (FeeConstant.FEE_ELECTRICITY.equalsIgnoreCase(config.getName())) {
+            return unitPrice.multiply(electricMultiplier);
+        } else if (FeeConstant.UNIT_PERSON.equalsIgnoreCase(config.getUnitName())) {
+            return unitPrice.multiply(memberMultiplier);
+        } else {
+            return unitPrice;
+        }
+    }
+
+    private record FeeAmounts(int electricUsageAmount, int waterUsageAmount, BigDecimal serviceFeesAmount) {}
 
     @LogAround(message = "Search bills")
     public BaseResponse<SearchBillsResponse> searchBills(SearchBillsRequest request) {
@@ -251,12 +278,6 @@ public class BillingService {
                     .operation(EQUAL)
                     .build());
         }
-
-        request.getRenterId().ifPresent(renterId -> criteriaList.add(SearchCriteria.builder()
-                .fieldName("renterId")
-                .value(renterId)
-                .operation(EQUAL)
-                .build()));
 
         request.getBillingMonth().ifPresent(month -> criteriaList.add(SearchCriteria.builder()
                 .fieldName("billingMonth")
@@ -293,12 +314,6 @@ public class BillingService {
                 .operation(EQUAL)
                 .build());
 
-        request.getRenterId().ifPresent(renterId -> criteriaList.add(SearchCriteria.builder()
-                .fieldName("renterId")
-                .value(renterId)
-                .operation(EQUAL)
-                .build()));
-
         request.getBillingMonth().ifPresent(month -> criteriaList.add(SearchCriteria.builder()
                 .fieldName("billingMonth")
                 .value(month)
@@ -319,7 +334,6 @@ public class BillingService {
                 .id(entity.getId())
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
                 .roomNumber(entity.getRoom() != null ? entity.getRoom().getRoomNumber() : null)
-                .renterId(entity.getRenterId())
                 .billingMonth(entity.getBillingMonth())
                 .electricityOldIndex(entity.getElectricityOldIndex())
                 .electricityNewIndex(entity.getElectricityNewIndex())

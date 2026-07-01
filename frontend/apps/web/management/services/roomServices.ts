@@ -255,7 +255,6 @@ export const roomService = {
     room_id: number;
     month?: number;
     electricity_new_index: number;
-    renter_id?: number;
   }) {
     const options = {
       method: HTTP_METHODS.POST,

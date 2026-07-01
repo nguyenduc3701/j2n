@@ -26,9 +26,6 @@ public class BillEntity {
     @JoinColumn(name = "room_id")
     private RoomEntity room;
 
-    @Column(name = "renter_id")
-    private Long renterId;
-
     @Column(name = "billing_month", nullable = false)
     private Integer billingMonth;
 

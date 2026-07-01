@@ -34,14 +34,12 @@ const AssetTab = () => {
   // Search filter state
   const [searchParams, setSearchParams] = useState({
     name: "",
-    description: "",
   });
 
   // Search form state
   const searchForm = useForm({
     initialValues: {
       name: "",
-      description: "",
     },
   });
 
@@ -67,7 +65,6 @@ const AssetTab = () => {
         page,
         size: pageSize,
         name: params.name || undefined,
-        description: params.description || undefined,
       });
       if (res.data?.assets) {
         setData(res.data.assets);
@@ -91,7 +88,7 @@ const AssetTab = () => {
   };
 
   const handleClear = () => {
-    const initialValues = { name: "", description: "" };
+    const initialValues = { name: "" };
     searchForm.setValues(initialValues);
     setSearchParams(initialValues);
     setActivePage(1);
@@ -180,16 +177,11 @@ const AssetTab = () => {
 
       <Box mb="md">
         <form onSubmit={searchForm.onSubmit(handleSearch)}>
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+          <SimpleGrid cols={1} spacing="md">
             <TextInput
               label={t("rooms.assets.name")}
               placeholder={t("rooms.assets.name")}
               {...searchForm.getInputProps("name")}
-            />
-            <TextInput
-              label={t("description")}
-              placeholder={t("description")}
-              {...searchForm.getInputProps("description")}
             />
           </SimpleGrid>
           <Group justify="flex-end" mt="md">

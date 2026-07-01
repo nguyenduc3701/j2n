@@ -20,9 +20,6 @@ public class SearchBillsRequest extends PagingRequest {
     @Schema(description = "Room ID to filter bills", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long roomId;
 
-    @Schema(description = "Filter by renter user ID", example = "2", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Optional<Long> renterId = Optional.empty();
-
     @Schema(description = "Filter by billing month", example = "5", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Optional<Integer> billingMonth = Optional.empty();
 

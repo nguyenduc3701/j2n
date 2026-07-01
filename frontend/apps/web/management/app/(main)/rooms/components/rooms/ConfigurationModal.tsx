@@ -8,7 +8,6 @@ import { useState } from "react";
 import MembersTab from "./MembersTab";
 import RoomAssetsTab from "../assets-catalog/RoomAssetsTab";
 import RoomFeesTab from "../fees/RoomFeesTab";
-import RoomBillingTab from "../bills/RoomBillingTab";
 
 interface ConfigurationModalProps {
   opened: boolean;
@@ -48,7 +47,6 @@ const ConfigurationModal = ({
             <Tabs.Tab value="members">{t("rooms.modal.tabs.members")}</Tabs.Tab>
             <Tabs.Tab value="assets">{t("rooms.modal.tabs.assets")}</Tabs.Tab>
             <Tabs.Tab value="fees">{t("rooms.modal.tabs.fees")}</Tabs.Tab>
-            <Tabs.Tab value="billing">{t("rooms.modal.tabs.billing")}</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="members" pt="md">
@@ -61,10 +59,6 @@ const ConfigurationModal = ({
 
           <Tabs.Panel value="fees" pt="md">
             <RoomFeesTab room={room} opened={opened} />
-          </Tabs.Panel>
-
-          <Tabs.Panel value="billing" pt="md">
-            <RoomBillingTab room={room} opened={opened} />
           </Tabs.Panel>
         </Tabs>
       )}

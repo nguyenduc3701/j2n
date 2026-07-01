@@ -28,9 +28,6 @@ public class BillResponse {
     @Schema(description = "Room number", example = "101")
     private String roomNumber;
 
-    @Schema(description = "Renter user ID", example = "2")
-    private Long renterId;
-
     @Schema(description = "Billing month", example = "5")
     private Integer billingMonth;
 
@@ -45,6 +42,18 @@ public class BillResponse {
 
     @Schema(description = "Water usage", example = "10")
     private Integer waterUsage;
+
+    @Schema(description = "Electricity charges", example = "175000")
+    private BigDecimal electricAmount;
+
+    @Schema(description = "Water charges", example = "30000")
+    private BigDecimal waterAmount;
+
+    @Schema(description = "Room base rent", example = "2000000")
+    private BigDecimal roomAmount;
+
+    @Schema(description = "Other fees amount", example = "50000")
+    private BigDecimal otherFeesAmount;
 
     @Schema(description = "Additional service fees", example = "50000")
     private BigDecimal serviceFees;

@@ -6,6 +6,7 @@ import com.example.j2n.room_srv.controller.request.SearchBillsRequest;
 import com.example.j2n.room_srv.controller.request.SearchBillsAdminRequest;
 import com.example.j2n.room_srv.service.response.SearchBillsResponse;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
+import com.example.j2n.room_srv.service.response.BillResponse;
 import com.example.j2n.room_srv.service.BillingService;
 import com.example.j2n.room_srv.service.PaymentService;
 import com.example.j2n.utils.ResponseFactory;
@@ -84,8 +85,8 @@ class BillControllerTest {
     @Test
     void calculateBillByRoomId_Success() throws Exception {
         BillRequest request = BillRequest.builder().roomId(1L).electricityNewIndex(1250).build();
-        BillEntity billEntity = new BillEntity();
-        when(billingService.calculateBill(any(BillRequest.class))).thenReturn(ResponseFactory.success(billEntity));
+        BillResponse billResponse = new BillResponse();
+        when(billingService.calculateBill(any(BillRequest.class))).thenReturn(ResponseFactory.success(billResponse));
 
         mockMvc.perform(post("/room/bills/calculate")
                 .contextPath("/room")
@@ -113,7 +114,7 @@ class BillControllerTest {
                 .month(5)
                 .electricIndices(Map.of(1L, 1250))
                 .build();
-        List<BillEntity> bills = List.of(new BillEntity());
+        List<BillResponse> bills = List.of(new BillResponse());
         when(billingService.calculateAllBills(any(CalculateAllBillsRequest.class))).thenReturn(ResponseFactory.success(bills));
 
         mockMvc.perform(post("/room/bills/calculate-all")
@@ -128,7 +129,7 @@ class BillControllerTest {
     @Test
     void getBillsByRoomId_Success() throws Exception {
         Long roomId = 1L;
-        List<BillEntity> bills = List.of(new BillEntity());
+        List<BillResponse> bills = List.of(new BillResponse());
         when(billingService.getBillsByRoomId(roomId)).thenReturn(ResponseFactory.success(bills));
 
         mockMvc.perform(get("/room/bills/room/" + roomId)

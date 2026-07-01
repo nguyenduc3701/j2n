@@ -66,7 +66,6 @@ class BillingServiceTest {
                 .roomId(1L)
                 .month(Optional.of(5))
                 .electricityNewIndex(100)
-                .renterId(123L)
                 .build();
 
         RoomMemberEntity member = new RoomMemberEntity();
@@ -104,9 +103,13 @@ class BillingServiceTest {
                 .build();
 
         when(roomService.findRoomByIdOrThrow(1L)).thenReturn(room);
-        when(billRepository.save(any(BillEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(billRepository.save(any(BillEntity.class))).thenAnswer(i -> {
+            BillEntity entity = (BillEntity) i.getArguments()[0];
+            entity.setRoom(room);
+            return entity;
+        });
 
-        BaseResponse<BillEntity> response = billingService.calculateBill(request);
+        BaseResponse<BillResponse> response = billingService.calculateBill(request);
 
         assertNotNull(response);
         // Base Price: 2,000,000
@@ -137,7 +140,7 @@ class BillingServiceTest {
         doNothing().when(roomSecurityUtil).checkRoomAccess(room);
         when(billRepository.findByRoomId(1L)).thenReturn(List.of(bill));
 
-        BaseResponse<List<BillEntity>> response = billingService.getBillsByRoomId(1L);
+        BaseResponse<List<BillResponse>> response = billingService.getBillsByRoomId(1L);
 
         assertEquals(1, response.getData().size());
         verify(roomService, times(1)).findRoomByIdOrThrow(1L);
@@ -264,7 +267,7 @@ class BillingServiceTest {
         when(feeService.getActiveFees()).thenReturn(List.of());
         when(billRepository.saveAll(anyList())).thenAnswer(i -> i.getArguments()[0]);
 
-        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(request);
+        BaseResponse<List<BillResponse>> response = billingService.calculateAllBills(request);
 
         assertNotNull(response);
         assertEquals(1, response.getData().size());
@@ -286,7 +289,7 @@ class BillingServiceTest {
 
         when(roomService.getAllRooms()).thenReturn(List.of(room));
 
-        BaseResponse<List<BillEntity>> response = billingService.calculateAllBills(request);
+        BaseResponse<List<BillResponse>> response = billingService.calculateAllBills(request);
 
         assertNotNull(response);
         assertTrue(response.getData().isEmpty());

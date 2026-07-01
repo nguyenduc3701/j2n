@@ -28,7 +28,4 @@ public class BillRequest {
     @Schema(description = "New electricity index", example = "1250", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "New electricity index is required")
     private Integer electricityNewIndex;
-
-    @Schema(description = "ID of the renter", example = "100", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private Long renterId;
 }

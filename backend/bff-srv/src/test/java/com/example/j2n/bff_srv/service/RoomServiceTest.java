@@ -13,6 +13,8 @@ import org.springframework.http.HttpMethod;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.Map;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -328,5 +330,53 @@ class RoomServiceTest {
 
         assertNotNull(result);
         verify(restClientUtil, times(1)).request(eq(expectedPath), eq(HttpMethod.DELETE), eq(null), any(ParameterizedTypeReference.class));
+    }
+
+    @Test
+    void getRoomMembersByRoomId_WithEnrichment() {
+        Long roomId = 1L;
+        String expectedMemberPath = String.format(GatewayPath.ROOM_MEMBER_BY_ROOM_ID_PATH, roomId);
+        
+        // Prepare mock member data
+        Map<String, Object> mockMember = new java.util.HashMap<>();
+        mockMember.put("id", 1L);
+        mockMember.put("user_id", 10L);
+        mockMember.put("room_id", roomId);
+        
+        List<Map<String, Object>> memberList = new java.util.ArrayList<>();
+        memberList.add(mockMember);
+        
+        Map<String, Object> mockResponse = new java.util.HashMap<>();
+        mockResponse.put("code", 200);
+        mockResponse.put("data", memberList);
+
+        // Prepare mock user data
+        Map<String, Object> mockUser = new java.util.HashMap<>();
+        mockUser.put("id", 10L);
+        mockUser.put("full_name", "John Doe");
+        mockUser.put("phone_number", "0987654321");
+        mockUser.put("email", "john@example.com");
+        
+        Map<String, Object> mockUserResponse = new java.util.HashMap<>();
+        mockUserResponse.put("code", 200);
+        mockUserResponse.put("data", mockUser);
+
+        when(restClientUtil.request(eq(expectedMemberPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class)))
+                .thenReturn(mockResponse);
+        
+        String expectedUserPath = String.format(GatewayPath.AUTH_USER_ID_PATH, "10");
+        when(restClientUtil.request(eq(expectedUserPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class)))
+                .thenReturn(mockUserResponse);
+
+        Object result = roomService.getRoomMembersByRoomId(roomId);
+
+        assertNotNull(result);
+        verify(restClientUtil, times(1)).request(eq(expectedMemberPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class));
+        verify(restClientUtil, times(1)).request(eq(expectedUserPath), eq(HttpMethod.GET), eq(null), any(ParameterizedTypeReference.class));
+        
+        // Assert that the member has been enriched
+        org.junit.jupiter.api.Assertions.assertEquals("John Doe", mockMember.get("full_name"));
+        org.junit.jupiter.api.Assertions.assertEquals("0987654321", mockMember.get("phone_number"));
+        org.junit.jupiter.api.Assertions.assertEquals("john@example.com", mockMember.get("email"));
     }
 }

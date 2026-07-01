@@ -38,7 +38,6 @@ class PaymentServiceTest {
         RoomEntity room = RoomEntity.builder().roomNumber("101").build();
         BillEntity bill = BillEntity.builder()
                 .id(billId)
-                .renterId(123L)
                 .room(room)
                 .billingMonth(5)
                 .status(BillStatus.UNPAID)
