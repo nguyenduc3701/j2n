@@ -294,18 +294,16 @@ public class RoomMemberService {
     }
 
     private void updateRoomStatusBasedOnCapacity(RoomEntity room) {
-        if (room.getMaxPeople() != null) {
-            int currentMemberCount = roomMemberRepository.findByRoomId(room.getId()).size();
-            log.info("Checking room status for room {}: current members = {}, max people = {}, current status = {}",
-                    room.getId(), currentMemberCount, room.getMaxPeople(), room.getStatus());
-            if (currentMemberCount >= room.getMaxPeople()) {
-                if (RoomStatus.AVAILABLE.getValue().equals(room.getStatus())) {
-                    roomService.updateRoomStatus(room, RoomStatus.OCCUPIED.getValue());
-                }
-            } else {
-                if (RoomStatus.OCCUPIED.getValue().equals(room.getStatus())) {
-                    roomService.updateRoomStatus(room, RoomStatus.AVAILABLE.getValue());
-                }
+        int currentMemberCount = roomMemberRepository.findByRoomId(room.getId()).size();
+        log.info("Checking room status for room {}: current members = {}, max people = {}, current status = {}",
+                room.getId(), currentMemberCount, room.getMaxPeople(), room.getStatus());
+        if (currentMemberCount >= 1) {
+            if (RoomStatus.AVAILABLE.getValue().equals(room.getStatus())) {
+                roomService.updateRoomStatus(room, RoomStatus.OCCUPIED.getValue());
+            }
+        } else {
+            if (RoomStatus.OCCUPIED.getValue().equals(room.getStatus())) {
+                roomService.updateRoomStatus(room, RoomStatus.AVAILABLE.getValue());
             }
         }
     }

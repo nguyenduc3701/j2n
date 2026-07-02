@@ -171,25 +171,39 @@ const FeeTab = () => {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <SimpleGrid cols={1} spacing="md">
             <TextInput
+              id="feeModal.name"
               label={t("rooms.fees.name")}
+              placeholder={t("rooms.fees.name")}
               disabled={!!editingFee}
               required
               {...form.getInputProps("name")}
             />
             <TextInput
+              id="feeModal.price"
               label={t("rooms.fees.price")}
+              placeholder={t("rooms.fees.price")}
               type="number"
               required
               {...form.getInputProps("unit_price")}
             />
-            <TextInput
+            <Select
+              id="feeModal.unit"
               label={t("rooms.fees.unit")}
+              placeholder={t("rooms.fees.unit")}
+              data={[
+                { value: "person", label: t("rooms.fees.units.person") },
+                { value: "unit", label: t("rooms.fees.units.unit") },
+                { value: "room", label: t("rooms.fees.units.room") },
+                { value: "vehicle", label: t("rooms.fees.units.vehicle") }
+              ]}
               required
               {...form.getInputProps("unit_name")}
             />
             {editingFee && (
               <Select
+                id="feeModal.status"
                 label={t("rooms.table.status")}
+                placeholder={t("rooms.table.status")}
                 data={[
                   { value: "true", label: t("users.status.active") },
                   { value: "false", label: t("users.status.inactive") }

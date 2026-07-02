@@ -121,8 +121,8 @@ public class BillingService {
 
         for (BillEntity bill : savedBills) {
             totalUnpaidAmount = totalUnpaidAmount.add(bill.getTotalAmount());
-            totalElectricityAmount = totalElectricityAmount.add(BigDecimal.valueOf(bill.getElectricityUsage()));
-            totalWaterAmount = totalWaterAmount.add(BigDecimal.valueOf(bill.getWaterUsage()));
+            totalElectricityAmount = totalElectricityAmount.add(bill.getElectricityAmount() != null ? bill.getElectricityAmount() : BigDecimal.ZERO);
+            totalWaterAmount = totalWaterAmount.add(bill.getWaterAmount() != null ? bill.getWaterAmount() : BigDecimal.ZERO);
         }
 
         eventPublisher.publishBillsCalculated(BillsCalculatedEvent.builder()
@@ -189,9 +189,10 @@ public class BillingService {
                 .billingMonth(request.getMonth() != null ? request.getMonth().orElse(null) : null)
                 .electricityOldIndex(electricOld)
                 .electricityNewIndex(request.getElectricityNewIndex())
-                .electricityUsage(feeAmounts.electricUsageAmount())
-                .waterUsage(feeAmounts.waterUsageAmount())
-                .serviceFees(feeAmounts.serviceFeesAmount())
+                .electricityUsage(electricUsage)
+                .electricityAmount(feeAmounts.electricUsageAmount())
+                .waterAmount(feeAmounts.waterUsageAmount())
+                .serviceAmount(feeAmounts.serviceFeesAmount())
                 .totalAmount(totalAmount)
                 .status(BillStatus.UNPAID)
                 .build();
@@ -205,8 +206,8 @@ public class BillingService {
     }
 
     private FeeAmounts calculateFeeAmounts(RoomEntity room, int electricUsage) {
-        int electricUsageAmount = 0;
-        int waterUsageAmount = 0;
+        BigDecimal electricUsageAmount = BigDecimal.ZERO;
+        BigDecimal waterUsageAmount = BigDecimal.ZERO;
         BigDecimal serviceFeesAmount = BigDecimal.ZERO;
 
         if (room.getFees() != null) {
@@ -223,9 +224,9 @@ public class BillingService {
                 BigDecimal feeAmount = calculateSingleFee(config, electricMultiplier, memberMultiplier);
 
                 if (FeeConstant.FEE_ELECTRICITY.equalsIgnoreCase(config.getName())) {
-                    electricUsageAmount = feeAmount.intValue();
+                    electricUsageAmount = feeAmount;
                 } else if (FeeConstant.FEE_WATER.equalsIgnoreCase(config.getName())) {
-                    waterUsageAmount = feeAmount.intValue();
+                    waterUsageAmount = feeAmount;
                 } else {
                     serviceFeesAmount = serviceFeesAmount.add(feeAmount);
                 }
@@ -247,7 +248,7 @@ public class BillingService {
         }
     }
 
-    private record FeeAmounts(int electricUsageAmount, int waterUsageAmount, BigDecimal serviceFeesAmount) {}
+    private record FeeAmounts(BigDecimal electricUsageAmount, BigDecimal waterUsageAmount, BigDecimal serviceFeesAmount) {}
 
     @LogAround(message = "Search bills")
     public BaseResponse<SearchBillsResponse> searchBills(SearchBillsRequest request) {
@@ -332,14 +333,16 @@ public class BillingService {
     private BillResponse mapToResponse(BillEntity entity) {
         return BillResponse.builder()
                 .id(entity.getId())
+                .roomAmount(entity.getRoom() != null ? entity.getRoom().getBasePrice() : null)
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
                 .roomNumber(entity.getRoom() != null ? entity.getRoom().getRoomNumber() : null)
                 .billingMonth(entity.getBillingMonth())
                 .electricityOldIndex(entity.getElectricityOldIndex())
                 .electricityNewIndex(entity.getElectricityNewIndex())
                 .electricityUsage(entity.getElectricityUsage())
-                .waterUsage(entity.getWaterUsage())
-                .serviceFees(entity.getServiceFees())
+                .electricAmount(entity.getElectricityAmount())
+                .waterAmount(entity.getWaterAmount())
+                .serviceAmount(entity.getServiceAmount())
                 .totalAmount(entity.getTotalAmount())
                 .status(entity.getStatus())
                 .orderId(entity.getOrderId())

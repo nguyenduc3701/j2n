@@ -3,14 +3,28 @@
 import { roomService } from "@/services/roomServices";
 import { userService } from "@/services/userServices";
 import { IRoom, IRoomMember } from "@/types/room";
-import { ActionIcon, Badge, Group, Select, Table, Text, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Badge,
+  Group,
+  Select,
+  Table,
+  Text,
+  Tooltip,
+} from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { useQuery, useMutation, useQueryClient } from "@repo/query";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
 import { useTranslation } from "@repo/ui/src/providers";
-import { IconRefresh, IconTrash, IconUserPlus, IconStar, IconStarFilled } from "@tabler/icons-react";
+import {
+  IconRefresh,
+  IconTrash,
+  IconUserPlus,
+  IconStar,
+  IconStarFilled,
+} from "@tabler/icons-react";
 import { useState } from "react";
 
 interface MembersTabProps {
@@ -24,7 +38,9 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
   const queryClient = useQueryClient();
   const [selectedRenterId, setSelectedRenterId] = useState<string | null>(null);
 
-  const { data: occupants = [], refetch: refetchOccupants } = useQuery<IRoomMember[]>({
+  const { data: occupants = [], refetch: refetchOccupants } = useQuery<
+    IRoomMember[]
+  >({
     queryKey: ["room-occupants", room.id],
     queryFn: async () => {
       const res = await roomService.getRoomMembersByRoomId(room.id);
@@ -84,7 +100,8 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
   });
 
   const removeMemberMutation = useMutation({
-    mutationFn: (userId: number) => roomService.deleteRoomMemberByUserId(userId),
+    mutationFn: (userId: number) =>
+      roomService.deleteRoomMemberByUserId(userId),
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["room-occupants", room.id] });
       queryClient.invalidateQueries({ queryKey: ["available-renters"] });
@@ -117,6 +134,7 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
         </Text>
       ),
       labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
+      confirmProps: { className: "!bg-j2n-mauve-500 !text-white" },
       onConfirm: () => {
         setPrimaryMutation.mutate(userId);
       },
@@ -133,7 +151,7 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
         </Text>
       ),
       labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
-      confirmProps: { color: "red" },
+      confirmProps: { className: "!bg-j2n-mauve-500 !text-white" },
       onConfirm: () => {
         removeMemberMutation.mutate(userId);
       },
@@ -211,7 +229,10 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
                         id={`rooms.membersTab.btnSetPrimary.${u.id}`}
                         color="yellow"
                         variant="subtle"
-                        loading={setPrimaryMutation.isPending && setPrimaryMutation.variables === u.user_id}
+                        loading={
+                          setPrimaryMutation.isPending &&
+                          setPrimaryMutation.variables === u.user_id
+                        }
                         onClick={() => handleSetPrimary(u.user_id, u.full_name)}
                       >
                         <IconStar size={16} />
@@ -235,7 +256,10 @@ const MembersTab = ({ room, opened, onRoomUpdate }: MembersTabProps) => {
                       id={`rooms.membersTab.btnRemoveRenter.${u.id}`}
                       color="red"
                       variant="subtle"
-                      loading={removeMemberMutation.isPending && removeMemberMutation.variables === u.user_id}
+                      loading={
+                        removeMemberMutation.isPending &&
+                        removeMemberMutation.variables === u.user_id
+                      }
                       onClick={() => handleRemoveRenter(u.user_id, u.full_name)}
                     >
                       <IconTrash size={16} />

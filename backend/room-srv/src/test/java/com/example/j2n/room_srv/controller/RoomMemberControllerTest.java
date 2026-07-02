@@ -1,12 +1,20 @@
 package com.example.j2n.room_srv.controller;
 
-import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.room_srv.controller.request.MapMemberToRoomRequest;
-import com.example.j2n.room_srv.controller.request.UpdateRoomMemberRequest;
-import com.example.j2n.room_srv.service.RoomMemberService;
-import com.example.j2n.room_srv.service.response.RoomMemberResponse;
-import com.example.j2n.utils.ResponseFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,15 +23,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.example.j2n.room_srv.controller.request.MapMemberToRoomRequest;
+import com.example.j2n.room_srv.controller.request.UpdateRoomMemberRequest;
+import com.example.j2n.room_srv.service.RoomMemberService;
+import com.example.j2n.room_srv.service.response.RoomMemberResponse;
+import com.example.j2n.utils.ResponseFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(RoomMemberController.class)
 @AutoConfigureMockMvc(addFilters = false)

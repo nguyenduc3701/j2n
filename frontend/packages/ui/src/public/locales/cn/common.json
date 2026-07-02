@@ -153,6 +153,12 @@
         "name_required": "名称是必填项",
         "price_min": "价格必须大于或等于0",
         "unit_required": "单位名称是必填项"
+      },
+      "units": {
+        "person": "人",
+        "unit": "单位",
+        "room": "房间",
+        "vehicle": "车辆"
       }
     }
   },

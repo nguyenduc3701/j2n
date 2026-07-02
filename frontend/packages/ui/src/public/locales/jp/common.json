@@ -153,6 +153,12 @@
         "name_required": "名前は必須です",
         "price_min": "価格は0以上である必要があります",
         "unit_required": "単位名は必須です"
+      },
+      "units": {
+        "person": "人",
+        "unit": "単位",
+        "room": "部屋",
+        "vehicle": "車両"
       }
     }
   },

@@ -153,6 +153,12 @@
         "name_required": "Tên là bắt buộc",
         "price_min": "Giá phải lớn hơn hoặc bằng 0",
         "unit_required": "Đơn vị tính là bắt buộc"
+      },
+      "units": {
+        "person": "Người",
+        "unit": "Đơn vị",
+        "room": "Phòng",
+        "vehicle": "Phương tiện"
       }
     }
   },

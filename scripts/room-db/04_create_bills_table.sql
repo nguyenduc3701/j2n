@@ -5,8 +5,9 @@ CREATE TABLE IF NOT EXISTS bills (
     electricity_old_index INT,
     electricity_new_index INT,
     electricity_usage INT,
-    water_usage INT,
-    service_fees DECIMAL(19, 2) DEFAULT 0,
+    electricity_amount DECIMAL(19, 2) DEFAULT 0,
+    water_amount DECIMAL(19, 2) DEFAULT 0,
+    service_amount DECIMAL(19, 2) DEFAULT 0,
     total_amount DECIMAL(19, 2) NOT NULL,
     status VARCHAR(50) DEFAULT 'UNPAID', -- UNPAID, PAID, PARTIAL, CANCELLED
     order_id BIGINT, -- Link tới order-srv sau khi tạo lệnh thanh toán

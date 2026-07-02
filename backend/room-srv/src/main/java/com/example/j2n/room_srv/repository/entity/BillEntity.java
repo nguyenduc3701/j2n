@@ -38,11 +38,14 @@ public class BillEntity {
     @Column(name = "electricity_usage")
     private Integer electricityUsage;
 
-    @Column(name = "water_usage")
-    private Integer waterUsage;
+    @Column(name = "electricity_amount")
+    private BigDecimal electricityAmount;
 
-    @Column(name = "service_fees")
-    private BigDecimal serviceFees;
+    @Column(name = "water_amount")
+    private BigDecimal waterAmount;
+
+    @Column(name = "service_amount")
+    private BigDecimal serviceAmount;
 
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;

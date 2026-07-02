@@ -40,9 +40,6 @@ public class BillResponse {
     @Schema(description = "Electricity usage", example = "50")
     private Integer electricityUsage;
 
-    @Schema(description = "Water usage", example = "10")
-    private Integer waterUsage;
-
     @Schema(description = "Electricity charges", example = "175000")
     private BigDecimal electricAmount;
 
@@ -52,11 +49,8 @@ public class BillResponse {
     @Schema(description = "Room base rent", example = "2000000")
     private BigDecimal roomAmount;
 
-    @Schema(description = "Other fees amount", example = "50000")
-    private BigDecimal otherFeesAmount;
-
-    @Schema(description = "Additional service fees", example = "50000")
-    private BigDecimal serviceFees;
+    @Schema(description = "Additional service amount", example = "50000")
+    private BigDecimal serviceAmount;
 
     @Schema(description = "Total bill amount", example = "2500000")
     private BigDecimal totalAmount;

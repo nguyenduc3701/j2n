@@ -40,21 +40,18 @@ export interface IBill {
   id: string;
   room_id: number;
   room_number: string;
-  month: number;
-  year: number;
-  previous_electric_index: number;
-  current_electric_index: number;
-  electric_usage: number;
+  billing_month: number;
+  electricity_old_index: number;
+  electricity_new_index: number;
+  electricity_usage: number;
   electric_amount: number;
-  previous_water_index: number;
-  current_water_index: number;
-  water_usage: number;
   water_amount: number;
   room_amount: number;
-  other_fees_amount: number;
+  service_amount: number;
   total_amount: number;
   status: "PAID" | "UNPAID";
   payment_link?: string;
+  order_id?: string | null;
   created_at?: string;
   updated_at?: string;
 }

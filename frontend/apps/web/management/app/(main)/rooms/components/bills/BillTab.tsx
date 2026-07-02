@@ -15,10 +15,12 @@ import {
   NumberInput,
   Stack,
   Divider,
+  Checkbox,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { modals } from "@mantine/modals";
 import { useForm } from "@mantine/form";
-import { IconSearch, IconEye, IconReceipt, IconPlayerPlay, IconX, IconBolt } from "@tabler/icons-react";
+import { IconSearch, IconEye, IconSend, IconPlayerPlay, IconX, IconBolt } from "@tabler/icons-react";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
@@ -26,7 +28,7 @@ import J2NModal from "@repo/ui/src/components/atoms/J2NModal";
 import J2NTable from "@repo/ui/src/components/atoms/J2NTable";
 import { useTranslation } from "@repo/ui/src/providers";
 import { roomService } from "@/services/roomServices";
-import { IBill, IRoom } from "@/types/room";
+import { IBill, IRoom, IRoomMember } from "@/types/room";
 import { useQuery, useMutation, useQueryClient } from "@repo/query";
 
 const ICON_COLOR = "#75616A";
@@ -86,6 +88,60 @@ const ElectricIndexModalContent = ({ occupiedRooms, onConfirm, onCancel, loading
   );
 };
 
+// --- Send Bill Modal Content ---
+interface SendBillModalProps {
+  members: IRoomMember[];
+  onConfirm: (selectedUserIds: number[]) => void;
+  onCancel: () => void;
+  t: (key: string) => string;
+}
+
+const SendBillModalContent = ({ members, onConfirm, onCancel, t }: SendBillModalProps) => {
+  const [selected, setSelected] = useState<number[]>(() => {
+    return members.filter((m) => m.is_primary).map((m) => m.user_id);
+  });
+
+  return (
+    <Stack gap="md">
+      <Text size="sm" c="dimmed">
+        Select members to receive this bill.
+      </Text>
+      <Divider />
+      {members.length === 0 ? (
+        <Text size="sm" c="dimmed" ta="center">No members in this room</Text>
+      ) : (
+        members.map((m) => (
+          <Checkbox
+            key={m.id}
+            label={`${m.full_name} ${m.is_primary ? '(Primary)' : ''}`}
+            checked={selected.includes(m.user_id)}
+            onChange={(e) => {
+              if (e.currentTarget.checked) {
+                setSelected((prev) => [...prev, m.user_id]);
+              } else {
+                setSelected((prev) => prev.filter((id) => id !== m.user_id));
+              }
+            }}
+          />
+        ))
+      )}
+      <Divider />
+      <Group justify="flex-end" mt="xs">
+        <J2NButton j2nType={J2NButtonTypes.SECONDARY} onClick={onCancel}>
+          {t("common.cancel")}
+        </J2NButton>
+        <J2NButton
+          j2nType={J2NButtonTypes.PRIMARY}
+          onClick={() => onConfirm(selected)}
+          disabled={selected.length === 0}
+        >
+          Send
+        </J2NButton>
+      </Group>
+    </Stack>
+  );
+};
+
 const BillTab = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -98,6 +154,7 @@ const BillTab = () => {
     month: null as string | null,
     status: null as string | null,
   });
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   // Search form state
   const searchForm = useForm({
@@ -114,9 +171,13 @@ const BillTab = () => {
   // Electric index modal state
   const [electricModalOpen, setElectricModalOpen] = useState(false);
 
+  // Send Bill Modal state
+  const [sendBillModalOpen, setSendBillModalOpen] = useState(false);
+  const [selectedSendBill, setSelectedSendBill] = useState<IBill | null>(null);
+
   // --- React Query Fetching ---
-  const { data: billsData, isLoading: loading } = useQuery({
-    queryKey: ["bills", activePage, searchParams],
+  const { data: billsData, isFetching: loading } = useQuery({
+    queryKey: ["bills", activePage, searchParams, searchTrigger],
     queryFn: async () => {
       const res = await roomService.searchBillsAdmin({
         page: activePage,
@@ -141,6 +202,19 @@ const BillTab = () => {
 
   const occupiedRooms: IRoom[] = occupiedRoomsData?.rooms ?? [];
 
+  // Fetch room members for send bill modal
+  const { data: sendBillMembersData, isLoading: sendBillMembersLoading } = useQuery({
+    queryKey: ["roomMembers", selectedSendBill?.room_id],
+    queryFn: async () => {
+      if (!selectedSendBill) return [];
+      const res = await roomService.getRoomMembersByRoomId(selectedSendBill.room_id);
+      return res.data;
+    },
+    enabled: sendBillModalOpen && !!selectedSendBill,
+  });
+
+  const sendBillMembers: IRoomMember[] = sendBillMembersData || [];
+
   const data = billsData?.bills || [];
   const total = billsData?.page?.total || 0;
 
@@ -153,16 +227,11 @@ const BillTab = () => {
     },
   });
 
-  const payBillMutation = useMutation({
-    mutationFn: (billId: string) => roomService.payBill(billId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bills"] });
-    },
-  });
 
   const handleSearch = (values: typeof searchForm.values) => {
     setSearchParams(values);
     setActivePage(1);
+    setSearchTrigger((prev) => prev + 1);
   };
 
   const handleClear = () => {
@@ -170,6 +239,7 @@ const BillTab = () => {
     searchForm.setValues(initialValues);
     setSearchParams(initialValues);
     setActivePage(1);
+    setSearchTrigger((prev) => prev + 1);
   };
 
   const handleCalculateAll = () => {
@@ -189,25 +259,19 @@ const BillTab = () => {
     }
   };
 
-  const handlePay = (billId: string) => {
-    modals.openConfirmModal({
-      title: t("rooms.bills.status.paid"),
-      centered: true,
-      children: (
-        <Text size="sm">
-          {t("rooms.bills.confirm_pay")}
-        </Text>
-      ),
-      labels: { confirm: t("common.confirm"), cancel: t("common.cancel") },
-      confirmProps: { color: "#75616a" },
-      onConfirm: async () => {
-        try {
-          await payBillMutation.mutateAsync(billId);
-        } catch (e) {
-          console.error(e);
-        }
-      },
+  const handleSendBillClick = (bill: IBill) => {
+    setSelectedSendBill(bill);
+    setSendBillModalOpen(true);
+  };
+
+  const handleSendBillConfirm = (selectedUserIds: number[]) => {
+    notifications.show({
+      title: "Success",
+      message: "Sent bill successfully!",
+      color: "green",
     });
+    setSendBillModalOpen(false);
+    setSelectedSendBill(null);
   };
 
   const bulkLoading = calculateAllMutation.isPending;
@@ -222,19 +286,27 @@ const BillTab = () => {
   const columns = [
     { key: "room_number", title: t("rooms.table.room_number") },
     {
+      key: "room_price",
+      title: t("rooms.table.price"),
+      render: (r: IBill) => formatCurrency(r.room_amount),
+    },
+    {
       key: "period",
       title: t("rooms.bills.month"),
-      render: (r: IBill) => `${r.month}/${r.year}`,
+      render: (r: IBill) => {
+        const year = r.created_at ? new Date(r.created_at).getFullYear() : new Date().getFullYear();
+        return `${r.billing_month}/${year}`;
+      },
     },
     {
       key: "electric_amount",
       title: t("electricity"),
-      render: (r: IBill) => `${r.electric_usage} kWh (${formatCurrency(r.electric_amount)})`,
+      render: (r: IBill) => `${formatCurrency(r.electric_amount)} (${r.electricity_usage} kWh)`,
     },
     {
       key: "water_amount",
       title: t("water"),
-      render: (r: IBill) => `${r.water_usage} m³ (${formatCurrency(r.water_amount)})`,
+      render: (r: IBill) => formatCurrency(r.water_amount),
     },
     {
       key: "total_amount",
@@ -261,9 +333,9 @@ const BillTab = () => {
             </ActionIcon>
           </Tooltip>
           {r.status === "UNPAID" && (
-            <Tooltip label="Pay bill">
-              <ActionIcon variant="subtle" color="green" onClick={() => handlePay(r.id)}>
-                <IconReceipt size={18} />
+            <Tooltip label="Send bill">
+              <ActionIcon variant="subtle" color="blue" onClick={() => handleSendBillClick(r)}>
+                <IconSend size={18} />
               </ActionIcon>
             </Tooltip>
           )}
@@ -350,20 +422,23 @@ const BillTab = () => {
             <Table.Tbody>
               <Table.Tr>
                 <Table.Td fw={500}>Billing Month</Table.Td>
-                <Table.Td>{`${selectedBill.month}/${selectedBill.year}`}</Table.Td>
+                <Table.Td>
+                  {`${selectedBill.billing_month}/${
+                    selectedBill.created_at
+                      ? new Date(selectedBill.created_at).getFullYear()
+                      : new Date().getFullYear()
+                  }`}
+                </Table.Td>
               </Table.Tr>
               <Table.Tr>
                 <Table.Td fw={500}>Electricity Index (Prev → Current)</Table.Td>
-                <Table.Td>{`${selectedBill.previous_electric_index} → ${selectedBill.current_electric_index} (${selectedBill.electric_usage} kWh)`}</Table.Td>
+                <Table.Td>{`${selectedBill.electricity_old_index} → ${selectedBill.electricity_new_index} (${selectedBill.electricity_usage} kWh)`}</Table.Td>
               </Table.Tr>
               <Table.Tr>
                 <Table.Td fw={500}>Electricity Charges</Table.Td>
                 <Table.Td>{formatCurrency(selectedBill.electric_amount)}</Table.Td>
               </Table.Tr>
-              <Table.Tr>
-                <Table.Td fw={500}>Water Index (Prev → Current)</Table.Td>
-                <Table.Td>{`${selectedBill.previous_water_index} → ${selectedBill.current_water_index} (${selectedBill.water_usage} m³)`}</Table.Td>
-              </Table.Tr>
+
               <Table.Tr>
                 <Table.Td fw={500}>Water Charges</Table.Td>
                 <Table.Td>{formatCurrency(selectedBill.water_amount)}</Table.Td>
@@ -372,10 +447,10 @@ const BillTab = () => {
                 <Table.Td fw={500}>Room Base Rent</Table.Td>
                 <Table.Td>{formatCurrency(selectedBill.room_amount)}</Table.Td>
               </Table.Tr>
-              {selectedBill.other_fees_amount > 0 && (
+              {selectedBill.service_amount > 0 && (
                 <Table.Tr>
-                  <Table.Td fw={500}>Additional Fees</Table.Td>
-                  <Table.Td>{formatCurrency(selectedBill.other_fees_amount)}</Table.Td>
+                  <Table.Td fw={500}>Service Fees</Table.Td>
+                  <Table.Td>{formatCurrency(selectedBill.service_amount)}</Table.Td>
                 </Table.Tr>
               )}
               <Table.Tr>
@@ -418,6 +493,32 @@ const BillTab = () => {
             onConfirm={handleElectricConfirm}
             onCancel={() => setElectricModalOpen(false)}
             loading={calculateAllMutation.isPending}
+            t={t}
+          />
+        )}
+      </J2NModal>
+
+      {/* Send Bill Modal */}
+      <J2NModal
+        opened={sendBillModalOpen}
+        onClose={() => {
+          setSendBillModalOpen(false);
+          setSelectedSendBill(null);
+        }}
+        title={`Send Bill - Room ${selectedSendBill?.room_number || ""}`}
+        centered
+        size="md"
+      >
+        {sendBillMembersLoading ? (
+          <Text size="sm" c="dimmed" ta="center">Loading members...</Text>
+        ) : (
+          <SendBillModalContent
+            members={sendBillMembers}
+            onConfirm={handleSendBillConfirm}
+            onCancel={() => {
+              setSendBillModalOpen(false);
+              setSelectedSendBill(null);
+            }}
             t={t}
           />
         )}

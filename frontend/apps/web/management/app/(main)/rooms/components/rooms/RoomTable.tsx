@@ -142,6 +142,7 @@ const RoomTable = ({
               <Menu.Item
                 leftSection={<IconBolt size={16} />}
                 onClick={() => onCalculate(record)}
+                disabled={record.status.toUpperCase() !== "OCCUPIED"}
               >
                 {t("rooms.actions.calculate")}
               </Menu.Item>

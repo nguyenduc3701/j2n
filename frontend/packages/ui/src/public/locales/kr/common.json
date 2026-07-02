@@ -151,6 +151,12 @@
         "name_required": "이름은 필수 항목입니다",
         "price_min": "가격은 0 이상이어야 합니다",
         "unit_required": "단위 이름은 필수 항목입니다"
+      },
+      "units": {
+        "person": "사람",
+        "unit": "단위",
+        "room": "방",
+        "vehicle": "차량"
       }
     }
   },
