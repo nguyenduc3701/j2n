@@ -4,7 +4,8 @@ import com.example.j2n.aspect.LogAround;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.dto.PagingResponse;
 import com.example.j2n.enums.BaseMessageEnum;
-import com.example.j2n.exception.BaseServiceException;
+import com.example.j2n.exception.AccessDeniedException;
+import com.example.j2n.exception.DataNotFoundException;
 import com.example.j2n.notification_srv.constant.MessageEnum;
 import com.example.j2n.notification_srv.constant.NotificationType;
 import com.example.j2n.notification_srv.messaging.event.BillNotificationEvent;
@@ -55,30 +56,30 @@ public class NotificationService {
                 .unreadCount(unreadCount)
                 .build();
 
-        return ResponseFactory.success(BaseMessageEnum.SUCCESS, data);
+        return ResponseFactory.success(data);
     }
 
     @Transactional
     @LogAround(message = "Mark a notification as read")
     public BaseResponse<Object> markAsRead(Long notificationId, String userId) {
         NotificationEntity notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new BaseServiceException(MessageEnum.NOTIFICATION_NOT_FOUND.withArgs(notificationId)));
+                .orElseThrow(() -> new DataNotFoundException(MessageEnum.NOTIFICATION_NOT_FOUND.withArgs(notificationId)));
 
         if (!notification.getUserId().equals(userId)) {
-            throw new BaseServiceException(BaseMessageEnum.ACCESS_DENIED);
+            throw new AccessDeniedException(BaseMessageEnum.ACCESS_DENIED);
         }
 
         notification.setIsRead(true);
         notificationRepository.save(notification);
 
-        return ResponseFactory.success(MessageEnum.MARK_AS_READ_SUCCESS, null);
+        return ResponseFactory.of(MessageEnum.MARK_AS_READ_SUCCESS, null);
     }
 
     @Transactional
     @LogAround(message = "Mark all notifications as read for user")
     public BaseResponse<Object> markAllAsRead(String userId) {
         notificationRepository.markAllAsReadByUserId(userId);
-        return ResponseFactory.success(MessageEnum.MARK_ALL_AS_READ_SUCCESS, null);
+        return ResponseFactory.of(MessageEnum.MARK_ALL_AS_READ_SUCCESS, null);
     }
 
     @LogAround(message = "Create in-app bill notification")

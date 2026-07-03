@@ -1,6 +1,7 @@
 package com.example.j2n.notification_srv.controller;
 
 import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.dto.SimpleBaseMessage;
 import com.example.j2n.enums.BaseMessageEnum;
 import com.example.j2n.notification_srv.controller.request.SendEmailRequest;
 import com.example.j2n.notification_srv.service.EmailService;
@@ -34,9 +35,13 @@ public class EmailController {
         try {
             emailService.sendManualBillEmails(request);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ResponseFactory.error(BaseMessageEnum.VALIDATION_ERROR, e.getMessage()));
+            return ResponseEntity.badRequest().body(ResponseFactory.error(new SimpleBaseMessage(
+                    BaseMessageEnum.BAD_REQUEST.getCode(),
+                    BaseMessageEnum.BAD_REQUEST.getHttpStatus(),
+                    e.getMessage()
+            )));
         }
 
-        return ResponseEntity.ok(ResponseFactory.success(BaseMessageEnum.SUCCESS, null));
+        return ResponseEntity.ok(ResponseFactory.success(null));
     }
 }
