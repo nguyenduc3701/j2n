@@ -126,6 +126,7 @@
     "bills": {
       "calculate": "Tính hóa đơn",
       "calculate_all": "Tính toàn bộ hóa đơn",
+      "send_bill_all": "Gửi tất cả hóa đơn",
       "month": "Tháng hóa đơn",
       "amount": "Tổng tiền",
       "status": {

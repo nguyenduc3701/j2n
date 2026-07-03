@@ -17,7 +17,7 @@ for db in $(mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD
     mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER -p$MYSQL_PASSWORD -e "DROP DATABASE \`$db\`;"
 done
 
-DB_DIRS=("auth-db" "image-db" "report-db" "config-db" "product-db" "payment-db" "order-db" "room-db")
+DB_DIRS=("auth-db" "image-db" "report-db" "config-db" "product-db" "payment-db" "order-db" "room-db" "notification-db")
 
 for dir in "${DB_DIRS[@]}"; do
     TARGET_DIR="$SCRIPT_DIR/$dir"
@@ -33,6 +33,7 @@ for dir in "${DB_DIRS[@]}"; do
             "order-srv") DB_NAME="j2n_order" ;;
             "order-db") DB_NAME="j2n_order" ;;
             "room-db") DB_NAME="j2n_room" ;;
+            "notification-db") DB_NAME="j2n_notification" ;;
             *) DB_NAME="j2n_unknown" ;;
         esac
         

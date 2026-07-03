@@ -16,4 +16,8 @@ public class RoomEventConstants {
     public static final String RK_ROOM_MEMBER_MAPPED = "room.member.mapped";
     public static final String RK_BILLS_CALCULATED = "room.bills_calculated";
     public static final String RK_ROOM_REVENUE = "room.revenue";
+    public static final String RK_BILL_NOTIFICATION = "room.bill.notification";
+
+    // Queue names for notification service
+    public static final String QUEUE_NOTIFICATION_BILL = "notification.bill.queue";
 }

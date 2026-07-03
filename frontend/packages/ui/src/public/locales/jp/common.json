@@ -126,6 +126,7 @@
     "bills": {
       "calculate": "請求書を計算",
       "calculate_all": "すべての請求書を計算",
+      "send_bill_all": "すべての請求書を送信",
       "month": "請求月",
       "amount": "合計金額",
       "status": {

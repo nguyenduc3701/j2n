@@ -126,6 +126,7 @@
     "bills": {
       "calculate": "Calculate Bill",
       "calculate_all": "Calculate All Bills",
+      "send_bill_all": "Send All Bills",
       "month": "Billing Month",
       "amount": "Total Amount",
       "status": {

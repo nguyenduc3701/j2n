@@ -60,4 +60,10 @@ public class GatewayPath {
     public static final String ROOM_MEMBER_MAP_ROOM_PATH = "/api/room/members/mapping";
     public static final String ROOM_MEMBER_ID_PATH = "/api/room/members/%s";
     public static final String ROOM_MEMBER_BY_USER_ID_PATH = "/api/room/members/user/%s";
+
+    // notification-srv
+    public static final String NOTIFICATION_BASE_PATH = "/api/notification/notifications";
+    public static final String NOTIFICATION_READ_PATH = "/api/notification/notifications/%s/read";
+    public static final String NOTIFICATION_READ_ALL_PATH = "/api/notification/notifications/read-all";
+    public static final String NOTIFICATION_EMAIL_SEND_PATH = "/api/notification/emails/send";
 }

@@ -6,6 +6,7 @@ import com.example.j2n.room_srv.messaging.room.event.RoomMemberRemovedEvent;
 import com.example.j2n.room_srv.messaging.room.event.RoomMemberMappedEvent;
 import com.example.j2n.room_srv.messaging.room.event.RoomStatusUpdatedEvent;
 import com.example.j2n.room_srv.messaging.report.event.RoomRevenueEvent;
+import com.example.j2n.room_srv.messaging.room.event.BillNotificationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -59,6 +60,15 @@ public class RoomEventPublisher {
         rabbitTemplate.convertAndSend(
                 RoomEventConstants.EXCHANGE_ROOM,
                 RoomEventConstants.RK_ROOM_REVENUE,
+                event
+        );
+    }
+
+    public void publishBillNotification(BillNotificationEvent event) {
+        log.info("Publishing bill notification event for room {}, month {}", event.getRoomNumber(), event.getBillingMonth());
+        rabbitTemplate.convertAndSend(
+                RoomEventConstants.EXCHANGE_ROOM,
+                RoomEventConstants.RK_BILL_NOTIFICATION,
                 event
         );
     }

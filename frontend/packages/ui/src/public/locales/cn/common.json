@@ -126,6 +126,7 @@
     "bills": {
       "calculate": "计算账单",
       "calculate_all": "计算所有账单",
+      "send_bill_all": "发送所有账单",
       "month": "账单月份",
       "amount": "总金额",
       "status": {

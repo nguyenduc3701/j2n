@@ -38,4 +38,17 @@ public class RoomEventConfig {
                 .to(roomExchange())
                 .with(RoomEventConstants.RK_ROOM_REVENUE);
     }
+
+    @Bean
+    public Queue notificationBillQueue() {
+        return QueueBuilder.durable(RoomEventConstants.QUEUE_NOTIFICATION_BILL).build();
+    }
+
+    @Bean
+    public Binding notificationBillBinding() {
+        return BindingBuilder
+                .bind(notificationBillQueue())
+                .to(roomExchange())
+                .with(RoomEventConstants.RK_BILL_NOTIFICATION);
+    }
 }

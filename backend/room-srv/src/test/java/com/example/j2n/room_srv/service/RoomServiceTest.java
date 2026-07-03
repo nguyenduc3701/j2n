@@ -1,20 +1,24 @@
 package com.example.j2n.room_srv.service;
 
-import com.example.j2n.room_srv.controller.request.CreateRoomRequest;
-import com.example.j2n.room_srv.controller.request.RoomRequest;
-import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
-import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
-import com.example.j2n.room_srv.service.response.RoomResponse;
-import com.example.j2n.room_srv.service.response.RoomFeeResponse;
-import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
-import com.example.j2n.room_srv.repository.RoomRepository;
-import com.example.j2n.room_srv.repository.RoomMemberRepository;
-import com.example.j2n.room_srv.service.response.RoomMemberResponse;
-import com.example.j2n.room_srv.repository.entity.RoomEntity;
-import com.example.j2n.exception.InvalidInputException;
-import com.example.j2n.exception.DataNotFoundException;
-import com.example.j2n.dto.BaseResponse;
-import com.example.j2n.utils.SearchFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,20 +28,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
+import com.example.j2n.dto.BaseResponse;
+import com.example.j2n.exception.DataNotFoundException;
+import com.example.j2n.exception.InvalidInputException;
+import com.example.j2n.room_srv.controller.request.CreateRoomRequest;
+import com.example.j2n.room_srv.controller.request.RoomRequest;
+import com.example.j2n.room_srv.controller.request.SearchRoomsRequest;
 import com.example.j2n.room_srv.controller.request.UpdateRoomAssetRequest;
-import com.example.j2n.room_srv.repository.entity.AssetEntity;
-import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
-import com.example.j2n.room_srv.utils.RoomSecurityUtil;
+import com.example.j2n.room_srv.controller.request.UpdateRoomFeeRequest;
 import com.example.j2n.room_srv.messaging.room.publisher.RoomEventPublisher;
+import com.example.j2n.room_srv.repository.RoomMemberRepository;
+import com.example.j2n.room_srv.repository.RoomRepository;
+import com.example.j2n.room_srv.repository.entity.AssetEntity;
+import com.example.j2n.room_srv.repository.entity.RoomEntity;
+import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
+import com.example.j2n.room_srv.service.response.RoomFeeResponse;
+import com.example.j2n.room_srv.service.response.RoomResponse;
+import com.example.j2n.room_srv.service.response.SearchRoomsResponse;
+import com.example.j2n.room_srv.utils.RoomSecurityUtil;
+import com.example.j2n.utils.SearchFactory;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {

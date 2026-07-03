@@ -113,6 +113,17 @@ spring:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@ipKeyResolver}"
+        - id: notification-srv
+          uri: ${api-gateway.notification.base-url:http://localhost:8190}
+          predicates:
+            - Path=/api/notification/**
+          filters:
+            - StripPrefix=2
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
       filter:
         request-rate-limiter:
           redis-rate-limiter:

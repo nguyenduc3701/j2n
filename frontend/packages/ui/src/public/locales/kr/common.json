@@ -124,6 +124,7 @@
     "bills": {
       "calculate": "청구서 계산",
       "calculate_all": "모든 청구서 계산",
+      "send_bill_all": "모든 청구서 보내기",
       "month": "청구 월",
       "amount": "총액",
       "status": {

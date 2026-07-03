@@ -2,6 +2,7 @@ package com.example.j2n.room_srv.service;
 
 import com.example.j2n.aspect.LogAround;
 import com.example.j2n.room_srv.constant.BillStatus;
+import com.example.j2n.room_srv.constant.RoomStatus;
 import com.example.j2n.dto.BaseResponse;
 import com.example.j2n.exception.InvalidInputException;
 import com.example.j2n.room_srv.constant.MessageEnum;
@@ -10,7 +11,6 @@ import com.example.j2n.room_srv.controller.request.CalculateAllBillsRequest;
 import com.example.j2n.room_srv.repository.BillRepository;
 import com.example.j2n.room_srv.repository.entity.BillEntity;
 import com.example.j2n.room_srv.repository.entity.RoomEntity;
-import com.example.j2n.room_srv.repository.entity.RoomMemberEntity;
 import com.example.j2n.room_srv.repository.entity.FeeEntity;
 import com.example.j2n.room_srv.repository.entity.RoomFeeEntity;
 import com.example.j2n.room_srv.constant.FeeConstant;
@@ -88,10 +88,8 @@ public class BillingService {
         List<BillEntity> billsToSave = new ArrayList<>();
 
         for (RoomEntity room : rooms) {
-            Long primaryRenterId = findPrimaryRenterId(room);
-
-            if (primaryRenterId == null) {
-                log.warn("Room {} has no primary renter, skipping bill calculation", room.getRoomNumber());
+            if (!RoomStatus.OCCUPIED.getValue().equals(room.getStatus())) {
+                log.warn("Room {} is not occupied, skipping bill calculation", room.getRoomNumber());
                 continue;
             }
 
@@ -134,13 +132,6 @@ public class BillingService {
                 .build());
     }
 
-    private Long findPrimaryRenterId(RoomEntity room) {
-        return room.getMembers().stream()
-                .filter(member -> Boolean.TRUE.equals(member.getIsPrimary()))
-                .map(RoomMemberEntity::getUserId)
-                .findFirst()
-                .orElse(null);
-    }
 
     private BillEntity buildBillForRoom(RoomEntity room, Integer month, Integer newElectricIndex) {
         log.info("Building bill for room {}", room.getRoomNumber());

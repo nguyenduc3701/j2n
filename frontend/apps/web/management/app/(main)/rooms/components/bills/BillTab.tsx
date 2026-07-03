@@ -20,7 +20,14 @@ import {
 import { notifications } from "@mantine/notifications";
 import { modals } from "@mantine/modals";
 import { useForm } from "@mantine/form";
-import { IconSearch, IconEye, IconSend, IconPlayerPlay, IconX, IconBolt } from "@tabler/icons-react";
+import {
+  IconSearch,
+  IconEye,
+  IconSend,
+  IconPlayerPlay,
+  IconX,
+  IconBolt,
+} from "@tabler/icons-react";
 import J2NButton, {
   J2NButtonTypes,
 } from "@repo/ui/src/components/atoms/J2NButton";
@@ -42,10 +49,18 @@ interface ElectricIndexModalProps {
   t: (key: string) => string;
 }
 
-const ElectricIndexModalContent = ({ occupiedRooms, onConfirm, onCancel, loading, t }: ElectricIndexModalProps) => {
+const ElectricIndexModalContent = ({
+  occupiedRooms,
+  onConfirm,
+  onCancel,
+  loading,
+  t,
+}: ElectricIndexModalProps) => {
   const [indices, setIndices] = useState<Record<number, number>>(() => {
     const initial: Record<number, number> = {};
-    occupiedRooms.forEach((r) => { initial[r.id] = 0; });
+    occupiedRooms.forEach((r) => {
+      initial[r.id] = 0;
+    });
     return initial;
   });
 
@@ -80,7 +95,11 @@ const ElectricIndexModalContent = ({ occupiedRooms, onConfirm, onCancel, loading
         <J2NButton j2nType={J2NButtonTypes.SECONDARY} onClick={onCancel}>
           {t("common.cancel")}
         </J2NButton>
-        <J2NButton j2nType={J2NButtonTypes.PRIMARY} loading={loading} onClick={() => onConfirm(indices)}>
+        <J2NButton
+          j2nType={J2NButtonTypes.PRIMARY}
+          loading={loading}
+          onClick={() => onConfirm(indices)}
+        >
           {t("common.confirm")}
         </J2NButton>
       </Group>
@@ -96,7 +115,12 @@ interface SendBillModalProps {
   t: (key: string) => string;
 }
 
-const SendBillModalContent = ({ members, onConfirm, onCancel, t }: SendBillModalProps) => {
+const SendBillModalContent = ({
+  members,
+  onConfirm,
+  onCancel,
+  t,
+}: SendBillModalProps) => {
   const [selected, setSelected] = useState<number[]>(() => {
     return members.filter((m) => m.is_primary).map((m) => m.user_id);
   });
@@ -108,12 +132,14 @@ const SendBillModalContent = ({ members, onConfirm, onCancel, t }: SendBillModal
       </Text>
       <Divider />
       {members.length === 0 ? (
-        <Text size="sm" c="dimmed" ta="center">No members in this room</Text>
+        <Text size="sm" c="dimmed" ta="center">
+          No members in this room
+        </Text>
       ) : (
         members.map((m) => (
           <Checkbox
             key={m.id}
-            label={`${m.full_name} ${m.is_primary ? '(Primary)' : ''}`}
+            label={`${m.full_name} ${m.is_primary ? "(Primary)" : ""}`}
             checked={selected.includes(m.user_id)}
             onChange={(e) => {
               if (e.currentTarget.checked) {
@@ -175,6 +201,9 @@ const BillTab = () => {
   const [sendBillModalOpen, setSendBillModalOpen] = useState(false);
   const [selectedSendBill, setSelectedSendBill] = useState<IBill | null>(null);
 
+  // Send All Bills Modal state
+  const [sendAllModalOpen, setSendAllModalOpen] = useState(false);
+
   // --- React Query Fetching ---
   const { data: billsData, isFetching: loading } = useQuery({
     queryKey: ["bills", activePage, searchParams, searchTrigger],
@@ -182,7 +211,9 @@ const BillTab = () => {
       const res = await roomService.searchBillsAdmin({
         page: activePage,
         size: pageSize,
-        room_id: searchParams.room_id ? Number(searchParams.room_id) : undefined,
+        room_id: searchParams.room_id
+          ? Number(searchParams.room_id)
+          : undefined,
         month: searchParams.month ? Number(searchParams.month) : undefined,
         status: searchParams.status || undefined,
       });
@@ -194,7 +225,11 @@ const BillTab = () => {
   const { data: occupiedRoomsData, isLoading: roomsLoading } = useQuery({
     queryKey: ["rooms", "occupied"],
     queryFn: async () => {
-      const res = await roomService.searchRooms({ page: 1, size: 100, status: "OCCUPIED" });
+      const res = await roomService.searchRooms({
+        page: 1,
+        size: 100,
+        status: "OCCUPIED",
+      });
       return res.data;
     },
     enabled: electricModalOpen,
@@ -203,30 +238,35 @@ const BillTab = () => {
   const occupiedRooms: IRoom[] = occupiedRoomsData?.rooms ?? [];
 
   // Fetch room members for send bill modal
-  const { data: sendBillMembersData, isLoading: sendBillMembersLoading } = useQuery({
-    queryKey: ["roomMembers", selectedSendBill?.room_id],
-    queryFn: async () => {
-      if (!selectedSendBill) return [];
-      const res = await roomService.getRoomMembersByRoomId(selectedSendBill.room_id);
-      return res.data;
-    },
-    enabled: sendBillModalOpen && !!selectedSendBill,
-  });
+  const { data: sendBillMembersData, isLoading: sendBillMembersLoading } =
+    useQuery({
+      queryKey: ["roomMembers", selectedSendBill?.room_id],
+      queryFn: async () => {
+        if (!selectedSendBill) return [];
+        const res = await roomService.getRoomMembersByRoomId(
+          selectedSendBill.room_id,
+        );
+        return res.data;
+      },
+      enabled: sendBillModalOpen && !!selectedSendBill,
+    });
 
   const sendBillMembers: IRoomMember[] = sendBillMembersData || [];
 
   const data = billsData?.bills || [];
   const total = billsData?.page?.total || 0;
+  const hasUnpaidBills = data.some((bill: IBill) => bill.status === "UNPAID");
 
   // --- Mutations ---
   const calculateAllMutation = useMutation({
-    mutationFn: (payload: { month?: number; electric_indices: Record<number, number> }) =>
-      roomService.calculateAllBills(payload),
+    mutationFn: (payload: {
+      month?: number;
+      electric_indices: Record<number, number>;
+    }) => roomService.calculateAllBills(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bills"] });
     },
   });
-
 
   const handleSearch = (values: typeof searchForm.values) => {
     setSearchParams(values);
@@ -274,6 +314,20 @@ const BillTab = () => {
     setSelectedSendBill(null);
   };
 
+  const handleSendBillAllClick = () => {
+    setSendAllModalOpen(true);
+  };
+
+  const handleSendBillAllConfirm = () => {
+    // TODO: call API to send all bills
+    notifications.show({
+      title: "Success",
+      message: "Sent all bills successfully!",
+      color: "green",
+    });
+    setSendAllModalOpen(false);
+  };
+
   const bulkLoading = calculateAllMutation.isPending;
 
   const formatCurrency = (amount: number) => {
@@ -294,14 +348,17 @@ const BillTab = () => {
       key: "period",
       title: t("rooms.bills.month"),
       render: (r: IBill) => {
-        const year = r.created_at ? new Date(r.created_at).getFullYear() : new Date().getFullYear();
+        const year = r.created_at
+          ? new Date(r.created_at).getFullYear()
+          : new Date().getFullYear();
         return `${r.billing_month}/${year}`;
       },
     },
     {
       key: "electric_amount",
       title: t("electricity"),
-      render: (r: IBill) => `${formatCurrency(r.electric_amount)} (${r.electricity_usage} kWh)`,
+      render: (r: IBill) =>
+        `${formatCurrency(r.electric_amount)} (${r.electricity_usage} kWh)`,
     },
     {
       key: "water_amount",
@@ -317,9 +374,7 @@ const BillTab = () => {
       key: "status",
       title: t("rooms.table.status"),
       render: (r: IBill) => (
-        <Badge color={r.status === "PAID" ? "green" : "red"}>
-          {r.status}
-        </Badge>
+        <Badge color={r.status === "PAID" ? "green" : "red"}>{r.status}</Badge>
       ),
     },
     {
@@ -328,13 +383,21 @@ const BillTab = () => {
       render: (r: IBill) => (
         <Group gap="xs">
           <Tooltip label="View details">
-            <ActionIcon variant="subtle" style={{ color: ICON_COLOR }} onClick={() => setSelectedBill(r)}>
+            <ActionIcon
+              variant="subtle"
+              style={{ color: ICON_COLOR }}
+              onClick={() => setSelectedBill(r)}
+            >
               <IconEye size={18} />
             </ActionIcon>
           </Tooltip>
           {r.status === "UNPAID" && (
             <Tooltip label="Send bill">
-              <ActionIcon variant="subtle" color="blue" onClick={() => handleSendBillClick(r)}>
+              <ActionIcon
+                variant="subtle"
+                color="blue"
+                onClick={() => handleSendBillClick(r)}
+              >
                 <IconSend size={18} />
               </ActionIcon>
             </Tooltip>
@@ -354,6 +417,14 @@ const BillTab = () => {
           j2nType={J2NButtonTypes.PRIMARY}
         >
           {t("rooms.bills.calculate_all")}
+        </J2NButton>
+        <J2NButton
+          onClick={handleSendBillAllClick}
+          leftSection={<IconSend size={16} />}
+          j2nType={J2NButtonTypes.SECONDARY}
+          disabled={!hasUnpaidBills}
+        >
+          {t("rooms.bills.send_bill_all")}
         </J2NButton>
       </Group>
 
@@ -413,7 +484,10 @@ const BillTab = () => {
       <J2NModal
         opened={!!selectedBill}
         onClose={() => setSelectedBill(null)}
-        title={t("rooms.modal.view_title").replace("{number}", selectedBill?.room_number || "")}
+        title={t("rooms.modal.view_title").replace(
+          "{number}",
+          selectedBill?.room_number || "",
+        )}
         centered
         size="md"
       >
@@ -436,7 +510,9 @@ const BillTab = () => {
               </Table.Tr>
               <Table.Tr>
                 <Table.Td fw={500}>Electricity Charges</Table.Td>
-                <Table.Td>{formatCurrency(selectedBill.electric_amount)}</Table.Td>
+                <Table.Td>
+                  {formatCurrency(selectedBill.electric_amount)}
+                </Table.Td>
               </Table.Tr>
 
               <Table.Tr>
@@ -450,19 +526,26 @@ const BillTab = () => {
               {selectedBill.service_amount > 0 && (
                 <Table.Tr>
                   <Table.Td fw={500}>Service Fees</Table.Td>
-                  <Table.Td>{formatCurrency(selectedBill.service_amount)}</Table.Td>
+                  <Table.Td>
+                    {formatCurrency(selectedBill.service_amount)}
+                  </Table.Td>
                 </Table.Tr>
               )}
               <Table.Tr>
                 <Table.Td fw={600}>Total Due</Table.Td>
-                <Table.Td fw={600} style={{ color: "var(--mantine-color-blue-filled)" }}>
+                <Table.Td
+                  fw={600}
+                  style={{ color: "var(--mantine-color-blue-filled)" }}
+                >
                   {formatCurrency(selectedBill.total_amount)}
                 </Table.Td>
               </Table.Tr>
               <Table.Tr>
                 <Table.Td fw={500}>Status</Table.Td>
                 <Table.Td>
-                  <Badge color={selectedBill.status === "PAID" ? "green" : "red"}>
+                  <Badge
+                    color={selectedBill.status === "PAID" ? "green" : "red"}
+                  >
                     {selectedBill.status}
                   </Badge>
                 </Table.Td>
@@ -471,7 +554,12 @@ const BillTab = () => {
           </Table>
         )}
         <Group justify="flex-end" mt="xl">
-          <J2NButton onClick={() => setSelectedBill(null)} j2nType={J2NButtonTypes.SECONDARY}>{t("common.cancel")}</J2NButton>
+          <J2NButton
+            onClick={() => setSelectedBill(null)}
+            j2nType={J2NButtonTypes.SECONDARY}
+          >
+            {t("common.cancel")}
+          </J2NButton>
         </Group>
       </J2NModal>
 
@@ -484,9 +572,13 @@ const BillTab = () => {
         size="md"
       >
         {roomsLoading ? (
-          <Text size="sm" c="dimmed" ta="center">{t("rooms.bills.loading_rooms")}</Text>
+          <Text size="sm" c="dimmed" ta="center">
+            {t("rooms.bills.loading_rooms")}
+          </Text>
         ) : occupiedRooms.length === 0 ? (
-          <Text size="sm" c="dimmed" ta="center">{t("rooms.bills.no_occupied_rooms")}</Text>
+          <Text size="sm" c="dimmed" ta="center">
+            {t("rooms.bills.no_occupied_rooms")}
+          </Text>
         ) : (
           <ElectricIndexModalContent
             occupiedRooms={occupiedRooms}
@@ -510,7 +602,9 @@ const BillTab = () => {
         size="md"
       >
         {sendBillMembersLoading ? (
-          <Text size="sm" c="dimmed" ta="center">Loading members...</Text>
+          <Text size="sm" c="dimmed" ta="center">
+            Loading members...
+          </Text>
         ) : (
           <SendBillModalContent
             members={sendBillMembers}
@@ -522,6 +616,33 @@ const BillTab = () => {
             t={t}
           />
         )}
+      </J2NModal>
+
+      {/* Send All Bills Confirm Modal */}
+      <J2NModal
+        opened={sendAllModalOpen}
+        onClose={() => setSendAllModalOpen(false)}
+        title="Send All Unpaid Bills"
+        centered
+        size="sm"
+      >
+        <Text size="sm" c="dimmed">
+          Are you sure you want to send bills to all unpaid rooms?
+        </Text>
+        <Group justify="flex-end" mt="lg">
+          <J2NButton
+            j2nType={J2NButtonTypes.SECONDARY}
+            onClick={() => setSendAllModalOpen(false)}
+          >
+            {t("common.cancel")}
+          </J2NButton>
+          <J2NButton
+            j2nType={J2NButtonTypes.PRIMARY}
+            onClick={handleSendBillAllConfirm}
+          >
+            {t("common.confirm")}
+          </J2NButton>
+        </Group>
       </J2NModal>
     </Box>
   );

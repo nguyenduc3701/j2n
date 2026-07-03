@@ -254,6 +254,7 @@ class BillingServiceTest {
         RoomEntity room = RoomEntity.builder()
                 .id(1L)
                 .roomNumber("101")
+                .status(com.example.j2n.room_srv.constant.RoomStatus.OCCUPIED.getValue())
                 .basePrice(BigDecimal.valueOf(2000000))
                 .members(List.of(member))
                 .build();
@@ -274,10 +275,11 @@ class BillingServiceTest {
     }
 
     @Test
-    void calculateAllBills_NoPrimaryRenter_ReturnsEmpty() {
+    void calculateAllBills_RoomNotOccupied_ReturnsEmpty() {
         RoomEntity room = RoomEntity.builder()
                 .id(1L)
                 .roomNumber("101")
+                .status(com.example.j2n.room_srv.constant.RoomStatus.AVAILABLE.getValue())
                 .members(List.of())
                 .build();
 
